@@ -1,4 +1,4 @@
-package com.example.osrnary
+package com.example.gabai
 
 import android.os.Bundle
 import android.view.View
@@ -11,7 +11,7 @@ import com.google.ai.client.generativeai.GenerativeModel
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.launch
 import android.webkit.WebView
-import android.webkit.WebViewClient
+
 class OverviewActivity : AppCompatActivity() {
 
     private var lastAiResult: String = ""

@@ -12,7 +12,7 @@
         android:adjustViewBounds="true"
         android:scaleType="fitCenter" />
 
-    <com.example.osrnary.TextOverlayView
+    <com.example.gabai.TextOverlayView
         android:id="@+id/text_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "187455593642",
+    "project_id": "gabai-6b004",
+    "storage_bucket": "gabai-6b004.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:187455593642:android:fb2cbc6179490f1b3b04d3",
+        "android_client_info": {
+          "package_name": "com.example.gabai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_vWBQMWfODv8LvWC9oIE7IfNg1MJFQmo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

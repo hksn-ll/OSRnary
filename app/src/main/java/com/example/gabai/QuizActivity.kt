@@ -1,4 +1,4 @@
-package com.example.osrnary
+package com.example.gabai
 
 import android.os.Bundle
 import android.view.View
@@ -48,7 +48,8 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun startNewQuestion() {
-        val historyPrefs = getSharedPreferences("OSRnary_History", MODE_PRIVATE)
+        // Update preference names from "OSRnary_History" to "GabAI_History"
+        val historyPrefs = getSharedPreferences("GabAI_History", MODE_PRIVATE)
         val keys = historyPrefs.all.keys.map { it.substringBefore("_") }.distinct()
 
         if (keys.isEmpty()) {

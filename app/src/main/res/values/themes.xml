@@ -1,19 +1,17 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.OSRnary" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<resources>
+    <style name="Base.Theme.GabAI" parent="Theme.Material3.DayNight.NoActionBar">
     </style>
 
-    <style name="Theme.OSRnary" parent="Base.Theme.OSRnary">
+    <style name="Theme.GabAI" parent="Base.Theme.GabAI">
         <item name="android:windowLightStatusBar">true</item>
     </style>
-    <style name="Theme.OSRnary.Fade" parent="Theme.OSRnary">
+
+    <style name="Theme.GabAI.Fade" parent="Theme.GabAI">
         <item name="android:windowAnimationStyle">@style/FadeAnimation</item>
     </style>
 
-    <style name="FadeAnimation">
+    <style name="FadeAnimation" parent="">
         <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>
-        <item name="android:activityOpenExitAnimation">@android:anim/fade_out</item>
+        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
     </style>
 </resources>

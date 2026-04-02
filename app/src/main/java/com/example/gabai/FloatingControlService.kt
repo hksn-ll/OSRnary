@@ -1,6 +1,5 @@
-package com.example.osrnary
+package com.example.gabai
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Notification
@@ -189,16 +188,19 @@ class FloatingControlService : Service() {
         val channelId = "com.example.osrnary.floating"
         val channelName = "Floating Service"
 
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE)
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
 
+        // Inside startMyOwnForeground()
         val notification = NotificationCompat.Builder(this, channelId)
             .setOngoing(true)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("OSRnary is running")
+            .setContentTitle(getString(R.string.notification_title)) // Updated
+            .setContentText(getString(R.string.notification_text))   // Updated
             .setPriority(NotificationManager.IMPORTANCE_MIN)
             .setCategory(Notification.CATEGORY_SERVICE)
             .build()

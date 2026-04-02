@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">OSRnary</string>
+    <string name="app_name">GabAI</string>
+    <string name="notification_title">GabAI is active</string>
+    <string name="notification_text">Your AI reading assistant is ready.</string>
 </resources>

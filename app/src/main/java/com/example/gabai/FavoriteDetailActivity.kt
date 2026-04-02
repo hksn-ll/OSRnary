@@ -1,4 +1,4 @@
-package com.example.osrnary
+package com.example.gabai
 
 import android.os.Bundle
 import android.widget.TextView

@@ -1,4 +1,4 @@
-package com.example.osrnary
+package com.example.gabai
 
 import android.app.Activity
 import android.app.ActivityManager
@@ -53,6 +53,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Inside MainActivity.kt onCreate
+        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        // Inside MainActivity.kt onCreate
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+            return
+        }
+        if (user == null) {
+            // No one is logged in -> Send them to a new Login/Register screen
+            // val intent = Intent(this, AuthActivity::class.java)
+            // startActivity(intent)
+            // finish()
+        } else {
+            // User is logged in -> We can now pull their name/role from Firestore
+            Toast.makeText(this, "Welcome back to GabAI!", Toast.LENGTH_SHORT).show()
+        }
         super.onCreate(savedInstanceState)
         // ... inside onCreate ...
         setContentView(R.layout.activity_main)

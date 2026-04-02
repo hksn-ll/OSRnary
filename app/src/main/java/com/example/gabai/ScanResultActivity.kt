@@ -1,4 +1,4 @@
-package com.example.osrnary
+package com.example.gabai
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -6,12 +6,9 @@ import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import android.widget.TextView
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import java.io.File
 
 class ScanResultActivity : AppCompatActivity() {
 
