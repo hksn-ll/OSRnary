@@ -1,162 +1,85 @@
 package com.example.gabai
 
-import android.app.Activity
-import android.app.ActivityManager
-import android.content.Context
 import android.content.Intent
-import android.media.projection.MediaProjectionManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
-import android.widget.Button
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.materialswitch.MaterialSwitch
+import androidx.fragment.app.Fragment
+import com.example.gabai.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var bubbleSwitch: MaterialSwitch
-    private lateinit var projectionManager: MediaProjectionManager
+    private lateinit var binding: ActivityMainBinding
 
-    private val screenCaptureLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            startFloatingService(result.resultCode, result.data!!)
-            bubbleSwitch.isChecked = true
-            moveTaskToBack(true)
-        } else {
-            Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
-            bubbleSwitch.isChecked = false
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateLevelUI()
-        // We are inside the app -> HIDE the bubble
-        if (isServiceRunning()) {
-            val intent = Intent(this, FloatingControlService::class.java)
-            intent.action = "ACTION_HIDE"
-            startService(intent)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        // We are leaving the app -> SHOW the bubble (if switch is ON)
-        if (isServiceRunning() && bubbleSwitch.isChecked) {
-            val intent = Intent(this, FloatingControlService::class.java)
-            intent.action = "ACTION_SHOW"
-            startService(intent)
-        }
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Inside MainActivity.kt onCreate
-        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-        // Inside MainActivity.kt onCreate
-        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             startActivity(Intent(this, AuthActivity::class.java))
             finish()
             return
         }
-        if (user == null) {
-            // No one is logged in -> Send them to a new Login/Register screen
-            // val intent = Intent(this, AuthActivity::class.java)
-            // startActivity(intent)
-            // finish()
-        } else {
-            // User is logged in -> We can now pull their name/role from Firestore
-            Toast.makeText(this, "Welcome back to GabAI!", Toast.LENGTH_SHORT).show()
-        }
-        super.onCreate(savedInstanceState)
-        // ... inside onCreate ...
-        setContentView(R.layout.activity_main)
 
-        // FIX: Handle Window Insets (Padding) Manually
-        // This pushes the content down exactly the height of the status bar
-        val mainContainer = findViewById<android.view.View>(R.id.main_container)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(mainContainer) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(
-                v.paddingLeft,
-                systemBars.top + 40, // Add system bar height + 40px extra breathing room
-                v.paddingRight,
-                v.paddingBottom
-            )
+        // FIX: Check if role was passed, otherwise fetch from database
+        val userRole = intent.getStringExtra("USER_ROLE")
+        if (userRole != null) {
+            loadDashboard(userRole)
+        } else {
+            // FETCH FROM FIRESTORE if we don't know the role (e.g., app restart)
+            FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
+                .get().addOnSuccessListener { doc ->
+                    val role = doc.getString("role") ?: "student"
+                    loadDashboard(role)
+                }
+        }
+
+        // Adjust padding for system bars
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.mainContainer) { v, insets ->
+            val systemBars =
+                insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(0, systemBars.top, 0, 0)
             insets
         }
 
-        projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            // 1. Get the currently selected tab ID
+            val currentTab = binding.bottomNavigation.selectedItemId
 
-        // 1. Bind the Toggle Switch (Top Right)
-        bubbleSwitch = findViewById(R.id.bubble_switch)
-        bubbleSwitch.isChecked = isServiceRunning()
-
-        bubbleSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                if (!Settings.canDrawOverlays(this)) {
-                    Toast.makeText(this, "Please allow 'Display over other apps'", Toast.LENGTH_LONG).show()
-                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-                    startActivity(intent)
-                    bubbleSwitch.isChecked = false
-                } else {
-                    if (!isServiceRunning()) {
-                        screenCaptureLauncher.launch(projectionManager.createScreenCaptureIntent())
+            // 2. ONLY switch if the user clicked a DIFFERENT tab
+            if (item.itemId != currentTab) {
+                val currentRole = binding.root.tag as? String ?: "student"
+                when (item.itemId) {
+                    R.id.nav_home -> {
+                        if (currentRole == "teacher") loadFragment(TeacherHomeFragment())
+                        else loadFragment(HomeFragment())
                     }
+
+                    R.id.nav_profile -> loadFragment(ProfileFragment())
                 }
-            } else {
-                stopService(Intent(this, FloatingControlService::class.java))
             }
-        }
-
-        // 2. Bind Dashboard Buttons (Placeholders for now)
-        // Inside onCreate in MainActivity.kt
-        findViewById<Button>(R.id.btn_start_quiz).setOnClickListener {
-            val intent = Intent(this, QuizActivity::class.java)
-            startActivity(intent)
-        }
-        findViewById<Button>(R.id.btn_favs).setOnClickListener {
-            val intent = Intent(this, FavoritesActivity::class.java)
-            startActivity(intent)
-        }
-        // Inside onCreate in MainActivity.kt
-        findViewById<Button>(R.id.btn_history).setOnClickListener {
-            val intent = Intent(this, HistoryActivity::class.java)
-            startActivity(intent)
-        }
-        updateLevelUI()
-    }
-
-    private fun startFloatingService(resultCode: Int, data: Intent) {
-        val serviceIntent = Intent(this, FloatingControlService::class.java)
-        serviceIntent.putExtra("RESULT_CODE", resultCode)
-        serviceIntent.putExtra("DATA", data)
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
-            startService(serviceIntent)
+            true
         }
     }
 
-    private fun isServiceRunning(): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (FloatingControlService::class.java.name == service.service.className) {
-                return true
-            }
-        }
-        return false
+    // New helper to handle fragment loading and role memory
+    private fun loadDashboard(role: String) {
+        binding.root.tag = role // Save role so the bottom menu knows which one to show
+        if (role == "teacher") loadFragment(TeacherHomeFragment())
+        else loadFragment(HomeFragment())
     }
-    private fun updateLevelUI() {
-        val level = XPManager.getLevel(this)
-        val xp = XPManager.getXP(this)
 
-        findViewById<android.widget.TextView>(R.id.tv_level_label).text = "LEVEL $level"
-        findViewById<android.widget.TextView>(R.id.tv_xp_label).text = "$xp / 100 XP"
-        findViewById<android.widget.ProgressBar>(R.id.xp_progress_bar).progress = xp
+    private fun loadFragment(fragment: Fragment) {
+        // Safety check to ensure the Activity is still active
+        if (isFinishing || isDestroyed) return
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            // Use commitAllowingStateLoss for fast navigation
+            .commitAllowingStateLoss()
     }
 }

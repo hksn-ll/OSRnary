@@ -26,41 +26,40 @@ class HistoryActivity : AppCompatActivity() {
         val container = findViewById<LinearLayout>(R.id.history_list_container)
         container.removeAllViews()
 
-        val historyPrefs = getSharedPreferences("OSRnary_History", MODE_PRIVATE)
-        val favPrefs = getSharedPreferences("OSRnary_Favorites", MODE_PRIVATE)
+        // 1. Get current user UID
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
-        // Get all keys and filter for the timestamp IDs
-        val keys = historyPrefs.all.keys.map { it.substringBefore("_") }.distinct().sortedDescending()
+        // 2. Fetch only THIS user's history from Firestore
+        db.collection("users").document(uid).collection("history")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (doc in documents) {
+                    val word = doc.getString("word") ?: ""
+                    val content = doc.getString("explanation") ?: ""
 
-        for (timestamp in keys) {
-            val word = historyPrefs.getString("${timestamp}_word", "") ?: ""
-            val content = historyPrefs.getString("${timestamp}_content", "") ?: ""
-            if (word.isEmpty()) continue
+                    val itemView = layoutInflater.inflate(R.layout.item_history, container, false)
+                    itemView.findViewById<TextView>(R.id.history_text).text = word
 
-            val itemView = layoutInflater.inflate(R.layout.item_history, container, false)
-            itemView.findViewById<TextView>(R.id.history_text).text = word
+                    // Click to View
+                    itemView.findViewById<android.view.View>(R.id.history_click_area).setOnClickListener {
+                        val intent = android.content.Intent(this, FavoriteDetailActivity::class.java)
+                        intent.putExtra("WORD", word)
+                        intent.putExtra("CONTENT", content)
+                        startActivity(intent)
+                    }
 
-            // 1. CLICK TO VIEW (Opens detail instantly without using AI)
-            itemView.findViewById<android.view.View>(R.id.history_click_area).setOnClickListener {
-                val intent = android.content.Intent(this, FavoriteDetailActivity::class.java) // Reusing Detail Activity
-                intent.putExtra("WORD", word)
-                intent.putExtra("CONTENT", content)
-                startActivity(intent)
+                    // Remove from History (Cloud Delete)
+                    itemView.findViewById<android.view.View>(R.id.btn_remove_history).setOnClickListener {
+                        doc.reference.delete().addOnSuccessListener { refreshHistoryList() }
+                    }
+
+                    container.addView(itemView)
+                }
             }
-
-            // 2. ADD TO FAVORITES
-            itemView.findViewById<android.view.View>(R.id.btn_add_to_fav).setOnClickListener {
-                favPrefs.edit().putString(word, content).apply()
-                Toast.makeText(this, "Added to Favorites!", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to load history: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-
-            // 3. REMOVE FROM HISTORY
-            itemView.findViewById<android.view.View>(R.id.btn_remove_history).setOnClickListener {
-                historyPrefs.edit().remove("${timestamp}_word").remove("${timestamp}_content").apply()
-                refreshHistoryList()
-            }
-
-            container.addView(itemView)
-        }
     }
 }

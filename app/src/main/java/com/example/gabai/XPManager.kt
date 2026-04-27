@@ -15,7 +15,6 @@ object XPManager {
         val startingLevel = level
 
         xp += amount
-
         while (xp >= 100) {
             xp -= 100
             level += 1
@@ -23,7 +22,16 @@ object XPManager {
 
         prefs.edit().putInt(KEY_XP, xp).putInt(KEY_LEVEL, level).apply()
 
-        // Returns true if the level is now higher than before
+        // NEW: Sync this progress to the student's cloud profile
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            db.collection("users").document(uid).update(
+                "current_xp", xp,
+                "level", level
+            )
+        }
+
         return level > startingLevel
     }
     fun getXP(context: Context): Int = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(KEY_XP, 0)

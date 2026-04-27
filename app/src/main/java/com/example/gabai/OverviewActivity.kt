@@ -11,6 +11,7 @@ import com.google.ai.client.generativeai.GenerativeModel
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.launch
 import android.webkit.WebView
+import com.example.gabai.BuildConfig
 
 class OverviewActivity : AppCompatActivity() {
 
@@ -58,6 +59,7 @@ class OverviewActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Always try to hide it when this screen is open
         val intent = android.content.Intent(this, FloatingControlService::class.java)
         intent.action = "ACTION_HIDE"
         startService(intent)
@@ -65,9 +67,14 @@ class OverviewActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val intent = android.content.Intent(this, FloatingControlService::class.java)
-        intent.action = "ACTION_SHOW"
-        startService(intent)
+        // ONLY show it if the user actually enabled it in the HomeFragment
+        val isEnabled =
+            getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).getBoolean("bubble_enabled", false)
+        if (isEnabled) {
+            val intent = android.content.Intent(this, FloatingControlService::class.java)
+            intent.action = "ACTION_SHOW"
+            startService(intent)
+        }
     }
 
     private fun loadGoogleImages(webView: android.webkit.WebView, query: String) {
@@ -77,7 +84,8 @@ class OverviewActivity : AppCompatActivity() {
         // 1. Settings to fix the blank screen and allow scrolling
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
-        webView.settings.userAgentString = "Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.101 Mobile Safari/537.36"
+        webView.settings.userAgentString =
+            "Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.101 Mobile Safari/537.36"
 
         // 2. THIS FIXES THE SCROLLING: Stop the parent ScrollView from stealing touches
         webView.setOnTouchListener { v, event ->
@@ -90,7 +98,8 @@ class OverviewActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
 
                 // 3. Updated JavaScript with your new classes
-                view?.evaluateJavascript("""
+                view?.evaluateJavascript(
+                    """
                 (function() {
                     function hide(selector) {
                         var elements = document.querySelectorAll(selector);
@@ -110,10 +119,14 @@ class OverviewActivity : AppCompatActivity() {
                         return false;
                     }, true);
                 })();
-            """.trimIndent(), null)
+            """.trimIndent(), null
+                )
             }
 
-            override fun shouldOverrideUrlLoading(view: android.webkit.WebView?, request: android.webkit.WebResourceRequest?): Boolean {
+            override fun shouldOverrideUrlLoading(
+                view: android.webkit.WebView?,
+                request: android.webkit.WebResourceRequest?
+            ): Boolean {
                 return true
             }
         }
@@ -133,14 +146,14 @@ class OverviewActivity : AppCompatActivity() {
         // Configure Gemini
         val generativeModel = GenerativeModel(
             modelName = "gemini-2.5-flash-lite",
-            apiKey = "AIzaSyB8_5UwKb9B8T0HriQj87as0q-1Z1eIPjA" // <--- CHECK YOUR API KEY!
+            apiKey = BuildConfig.GEMINI_API_KEY // <--- CHECK YOUR API KEY!
         )
 
         lifecycleScope.launch {
             try {
                 // Your Advanced Prompt
                 val prompt = """
-                    You are an AI Tutor for a student app called OSRnary.
+                    You are an AI Tutor for a student app called GabAI.
                     Analyze the following input text: "$inputText"
 
                     **INSTRUCTIONS:**
@@ -187,31 +200,74 @@ class OverviewActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun saveToFavorites(word: String, definition: String) {
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        // 1. XP logic stays the same
         val leveledUp = XPManager.addXP(this, 10)
         if (leveledUp) {
             Toast.makeText(this, "LEVEL UP! You are now Level ${XPManager.getLevel(this)}! 🎉", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, "Saved! +10 XP gained", Toast.LENGTH_SHORT).show()
-        }// +10 XP for saving a word
-        val sharedPrefs = getSharedPreferences("OSRnary_Favorites", android.content.Context.MODE_PRIVATE)
-        val editor = sharedPrefs.edit()
-        // Saves the exact definition using the word as the key
-        editor.putString(word, definition)
-        editor.apply()
-    }
-    private fun saveToHistory(text: String, aiResult: String) {
-        val sharedPrefs = getSharedPreferences("OSRnary_History", android.content.Context.MODE_PRIVATE)
-        val editor = sharedPrefs.edit()
-        val timestamp = System.currentTimeMillis().toString()
+        }
 
-        // Save both the word and the exact AI explanation
-        editor.putString("${timestamp}_word", text)
-        editor.putString("${timestamp}_content", aiResult)
-        editor.apply()
+        // 2. CLOUD SAVE: Use a subcollection for Favorites
+        val favEntry = hashMapOf(
+            "word" to word,
+            "definition" to definition,
+            "timestamp" to System.currentTimeMillis()
+        )
+
+        db.collection("users").document(uid)
+            .collection("favorites").document(word) // Using the word as ID prevents duplicates
+            .set(favEntry)
+            .addOnSuccessListener {
+                android.util.Log.d("GabAI_DB", "Favorite synced to cloud")
+            }
+    }
+
+    private fun saveToHistory(text: String, aiResult: String) {
+        // 1. Firebase setup
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        val timestamp = System.currentTimeMillis()
+
+
+
+        // 3. CLOUD SAVE (This creates the subcollection)
+        val historyEntry = hashMapOf(
+            "word" to text,
+            "explanation" to aiResult,
+            "timestamp" to timestamp,
+
+            // NEW: Initialize SRS tracking in the cloud
+            "nextReview" to timestamp,
+            "interval" to 1
+        )
+
+
+        db.collection("users").document(uid)
+            .collection("history").document(timestamp.toString())
+            .set(historyEntry)
+            .addOnSuccessListener {
+                android.util.Log.d("GabAI_DB", "Cloud save successful!")
+                // Optional: Toast for success
+                Toast.makeText(this, "Synced to Cloud", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                // NEW: Detailed Debug Dialog
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                    .setTitle("Firestore Error")
+                    .setMessage("Failed to save history: ${e.localizedMessage}\n\nCheck Logcat (GabAI_DB) for details.")
+                    .setPositiveButton("OK", null)
+                    .show()
+                android.util.Log.e("GabAI_DB", "Error: ", e)
+            }
     }
 }
-
 //
 //    // 1. Add this helper class at the bottom of OverviewActivity.kt
 //    inner class PuterJavaScriptInterface(private val markwon: io.noties.markwon.Markwon) {

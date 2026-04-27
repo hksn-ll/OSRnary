@@ -31,13 +31,14 @@ import androidx.core.app.NotificationCompat
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import android.provider.Settings
 
 class FloatingControlService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var floatingView: View
-
+    private lateinit var serviceNotification: Notification // ADD THIS
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
@@ -65,12 +66,15 @@ class FloatingControlService : Service() {
         params.y = 100
 
         floatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget, null)
-        windowManager.addView(floatingView, params)
 
-        val button = floatingView.findViewById<ImageView>(R.id.widget_button)
+        // CHECK PERMISSION FIRST BEFORE ADDING TO SCREEN
+        if (Settings.canDrawOverlays(this)) {
+            windowManager.addView(floatingView, params)
+            val button = floatingView.findViewById<ImageView>(R.id.widget_button)
 
-        // ADD DRAG LISTENER
-        setupDragBehavior(button)
+            // ADD DRAG LISTENER
+            setupDragBehavior(button)
+        }
     }
 
     private fun captureAndScan() {
@@ -148,6 +152,14 @@ class FloatingControlService : Service() {
         val data = intent?.getParcelableExtra<Intent>("DATA")
 
         if (resultCode == Activity.RESULT_OK && data != null) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val serviceTypes = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+
+                // Use the class property here:
+                startForeground(2, serviceNotification, serviceTypes)
+            }
             val metrics = resources.displayMetrics
             imageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels, PixelFormat.RGBA_8888, 2)
 
@@ -162,6 +174,9 @@ class FloatingControlService : Service() {
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                 imageReader?.surface, null, null
             )
+            if (::floatingView.isInitialized) {
+                floatingView.visibility = View.VISIBLE
+            }
         }
         if (intent != null) {
             when (intent.action) {
@@ -204,9 +219,12 @@ class FloatingControlService : Service() {
             .setPriority(NotificationManager.IMPORTANCE_MIN)
             .setCategory(Notification.CATEGORY_SERVICE)
             .build()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(2, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+        serviceNotification = notification // ADD THIS LINE
+// Find the 'if (Build.VERSION.SDK_INT >= ...)' block at the end of the function
+        // Find this block at the end of startMyOwnForeground()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // START WITH ONLY SPECIAL_USE (This prevents the crash)
+            startForeground(2, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
             startForeground(2, notification)
         }
@@ -214,7 +232,10 @@ class FloatingControlService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (::floatingView.isInitialized) windowManager.removeView(floatingView)
+        // Only remove if it was actually attached to the screen
+        if (::floatingView.isInitialized && floatingView.isAttachedToWindow) {
+            windowManager.removeView(floatingView)
+        }
         virtualDisplay?.release()
         mediaProjection?.stop()
     }

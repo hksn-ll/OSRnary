@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import android.media.ExifInterface
+import android.graphics.Matrix
 
 class ScanResultActivity : AppCompatActivity() {
 
@@ -16,7 +18,7 @@ class ScanResultActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Hide bubble when viewing scan results
+        // Always try to hide it when this screen is open
         val intent = android.content.Intent(this, FloatingControlService::class.java)
         intent.action = "ACTION_HIDE"
         startService(intent)
@@ -24,11 +26,13 @@ class ScanResultActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Only show bubble if we are actually leaving the app (not just opening Overview)
-        // A simple way for now is to just show it, but OverviewActivity will immediately hide it again.
-        val intent = android.content.Intent(this, FloatingControlService::class.java)
-        intent.action = "ACTION_SHOW"
-        startService(intent)
+        // ONLY show it if the user actually enabled it in the HomeFragment
+        val isEnabled = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).getBoolean("bubble_enabled", false)
+        if (isEnabled) {
+            val intent = android.content.Intent(this, FloatingControlService::class.java)
+            intent.action = "ACTION_SHOW"
+            startService(intent)
+        }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,16 +46,24 @@ class ScanResultActivity : AppCompatActivity() {
         val closeBtn = findViewById<ImageButton>(R.id.close_button)
 
         // 1. Get the image path passed from the Service
+        // 1. Get the image path passed from the Service
         val imagePath = intent.getStringExtra("IMG_PATH")
         if (imagePath != null) {
-            val bitmap = BitmapFactory.decodeFile(imagePath)
-            imageView.setImageBitmap(bitmap)
+            // LOAD THE IMAGE
+            val originalBitmap = BitmapFactory.decodeFile(imagePath)
 
-            // 2. Run the scanner on this static image
-            runScanner(bitmap, overlayView, imageView)
+            // FIX THE ROTATION BEFORE SHOWING IT
+            val correctedBitmap = rotateImageIfRequired(originalBitmap, imagePath)
+
+            imageView.setImageBitmap(correctedBitmap)
+
+            // 2. Run the scanner on the CORRECTED image
+            runScanner(correctedBitmap, overlayView, imageView)
         }
-
-        closeBtn.setOnClickListener { finish() }
+  
+        findViewById<ImageButton>(R.id.close_button).setOnClickListener {
+            finishAndRemoveTask()
+        }
     }
 
     private fun runScanner(bitmap: Bitmap, overlay: TextOverlayView, imageView: ImageView) {
@@ -156,5 +168,24 @@ class ScanResultActivity : AppCompatActivity() {
             intent.putExtra("SELECTED_TEXT", currentSelectedText)
             startActivity(intent)
         }
+    }
+    private fun rotateImageIfRequired(img: Bitmap, path: String): Bitmap {
+        val ei = ExifInterface(path)
+        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+        return when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(img, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(img, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(img, 270f)
+            else -> img
+        }
+    }
+
+    private fun rotateImage(img: Bitmap, degree: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degree)
+        val rotatedImg = Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+        img.recycle() // Clean up memory from the old sideways image
+        return rotatedImg
     }
 }

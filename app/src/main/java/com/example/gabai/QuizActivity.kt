@@ -9,6 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.launch
+// Add these below your questionCount variable
+private var currentDocId: String? = null
+private var currentInterval: Int = 1
+private val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+private val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+
 
 class QuizActivity : AppCompatActivity() {
     private var score = 0
@@ -19,7 +25,7 @@ class QuizActivity : AppCompatActivity() {
     // Use the same model setup as your OverviewActivity
     private val generativeModel = GenerativeModel(
         modelName = "gemini-2.5-flash-lite",
-        apiKey = "AIzaSyB8_5UwKb9B8T0HriQj87as0q-1Z1eIPjA"
+        apiKey = BuildConfig.GEMINI_API_KEY
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,22 +54,32 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun startNewQuestion() {
-        // Update preference names from "OSRnary_History" to "GabAI_History"
-        val historyPrefs = getSharedPreferences("GabAI_History", MODE_PRIVATE)
-        val keys = historyPrefs.all.keys.map { it.substringBefore("_") }.distinct()
+        val userId = auth.currentUser?.uid ?: return
+        val currentTime = System.currentTimeMillis()
 
-        if (keys.isEmpty()) {
-            findViewById<TextView>(R.id.question_text).text = "No history found! Scan some words first."
-            findViewById<View>(R.id.options_container).visibility = View.GONE
-            return
-        }
+        // Query for one word that is due for review
+        db.collection("users").document(userId).collection("history")
+            .whereLessThanOrEqualTo("nextReview", currentTime)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    findViewById<TextView>(R.id.question_text).text = "All caught up! Check back later for new reviews."
+                    findViewById<View>(R.id.options_container).visibility = View.GONE
+                } else {
+                    val doc = documents.documents[0]
+                    currentDocId = doc.id
+                    currentInterval = doc.getLong("interval")?.toInt() ?: 1
 
-        // Pick a random word from your history to test
-        val randomKey = keys.random()
-        val wordToTest = historyPrefs.getString("${randomKey}_word", "") ?: ""
-        val savedDef = historyPrefs.getString("${randomKey}_content", "") ?: ""
+                    val wordToTest = doc.getString("word") ?: ""
+                    val savedDef = doc.getString("explanation") ?: "" // Matches OverviewActivity key
 
-        generateAiQuiz(wordToTest, savedDef)
+                    generateAiQuiz(wordToTest, savedDef)
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to load SRS data", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun generateAiQuiz(word: String, definition: String) {
@@ -154,6 +170,8 @@ class QuizActivity : AppCompatActivity() {
 
         if (userChoice.equals(rightAnswer, ignoreCase = true)) {
             score++
+            updateSRSMetadata(true)
+
             // Inside checkAnswer
             val leveledUp = XPManager.addXP(this, 5)
             if (leveledUp) {
@@ -162,6 +180,7 @@ class QuizActivity : AppCompatActivity() {
                 Toast.makeText(this, "Correct! +5 XP", Toast.LENGTH_SHORT).show()
             }
         } else {
+            updateSRSMetadata(false)
             // If it was actually right but failed the check, the toast will now show exactly
             // what the computer was looking for vs what you clicked.
             Toast.makeText(this, "Wrong! Answer: $rightAnswer", Toast.LENGTH_SHORT).show()
@@ -180,5 +199,22 @@ class QuizActivity : AppCompatActivity() {
 
         scoreText.text = "You got $score out of $maxQuestions correct!"
         resultView.visibility = View.VISIBLE
+    }
+    private fun updateSRSMetadata(isCorrect: Boolean) {
+        val docId = currentDocId ?: return
+        val userId = auth.currentUser?.uid ?: return
+
+        // Algorithm logic: Double interval if correct, reset to 1 if wrong
+        val newInterval = if (isCorrect) currentInterval * 2 else 1
+        val nextReviewDate = System.currentTimeMillis() + (newInterval * 24L * 60 * 60 * 1000)
+
+        val updates = hashMapOf(
+            "interval" to newInterval,
+            "nextReview" to nextReviewDate
+        )
+
+        db.collection("users").document(userId)
+            .collection("history").document(docId)
+            .update(updates as Map<String, Any>)
     }
 }

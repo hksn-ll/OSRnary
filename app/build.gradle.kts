@@ -1,8 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services") version "4.4.1" apply false
+    id("com.google.gms.google-services")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
+
 
 android {
     namespace = "com.example.gabai"
@@ -10,6 +12,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     defaultConfig {
         applicationId = "com.example.gabai"
@@ -54,4 +57,16 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-auth-ktx") // D1: User Database
     implementation("com.google.firebase:firebase-firestore-ktx")
+    // Also add this for the App Check debug provider you added in Step 1
+    implementation("com.google.firebase:firebase-appcheck-debug")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    // CameraX core library using the camera2 implementation
+    implementation("androidx.camera:camera-camera2:1.3.1")
+// CameraX Lifecycle library
+    implementation("androidx.camera:camera-lifecycle:1.3.1")
+// CameraX View class (Provides PreviewView)
+    implementation("androidx.camera:camera-view:1.3.1")
+    implementation("com.google.guava:guava:31.0.1-android")
+    implementation("com.google.firebase:firebase-storage")
+
 }
