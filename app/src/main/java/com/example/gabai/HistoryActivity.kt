@@ -20,6 +20,11 @@ class HistoryActivity : AppCompatActivity() {
         }
 
         refreshHistoryList()
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("history"))
+        }
     }
 
     private fun refreshHistoryList() {

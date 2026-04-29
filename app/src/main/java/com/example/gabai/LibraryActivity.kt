@@ -25,6 +25,12 @@ class LibraryActivity : AppCompatActivity() {
         }
 
         loadAssignedMaterials()
+        // --- QUEST TRIGGER: LIBRARY ---
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("library"))
+        }
     }
 
     private fun loadAssignedMaterials() {
@@ -32,57 +38,56 @@ class LibraryActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
-        // 1. Get Student's School and Section
         db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
-            val studentSchoolId = userDoc.getString("schoolId") ?: ""
             val studentSection = userDoc.getString("section") ?: ""
 
-            // 2. Fetch materials assigned to this specific school and section
-            // Note: We filter by schoolId first for security/performance
-            db.collection("library")
-                .whereEqualTo("schoolId", studentSchoolId)
+            // 1. Find all materials assigned to this student's section
+            db.collection("library_materials")
+                .whereArrayContains("assignedSections", studentSection)
                 .get()
-                .addOnSuccessListener { documents ->
+                .addOnSuccessListener { materials ->
                     container.removeAllViews()
 
-                    if (documents.isEmpty) {
+                    if (materials.isEmpty) {
                         showEmptyState("No materials assigned yet.")
                         return@addOnSuccessListener
                     }
 
-                    var count = 0
-                    for (doc in documents) {
-                        val targetClassName = doc.getString("targetClassName") ?: ""
+                    // 2. Extract the unique Folder IDs those materials belong to
+                    val subjectIds = materials.documents.mapNotNull { it.getString("subjectId") }.distinct().take(10)
 
-                        // Only show if the student's section matches the class name (e.g. "Rizal" in "Grade 10 - Rizal")
-                        if (targetClassName.contains(studentSection, ignoreCase = true)) {
-                            addMaterialView(doc.getString("title") ?: "", doc.getString("content") ?: "", doc.getString("pdfUrl") ?: "")
-                            count++
+                    if (subjectIds.isEmpty()) return@addOnSuccessListener
+
+                    // 3. Fetch those specific Folders to get their Names and display them!
+                    db.collection("library_subjects")
+                        .whereIn(com.google.firebase.firestore.FieldPath.documentId(), subjectIds)
+                        .get()
+                        .addOnSuccessListener { subjects ->
+                            for (subject in subjects) {
+                                val subjectName = subject.getString("name") ?: "Unnamed Subject"
+                                addFolderView(subject.id, subjectName, studentSection)
+                            }
                         }
-                    }
-
-                    if (count == 0) showEmptyState("No materials assigned for section $studentSection.")
                 }
         }
     }
 
-    private fun addMaterialView(title: String, summary: String, url: String) {
+    private fun addFolderView(subjectId: String, subjectName: String, studentSection: String) {
         val container = findViewById<LinearLayout>(R.id.library_list_container)
-        val itemView = layoutInflater.inflate(R.layout.item_favorite, container, false)
+        val itemView = layoutInflater.inflate(R.layout.item_folder, container, false)
 
-        itemView.findViewById<TextView>(R.id.fav_title).text = title
-        itemView.findViewById<TextView>(R.id.fav_content).text = "Summary: $summary"
+        itemView.findViewById<TextView>(R.id.tv_folder_name).text = subjectName
 
-        // Change delete icon to "Open" icon (or just hide delete)
-        itemView.findViewById<View>(R.id.btn_remove_fav).visibility = View.GONE
+        // HIDE ADMIN BUTTONS FROM STUDENT
+        itemView.findViewById<View>(R.id.btn_edit_folder).visibility = View.GONE
+        itemView.findViewById<View>(R.id.btn_delete_folder).visibility = View.GONE
 
         itemView.setOnClickListener {
-            if (url.isNotEmpty()) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "No link available for this material", Toast.LENGTH_SHORT).show()
-            }
+            val intent = Intent(this, StudentSubjectActivity::class.java)
+            intent.putExtra("SUBJECT_ID", subjectId)
+            intent.putExtra("SUBJECT_NAME", subjectName)
+            intent.putExtra("STUDENT_SECTION", studentSection)
+            startActivity(intent)
         }
         container.addView(itemView)
     }

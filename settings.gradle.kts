@@ -11,16 +11,15 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
-}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        // This is the magic line, and it MUST be inside this specific block
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
-rootProject.name = "OSRnary"
+rootProject.name = "GabAI"
 include(":app")

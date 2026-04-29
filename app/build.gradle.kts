@@ -68,5 +68,10 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.1")
     implementation("com.google.guava:guava:31.0.1-android")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+// Source: https://mvnrepository.com/artifact/com.github.barteksc/android-pdf-viewer
+    implementation("com.github.mhiew:android-pdf-viewer:3.2.0-beta.3")
 
 }

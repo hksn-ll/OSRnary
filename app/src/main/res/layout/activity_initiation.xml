@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <LinearLayout
+        android:id="@+id/header_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:padding="20dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_progress_tracker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Apprentice Material 1 of 4"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#6C5CE7"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:progress="25"
+        android:progressTint="#6C5CE7"
+        app:layout_constraintTop_toBottomOf="@id/header_container"/>
+
+    <LinearLayout
+        android:id="@+id/reading_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.github.barteksc.pdfviewer.PDFView
+            android:id="@+id/pdf_viewer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btn_take_quiz"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_margin="16dp"
+            android:text="I've Finished Reading -> Take Quiz"
+            android:backgroundTint="#2D3436"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ai_loading_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="#6C5CE7"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_loading_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loading quiz..."
+            android:textAlignment="center"
+            android:textColor="#636E72"
+            android:textSize="16sp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/quiz_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="KNOWLEDGE CHECK"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#636E72"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_quiz_question"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Question goes here?"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#2D3436"
+            android:layout_marginBottom="32dp"/>
+
+        <Button android:id="@+id/btn_option_0" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option A"/>
+        <Button android:id="@+id/btn_option_1" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option B"/>
+        <Button android:id="@+id/btn_option_2" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option C"/>
+        <Button android:id="@+id/btn_option_3" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:text="Option D"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/result_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone"
+        android:background="#F8F9FA"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:elevation="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TRIAL ASSESSMENT"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            android:textColor="#6C5CE7"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_result_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ascension Complete! 🌟"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="#2D3436"
+            android:textAlignment="center"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tv_result_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You have proven yourself worthy, scholar."
+            android:textSize="16sp"
+            android:textColor="#636E72"
+            android:textAlignment="center"
+            android:layout_marginBottom="32dp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/scores_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_quiz"
+                    android:padding="20dp"
+                    android:elevation="2dp"
+                    android:orientation="vertical"/>
+
+                <LinearLayout
+                    android:id="@+id/rewards_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_card_fav"
+                    android:padding="20dp"
+                    android:elevation="2dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="QUESTS COMPLETED"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#2D3436"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✅ Read the 4 Required Materials\n✅ Pass the Initiation Test"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#6C5CE7"
+                        android:textAlignment="center"
+                        android:lineSpacingExtra="6dp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <Button
+            android:id="@+id/btn_result_action"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginTop="24dp"
+            android:text="Accept Rank &amp; Enter GabAI"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#2D3436"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

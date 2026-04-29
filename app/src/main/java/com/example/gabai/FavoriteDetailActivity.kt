@@ -22,5 +22,11 @@ class FavoriteDetailActivity : AppCompatActivity() {
         // 2. Set the data
         findViewById<TextView>(R.id.selected_text_view).text = "\"$word\""
         Markwon.create(this).setMarkdown(findViewById(R.id.ai_result_text), content)
+        // --- QUEST TRIGGER: VIEW SAVED CONTENT ---
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("detail"))
+        }
     }
 }

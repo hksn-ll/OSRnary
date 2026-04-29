@@ -127,11 +127,14 @@ class OverviewActivity : AppCompatActivity() {
                 view: android.webkit.WebView?,
                 request: android.webkit.WebResourceRequest?
             ): Boolean {
-                return true
+                // FIX: Returning false allows the WebView to actually load the URL and follow redirects
+                return false
             }
         }
+// FIX: Properly encode the query so spaces don't break the WebView
+        val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
+        val searchUrl = "https://www.google.com/search?tbm=isch&q=$encodedQuery"
 
-        val searchUrl = "https://www.google.com/search?tbm=isch&q=${query}"
         webView.loadUrl(searchUrl)
     }
 
@@ -152,8 +155,11 @@ class OverviewActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 // Your Advanced Prompt
+                // Your Advanced Prompt (Adjusted for Grade 10)
+                // Your Advanced Prompt (Adjusted for High School / Grade 10 Level)
+                // Your Advanced Prompt (Adjusted for Layman / Accessible High School Level)
                 val prompt = """
-                    You are an AI Tutor for a student app called GabAI.
+                    You are an AI Tutor for an educational app called GabAI, helping high school students (Grade 10).
                     Analyze the following input text: "$inputText"
 
                     **INSTRUCTIONS:**
@@ -169,16 +175,16 @@ class OverviewActivity : AppCompatActivity() {
                     - Provide ONLY the **Context Overview**.
 
                     **CONTENT REQUIREMENTS:**
+                    - **Context Overview Tone:** Explain the concept using clear, everyday layman's terms. The explanation must be highly accessible and easy to grasp for an average 10th grader. Strip away complex academic jargon and use straightforward language. Maintain a mature, informative style—be direct and concise without sounding like a textbook or a children's story.
                     - **If Non-English:** State Language, Provide English Translation.
-                    - **Prioritize Filipino when there is a word that is non english
+                    - **Prioritize Filipino** when there is a word that is non-English.
                     - **If English:** Provide standard definitions and context.
 
                     **FORMATTING RULES:**
                     - Use **Bold** for headers.
                     - Use > Blockquotes for definitions.
-                    - Keep it concise.
+                    - Keep it concise and visually appealing.
                 """.trimIndent()
-
                 val response = generativeModel.generateContent(prompt)
 
                 // Update UI
@@ -205,13 +211,20 @@ class OverviewActivity : AppCompatActivity() {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
-        // 1. XP logic stays the same
-        val leveledUp = XPManager.addXP(this, 10)
-        if (leveledUp) {
-            Toast.makeText(this, "LEVEL UP! You are now Level ${XPManager.getLevel(this)}! 🎉", Toast.LENGTH_LONG).show()
+        // 1. XP LOGIC WITH GATEKEEPER
+        if (XPManager.canEarnXP(this)) {
+            val leveledUp = XPManager.addXP(this, 10)
+            if (leveledUp) {
+                Toast.makeText(this, "LEVEL UP! You are now Level ${XPManager.getLevel(this)}! 🎉", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "Saved! +10 XP gained", Toast.LENGTH_SHORT).show()
+            }
         } else {
-            Toast.makeText(this, "Saved! +10 XP gained", Toast.LENGTH_SHORT).show()
+            // Rank is locked, just show a normal save message
+            Toast.makeText(this, "Saved to Favorites! ⭐", Toast.LENGTH_SHORT).show()
         }
+
+        // 2. CLOUD SAVE: Use a subcollection for Favorites
 
         // 2. CLOUD SAVE: Use a subcollection for Favorites
         val favEntry = hashMapOf(
@@ -225,7 +238,9 @@ class OverviewActivity : AppCompatActivity() {
             .set(favEntry)
             .addOnSuccessListener {
                 android.util.Log.d("GabAI_DB", "Favorite synced to cloud")
+                db.collection("users").document(uid).update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("save"))
             }
+        db.collection("users").document(uid).update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("save"))
     }
 
     private fun saveToHistory(text: String, aiResult: String) {

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/bg_card_history"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp"
+    android:gravity="center_vertical"
+    android:elevation="2dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="50dp"
+        android:layout_height="65dp"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="2dp"
+        android:layout_marginEnd="16dp">
+        <ImageView
+            android:id="@+id/img_pdf_thumb"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="#FFFFFF"/>
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_pdf_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Document Title"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#2D3436"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+        <TextView
+            android:id="@+id/tv_uploader_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Uploaded by: Teacher"
+            android:textSize="12sp"
+            android:textColor="#636E72"
+            android:layout_marginTop="2dp"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btn_open_pdf"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_view"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="#00B894"/>
+    <ImageButton
+        android:id="@+id/btn_assign_pdf"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_share"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="#6C5CE7"/>
+    <ImageButton
+        android:id="@+id/btn_edit_pdf"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_edit"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="#0984E3"/>
+
+    <ImageButton
+        android:id="@+id/btn_delete_pdf"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="#D63031"/>
+</LinearLayout>

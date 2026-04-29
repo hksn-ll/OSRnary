@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Welcome!"
-            android:textSize="0sp"
+            android:textSize="35sp"
             android:textStyle="bold"
             android:textColor="#2d3436"/>
 
@@ -78,7 +78,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email">
+            android:hint="Email / Username">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_login_email"
                 android:layout_width="match_parent"
@@ -122,6 +122,16 @@
             android:layout_marginTop="16dp"
             android:text="Don't have an account? Register"
             android:textColor="?attr/colorPrimary" />
+
+        <Button
+            android:id="@+id/btn_back_to_roles"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:text="Change Role / Go Back"
+            android:textColor="#636e72" />
     </LinearLayout>
 
     <LinearLayout
@@ -146,13 +156,15 @@
             android:layout_height="wrap_content"
             android:text="Register as a:"
             android:textStyle="bold"
-            android:layout_marginTop="12dp"/>
+            android:layout_marginTop="12dp"
+            android:visibility="gone"/>
 
         <RadioGroup
             android:id="@+id/rg_register_role"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="gone"
             android:layout_marginBottom="12dp">
             <RadioButton
                 android:id="@+id/rb_student"

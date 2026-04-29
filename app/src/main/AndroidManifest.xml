@@ -46,6 +46,8 @@
         <activity android:name=".FavoriteDetailActivity" android:exported="false" />
         <activity android:name=".HistoryActivity" android:exported="false" />
         <activity android:name=".QuizActivity" android:exported="false" />
+        <activity android:name=".InitiationActivity" android:exported="false" />
+        <activity android:name=".QuestDetailsActivity" android:exported="false" />
 
         <service
             android:name=".FloatingControlService"
@@ -62,7 +64,12 @@
             />
         <activity android:name=".CameraActivity" android:exported="false" />
         <activity android:name=".LibraryActivity" android:exported="false" />
-
+        <activity android:name=".ManageClassesActivity" android:exported="false" />
+        <activity android:name=".ClassDetailActivity" android:exported="false" />
+        <activity android:name=".TeacherLibraryActivity" android:exported="false" />
+        <activity android:name=".PdfViewerActivity" android:exported="false" />
+        <activity android:name=".SubjectDetailActivity" android:exported="false" />
+        <activity android:name=".StudentSubjectActivity" android:exported="false" />
     </application>
 
 </manifest>

@@ -34,7 +34,9 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import android.provider.Settings
 
 class FloatingControlService : Service() {
-
+    companion object {
+        var isRunning = false
+    }
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var floatingView: View
@@ -49,6 +51,7 @@ class FloatingControlService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         startMyOwnForeground()
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
@@ -232,6 +235,7 @@ class FloatingControlService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        isRunning = false
         // Only remove if it was actually attached to the screen
         if (::floatingView.isInitialized && floatingView.isAttachedToWindow) {
             windowManager.removeView(floatingView)

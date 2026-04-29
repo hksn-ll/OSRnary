@@ -11,6 +11,9 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import android.media.ExifInterface
 import android.graphics.Matrix
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ScanResultActivity : AppCompatActivity() {
 
@@ -60,9 +63,15 @@ class ScanResultActivity : AppCompatActivity() {
             // 2. Run the scanner on the CORRECTED image
             runScanner(correctedBitmap, overlayView, imageView)
         }
-  
+
         findViewById<ImageButton>(R.id.close_button).setOnClickListener {
             finishAndRemoveTask()
+        }
+        // --- QUEST TRIGGER: SCAN ---
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update("quests_completed", FieldValue.arrayUnion("scan"))
         }
     }
 

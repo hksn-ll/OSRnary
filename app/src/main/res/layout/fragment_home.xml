@@ -88,18 +88,59 @@
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:background="@drawable/bg_card_level"
-                android:padding="20dp"
                 android:layout_marginBottom="16dp">
+
                 <LinearLayout
+                    android:id="@+id/unlocked_xp_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:visibility="visible">
                     <TextView android:id="@+id/tv_level_label" android:text="LEVEL 1" android:textSize="18sp" android:textStyle="bold" android:textColor="#FFFFFF" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    <TextView android:id="@+id/tv_xp_label" android:text="30 / 100 XP" android:textSize="12sp" android:textColor="#FFFFFF" android:layout_gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    <ProgressBar android:id="@+id/xp_progress_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="8dp" android:progress="30" android:progressDrawable="@drawable/pill_background" android:layout_marginTop="4dp" android:layout_marginBottom="12dp"/>
+                    <TextView android:id="@+id/tv_xp_label" android:text="0 / 100 XP" android:textSize="12sp" android:textColor="#FFFFFF" android:layout_gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <ProgressBar android:id="@+id/xp_progress_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="8dp" android:progress="0" android:progressDrawable="@drawable/pill_background" android:layout_marginTop="4dp" android:layout_marginBottom="12dp"/>
                     <TextView android:text="Gain XP by saving words and taking quizzes!" android:textSize="12sp" android:textColor="#E0E0E0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/locked_xp_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="#D9000000"
+                    android:visibility="gone">
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_secure" app:tint="#FFFFFF"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Leveling Locked" android:textStyle="bold" android:textColor="#FFFFFF" android:textSize="16sp" android:layout_marginTop="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Complete Apprentice Quests to unlock" android:textColor="#CCCCCC" android:textSize="12sp"/>
+                </LinearLayout>
             </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/quest_board_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_history"
+                android:padding="20dp"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Apprentice Quests 📜" android:textSize="18sp" android:textStyle="bold" android:textColor="#000000"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Finish these to unlock your rank:" android:textSize="14sp" android:textColor="#444444" android:layout_marginBottom="16dp"/>
+
+                <TextView android:id="@+id/quest_bubble" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 1. Activate the Floating Bubble" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/quest_read" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 2. Read the 4 Required Materials" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/quest_test" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 3. Pass the Initiation Test" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/quest_scan" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 4. Scan a text with the Camera" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/quest_save" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 5. Save a word to Favorites" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/quest_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 6. Check your Scan History" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/quest_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 7. View Saved Content" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                <TextView android:id="@+id/quest_library" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 8. Open the Digital Library" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+
+                <Button android:id="@+id/btn_quest_details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Quest Details" android:layout_marginTop="16dp" android:backgroundTint="#2d3436"/>
+            </LinearLayout>
             <LinearLayout
                 android:id="@+id/btn_open_camera"
                 android:layout_width="match_parent"

@@ -172,12 +172,16 @@ class QuizActivity : AppCompatActivity() {
             score++
             updateSRSMetadata(true)
 
-            // Inside checkAnswer
-            val leveledUp = XPManager.addXP(this, 5)
-            if (leveledUp) {
-                Toast.makeText(this, "LEVEL UP! 🎊", Toast.LENGTH_LONG).show()
+            if (XPManager.canEarnXP(this)) {
+                val leveledUp = XPManager.addXP(this, 5)
+                if (leveledUp) {
+                    Toast.makeText(this, "LEVEL UP! 🎊", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "Correct! +5 XP", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                Toast.makeText(this, "Correct! +5 XP", Toast.LENGTH_SHORT).show()
+                // Rank is locked
+                Toast.makeText(this, "Correct! ✅", Toast.LENGTH_SHORT).show()
             }
         } else {
             updateSRSMetadata(false)
@@ -193,7 +197,11 @@ class QuizActivity : AppCompatActivity() {
         }
     }
     private fun showFinalResults() {
-        XPManager.addXP(this, 20)
+        // Only award the completion bonus if their rank is unlocked!
+        if (XPManager.canEarnXP(this)) {
+            XPManager.addXP(this, 20)
+        }
+
         val resultView = findViewById<View>(R.id.result_view)
         val scoreText = findViewById<TextView>(R.id.final_score_text)
 
