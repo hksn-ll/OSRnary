@@ -98,6 +98,15 @@
             android:layout_height="60dp"
             android:text="Try Again"
             android:layout_marginTop="40dp"/>
+        <!-- Add this inside your result_view LinearLayout, right below btn_restart -->
+        <Button
+            android:id="@+id/btn_quiz_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Quiz History"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#0984E3"
+            android:textColor="#FFFFFF" />
 
         <Button
             android:id="@+id/btn_exit"

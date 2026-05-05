@@ -107,7 +107,7 @@ class FloatingControlService : Service() {
                 // 3. Send to Google ML Kit
 
             } else {
-                Toast.makeText(this, "Screen not ready yet, try again...", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Screen not ready yet, try again...")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -124,7 +124,7 @@ class FloatingControlService : Service() {
                 showResultDialog(visionText.text)
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Scan Failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Scan Failed: ${e.message}")
             }
     }
 
@@ -139,7 +139,7 @@ class FloatingControlService : Service() {
                     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                     val clip = android.content.ClipData.newPlainText("Scanned Text", text)
                     clipboard.setPrimaryClip(clip)
-                    Toast.makeText(this, "Copied!", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this, "Copied!")
                 }
                 .setNegativeButton("Close", null)
                 .create()

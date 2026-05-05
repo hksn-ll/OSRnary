@@ -38,12 +38,26 @@ class StudentSubjectActivity : AppCompatActivity() {
         val container = findViewById<LinearLayout>(R.id.pdf_list_container)
         val db = FirebaseFirestore.getInstance()
 
-        // ONLY fetch PDFs assigned to this student's section!
+        // WE GET THE UID HERE NOW
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // TURN ON SPINNER
+        GabAIUtils.showGlobalLoading(this)
+
+        // ONLY fetch PDFs assigned to this student's UID! (THIS WAS THE BUG)
         db.collection("library_materials")
             .whereEqualTo("subjectId", subjectId)
-            .whereArrayContains("assignedSections", studentSection)
+            .whereArrayContains("assignedSections", uid)
             .addSnapshotListener { snapshots, e ->
-                if (e != null || snapshots == null) return@addSnapshotListener
+                // TURN OFF SPINNER AS SOON AS DATA ARRIVES
+                GabAIUtils.hideGlobalLoading(this@StudentSubjectActivity)
+
+                if (e != null) {
+                    GabAIUtils.showSnackbar(this@StudentSubjectActivity, "Network Error: ${e.message}")
+                    return@addSnapshotListener
+                }
+
+                if (snapshots == null) return@addSnapshotListener
                 container.removeAllViews()
 
                 if (snapshots.isEmpty) {
@@ -87,6 +101,7 @@ class StudentSubjectActivity : AppCompatActivity() {
                         intent.putExtra("PDF_TITLE", title)
                         startActivity(intent)
                     }
+
                     container.addView(row)
                 }
             }

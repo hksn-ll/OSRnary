@@ -143,7 +143,7 @@ class InitiationActivity : AppCompatActivity() {
                 }
 
                 if (pdfText.isEmpty()) {
-                    Toast.makeText(this@InitiationActivity, "Could not read PDF.", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this@InitiationActivity, "Could not read PDF.")
                     loadStep(currentStep)
                     return@launch
                 }
@@ -179,7 +179,7 @@ class InitiationActivity : AppCompatActivity() {
                 parseAndStartQuiz(jsonStr)
 
             } catch (e: Exception) {
-                Toast.makeText(this@InitiationActivity, "AI Error: ${e.message}", Toast.LENGTH_LONG).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this@InitiationActivity, "AI Error: ${e.message}")
                 loadStep(currentStep)
             }
         }
@@ -223,14 +223,14 @@ class InitiationActivity : AppCompatActivity() {
                 throw Exception("No questions generated")
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to parse quiz data.", Toast.LENGTH_SHORT).show()
+            com.example.gabai.GabAIUtils.showSnackbar(this, "Failed to parse quiz data.")
             loadStep(currentStep)
         }
     }
 
     private fun showCurrentQuestion() {
         val questionData = currentGeneratedQuestions[currentQuizIndex]
-
+         var startTime: Long = 0
         findViewById<LinearLayout>(R.id.ai_loading_container).visibility = View.GONE
         findViewById<LinearLayout>(R.id.quiz_container).visibility = View.VISIBLE
 
@@ -248,11 +248,11 @@ class InitiationActivity : AppCompatActivity() {
             buttons[i].setOnClickListener {
                 // Determine if right or wrong
                 if (i == questionData.correctIndex) {
-                    Toast.makeText(this, "Correct! ✅", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this, "Correct! ✅")
                     currentScore++
                 } else {
                     val correctText = questionData.options[questionData.correctIndex]
-                    Toast.makeText(this, "Wrong! Answer: $correctText ❌", Toast.LENGTH_LONG).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this, "Wrong! Answer: $correctText ❌")
                 }
 
                 // Proceed to next question automatically
@@ -391,7 +391,7 @@ class InitiationActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
-        Toast.makeText(this, "Initiation Complete! Quests Unlocked.", Toast.LENGTH_LONG).show()
+        com.example.gabai.GabAIUtils.showSnackbar(this, "Initiation Complete! Quests Unlocked.")
 
         db.collection("users").document(uid).update(
             "quests_completed", FieldValue.arrayUnion("read", "test")

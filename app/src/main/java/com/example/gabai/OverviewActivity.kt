@@ -12,10 +12,18 @@ import io.noties.markwon.Markwon
 import kotlinx.coroutines.launch
 import android.webkit.WebView
 import com.example.gabai.BuildConfig
+import android.speech.tts.TextToSpeech
+import java.util.Locale
+import com.google.mlkit.nl.languageid.LanguageIdentification
 
+import android.widget.ImageButton
+import android.widget.ProgressBar
 class OverviewActivity : AppCompatActivity() {
 
     private var lastAiResult: String = ""
+    private lateinit var tts: TextToSpeech
+    private var isTtsReady = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,15 +53,33 @@ class OverviewActivity : AppCompatActivity() {
             val imageWebView = findViewById<WebView>(R.id.image_webview)
             loadGoogleImages(imageWebView, scannedText)
         } else {
-            Toast.makeText(this, "No text provided", Toast.LENGTH_SHORT).show()
+            com.example.gabai.GabAIUtils.showSnackbar(this, "No text provided")
         }
         val favoriteBtn = findViewById<android.widget.ImageButton>(R.id.btn_favorite)
         favoriteBtn.setOnClickListener {
             if (lastAiResult.isNotEmpty()) {
                 saveToFavorites(scannedText, lastAiResult)
                 favoriteBtn.setImageResource(android.R.drawable.btn_star_big_on)
-                Toast.makeText(this, "Saved to Favorites!", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Saved to Favorites!")
             }
+        }
+        tts = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                isTtsReady = true
+            }
+        }
+
+        // The button for the scanned text at the top
+        findViewById<android.widget.ImageButton>(R.id.btn_speak_selected).setOnClickListener {
+            // Remove the "quotes" from the text before detecting and speaking
+            val rawText = findViewById<TextView>(R.id.selected_text_view).text.toString()
+            val cleanText = rawText.replace("\"", "").trim()
+            speakWithDetection(cleanText)
+        }
+
+// The button for the AI result at the bottom
+        findViewById<android.widget.ImageButton>(R.id.btn_speak_explanation).setOnClickListener {
+            speakExplanation(lastAiResult)
         }
     }
 
@@ -67,7 +93,13 @@ class OverviewActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        // ONLY show it if the user actually enabled it in the HomeFragment
+
+        // 1. STOP THE VOICE IMMEDIATELY WHEN LEAVING
+        if (::tts.isInitialized) {
+            tts.stop()
+        }
+
+        // 2. EXISTING CODE: Handle the bubble visibility
         val isEnabled =
             getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).getBoolean("bubble_enabled", false)
         if (isEnabled) {
@@ -143,21 +175,29 @@ class OverviewActivity : AppCompatActivity() {
         val resultContainer = findViewById<LinearLayout>(R.id.result_container)
         val resultTextView = findViewById<TextView>(R.id.ai_result_text)
 
+        // 1. GET USER LANGUAGE PREFERENCE
+        // 1. GET DETAILED LANGUAGE PREFERENCE
+        val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+        val selectedLang = prefs.getString("ai_language_pref", "English")
+
+        val langRequirement = when (selectedLang) {
+            "Taglish" -> "- **Tone & Language (CRITICAL):** Explain using 'Taglish' (a natural, conversational mix of Filipino and English). Sound like a smart, helpful local Kuya or Ate tutoring a student. It should be engaging but highly factual."
+            "Tagalog" -> "- **Language Preference:** Explain strictly in clear, formal, but easy-to-understand Tagalog (Filipino)."
+            else -> "- **Language Preference:** Explain strictly in clear, accessible English suitable for a Grade 10 student."
+        }
+
         // Initialize Markdown
         val markwon = Markwon.create(this)
 
         // Configure Gemini
         val generativeModel = GenerativeModel(
             modelName = "gemini-2.5-flash-lite",
-            apiKey = BuildConfig.GEMINI_API_KEY // <--- CHECK YOUR API KEY!
+            apiKey = BuildConfig.GEMINI_API_KEY
         )
 
         lifecycleScope.launch {
             try {
-                // Your Advanced Prompt
-                // Your Advanced Prompt (Adjusted for Grade 10)
-                // Your Advanced Prompt (Adjusted for High School / Grade 10 Level)
-                // Your Advanced Prompt (Adjusted for Layman / Accessible High School Level)
+                // 2. YOUR ORIGINAL PRECISE PROMPT (With language requirement added)
                 val prompt = """
                     You are an AI Tutor for an educational app called GabAI, helping high school students (Grade 10).
                     Analyze the following input text: "$inputText"
@@ -167,7 +207,7 @@ class OverviewActivity : AppCompatActivity() {
                     - Provide a **Dictionary Layout** first.
                     - Format:
                       > **Word** (Pronunciation) - *Part of Speech*
-                      > Definition: [Simple definition]
+                      > Definition: [Clear, objective definition]
                     - Follow immediately with a **Context Overview**.
 
                     **CASE 2: If it is a phrase, proper noun, event, or topic:**
@@ -175,7 +215,10 @@ class OverviewActivity : AppCompatActivity() {
                     - Provide ONLY the **Context Overview**.
 
                     **CONTENT REQUIREMENTS:**
-                    - **Context Overview Tone:** Explain the concept using clear, everyday layman's terms. The explanation must be highly accessible and easy to grasp for an average 10th grader. Strip away complex academic jargon and use straightforward language. Maintain a mature, informative style—be direct and concise without sounding like a textbook or a children's story.
+                    $langRequirement
+                    - **Context Overview Tone (CRITICAL):** You must be strictly informative, objective, and academic, while remaining accessible to a 10th-grade reading level. 
+                    - **BANNED PHRASES:** DO NOT use storytelling framing. Never use phrases like "Imagine...", "Think of it like...", "Picture this...", or conversational filler like "Let's dive into...". 
+                    - Deliver historical facts, contextual significance, and explanations directly. Strip away overly complex postgraduate jargon, but absolutely do not talk down to the user. Your voice should mimic a modern, high-quality digital encyclopedia.
                     - **If Non-English:** State Language, Provide English Translation.
                     - **Prioritize Filipino** when there is a word that is non-English.
                     - **If English:** Provide standard definitions and context.
@@ -183,7 +226,7 @@ class OverviewActivity : AppCompatActivity() {
                     **FORMATTING RULES:**
                     - Use **Bold** for headers.
                     - Use > Blockquotes for definitions.
-                    - Keep it concise and visually appealing.
+                    - Keep it concise, strictly factual, and visually structured.
                 """.trimIndent()
                 val response = generativeModel.generateContent(prompt)
 
@@ -194,7 +237,7 @@ class OverviewActivity : AppCompatActivity() {
                 response.text?.let {
                     lastAiResult = it
                     markwon.setMarkdown(resultTextView, it)
-                    saveToHistory(inputText, it)
+                    saveToHistory(inputText, it, inputText)
                 } ?: run {
                     resultTextView.text = "Sorry, no result generated."
                 }
@@ -215,13 +258,13 @@ class OverviewActivity : AppCompatActivity() {
         if (XPManager.canEarnXP(this)) {
             val leveledUp = XPManager.addXP(this, 10)
             if (leveledUp) {
-                Toast.makeText(this, "LEVEL UP! You are now Level ${XPManager.getLevel(this)}! 🎉", Toast.LENGTH_LONG).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "LEVEL UP! You are now Level ${XPManager.getLevel(this)}! 🎉")
             } else {
-                Toast.makeText(this, "Saved! +10 XP gained", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Saved! +10 XP gained")
             }
         } else {
             // Rank is locked, just show a normal save message
-            Toast.makeText(this, "Saved to Favorites! ⭐", Toast.LENGTH_SHORT).show()
+            com.example.gabai.GabAIUtils.showSnackbar(this, "Saved to Favorites! ⭐")
         }
 
         // 2. CLOUD SAVE: Use a subcollection for Favorites
@@ -243,7 +286,7 @@ class OverviewActivity : AppCompatActivity() {
         db.collection("users").document(uid).update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("save"))
     }
 
-    private fun saveToHistory(text: String, aiResult: String) {
+    private fun saveToHistory(text: String, aiResult: String, originalContext: String) { // <-- Added 'originalContext' parameter
         // 1. Firebase setup
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
@@ -253,14 +296,15 @@ class OverviewActivity : AppCompatActivity() {
 
 
         // 3. CLOUD SAVE (This creates the subcollection)
+        // In OverviewActivity.kt -> saveToHistory()
         val historyEntry = hashMapOf(
             "word" to text,
             "explanation" to aiResult,
             "timestamp" to timestamp,
-
-            // NEW: Initialize SRS tracking in the cloud
+            "originalContext" to originalContext, // <--- FIXED
             "nextReview" to timestamp,
-            "interval" to 1
+            "interval" to 1,
+            "easeFactor" to 2.5
         )
 
 
@@ -270,7 +314,7 @@ class OverviewActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 android.util.Log.d("GabAI_DB", "Cloud save successful!")
                 // Optional: Toast for success
-                Toast.makeText(this, "Synced to Cloud", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Synced to Cloud")
             }
             .addOnFailureListener { e ->
                 // NEW: Detailed Debug Dialog
@@ -281,6 +325,66 @@ class OverviewActivity : AppCompatActivity() {
                     .show()
                 android.util.Log.e("GabAI_DB", "Error: ", e)
             }
+    }
+    private fun speakWithDetection(text: String) {
+        if (!isTtsReady || text.isEmpty()) return
+
+        // 1. SHOW THE LOADING ICON
+        val loader = findViewById<ProgressBar>(R.id.progress_tts_selected)
+        val speakBtn = findViewById<ImageButton>(R.id.btn_speak_selected)
+        loader.visibility = View.VISIBLE
+        speakBtn.visibility = View.INVISIBLE // Hide button while loading
+
+        val languageIdentifier = com.google.mlkit.nl.languageid.LanguageIdentification.getClient()
+        languageIdentifier.identifyLanguage(text)
+            .addOnSuccessListener { languageCode ->
+                // 2. HIDE THE LOADING ICON
+                loader.visibility = View.GONE
+                speakBtn.visibility = View.VISIBLE
+
+                val locale = if (languageCode == "fil" || languageCode == "tl") {
+                    java.util.Locale("fil", "PH")
+                } else {
+                    java.util.Locale.US
+                }
+
+                tts.language = locale
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            }
+            .addOnFailureListener {
+                loader.visibility = View.GONE
+                speakBtn.visibility = View.VISIBLE
+                tts.language = java.util.Locale.US
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            }
+    }
+    override fun onDestroy() {
+        if (::tts.isInitialized) {
+            tts.stop()      // Stop talking
+            tts.shutdown()  // Turn off the engine
+        }
+        super.onDestroy()
+    }
+
+    private fun speakExplanation(text: String) {
+        if (!isTtsReady || text.isEmpty()) return
+
+        // 1. Get the language choice from your Profile Dropdown
+        val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+        val selectedLang = prefs.getString("ai_language_pref", "English") ?: "English"
+
+        // 2. Set voice language
+        val locale = if (selectedLang == "Tagalog" || selectedLang == "Taglish") {
+            java.util.Locale("fil", "PH")
+        } else {
+            java.util.Locale.US
+        }
+
+        tts.language = locale
+
+        // 3. Clean Markdown (Remove #, *, >, and __) so the AI doesn't read symbols
+        val cleanText = text.replace(Regex("[#*<>_]"), "")
+        tts.speak(cleanText, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 }
 //

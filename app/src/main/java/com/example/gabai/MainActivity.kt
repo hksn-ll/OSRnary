@@ -26,15 +26,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         // FIX: Check if role was passed, otherwise fetch from database
+        // Inside onCreate, find where you check the role
         val userRole = intent.getStringExtra("USER_ROLE")
         if (userRole != null) {
             loadDashboard(userRole)
         } else {
-            // FETCH FROM FIRESTORE if we don't know the role (e.g., app restart)
+            // 1. SHOW THE LOADER IMMEDIATELY HERE
+            GabAIUtils.showGlobalLoading(this)
+
             FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
                 .get().addOnSuccessListener { doc ->
+                    // 2. HIDE IT ONLY ONCE THE DATA ARRIVES
+                    GabAIUtils.hideGlobalLoading(this)
                     val role = doc.getString("role") ?: "student"
                     loadDashboard(role)
+                }.addOnFailureListener {
+                    GabAIUtils.hideGlobalLoading(this)
                 }
         }
 

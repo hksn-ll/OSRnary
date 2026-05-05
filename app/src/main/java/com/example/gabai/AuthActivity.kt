@@ -165,7 +165,7 @@ class AuthActivity : AppCompatActivity() {
                 if (email.isNotEmpty()) {
                     sendPasswordReset(email)
                 } else {
-                    Toast.makeText(this, "Please enter an email address", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this, "Please enter an email address")
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -249,7 +249,7 @@ class AuthActivity : AppCompatActivity() {
                         showErrorDialog("Verify Your Email", "A link has been sent to $email. Please verify your email before logging in.")
                     }
                 }
-
+                val joinCode = java.util.UUID.randomUUID().toString().substring(0, 6).uppercase()
                 // Save to Database D1 (User Database)
                 // Save to Database D1 (User Database)
                 // Save to Database D1 (User Database) - STRICTLY TEACHER
@@ -258,7 +258,8 @@ class AuthActivity : AppCompatActivity() {
                     "lastName" to lastName,
                     "email" to email,
                     "schoolId" to schoolId,
-                    "role" to role, // Hardcoded to "teacher"
+                    "role" to role,
+                    "joinCode" to joinCode,// Hardcoded to "teacher"
                     "isApproved" to false,
                     "emailVerified" to false,
                     "createdAt" to System.currentTimeMillis()
@@ -375,15 +376,17 @@ class AuthActivity : AppCompatActivity() {
     }
     private fun toggleLoading(isLoading: Boolean) {
         if (isLoading) {
-            // Hide all forms and show loading
+            // Hide all forms to clear the screen
             binding.containerLogin.visibility = View.GONE
             binding.containerRegister.visibility = View.GONE
             binding.containerRole.visibility = View.GONE
             binding.containerGreeting.visibility = View.GONE
-            binding.containerLoading.visibility = View.VISIBLE
+
+            // Show the new Global Transparent Spinner!
+            GabAIUtils.showGlobalLoading(this)
         } else {
-            // Hide loading (forms will be re-shown by showLogin/showRegister)
-            binding.containerLoading.visibility = View.GONE
+            // Hide the Global Spinner
+            GabAIUtils.hideGlobalLoading(this)
         }
     }
     private fun showRoleSelection() {
@@ -395,4 +398,9 @@ class AuthActivity : AppCompatActivity() {
         // Show ONLY the role selection buttons
         binding.containerRole.visibility = View.VISIBLE
     }
+
 }
+
+
+
+

@@ -186,7 +186,7 @@ class SubjectDetailActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     resetUploadUI()
-                    Toast.makeText(this@SubjectDetailActivity, "Upload Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Upload Error: ${e.message}")
                 }
             }
         }
@@ -208,7 +208,7 @@ class SubjectDetailActivity : AppCompatActivity() {
         db.collection("library_materials").add(materialData).addOnSuccessListener {
             uploadProgress.progress = 100
             tvUploadStatus.text = "100% - Complete!"
-            Toast.makeText(this, "Uploaded successfully!", Toast.LENGTH_SHORT).show()
+            com.example.gabai.GabAIUtils.showSnackbar(this, "Uploaded successfully!")
 
             // Wait 1 second so they can read "100% - Complete!" before hiding it
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
@@ -216,7 +216,7 @@ class SubjectDetailActivity : AppCompatActivity() {
             }, 1000)
         }.addOnFailureListener { e ->
             resetUploadUI()
-            Toast.makeText(this, "Database Error: ${e.message}", Toast.LENGTH_LONG).show()
+            com.example.gabai.GabAIUtils.showSnackbar(this, "Database Error: ${e.message}")
         }
     }
 
@@ -328,12 +328,12 @@ class SubjectDetailActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     db.collection("library_materials").document(docId).delete()
                     uploadProgress.visibility = View.GONE
-                    Toast.makeText(this@SubjectDetailActivity, "PDF Deleted", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "PDF Deleted")
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     uploadProgress.visibility = View.GONE
-                    Toast.makeText(this@SubjectDetailActivity, "Failed to delete from Drive: ${e.message}", Toast.LENGTH_LONG).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Failed to delete from Drive: ${e.message}")
                 }
             }
         }
@@ -390,64 +390,199 @@ class SubjectDetailActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     db.collection("library_materials").document(docId).update("title", newTitle)
                     uploadProgress.visibility = View.GONE
-                    Toast.makeText(this@SubjectDetailActivity, "Renamed in Drive & App!", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Renamed in Drive & App!")
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     uploadProgress.visibility = View.GONE
-                    Toast.makeText(this@SubjectDetailActivity, "Failed to rename: ${e.message}", Toast.LENGTH_LONG).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Failed to rename: ${e.message}")
                 }
             }
         }
     }
     private fun managePdfAccess(materialId: String, title: String, currentlyAssigned: List<String>) {
         if (uid == null) return
-        db.collection("classes").whereArrayContains("teacherIds", uid).get()
-            .addOnSuccessListener { snapshots ->
-                if (snapshots.isEmpty) {
-                    Toast.makeText(this, "You need to create a Class Section first!", Toast.LENGTH_SHORT).show()
-                    return@addOnSuccessListener
-                }
 
-                // Extract unique section names
-                val sectionNames = snapshots.documents.mapNotNull { it.getString("section") }.distinct().toTypedArray()
+        // TURN ON SPINNER
+        GabAIUtils.showGlobalLoading(this)
 
-                // Create an array of booleans to check off sections that ALREADY have access
-                val checkedItems = BooleanArray(sectionNames.size) { i ->
-                    currentlyAssigned.contains(sectionNames[i])
-                }
+        db.collection("users").document(uid).get().addOnSuccessListener { teacherDoc ->
+            val teacherSchoolId = teacherDoc.getString("schoolId") ?: ""
 
-                // Track changes locally while the teacher is tapping checkboxes
-                val selectedSections = currentlyAssigned.toMutableList()
+            // 1. FIRST get the sections this teacher actually teaches/owns
+            db.collection("classes").whereArrayContains("teacherIds", uid).get()
+                .addOnSuccessListener { classSnaps ->
+                    if (classSnaps.isEmpty) {
+                        GabAIUtils.hideGlobalLoading(this)
+                        GabAIUtils.showSnackbar(this, "You need to create or join a class section first.")
+                        return@addOnSuccessListener
+                    }
 
-                MaterialAlertDialogBuilder(this)
-                    .setTitle("Manage Access: '$title'")
-                    .setMultiChoiceItems(sectionNames, checkedItems) { _, which, isChecked ->
-                        val section = sectionNames[which]
-                        if (isChecked) {
-                            if (!selectedSections.contains(section)) selectedSections.add(section)
-                        } else {
-                            // If unchecked, REVOKE access!
-                            selectedSections.remove(section)
+                    // Store whether you are the adviser, and who has joined via code
+                    class SectionData(val isAdviser: Boolean, val joinedStudents: List<String>)
+                    val mySections = mutableMapOf<String, SectionData>()
+
+                    for (doc in classSnaps.documents) {
+                        val sec = doc.getString("section") ?: continue
+                        val isAdviser = doc.getBoolean("isAdviser") ?: false
+                        val joinedStudents = doc.get("joinedStudents") as? List<String> ?: listOf()
+                        mySections[sec] = SectionData(isAdviser, joinedStudents)
+                    }
+
+                    // 2. NOW fetch the students and strictly filter them!
+                    db.collection("users")
+                        .whereEqualTo("role", "student")
+                        .whereEqualTo("schoolId", teacherSchoolId)
+                        .get()
+                        .addOnSuccessListener { studentSnaps ->
+                            val studentsBySection = mutableMapOf<String, MutableList<Map<String, String>>>()
+
+                            for (doc in studentSnaps.documents) {
+                                val sec = doc.getString("section") ?: continue
+                                val studentId = doc.id
+
+                                // Check if teacher has ANY access to this section
+                                val sectionData = mySections[sec] ?: continue
+
+                                // LEAST PRIVILEGE CHECK:
+                                // If they are not the adviser, the student MUST have used their join code.
+                                if (!sectionData.isAdviser && !sectionData.joinedStudents.contains(studentId)) {
+                                    continue // Skip this student!
+                                }
+
+                                val fName = doc.getString("firstName") ?: ""
+                                val lName = doc.getString("lastName") ?: ""
+                                val studentData = mapOf("id" to studentId, "name" to "$fName $lName".trim())
+
+                                if (!studentsBySection.containsKey(sec)) {
+                                    studentsBySection[sec] = mutableListOf()
+                                }
+                                studentsBySection[sec]?.add(studentData)
+                            }
+
+                            if (studentsBySection.isEmpty()) {
+                                GabAIUtils.hideGlobalLoading(this)
+                                GabAIUtils.showSnackbar(this, "No students have joined your classes yet.")
+                                return@addOnSuccessListener
+                            }
+
+                            // 3. Build the UI
+                            val selectedStudentIds = currentlyAssigned.toMutableList()
+                            val mainContainer = LinearLayout(this).apply {
+                                orientation = LinearLayout.VERTICAL
+                                setPadding(40, 20, 40, 20)
+                            }
+
+                            for ((sectionName, students) in studentsBySection) {
+                                val sectionLayout = LinearLayout(this).apply {
+                                    orientation = LinearLayout.HORIZONTAL
+                                    gravity = android.view.Gravity.CENTER_VERTICAL
+                                    setPadding(0, 10, 0, 10)
+                                }
+
+                                val sectionCheckbox = CheckBox(this)
+                                sectionCheckbox.isChecked = students.all { selectedStudentIds.contains(it["id"]) }
+
+                                val sectionTitle = TextView(this).apply {
+                                    text = sectionName
+                                    textSize = 18f
+                                    setTypeface(null, android.graphics.Typeface.BOLD)
+                                    setTextColor(Color.parseColor("#2D3436"))
+                                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                                }
+
+                                val expandIcon = TextView(this).apply {
+                                    text = "▼"
+                                    textSize = 16f
+                                    setPadding(20, 20, 20, 20)
+                                }
+
+                                sectionLayout.addView(sectionCheckbox)
+                                sectionLayout.addView(sectionTitle)
+                                sectionLayout.addView(expandIcon)
+                                mainContainer.addView(sectionLayout)
+
+                                val studentListContainer = LinearLayout(this).apply {
+                                    orientation = LinearLayout.VERTICAL
+                                    setPadding(60, 0, 0, 20)
+                                    visibility = View.GONE
+                                }
+
+                                val studentCheckboxes = mutableListOf<CheckBox>()
+
+                                for (student in students) {
+                                    val stId = student["id"]!!
+                                    val stCb = CheckBox(this).apply {
+                                        text = student["name"]
+                                        textSize = 16f
+                                        isChecked = selectedStudentIds.contains(stId)
+                                    }
+                                    studentCheckboxes.add(stCb)
+                                    studentListContainer.addView(stCb)
+
+                                    stCb.setOnCheckedChangeListener { _, isChecked ->
+                                        if (isChecked) {
+                                            if (!selectedStudentIds.contains(stId)) selectedStudentIds.add(stId)
+                                        } else {
+                                            selectedStudentIds.remove(stId)
+                                        }
+
+                                        sectionCheckbox.setOnCheckedChangeListener(null)
+                                        sectionCheckbox.isChecked = studentCheckboxes.all { it.isChecked }
+                                        sectionCheckbox.setOnCheckedChangeListener { _, parentChecked ->
+                                            studentCheckboxes.forEach { it.isChecked = parentChecked }
+                                        }
+                                    }
+                                }
+
+                                sectionCheckbox.setOnCheckedChangeListener { _, isChecked ->
+                                    studentCheckboxes.forEach { it.isChecked = isChecked }
+                                }
+
+                                val toggleExpand = View.OnClickListener {
+                                    if (studentListContainer.visibility == View.VISIBLE) {
+                                        studentListContainer.visibility = View.GONE
+                                        expandIcon.text = "▼"
+                                    } else {
+                                        studentListContainer.visibility = View.VISIBLE
+                                        expandIcon.text = "▲"
+                                    }
+                                }
+
+                                sectionTitle.setOnClickListener(toggleExpand)
+                                expandIcon.setOnClickListener(toggleExpand)
+
+                                mainContainer.addView(studentListContainer)
+                                mainContainer.addView(View(this).apply {
+                                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2).apply { setMargins(0, 10, 0, 10) }
+                                    setBackgroundColor(Color.parseColor("#DFE6E9"))
+                                })
+                            }
+
+                            GabAIUtils.hideGlobalLoading(this)
+
+                            val scrollView = ScrollView(this).apply { addView(mainContainer) }
+
+                            MaterialAlertDialogBuilder(this)
+                                .setTitle("Manage Access: '$title'")
+                                .setView(scrollView)
+                                .setPositiveButton("Save Access") { _, _ ->
+                                    uploadProgress.visibility = View.VISIBLE
+                                    db.collection("library_materials").document(materialId)
+                                        .update("assignedSections", selectedStudentIds)
+                                        .addOnSuccessListener {
+                                            uploadProgress.visibility = View.GONE
+                                            GabAIUtils.showSnackbar(this, "Access updated successfully!")
+                                        }
+                                        .addOnFailureListener {
+                                            uploadProgress.visibility = View.GONE
+                                            GabAIUtils.showSnackbar(this, "Failed to update access.")
+                                        }
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
                         }
-                    }
-                    .setPositiveButton("Save") { _, _ ->
-                        uploadProgress.visibility = View.VISIBLE
-
-                        // Overwrite the array in Firestore with the new selection
-                        db.collection("library_materials").document(materialId)
-                            .update("assignedSections", selectedSections)
-                            .addOnSuccessListener {
-                                uploadProgress.visibility = View.GONE
-                                Toast.makeText(this, "Access updated successfully!", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                uploadProgress.visibility = View.GONE
-                                Toast.makeText(this, "Failed to update access.", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            }
+                }
+        }
     }
 }

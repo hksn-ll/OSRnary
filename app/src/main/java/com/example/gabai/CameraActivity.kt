@@ -54,7 +54,7 @@ class CameraActivity : AppCompatActivity() {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageCapture)
             } catch (e: Exception) {
-                Toast.makeText(this, "Camera failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Camera failed: ${e.message}")
             }
         }, ContextCompat.getMainExecutor(this))
     }
@@ -74,7 +74,7 @@ class CameraActivity : AppCompatActivity() {
                 finish()
             }
             override fun onError(exc: ImageCaptureException) {
-                Toast.makeText(baseContext, "Capture failed", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(baseContext, "Capture failed")
             }
         })
     }

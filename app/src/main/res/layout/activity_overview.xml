@@ -71,7 +71,24 @@
                 android:orientation="vertical"
                 android:padding="16dp"
                 android:layout_marginBottom="24dp">
+                <ImageButton
 
+                    android:id="@+id/btn_speak_selected"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@android:drawable/ic_lock_silent_mode_off"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Speak AI Explanation"
+                    app:tint="#645394"/>
+
+
+                <ProgressBar
+                    android:id="@+id/progress_tts_selected"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:visibility="gone"
+                    android:indeterminateTint="#6C5CE7" />
                 <TextView
                     android:id="@+id/selected_text_view"
                     android:layout_width="match_parent"
@@ -81,6 +98,8 @@
                     android:textColor="#2D3436"
                     android:textStyle="italic"
                     android:lineSpacingExtra="4dp"/>
+
+
             </LinearLayout>
 
             <LinearLayout
@@ -133,6 +152,21 @@
                         android:layout_height="wrap_content"
                         android:background="#FFFFFF"
                         android:padding="4dp">
+                        <ProgressBar
+                            android:id="@+id/progress_tts_explanation"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:visibility="gone"
+                            android:indeterminateTint="#6C5CE7" />
+                        <ImageButton
+                            android:id="@+id/btn_speak_explanation"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@android:drawable/ic_lock_silent_mode_off"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Speak AI Explanation"
+                            android:drawableTint="#6968CD"/>
 
                         <TextView
                             android:id="@+id/ai_result_text"

@@ -20,7 +20,7 @@ class TeacherLibraryActivity : AppCompatActivity() {
 
     private val db = FirebaseFirestore.getInstance()
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
-
+    private var teacherFullName: String = "Teacher"
     // --- PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ---
     // Make sure it ends in /exec !
     private val driveApiUrl = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
@@ -41,6 +41,11 @@ class TeacherLibraryActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_create_folder).setOnClickListener { showFolderDialog(null, "") }
 
         loadFolders()
+        if (uid != null) {
+            db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+                teacherFullName = "${doc.getString("firstName")} ${doc.getString("lastName")}"
+            }
+        }
     }
 
     private fun loadFolders() {
@@ -52,7 +57,7 @@ class TeacherLibraryActivity : AppCompatActivity() {
             .whereEqualTo("teacherId", uid)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    Toast.makeText(this, "Error loading folders: ${e.message}", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this, "Error loading folders: ${e.message}")
                     return@addSnapshotListener
                 }
 
@@ -73,9 +78,12 @@ class TeacherLibraryActivity : AppCompatActivity() {
 
                 for (doc in sortedDocs) {
                     val subjectName = doc.getString("name") ?: "Unnamed Subject"
-
+                    val teacherName = doc.getString("teacherName") ?: "Teacher"
                     val row = layoutInflater.inflate(R.layout.item_folder, container, false)
                     row.findViewById<TextView>(R.id.tv_folder_name).text = subjectName
+
+                    val tvTeacher = row.findViewById<TextView>(R.id.tv_folder_teacher)
+                    if (tvTeacher != null) tvTeacher.text = "By: $teacherName"
 
                     // EDIT
                     row.findViewById<ImageButton>(R.id.btn_edit_folder).setOnClickListener {
@@ -115,7 +123,7 @@ class TeacherLibraryActivity : AppCompatActivity() {
                 if (newName.isNotEmpty()) {
                     if (docId == null) {
                         // Create
-                        val data = hashMapOf("name" to newName, "teacherId" to uid, "timestamp" to System.currentTimeMillis())
+                        val data = hashMapOf("name" to newName, "teacherId" to uid, "teacherName" to teacherFullName, "timestamp" to System.currentTimeMillis())
                         db.collection("library_subjects").add(data)
                     } else {
                         // Update
@@ -140,8 +148,10 @@ class TeacherLibraryActivity : AppCompatActivity() {
     }
 
     // 2. THE NEW CASCADE DELETE LOGIC
+    // 2. THE NEW CASCADE DELETE LOGIC
     private fun deleteSubjectAndContents(subjectId: String) {
-        Toast.makeText(this, "Deleting folder and files...", Toast.LENGTH_SHORT).show()
+        // TURN ON SPINNER
+        GabAIUtils.showGlobalLoading(this)
 
         // Step A: Find all PDFs inside this subject
         db.collection("library_materials")
@@ -151,18 +161,18 @@ class TeacherLibraryActivity : AppCompatActivity() {
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     try {
-                        val client = OkHttpClient()
+                        val client = okhttp3.OkHttpClient()
 
                         // Step B: Loop through every PDF and tell Google Drive to trash it
                         for (doc in snapshots.documents) {
                             val fileId = doc.getString("driveFileId") ?: ""
 
                             if (fileId.isNotEmpty()) {
-                                val formBody = FormBody.Builder()
+                                val formBody = okhttp3.FormBody.Builder()
                                     .add("action", "delete")
                                     .add("fileId", fileId)
                                     .build()
-                                val request = Request.Builder().url(driveApiUrl).post(formBody).build()
+                                val request = okhttp3.Request.Builder().url(driveApiUrl).post(formBody).build()
                                 client.newCall(request).execute() // Execute delete command
                             }
 
@@ -173,18 +183,22 @@ class TeacherLibraryActivity : AppCompatActivity() {
                         // Step C: Finally, delete the actual Subject Folder
                         withContext(Dispatchers.Main) {
                             db.collection("library_subjects").document(subjectId).delete()
-                            Toast.makeText(this@TeacherLibraryActivity, "Subject and all files deleted!", Toast.LENGTH_SHORT).show()
+                            // TURN OFF SPINNER
+                            GabAIUtils.hideGlobalLoading(this@TeacherLibraryActivity)
+                            GabAIUtils.showSnackbar(this@TeacherLibraryActivity, "Subject and all files deleted!")
                         }
 
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@TeacherLibraryActivity, "Error deleting files: ${e.message}", Toast.LENGTH_LONG).show()
+                            GabAIUtils.hideGlobalLoading(this@TeacherLibraryActivity)
+                            GabAIUtils.showSnackbar(this@TeacherLibraryActivity, "Error deleting files: ${e.message}")
                         }
                     }
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Error fetching files: ${e.message}", Toast.LENGTH_SHORT).show()
+                GabAIUtils.hideGlobalLoading(this)
+                GabAIUtils.showSnackbar(this, "Error fetching files: ${e.message}")
             }
     }
 }

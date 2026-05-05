@@ -71,14 +71,14 @@ class FavoritesActivity : AppCompatActivity() {
                     itemView.findViewById<android.view.View>(R.id.btn_remove_fav).setOnClickListener {
                         doc.reference.delete().addOnSuccessListener {
                             refreshFavoritesList()
-                            Toast.makeText(this, "Removed $word", Toast.LENGTH_SHORT).show()
+                            com.example.gabai.GabAIUtils.showSnackbar(this, "Removed $word")
                         }
                     }
                     container.addView(itemView)
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Error loading favorites: ${e.message}", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Error loading favorites: ${e.message}")
             }
     }
 }

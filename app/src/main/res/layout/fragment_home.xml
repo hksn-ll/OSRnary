@@ -141,6 +141,65 @@
 
                 <Button android:id="@+id/btn_quest_details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Quest Details" android:layout_marginTop="16dp" android:backgroundTint="#2d3436"/>
             </LinearLayout>
+            <!-- Learning Progress Card -->
+            <LinearLayout
+                android:id="@+id/btn_learning_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card_quiz"
+                android:clickable="true"
+                android:elevation="4dp"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="20dp"
+                android:foreground="?attr/selectableItemBackground">
+
+                <!-- Text Content -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Learning Progress"
+                        android:textColor="#2D3436"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="View your level, XP, and accuracy"
+                        android:textColor="#636E72"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Arrow Icon pointing right -->
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="#B2BEC3" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/btn_join_class"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#00B894"
+                android:padding="16dp"
+                android:text="Join Class with Code"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
+
             <LinearLayout
                 android:id="@+id/btn_open_camera"
                 android:layout_width="match_parent"

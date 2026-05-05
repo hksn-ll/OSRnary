@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
             startActivity(Intent(requireContext(), CameraActivity::class.java))
         } else {
             // Permission denied
-            Toast.makeText(requireContext(), "Camera permission is required to scan books.", Toast.LENGTH_LONG).show()
+            com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Camera permission is required to scan books.")
         }
     }
 
@@ -52,7 +52,7 @@ class HomeFragment : Fragment() {
             requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
                 .edit().putBoolean("bubble_enabled", true).apply()
 
-            Toast.makeText(context, "Bubble Active!", Toast.LENGTH_SHORT).show()
+            com.example.gabai.GabAIUtils.showSnackbar(context, "Bubble Active!")
             val triggerUid = FirebaseAuth.getInstance().currentUser?.uid
             if (triggerUid != null) {
                 FirebaseFirestore.getInstance().collection("users").document(triggerUid)
@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
             }
         } else {
             binding.bubbleSwitch.isChecked = false
-            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+            com.example.gabai.GabAIUtils.showSnackbar(context, "Permission denied")
         }
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -82,6 +82,9 @@ class HomeFragment : Fragment() {
         // 2. CLEAR the listener before setting the state to prevent a loop
         binding.bubbleSwitch.setOnCheckedChangeListener(null)
         binding.bubbleSwitch.isChecked = isEnabled
+        binding.btnLearningProgress.setOnClickListener {
+            startActivity(Intent(requireContext(), ProgressDashboardActivity::class.java))
+        }
         // --- ADD THIS LINE INSIDE setupDashboard() ---
         binding.btnOpenLibrary.setOnClickListener {
             // Check if the bubble is actually turned on
@@ -140,6 +143,13 @@ class HomeFragment : Fragment() {
         binding.btnStartQuiz.setOnClickListener { startActivity(Intent(requireContext(), QuizActivity::class.java)) }
         binding.btnFavs.setOnClickListener { startActivity(Intent(requireContext(), FavoritesActivity::class.java)) }
         binding.btnHistory.setOnClickListener { startActivity(Intent(requireContext(), HistoryActivity::class.java)) }
+        // Dynamically look for the button so the app compiles even if the XML isn't updated yet!
+        val joinBtnId = resources.getIdentifier("btn_join_class", "id", requireContext().packageName)
+        if (joinBtnId != 0) {
+            binding.root.findViewById<android.widget.Button>(joinBtnId)?.setOnClickListener {
+                showJoinClassDialog()
+            }
+        }
         // --- ADD THIS TO LAUNCH THE READER ---
         binding.root.findViewById<android.widget.Button>(R.id.btn_quest_details)?.setOnClickListener {
             showQuestDetailsDialog()
@@ -148,10 +158,18 @@ class HomeFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
 
         // Real-time listener for user progress (Requirement 7.3)
+        // TURN ON SPINNER FOR INITIAL LOAD
+        GabAIUtils.showGlobalLoading(context)
+
         // Real-time listener for user progress & onboarding
         db.collection("users").document(uid).addSnapshotListener { snapshot, e ->
-            if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
+            // SAFELY TURN OFF SPINNER
+            val safeContext = context
+            if (safeContext != null) {
 
+            }
+
+            if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
             val currentLevel = snapshot.getLong("level")?.toInt() ?: 1
             val currentXP = snapshot.getLong("current_xp")?.toInt() ?: 0
             val maxXP = 100
@@ -211,6 +229,7 @@ class HomeFragment : Fragment() {
                 qDetail.text = if (completedQuests.contains("detail")) "✅ 7. View Saved Content" else "❌ 7. View Saved Content"
                 qLibrary.text = if (completedQuests.contains("library")) "✅ 8. Open the Digital Library" else "❌ 8. Open the Digital Library"
             }
+            GabAIUtils.hideGlobalLoading(safeContext)
         }
     }
     override fun onDestroyView() {
@@ -265,4 +284,97 @@ class HomeFragment : Fragment() {
             }
             .show()
     }
+    private fun showJoinClassDialog() {
+        val input = android.widget.EditText(requireContext()).apply {
+            hint = "Enter 6-character Teacher Code"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT
+            setPadding(50, 40, 50, 40)
+            isAllCaps = true
+        }
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Join a Class")
+            .setMessage("Enter the Join Code provided by your teacher to access their subject materials.")
+            .setView(input)
+            .setPositiveButton("Join") { _, _ ->
+                val code = input.text.toString().trim().uppercase()
+                if (code.length == 6) {
+                    joinClassWithCode(code)
+                } else {
+                    GabAIUtils.showSnackbar(requireContext(), "Invalid Code. Must be 6 characters.")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun joinClassWithCode(joinCode: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        GabAIUtils.showGlobalLoading(requireContext())
+
+        // 1. Find the Teacher with this Join Code
+        db.collection("users")
+            .whereEqualTo("role", "teacher")
+            .whereEqualTo("joinCode", joinCode)
+            .get()
+            .addOnSuccessListener { userSnaps ->
+                if (userSnaps.isEmpty) {
+                    GabAIUtils.hideGlobalLoading(requireContext())
+                    GabAIUtils.showSnackbar(requireContext(), "No teacher found with that code.")
+                    return@addOnSuccessListener
+                }
+                val teacherId = userSnaps.documents[0].id
+
+                // 2. Add this student's section to the Teacher's class list
+                db.collection("users").document(uid).get().addOnSuccessListener { studentDoc ->
+                    val studentSection = studentDoc.getString("section") ?: ""
+                    val studentGrade = studentDoc.getString("grade") ?: ""
+                    val schoolId = studentDoc.getString("schoolId") ?: ""
+                    val fullClassName = "$studentGrade - $studentSection"
+
+                    // Check if this class already exists for this specific teacher
+                    db.collection("classes")
+                        .whereEqualTo("schoolId", schoolId)
+                        .whereEqualTo("className", fullClassName)
+                        .whereArrayContains("teacherIds", teacherId)
+                        .get()
+                        .addOnSuccessListener { classSnaps ->
+                            if (classSnaps.isEmpty) {
+                                // Create the class link for the teacher AND ADD STUDENT
+                                val classData = hashMapOf(
+                                    "className" to fullClassName,
+                                    "grade" to studentGrade,
+                                    "section" to studentSection,
+                                    "teacherId" to teacherId, // Owner
+                                    "teacherIds" to listOf(teacherId),
+                                    "schoolId" to schoolId,
+                                    "isAdviser" to false, // Least Privilege Flag!
+                                    "joinedStudents" to listOf(uid), // <--- FIXED: Student is added!
+                                    "createdAt" to System.currentTimeMillis()
+                                )
+                                db.collection("classes").add(classData).addOnSuccessListener {
+                                    GabAIUtils.hideGlobalLoading(requireContext())
+                                    GabAIUtils.showSnackbar(requireContext(), "Successfully joined class!")
+                                }
+                            } else {
+                                // Class exists, just update the array with the student!
+                                val classDocId = classSnaps.documents[0].id
+                                db.collection("classes").document(classDocId)
+                                    .update("joinedStudents", com.google.firebase.firestore.FieldValue.arrayUnion(uid))
+                                    .addOnSuccessListener {
+                                        GabAIUtils.hideGlobalLoading(requireContext())
+                                        GabAIUtils.showSnackbar(requireContext(), "Successfully joined class!")
+                                    }
+                            }
+                        }
+                }
+            }
+            .addOnFailureListener {
+                GabAIUtils.hideGlobalLoading(requireContext())
+                GabAIUtils.showSnackbar(requireContext(), "Error connecting to server.")
+            }
+    }
+
 }

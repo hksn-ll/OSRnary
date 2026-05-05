@@ -6,6 +6,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FirebaseFirestore
+import android.graphics.Color
 
 class ClassDetailActivity : AppCompatActivity() {
 
@@ -14,6 +15,7 @@ class ClassDetailActivity : AppCompatActivity() {
     private lateinit var sectionName: String
     private lateinit var schoolId: String
     private val db = FirebaseFirestore.getInstance()
+    private var isAdviser: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +37,13 @@ class ClassDetailActivity : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
-        findViewById<Button>(R.id.btn_generate_students).setOnClickListener { showGenerateStudentsDialog() }
+        isAdviser = intent.getBooleanExtra("IS_ADVISER", true)
+
+        val btnGenerate = findViewById<Button>(R.id.btn_generate_students)
+        btnGenerate.setOnClickListener { showGenerateStudentsDialog() }
+
+        // HIDE GENERATE BUTTON IF NOT ADVISER
+        if (!isAdviser) btnGenerate.visibility = View.GONE
 
         loadStudents()
     }
@@ -44,76 +52,135 @@ class ClassDetailActivity : AppCompatActivity() {
         val pendingContainer = findViewById<LinearLayout>(R.id.pending_students_container)
         val activeContainer = findViewById<LinearLayout>(R.id.active_students_container)
 
-        // 1. READ Pending Students
-        db.collection("pending_students")
-            .whereEqualTo("schoolId", schoolId)
-            .whereEqualTo("section", sectionName)
-            .addSnapshotListener { snapshots, error ->
-                if (error != null || snapshots == null) return@addSnapshotListener
-                pendingContainer.removeAllViews()
+        // 1. Fetch the class document to get the joinedStudents list
+        db.collection("classes").document(classId).get().addOnSuccessListener { classDoc ->
+            val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
 
-                if (snapshots.isEmpty) {
-                    pendingContainer.addView(TextView(this).apply { text = "No pending accounts." })
-                } else {
-                    for (doc in snapshots) {
-                        val fName = doc.getString("firstName") ?: ""
-                        val lName = doc.getString("lastName") ?: ""
-                        val fullName = "$fName $lName".trim() // Combine them for the UI
-                        val username = doc.getString("username") ?: ""
-                        val password = doc.getString("password") ?: ""
+            // ==========================================
+            // PATH A: ADVISER VIEW (FULL PRIVILEGE)
+            // ==========================================
+            if (isAdviser) {
+                pendingContainer.visibility = View.VISIBLE
 
-                        val view = layoutInflater.inflate(R.layout.item_student_manage, pendingContainer, false)
-                        view.findViewById<TextView>(R.id.tv_student_name).text = fullName
-                        view.findViewById<TextView>(R.id.tv_student_details).text = "User: $username | Pass: $password"
+                // Read Pending Students
+                db.collection("pending_students")
+                    .whereEqualTo("schoolId", schoolId)
+                    .whereEqualTo("section", sectionName)
+                    .addSnapshotListener { snapshots, error ->
+                        if (error != null || snapshots == null) return@addSnapshotListener
+                        pendingContainer.removeAllViews()
 
-                        // UPDATE
-                        view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener {
-                            showEditStudentDialog(doc.id, true, fullName, password)
+                        if (snapshots.isEmpty) {
+                            pendingContainer.addView(TextView(this).apply { text = "No pending accounts." })
+                        } else {
+                            pendingContainer.addView(TextView(this).apply {
+                                text = "Unclaimed Accounts"
+                                setTypeface(null, android.graphics.Typeface.BOLD)
+                                setTextColor(Color.DKGRAY)
+                                setPadding(0, 0, 0, 10)
+                            })
+                            for (doc in snapshots) {
+                                val fName = doc.getString("firstName") ?: ""
+                                val lName = doc.getString("lastName") ?: ""
+                                val fullName = "$fName $lName".trim()
+                                val username = doc.getString("username") ?: ""
+                                val password = doc.getString("password") ?: ""
+
+                                val view = layoutInflater.inflate(R.layout.item_student_manage, pendingContainer, false)
+                                view.findViewById<TextView>(R.id.tv_student_name).text = fullName
+                                view.findViewById<TextView>(R.id.tv_student_details).text = "User: $username | Pass: $password"
+
+                                view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password) }
+                                view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }
+                                pendingContainer.addView(view)
+                            }
                         }
-                        // DELETE
-                        view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener {
-                            confirmDelete(doc.id, true, fullName)
-                        }
-                        pendingContainer.addView(view)
                     }
-                }
-            }
 
-        // 2. READ Active Students
-        db.collection("users")
-            .whereEqualTo("role", "student")
-            .whereEqualTo("schoolId", schoolId)
-            .whereEqualTo("section", sectionName)
-            .addSnapshotListener { snapshots, error ->
-                if (error != null || snapshots == null) return@addSnapshotListener
-                activeContainer.removeAllViews()
+                // Read Active Students
+                db.collection("users")
+                    .whereEqualTo("role", "student")
+                    .whereEqualTo("schoolId", schoolId)
+                    .whereEqualTo("section", sectionName)
+                    .addSnapshotListener { snapshots, error ->
+                        if (error != null || snapshots == null) return@addSnapshotListener
+                        activeContainer.removeAllViews()
 
-                if (snapshots.isEmpty) {
-                    activeContainer.addView(TextView(this).apply { text = "No active students." })
-                } else {
-                    for (doc in snapshots) {
-                        val fName = doc.getString("firstName") ?: ""
-                        val lName = doc.getString("lastName") ?: ""
-                        val fullName = "$fName $lName".trim() // Combine them for the UI
-                        val level = doc.getLong("level")?.toInt() ?: 1
+                        if (snapshots.isEmpty) {
+                            activeContainer.addView(TextView(this).apply { text = "No active students." })
+                        } else {
+                            activeContainer.addView(TextView(this).apply {
+                                text = "Active Students"
+                                setTypeface(null, android.graphics.Typeface.BOLD)
+                                setTextColor(Color.DKGRAY)
+                                setPadding(0, 30, 0, 10)
+                            })
+                            for (doc in snapshots) {
+                                val fName = doc.getString("firstName") ?: ""
+                                val lName = doc.getString("lastName") ?: ""
+                                val fullName = "$fName $lName".trim()
+                                val level = doc.getLong("level")?.toInt() ?: 1
 
-                        val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
-                        view.findViewById<TextView>(R.id.tv_student_name).text = fullName
-                        view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
+                                val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
+                                view.findViewById<TextView>(R.id.tv_student_name).text = fullName
+                                view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
 
-                        // For active users, we only allow editing name
-                        view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener {
-                            showEditStudentDialog(doc.id, false, fullName, "")
+                                view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "") }
+                                view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, false, fullName) }
+                                activeContainer.addView(view)
+                            }
                         }
-                        view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener {
-                            confirmDelete(doc.id, false, fullName)
-                        }
-                        activeContainer.addView(view)
                     }
-                }
+
             }
+            // ==========================================
+            // PATH B: SUBJECT TEACHER VIEW (LEAST PRIVILEGE)
+            // ==========================================
+            else {
+                // Completely hide the Pending Accounts container
+                pendingContainer.visibility = View.GONE
+
+                db.collection("users")
+                    .whereEqualTo("role", "student")
+                    .whereEqualTo("schoolId", schoolId)
+                    .whereEqualTo("section", sectionName)
+                    .addSnapshotListener { snapshots, error ->
+                        if (error != null || snapshots == null) return@addSnapshotListener
+                        activeContainer.removeAllViews()
+
+                        // GATEKEEPER: Only allow students in the joinedStudents array
+                        val activeDocs = snapshots.documents.filter { joinedStudents.contains(it.id) }
+
+                        if (activeDocs.isEmpty()) {
+                            activeContainer.addView(TextView(this).apply { text = "No students have joined using your code yet." })
+                        } else {
+                            activeContainer.addView(TextView(this).apply {
+                                text = "Students Joined"
+                                setTypeface(null, android.graphics.Typeface.BOLD)
+                                setTextColor(Color.DKGRAY)
+                                setPadding(0, 0, 0, 10)
+                            })
+                            for (doc in activeDocs) {
+                                val fName = doc.getString("firstName") ?: ""
+                                val lName = doc.getString("lastName") ?: ""
+                                val fullName = "$fName $lName".trim()
+                                val level = doc.getLong("level")?.toInt() ?: 1
+
+                                val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
+                                view.findViewById<TextView>(R.id.tv_student_name).text = fullName
+                                view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
+
+                                // Remove editing controls so they can't mess with the adviser's students
+                                view.findViewById<ImageButton>(R.id.btn_edit_student).visibility = View.GONE
+                                view.findViewById<ImageButton>(R.id.btn_delete_student).visibility = View.GONE
+
+                                activeContainer.addView(view)
+                            }
+                        }
+                    }
+            }
+        }
     }
-
     // CREATE
     private fun showGenerateStudentsDialog() {
         val input = EditText(this).apply {
@@ -141,7 +208,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
     private fun generateStudentAccounts(names: List<String>) {
         var completedCount = 0
-        Toast.makeText(this, "Generating ${names.size} accounts...", Toast.LENGTH_SHORT).show()
+        com.example.gabai.GabAIUtils.showSnackbar(this, "Generating ${names.size} accounts...")
 
         for (fullName in names) {
             // Split back to maintain DB schema seamlessly
@@ -172,7 +239,7 @@ class ClassDetailActivity : AppCompatActivity() {
             db.collection("pending_students").document(username).set(studentData).addOnSuccessListener {
                 completedCount++
                 if (completedCount == names.size) {
-                    Toast.makeText(this, "$completedCount accounts generated!", Toast.LENGTH_LONG).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
                 }
             }
         }
@@ -214,7 +281,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
                 val collection = if (isPending) "pending_students" else "users"
                 db.collection(collection).document(docId).update(updates)
-                    .addOnSuccessListener { Toast.makeText(this, "Updated successfully", Toast.LENGTH_SHORT).show() }
+                    .addOnSuccessListener { com.example.gabai.GabAIUtils.showSnackbar(this, "Updated successfully") }
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -228,7 +295,7 @@ class ClassDetailActivity : AppCompatActivity() {
             .setPositiveButton("Delete") { _, _ ->
                 val collection = if (isPending) "pending_students" else "users"
                 db.collection(collection).document(docId).delete()
-                    .addOnSuccessListener { Toast.makeText(this, "Student removed", Toast.LENGTH_SHORT).show() }
+                    .addOnSuccessListener { com.example.gabai.GabAIUtils.showSnackbar(this, "Student removed") }
             }
             .setNegativeButton("Cancel", null)
             .show()

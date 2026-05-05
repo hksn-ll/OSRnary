@@ -46,7 +46,7 @@ class PdfViewerActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this@PdfViewerActivity, "Failed to load PDF", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to load PDF")
                     finish()
                 }
             }

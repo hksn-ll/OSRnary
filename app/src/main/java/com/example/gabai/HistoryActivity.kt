@@ -64,7 +64,7 @@ class HistoryActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to load history: ${e.message}", Toast.LENGTH_SHORT).show()
+                com.example.gabai.GabAIUtils.showSnackbar(this, "Failed to load history: ${e.message}")
             }
     }
 }

@@ -36,9 +36,14 @@
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">>
+
+        </activity>
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.GabAI">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -70,6 +75,9 @@
         <activity android:name=".PdfViewerActivity" android:exported="false" />
         <activity android:name=".SubjectDetailActivity" android:exported="false" />
         <activity android:name=".StudentSubjectActivity" android:exported="false" />
+        <activity android:name=".QuizHistoryActivity" android:exported="false" />
+        <activity android:name=".ProgressDashboardActivity" android:exported="false" />
     </application>
+
 
 </manifest>

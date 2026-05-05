@@ -46,7 +46,7 @@ class TeacherHomeFragment : Fragment() {
             .get()
             .addOnSuccessListener { classSnapshots ->
                 if (classSnapshots.isEmpty) {
-                    Toast.makeText(requireContext(), "Please create a class section first!", Toast.LENGTH_LONG).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Please create a class section first!")
                     return@addOnSuccessListener
                 }
 
@@ -94,9 +94,9 @@ class TeacherHomeFragment : Fragment() {
                         val selectedClassName = classNames[classSpinner.selectedItemPosition]
 
                         if (title.isEmpty() || summary.isEmpty() || driveUrl.isEmpty()) {
-                            Toast.makeText(requireContext(), "Title, Summary, and Link are all required", Toast.LENGTH_SHORT).show()
+                            com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Title, Summary, and Link are all required")
                         } else if (!driveUrl.contains("drive.google.com")) {
-                            Toast.makeText(requireContext(), "Please provide a valid Google Drive link", Toast.LENGTH_SHORT).show()
+                            com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Please provide a valid Google Drive link")
                         } else {
                             saveAssignmentToFirestore(title, summary, driveUrl, selectedClassId, selectedClassName)
                         }
@@ -126,10 +126,10 @@ class TeacherHomeFragment : Fragment() {
 
             db.collection("library").add(assignmentData)
                 .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Material assigned to $className!", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Material assigned to $className!")
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Error: ${e.message}")
                 }
         }
     }

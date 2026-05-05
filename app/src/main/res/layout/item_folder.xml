@@ -30,6 +30,12 @@
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#2D3436"/>
+        <TextView
+            android:id="@+id/tv_folder_teacher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="#636E72" />
     </LinearLayout>
 
     <ImageButton
