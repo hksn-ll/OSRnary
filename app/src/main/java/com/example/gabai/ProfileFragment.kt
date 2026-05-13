@@ -27,6 +27,12 @@ class ProfileFragment : Fragment() {
         loadUserData()
 
         binding.btnLogout.setOnClickListener {
+            // 🟢 NEW: Stop the bubble service and reset the toggle state 🟢
+            requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))
+            requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+                .edit().putBoolean("bubble_enabled", false).apply()
+
+            // Existing logout logic
             FirebaseAuth.getInstance().signOut()
             startActivity(Intent(requireContext(), AuthActivity::class.java))
             requireActivity().finish()

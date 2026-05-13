@@ -33,9 +33,16 @@ class ProgressDashboardActivity : AppCompatActivity() {
         val level = XPManager.getLevel(this)
         val xp = XPManager.getXP(this)
 
+        // 🟢 FETCH THE NEW MAX
+        val maxXP = XPManager.getMaxXPForLevel(level)
+
         findViewById<TextView>(R.id.tv_level).text = "Level $level"
-        findViewById<TextView>(R.id.tv_xp).text = "$xp / 100 XP to next level"
-        findViewById<ProgressBar>(R.id.progress_xp).progress = xp
+        findViewById<TextView>(R.id.tv_xp).text = "$xp / $maxXP XP to next level"
+
+        // 🟢 SET THE PROGRESS BAR MAX
+        val progressBar = findViewById<ProgressBar>(R.id.progress_xp)
+        progressBar.max = maxXP
+        progressBar.progress = xp
     }
 
     private fun calculateAnalytics() {

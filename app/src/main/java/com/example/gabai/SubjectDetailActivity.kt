@@ -25,6 +25,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import com.google.ai.client.generativeai.GenerativeModel
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.text.PDFTextStripper
+import java.io.InputStream
 
 class SubjectDetailActivity : AppCompatActivity() {
 
@@ -44,9 +49,14 @@ class SubjectDetailActivity : AppCompatActivity() {
     private val pdfPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) promptForPdfTitle(uri)
     }
+    private val generativeModel = GenerativeModel(
+        modelName = "gemini-2.5-flash-lite",
+        apiKey = BuildConfig.GEMINI_API_KEY
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        PDFBoxResourceLoader.init(applicationContext)
         setContentView(R.layout.activity_subject_detail)
 
         subjectId = intent.getStringExtra("SUBJECT_ID") ?: return finish()
@@ -81,20 +91,14 @@ class SubjectDetailActivity : AppCompatActivity() {
     // 1. AUTO-FILL PDF TITLE LOGIC
     private fun promptForPdfTitle(fileUri: Uri) {
         var originalName = ""
-
-        // Extract the actual filename from the Android system
         contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (cursor.moveToFirst()) {
-                originalName = cursor.getString(nameIndex) ?: ""
-            }
+            val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst()) originalName = cursor.getString(nameIndex) ?: ""
         }
-
-        // Clean up the name (remove .pdf extension)
         originalName = originalName.removeSuffix(".pdf").replace("_", " ")
 
         val input = EditText(this).apply {
-            setText(originalName) // Auto-fill the suggested name!
+            setText(originalName)
             hint = "Enter Document Title"
             setPadding(50, 40, 50, 40)
         }
@@ -111,45 +115,25 @@ class SubjectDetailActivity : AppCompatActivity() {
     }
 
     private fun uploadPdfToDrive(fileUri: Uri, title: String) {
-        // 1. Gray out the button so they can't double-click
         btnUploadPdf.isEnabled = false
         btnUploadPdf.setBackgroundColor(Color.LTGRAY)
         btnUploadPdf.text = "Uploading..."
-
-        // 2. Show the progress container
         uploadStatusContainer.visibility = View.VISIBLE
-        uploadProgress.progress = 5
-        tvUploadStatus.text = "5% - Generating Thumbnail..."
+        uploadProgress.isIndeterminate = true
+        tvUploadStatus.text = "Uploading to Google Drive..."
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val thumbnailBase64 = generateThumbnail(fileUri)
-
-                withContext(Dispatchers.Main) {
-                    uploadProgress.progress = 15
-                    tvUploadStatus.text = "15% - Reading PDF File..."
-                }
-
                 val inputStream = contentResolver.openInputStream(fileUri)
                 val bytes = inputStream?.readBytes() ?: throw Exception("Could not read file.")
                 val base64File = Base64.encodeToString(bytes, Base64.DEFAULT)
                 inputStream.close()
 
-                withContext(Dispatchers.Main) {
-                    uploadProgress.progress = 30
-                    tvUploadStatus.text = "30% - Uploading to Google Drive (Please wait...)"
-                }
-
                 val cleanTitle = title.replace(Regex("[^A-Za-z0-9]"), "")
                 val systematicFilename = "GabAI_${subjectName}_${cleanTitle}_${System.currentTimeMillis()}.pdf"
 
-                // MASSIVE 5-MINUTE TIMEOUT FOR SLOW SCHOOL INTERNET
-                val client = OkHttpClient.Builder()
-                    .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-                    .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-                    .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-                    .build()
-
+                val client = OkHttpClient.Builder().connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS).build()
                 val formBody = FormBody.Builder()
                     .add("action", "upload")
                     .add("fileName", systematicFilename)
@@ -161,38 +145,62 @@ class SubjectDetailActivity : AppCompatActivity() {
                 val response = client.newCall(request).execute()
                 val responseData = response.body?.string()
 
-                withContext(Dispatchers.Main) {
-                    uploadProgress.progress = 85
-                    tvUploadStatus.text = "85% - Processing Response..."
-                }
-
                 if (response.isSuccessful && responseData != null) {
-                    val json = JSONObject(responseData)
+                    val json = org.json.JSONObject(responseData)
                     if (json.getString("status") == "success") {
                         val downloadUrl = json.getString("url")
                         val fileId = json.getString("fileId")
 
                         withContext(Dispatchers.Main) {
-                            uploadProgress.progress = 95
-                            tvUploadStatus.text = "95% - Saving to Database..."
-                            saveToFirestore(title, downloadUrl, thumbnailBase64, fileId)
+                            tvUploadStatus.text = "Saving to Database..."
+                            // Save with EMPTY quiz arrays initially
+                            saveToFirestore(title, downloadUrl, thumbnailBase64, fileId, "[]", 0)
                         }
-                    } else {
-                        throw Exception(json.getString("message"))
-                    }
-                } else {
-                    throw Exception("Google Error Code: ${response.code}")
-                }
+                    } else throw Exception(json.getString("message"))
+                } else throw Exception("Google Error Code: ${response.code}")
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     resetUploadUI()
-                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Upload Error: ${e.message}")
+                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Error: ${e.message}")
                 }
             }
         }
     }
 
-    private fun saveToFirestore(title: String, pdfUrl: String, thumbBase64: String, fileId: String) {
+    private fun extractTextFromUri(uri: Uri): String {
+        return try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val document = PDDocument.load(inputStream)
+            val stripper = PDFTextStripper()
+            val text = stripper.getText(document)
+            document.close()
+            inputStream?.close()
+            text
+        } catch (e: Exception) { "" }
+    }
+
+    private suspend fun generateQuizPool(pdfText: String, totalQuestions: Int): String {
+        if (pdfText.isEmpty()) return "[]"
+        val prompt = """
+        You are an AI teacher. Read this text:
+        ${pdfText.take(10000)}
+        
+        Create exactly $totalQuestions multiple choice questions based on the text.
+        Return ONLY a valid JSON array. Format:
+        [ { "q": "Question?", "options": ["A", "B", "C", "D"], "ans": 0 } ]
+    """.trimIndent()
+
+        val response = generativeModel.generateContent(prompt)
+        var jsonStr = response.text ?: "[]"
+        val startIndex = jsonStr.indexOf("[")
+        val endIndex = jsonStr.lastIndexOf("]")
+        if (startIndex != -1 && endIndex != -1) {
+            jsonStr = jsonStr.substring(startIndex, endIndex + 1)
+        }
+        return jsonStr
+    }
+
+    private fun saveToFirestore(title: String, pdfUrl: String, thumbBase64: String, fileId: String, quizJson: String, maxItems: Int) {
         val materialData = hashMapOf(
             "title" to title,
             "subjectId" to subjectId,
@@ -202,6 +210,8 @@ class SubjectDetailActivity : AppCompatActivity() {
             "teacherId" to uid,
             "uploaderName" to teacherFullName,
             "assignedSections" to listOf<String>(),
+            "quiz_pool_json" to quizJson, // SAVED!
+            "quiz_max_items" to maxItems, // SAVED!
             "timestamp" to System.currentTimeMillis()
         )
 
@@ -246,63 +256,35 @@ class SubjectDetailActivity : AppCompatActivity() {
                     val pdfUrl = doc.getString("pdfUrl") ?: ""
                     val fileId = doc.getString("driveFileId") ?: ""
                     val thumbStr = doc.getString("thumbnail") ?: ""
-
+                    val assignedSections = doc.get("assignedSections") as? List<String> ?: listOf()
 
                     val row = layoutInflater.inflate(R.layout.item_pdf_document, container, false)
                     row.findViewById<TextView>(R.id.tv_pdf_title).text = title
+                    row.findViewById<TextView>(R.id.tv_uploader_name)?.text = "Uploaded by: ${doc.getString("uploaderName") ?: "Unknown"}"
 
-                    val uploader = doc.getString("uploaderName") ?: "Unknown"
-                    row.findViewById<TextView>(R.id.tv_uploader_name)?.text = "Uploaded by: $uploader"
-
-                    // NEW: FETCH CURRENTLY ASSIGNED SECTIONS
-                    val assignedSections = doc.get("assignedSections") as? List<String> ?: listOf()
-
-                    // MANAGE ACCESS LOGIC (Assign/Revoke)
-                    row.findViewById<ImageButton>(R.id.btn_assign_pdf).setOnClickListener {
-                        managePdfAccess(doc.id, title, assignedSections)
-                    }
-
+                    // THUMBNAIL
                     val imgThumb = row.findViewById<ImageView>(R.id.img_pdf_thumb)
                     if (thumbStr.isNotEmpty()) {
                         try {
-                            val decodedBytes = Base64.decode(thumbStr, Base64.DEFAULT)
+                            val decodedBytes = android.util.Base64.decode(thumbStr, android.util.Base64.DEFAULT)
                             val bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
                             imgThumb.setImageBitmap(bitmap)
-                        } catch (e: Exception) {
-                            imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
-                        }
-                    } else {
-                        imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
-                    }
+                        } catch (e: Exception) { imgThumb.setImageResource(android.R.drawable.ic_menu_report_image) }
+                    } else imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
 
-                    row.findViewById<ImageButton>(R.id.btn_open_pdf).setOnClickListener {
-                        val intent = Intent(this, PdfViewerActivity::class.java)
-                        intent.putExtra("PDF_URL", pdfUrl)
-                        intent.putExtra("PDF_TITLE", title)
+                    // 🟢 THE NEW LAUNCH LOGIC 🟢
+                    row.setOnClickListener {
+                        val intent = Intent(this@SubjectDetailActivity, PdfViewerActivity::class.java).apply {
+                            putExtra("PDF_URL", pdfUrl)
+                            putExtra("PDF_TITLE", title)
+                            putExtra("MATERIAL_ID", doc.id)
+                            putExtra("DRIVE_FILE_ID", fileId)
+                            putExtra("IS_TEACHER", true)
+                            putStringArrayListExtra("ASSIGNED_SECTIONS", ArrayList(assignedSections))
+                        }
                         startActivity(intent)
                     }
 
-                    row.findViewById<ImageButton>(R.id.btn_edit_pdf).setOnClickListener {
-                        val input = EditText(this).apply { setText(title); setPadding(50, 40, 50, 40) }
-                        MaterialAlertDialogBuilder(this).setTitle("Rename PDF").setView(input)
-                            .setPositiveButton("Save") { _, _ ->
-                                val newTitle = input.text.toString().trim()
-                                if (newTitle.isNotEmpty() && newTitle != title) {
-                                    // Trigger the new sync function!
-                                    renamePdfInDriveAndDatabase(doc.id, fileId, newTitle)
-                                }
-                            }.setNegativeButton("Cancel", null).show()
-                    }
-
-                    // 4. TRUE DELETION LOGIC
-                    row.findViewById<ImageButton>(R.id.btn_delete_pdf).setOnClickListener {
-                        MaterialAlertDialogBuilder(this).setTitle("Delete PDF?")
-                            .setMessage("This will permanently delete the file from Google Drive and remove it from the library.")
-                            .setPositiveButton("Delete") { _, _ ->
-                                deleteFileFromDriveAndDatabase(doc.id, fileId)
-                            }
-                            .setNegativeButton("Cancel", null).show()
-                    }
                     container.addView(row)
                 }
             }
@@ -402,7 +384,6 @@ class SubjectDetailActivity : AppCompatActivity() {
     }
     private fun managePdfAccess(materialId: String, title: String, currentlyAssigned: List<String>) {
         if (uid == null) return
-
         // TURN ON SPINNER
         GabAIUtils.showGlobalLoading(this)
 
@@ -418,62 +399,56 @@ class SubjectDetailActivity : AppCompatActivity() {
                         return@addOnSuccessListener
                     }
 
-                    // Store whether you are the adviser, and who has joined via code
-                    class SectionData(val isAdviser: Boolean, val joinedStudents: List<String>)
-                    val mySections = mutableMapOf<String, SectionData>()
-
-                    for (doc in classSnaps.documents) {
-                        val sec = doc.getString("section") ?: continue
-                        val isAdviser = doc.getBoolean("isAdviser") ?: false
-                        val joinedStudents = doc.get("joinedStudents") as? List<String> ?: listOf()
-                        mySections[sec] = SectionData(isAdviser, joinedStudents)
-                    }
-
-                    // 2. NOW fetch the students and strictly filter them!
+                    // 2. NOW fetch the students in the school
                     db.collection("users")
                         .whereEqualTo("role", "student")
                         .whereEqualTo("schoolId", teacherSchoolId)
                         .get()
                         .addOnSuccessListener { studentSnaps ->
-                            val studentsBySection = mutableMapOf<String, MutableList<Map<String, String>>>()
+                            val studentsByClass = mutableMapOf<String, MutableList<Map<String, String>>>()
 
-                            for (doc in studentSnaps.documents) {
-                                val sec = doc.getString("section") ?: continue
-                                val studentId = doc.id
+                            // 3. FLIPPED LOGIC: Match students ONLY if they used the Join Code
+                            for (classDoc in classSnaps.documents) {
+                                val className = classDoc.getString("className") ?: continue
+                                val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
 
-                                // Check if teacher has ANY access to this section
-                                val sectionData = mySections[sec] ?: continue
+                                // If nobody joined this specific class yet, skip it
+                                if (joinedStudents.isEmpty()) continue
 
-                                // LEAST PRIVILEGE CHECK:
-                                // If they are not the adviser, the student MUST have used their join code.
-                                if (!sectionData.isAdviser && !sectionData.joinedStudents.contains(studentId)) {
-                                    continue // Skip this student!
+                                for (studentId in joinedStudents) {
+                                    val studentDoc = studentSnaps.documents.find { it.id == studentId }
+                                    if (studentDoc != null) {
+                                        val fName = studentDoc.getString("firstName") ?: ""
+                                        val lName = studentDoc.getString("lastName") ?: ""
+                                        val studentData = mapOf("id" to studentId, "name" to "$fName $lName".trim())
+
+                                        if (!studentsByClass.containsKey(className)) {
+                                            studentsByClass[className] = mutableListOf()
+                                        }
+
+                                        // Prevent accidental duplicates
+                                        if (studentsByClass[className]?.none { it["id"] == studentId } == true) {
+                                            studentsByClass[className]?.add(studentData)
+                                        }
+                                    }
                                 }
-
-                                val fName = doc.getString("firstName") ?: ""
-                                val lName = doc.getString("lastName") ?: ""
-                                val studentData = mapOf("id" to studentId, "name" to "$fName $lName".trim())
-
-                                if (!studentsBySection.containsKey(sec)) {
-                                    studentsBySection[sec] = mutableListOf()
-                                }
-                                studentsBySection[sec]?.add(studentData)
                             }
 
-                            if (studentsBySection.isEmpty()) {
+                            // If no students were found in any joinedStudents array
+                            if (studentsByClass.isEmpty()) {
                                 GabAIUtils.hideGlobalLoading(this)
                                 GabAIUtils.showSnackbar(this, "No students have joined your classes yet.")
                                 return@addOnSuccessListener
                             }
 
-                            // 3. Build the UI
+                            // 4. Build the UI
                             val selectedStudentIds = currentlyAssigned.toMutableList()
                             val mainContainer = LinearLayout(this).apply {
                                 orientation = LinearLayout.VERTICAL
                                 setPadding(40, 20, 40, 20)
                             }
 
-                            for ((sectionName, students) in studentsBySection) {
+                            for ((className, students) in studentsByClass) {
                                 val sectionLayout = LinearLayout(this).apply {
                                     orientation = LinearLayout.HORIZONTAL
                                     gravity = android.view.Gravity.CENTER_VERTICAL
@@ -484,7 +459,7 @@ class SubjectDetailActivity : AppCompatActivity() {
                                 sectionCheckbox.isChecked = students.all { selectedStudentIds.contains(it["id"]) }
 
                                 val sectionTitle = TextView(this).apply {
-                                    text = sectionName
+                                    text = className // Shows "Grade 10 - Rizal", etc.
                                     textSize = 18f
                                     setTypeface(null, android.graphics.Typeface.BOLD)
                                     setTextColor(Color.parseColor("#2D3436"))
@@ -509,7 +484,6 @@ class SubjectDetailActivity : AppCompatActivity() {
                                 }
 
                                 val studentCheckboxes = mutableListOf<CheckBox>()
-
                                 for (student in students) {
                                     val stId = student["id"]!!
                                     val stCb = CheckBox(this).apply {
@@ -526,7 +500,6 @@ class SubjectDetailActivity : AppCompatActivity() {
                                         } else {
                                             selectedStudentIds.remove(stId)
                                         }
-
                                         sectionCheckbox.setOnCheckedChangeListener(null)
                                         sectionCheckbox.isChecked = studentCheckboxes.all { it.isChecked }
                                         sectionCheckbox.setOnCheckedChangeListener { _, parentChecked ->

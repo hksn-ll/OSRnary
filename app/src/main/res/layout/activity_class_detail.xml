@@ -109,13 +109,32 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
+            android:id="@+id/btn_view_performance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Class Performance"
+            android:backgroundTint="#00B894"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="2dp" />
+
+        <Button
+            android:id="@+id/btn_manage_initiation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⚙️ Manage Initiation Quest"
+            android:backgroundTint="#FDCB6E"
+            android:textColor="#2D3436"
+            android:layout_marginTop="8dp" />
+
+        <Button
             android:id="@+id/btn_generate_students"
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:text="+ Generate Student Accounts"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="#2D3436"/>
+            android:backgroundTint="#2D3436"
+            android:layout_marginTop="8dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

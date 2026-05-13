@@ -175,15 +175,23 @@ class OverviewActivity : AppCompatActivity() {
         val resultContainer = findViewById<LinearLayout>(R.id.result_container)
         val resultTextView = findViewById<TextView>(R.id.ai_result_text)
 
-        // 1. GET USER LANGUAGE PREFERENCE
-        // 1. GET DETAILED LANGUAGE PREFERENCE
+        // 1. GET DETAILED LANGUAGE & TONE PREFERENCE
         val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
         val selectedLang = prefs.getString("ai_language_pref", "English")
 
-        val langRequirement = when (selectedLang) {
-            "Taglish" -> "- **Tone & Language (CRITICAL):** Explain using 'Taglish' (a natural, conversational mix of Filipino and English). Sound like a smart, helpful local Kuya or Ate tutoring a student. It should be engaging but highly factual."
-            "Tagalog" -> "- **Language Preference:** Explain strictly in clear, formal, but easy-to-understand Tagalog (Filipino)."
-            else -> "- **Language Preference:** Explain strictly in clear, accessible English suitable for a Grade 10 student."
+        val languageAndToneRules = when (selectedLang) {
+            "Taglish" -> """
+                - **LANGUAGE (CRITICAL):** You MUST write the entire explanation in TAGLISH (a conversational mix of Tagalog and English).
+                - **TONE:** Be friendly and encouraging. Sound like a smart Filipino 'Kuya' or 'Ate' explaining a lesson to a Grade 10 student. Use natural phrasing (e.g., "Ang ibig sabihin nito ay...", "Para mas madaling maintindihan..."). Do not be overly formal.
+            """.trimIndent()
+            "Tagalog" -> """
+                - **LANGUAGE (CRITICAL):** You MUST write the entire explanation strictly in clear, everyday Tagalog (Filipino).
+                - **TONE:** Educational but easy to read. Avoid deep, obsolete Tagalog words (lalim/makata). Use standard conversational Filipino suitable for a high school student.
+            """.trimIndent()
+            else -> """
+                - **LANGUAGE (CRITICAL):** English.
+                - **TONE & VOCABULARY:** Explain it extremely simply. Use short sentences and basic, everyday words. Avoid all complex jargon, academic phrasing, or "deep" vocabulary. Write it so a 15-year-old student who struggles with reading can easily understand it instantly.
+            """.trimIndent()
         }
 
         // Initialize Markdown
@@ -197,9 +205,9 @@ class OverviewActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // 2. YOUR ORIGINAL PRECISE PROMPT (With language requirement added)
+                // 2. THE NEW STREAMLINED PROMPT
                 val prompt = """
-                    You are an AI Tutor for an educational app called GabAI, helping high school students (Grade 10).
+                    You are an AI Tutor for an educational app called GabAI, helping Grade 10 students.
                     Analyze the following input text: "$inputText"
 
                     **INSTRUCTIONS:**
@@ -207,27 +215,20 @@ class OverviewActivity : AppCompatActivity() {
                     - Provide a **Dictionary Layout** first.
                     - Format:
                       > **Word** (Pronunciation) - *Part of Speech*
-                      > Definition: [Clear, objective definition]
+                      > Definition: [Clear, simple definition]
                     - Follow immediately with a **Context Overview**.
 
                     **CASE 2: If it is a phrase, proper noun, event, or topic:**
                     - SKIP the dictionary layout.
                     - Provide ONLY the **Context Overview**.
 
-                    **CONTENT REQUIREMENTS:**
-                    $langRequirement
-                    - **Context Overview Tone (CRITICAL):** You must be strictly informative, objective, and academic, while remaining accessible to a 10th-grade reading level. 
-                    - **BANNED PHRASES:** DO NOT use storytelling framing. Never use phrases like "Imagine...", "Think of it like...", "Picture this...", or conversational filler like "Let's dive into...". 
-                    - Deliver historical facts, contextual significance, and explanations directly. Strip away overly complex postgraduate jargon, but absolutely do not talk down to the user. Your voice should mimic a modern, high-quality digital encyclopedia.
-                    - **If Non-English:** State Language, Provide English Translation.
-                    - **Prioritize Filipino** when there is a word that is non-English.
-                    - **If English:** Provide standard definitions and context.
-
-                    **FORMATTING RULES:**
-                    - Use **Bold** for headers.
-                    - Use > Blockquotes for definitions.
-                    - Keep it concise, strictly factual, and visually structured.
+                    **CONTENT & TONE REQUIREMENTS:**
+                    $languageAndToneRules
+                    
+                    - **Strict Formatting:** Keep it concise and visually structured. Use **Bold** for headers and > Blockquotes for definitions.
+                    - DO NOT use storytelling framing like "Imagine..." or "Picture this...". Just give the direct, simplified facts.
                 """.trimIndent()
+
                 val response = generativeModel.generateContent(prompt)
 
                 // Update UI
@@ -237,7 +238,7 @@ class OverviewActivity : AppCompatActivity() {
                 response.text?.let {
                     lastAiResult = it
                     markwon.setMarkdown(resultTextView, it)
-                    saveToHistory(inputText, it, inputText)
+                    saveToHistory(inputText, it, inputText) // Note: Make sure saveToHistory accepts 3 arguments in your file
                 } ?: run {
                     resultTextView.text = "Sorry, no result generated."
                 }
@@ -280,7 +281,9 @@ class OverviewActivity : AppCompatActivity() {
             .collection("favorites").document(word) // Using the word as ID prevents duplicates
             .set(favEntry)
             .addOnSuccessListener {
+
                 android.util.Log.d("GabAI_DB", "Favorite synced to cloud")
+                QuestManager.addProgress(this, QuestManager.QUEST_SAVE)
                 db.collection("users").document(uid).update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("save"))
             }
         db.collection("users").document(uid).update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("save"))

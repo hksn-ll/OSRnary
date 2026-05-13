@@ -116,14 +116,15 @@ class QuizActivity : AppCompatActivity() {
             .whereGreaterThanOrEqualTo("timestamp", startOfToday)
             .get()
             .addOnSuccessListener { historyDocs ->
-                val sessionsToday = historyDocs.size()
+
+                // 🟢 THE FIX: Only count "recall" quizzes. Ignore "material" quizzes!
+                val sessionsToday = historyDocs.documents.count { it.getString("quizType") != "material" }
 
                 if (sessionsToday >= maxSessionsPerDay) {
                     val resultView = findViewById<View>(R.id.result_view)
                     val btnRestart = findViewById<Button>(R.id.btn_restart)
                     val scoreText = findViewById<TextView>(R.id.final_score_text)
 
-                    // FIX: Write the warning to the result screen!
                     scoreText.visibility = View.VISIBLE
                     scoreText.text = "Brain Rest Required!\n\nYou've completed your $maxSessionsPerDay daily sessions. Come back tomorrow to let your memory consolidate!"
 
@@ -424,11 +425,13 @@ private fun parseAndDisplayQuiz(rawResult: String) {
         if (XPManager.canEarnXP(this)) {
             XPManager.addXP(this, 20)
         }
+        QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
 
         // Save the entire session to a new 'quiz_history' collection
         val userId = auth.currentUser?.uid
         if (userId != null && sessionResults.isNotEmpty()) {
             val historyData = hashMapOf(
+                "quizType" to "recall", // 🟢 ADD THIS LINE
                 "timestamp" to System.currentTimeMillis(),
                 "finalScore" to score,
                 "totalAttempts" to totalAttempts,

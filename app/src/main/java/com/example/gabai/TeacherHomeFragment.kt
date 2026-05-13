@@ -50,7 +50,13 @@ class TeacherHomeFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-                val classNames = classSnapshots.map { it.getString("className") ?: "" }.toTypedArray()
+                // 🟢 FIX: Force the grade to show in the dropdown list too!
+                val classNames = classSnapshots.map {
+                    val cName = it.getString("className") ?: ""
+                    val cGrade = it.getString("grade") ?: ""
+                    if (cGrade.isNotEmpty() && !cName.contains(cGrade)) "$cGrade - $cName" else cName
+                }.toTypedArray()
+
                 val classIds = classSnapshots.map { it.id }.toTypedArray()
 
                 val layout = LinearLayout(requireContext()).apply {

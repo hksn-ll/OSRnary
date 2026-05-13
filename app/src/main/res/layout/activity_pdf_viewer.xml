@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:background="#6C5CE7"
         android:padding="20dp"
+        android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
@@ -23,7 +24,8 @@
 
         <TextView
             android:id="@+id/tv_pdf_title"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Loading..."
             android:textColor="#FFFFFF"
@@ -32,6 +34,14 @@
             android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="1"/>
+
+        <ImageButton
+            android:id="@+id/btn_kebab_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_meatballs"
+            android:background="?attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
 
     <ProgressBar
@@ -51,5 +61,20 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/pdf_header"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/pdf_action_loader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B3000000"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:elevation="10dp"
+        android:clickable="true"
+        android:focusable="true">
+        <ProgressBar android:layout_width="wrap_content" android:layout_height="wrap_content" android:indeterminateTint="#6C5CE7"/>
+        <TextView android:id="@+id/tv_action_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Processing..." android:layout_marginTop="12dp"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

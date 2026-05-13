@@ -101,13 +101,13 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun setupGradeDropdown() {
-        // Enforcement of Grade 10 as the target demographic
-        val grades = arrayOf("Grade 10")
+        // 🟢 ADDED GRADES 7 TO 10
+        val grades = arrayOf("Grade 7", "Grade 8", "Grade 9", "Grade 10")
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, grades)
         binding.spinnerGrade.setAdapter(adapter)
 
-        // Auto-select Grade 10 as it's the priority
-        binding.spinnerGrade.setText(grades[0], false)
+        // Auto-select Grade 10 as default
+        binding.spinnerGrade.setText(grades[3], false)
     }
     private fun updateRoleUI(roleTitle: String) {
         binding.tvRoleIndicator.text = "$roleTitle Access"
@@ -300,19 +300,32 @@ class AuthActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
 
-                    // --- TEMPORARILY DISABLED FOR TESTING ---
-                    /* if (user?.isEmailVerified == false) {
-                        toggleLoading(false)
-                        showErrorDialog("Email Not Verified", "Check your inbox and verify your email first.")
-                        auth.signOut()
-                        showLogin()
-                        return@addOnCompleteListener
+                    // ==========================================
+                    // 🟢 THE FIX: SECURITY CHECK FOR TEACHERS 🟢
+                    // ==========================================
+                    if (user != null) {
+                        db.collection("users").document(user.uid).get()
+                            .addOnSuccessListener { doc ->
+                                if (doc.exists()) {
+                                    // Account is valid! Proceed.
+                                    db.collection("users").document(user.uid).update("emailVerified", true)
+                                    navigateToMain("teacher")
+                                } else {
+                                    // Account was deleted from the database!
+                                    user.delete() // Clean up the orphaned Auth account
+                                    auth.signOut()
+                                    toggleLoading(false)
+                                    showErrorDialog("Access Denied", "Your teacher account has been removed from the system.")
+                                    showLogin()
+                                }
+                            }
+                            .addOnFailureListener {
+                                auth.signOut()
+                                toggleLoading(false)
+                                showErrorDialog("System Error", "Could not verify your account status.")
+                                showLogin()
+                            }
                     }
-                    */
-
-                    // Proceed to login even if email is not verified yet
-                    db.collection("users").document(user!!.uid).update("emailVerified", true)
-                    navigateToMain("teacher")
                 } else {
                     toggleLoading(false)
                     showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
@@ -325,7 +338,30 @@ class AuthActivity : AppCompatActivity() {
 
             auth.signInWithEmailAndPassword(fakeEmail, pass).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    navigateToMain("student")
+                    // NEW SECURITY CHECK: Verify they still exist in the database!
+                    val user = auth.currentUser
+                    if (user != null) {
+                        db.collection("users").document(user.uid).get()
+                            .addOnSuccessListener { doc ->
+                                if (doc.exists()) {
+                                    // Account is valid! Proceed.
+                                    navigateToMain("student")
+                                } else {
+                                    // Account was deleted by the Adviser!
+                                    user.delete() // Clean up the orphaned Auth account
+                                    auth.signOut()
+                                    toggleLoading(false)
+                                    showErrorDialog("Access Denied", "Your account has been removed from the class section by your adviser.")
+                                    showLogin()
+                                }
+                            }
+                            .addOnFailureListener {
+                                auth.signOut()
+                                toggleLoading(false)
+                                showErrorDialog("System Error", "Could not verify your account status.")
+                                showLogin()
+                            }
+                    }
                 } else {
                     // Failed: Might be their FIRST login.
                     // SECURE FETCH: Try to get the specific document from pending_students

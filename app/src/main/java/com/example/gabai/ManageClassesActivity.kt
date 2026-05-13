@@ -40,8 +40,10 @@ class ManageClassesActivity : AppCompatActivity() {
 
         val gradeLabel = TextView(this).apply { text = "Select Grade:" }
         val gradeSpinner = Spinner(this).apply {
-            val grades = arrayOf("Grade 10")
+            // 🟢 ADDED GRADES 7 TO 10
+            val grades = arrayOf("Grade 7", "Grade 8", "Grade 9", "Grade 10")
             adapter = ArrayAdapter(this@ManageClassesActivity, android.R.layout.simple_spinner_dropdown_item, grades)
+            setSelection(3) // Default to Grade 10
         }
 
         val sectionLabel = TextView(this).apply {
@@ -67,7 +69,7 @@ class ManageClassesActivity : AppCompatActivity() {
                 if (sectionName.isNotEmpty()) {
                     saveClassToFirestore(selectedGrade, sectionName)
                 } else {
-                    com.example.gabai.GabAIUtils.showSnackbar(this, "Section name cannot be empty")
+                    GabAIUtils.showSnackbar(this, "Section name cannot be empty")
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -107,6 +109,13 @@ class ManageClassesActivity : AppCompatActivity() {
                     val schoolId = doc.getString("schoolId") ?: ""
                     val isAdviser = doc.getBoolean("isAdviser") ?: true
 
+                    // 🟢 FIX: Force the grade into the title if it's missing from old data
+                    val displayTitle = if (gradeName.isNotEmpty() && !className.contains(gradeName)) {
+                        "$gradeName - $className"
+                    } else {
+                        className
+                    }
+
                     // Build the card
                     val card = LinearLayout(this).apply {
                         orientation = LinearLayout.HORIZONTAL
@@ -125,14 +134,16 @@ class ManageClassesActivity : AppCompatActivity() {
                     }
 
                     val titleText = TextView(this).apply {
-                        text = className
+                        text = displayTitle // 🟢 Uses the new forced-grade title
                         textSize = 20f
                         setTypeface(null, android.graphics.Typeface.BOLD)
                         setTextColor(Color.BLACK)
                     }
 
                     val actionText = TextView(this).apply {
-                        text = if (isAdviser) "Tap to manage student accounts ->" else "Tap to view class roster ->"
+                        val baseAction = if (isAdviser) "Tap to manage accounts ->" else "Tap to view roster ->"
+                        // 🟢 FIX: Explicitly print the Grade in the subtitle text as well!
+                        text = if (gradeName.isNotEmpty()) "$gradeName | $baseAction" else baseAction
                         textSize = 14f
                         setTextColor(Color.parseColor(if (isAdviser) "#6C5CE7" else "#636E72"))
                         setPadding(0, 10, 0, 0)
@@ -140,6 +151,8 @@ class ManageClassesActivity : AppCompatActivity() {
 
                     textLayout.addView(titleText)
                     textLayout.addView(actionText)
+
+                    // ... (Keep the rest of the buttons and click listeners the same below this)
 
                     // Extract the limits (defaulting to 3 and 10 if missing)
                     val maxSessions = doc.getLong("maxSessionsPerDay")?.toInt() ?: 3
@@ -160,7 +173,7 @@ class ManageClassesActivity : AppCompatActivity() {
                         setBackgroundResource(android.R.color.transparent)
                         setColorFilter(Color.parseColor("#D63031"))
                         setPadding(20, 20, 20, 20)
-                        setOnClickListener { confirmDeleteClass(classId, className, sectionName, schoolId, isAdviser) }
+                        setOnClickListener { confirmDeleteClass(classId, className, sectionName, gradeName, schoolId, isAdviser) }
                     }
 
                     card.addView(textLayout)
@@ -174,6 +187,7 @@ class ManageClassesActivity : AppCompatActivity() {
                             putExtra("SECTION_NAME", sectionName)
                             putExtra("SCHOOL_ID", schoolId)
                             putExtra("IS_ADVISER", isAdviser)
+                            putExtra("GRADE", gradeName)
                         }
                         startActivity(intent)
                     }
@@ -227,14 +241,18 @@ class ManageClassesActivity : AppCompatActivity() {
 
         val gradeLabel = TextView(this).apply { text = "Select Grade:" }
         val gradeSpinner = Spinner(this).apply {
-            val grades = arrayOf("Grade 10")
+            // 🟢 ADDED GRADES 7 TO 10
+            val grades = arrayOf("Grade 7", "Grade 8", "Grade 9", "Grade 10")
             adapter = ArrayAdapter(this@ManageClassesActivity, android.R.layout.simple_spinner_dropdown_item, grades)
+
+            // Set the spinner to the current grade
+            val gradeIndex = grades.indexOf(currentGrade)
+            if (gradeIndex >= 0) setSelection(gradeIndex)
         }
 
         val sectionLabel = TextView(this).apply { text = "Enter Section Name:"; setPadding(0, 40, 0, 0) }
         val sectionInput = EditText(this).apply { setText(currentSection) }
 
-        // --- NEW: Limit Inputs ---
         val sessionsLabel = TextView(this).apply { text = "Max Quiz Sessions per Day:"; setPadding(0, 40, 0, 0) }
         val sessionsInput = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
@@ -265,14 +283,31 @@ class ManageClassesActivity : AppCompatActivity() {
 
                 if (newSection.isNotEmpty()) {
                     val db = FirebaseFirestore.getInstance()
-                    db.collection("classes").document(classId).update(
-                        "grade", newGrade,
-                        "section", newSection,
-                        "className", newFullName,
-                        "maxSessionsPerDay", newSessions, // <--- UPDATE IN CLOUD
-                        "maxItemsPerSession", newItems    // <--- UPDATE IN CLOUD
-                    ).addOnSuccessListener {
-                        com.example.gabai.GabAIUtils.showSnackbar(this, "Class settings updated!")
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@setPositiveButton
+
+                    // 🟢 STRICT CHECK: Prevent editing into a grade they already own (unless it's the same grade)
+                    if (newGrade != currentGrade) {
+                        db.collection("classes")
+                            .whereEqualTo("teacherId", uid)
+                            .whereEqualTo("grade", newGrade)
+                            .get()
+                            .addOnSuccessListener { checkSnaps ->
+                                if (!checkSnaps.isEmpty) {
+                                    GabAIUtils.showSnackbar(this, "Error: You already manage a section for $newGrade.")
+                                } else {
+                                    // Safe to update
+                                    db.collection("classes").document(classId).update(
+                                        "grade", newGrade, "section", newSection, "className", newFullName,
+                                        "maxSessionsPerDay", newSessions, "maxItemsPerSession", newItems
+                                    ).addOnSuccessListener { GabAIUtils.showSnackbar(this, "Class updated!") }
+                                }
+                            }
+                    } else {
+                        // Grade didn't change, just update the rest
+                        db.collection("classes").document(classId).update(
+                            "section", newSection, "className", newFullName,
+                            "maxSessionsPerDay", newSessions, "maxItemsPerSession", newItems
+                        ).addOnSuccessListener { GabAIUtils.showSnackbar(this, "Class updated!") }
                     }
                 }
             }
@@ -284,7 +319,8 @@ class ManageClassesActivity : AppCompatActivity() {
     // DELETE Class & Cascade Delete Students
     // DELETE Class & Cascade Delete Students
     // DELETE Class & Cascade Delete Students (Only if Adviser)
-    private fun confirmDeleteClass(classId: String, className: String, sectionName: String, schoolId: String, isAdviser: Boolean) {
+    // 🟢 FIX: Added 'grade' to the function signature
+    private fun confirmDeleteClass(classId: String, className: String, sectionName: String, grade: String, schoolId: String, isAdviser: Boolean) {
         val title = if (isAdviser) "Delete Class & Students?" else "Remove Class?"
         val message = if (isAdviser) {
             "Are you sure you want to permanently delete $className? This WILL permanently delete ALL student accounts (both active and pending) associated with this section."
@@ -300,16 +336,26 @@ class ManageClassesActivity : AppCompatActivity() {
                 val db = FirebaseFirestore.getInstance()
 
                 if (isAdviser) {
-                    // FULL PRIVILEGE: Wipe out the students
-                    db.collection("pending_students").whereEqualTo("schoolId", schoolId).whereEqualTo("section", sectionName).get().addOnSuccessListener { snaps ->
-                        for (doc in snaps.documents) doc.reference.delete()
-                    }
-                    db.collection("users").whereEqualTo("role", "student").whereEqualTo("schoolId", schoolId).whereEqualTo("section", sectionName).get().addOnSuccessListener { snaps ->
-                        for (doc in snaps.documents) doc.reference.delete()
-                    }
+                    // 🟢 STRICT CHECK: Wipe out students ONLY in this specific School, Section, AND Grade!
+                    db.collection("pending_students")
+                        .whereEqualTo("schoolId", schoolId)
+                        .whereEqualTo("section", sectionName)
+                        .whereEqualTo("grade", grade) // 🟢 FILTER APPLIED
+                        .get().addOnSuccessListener { snaps ->
+                            for (doc in snaps.documents) doc.reference.delete()
+                        }
+
+                    db.collection("users")
+                        .whereEqualTo("role", "student")
+                        .whereEqualTo("schoolId", schoolId)
+                        .whereEqualTo("section", sectionName)
+                        .whereEqualTo("grade", grade) // 🟢 FILTER APPLIED
+                        .get().addOnSuccessListener { snaps ->
+                            for (doc in snaps.documents) doc.reference.delete()
+                        }
                 }
 
-                // LEAST PRIVILEGE: Just delete the class link from the dashboard
+                // Delete the class link from the dashboard
                 db.collection("classes").document(classId).delete()
                     .addOnSuccessListener {
                         GabAIUtils.hideGlobalLoading(this)
@@ -323,45 +369,63 @@ class ManageClassesActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
+        GabAIUtils.showGlobalLoading(this)
+
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
             val schoolId = doc.getString("schoolId") ?: ""
             val fullClassName = "$grade - $sectionName"
 
+            // ==========================================
+            // 🟢 STRICT CHECK: ONE SECTION PER GRADE
+            // ==========================================
             db.collection("classes")
-                .whereEqualTo("schoolId", schoolId)
-                .whereEqualTo("className", fullClassName)
+                .whereEqualTo("teacherId", uid)
+                .whereEqualTo("grade", grade)
                 .get()
-                .addOnSuccessListener { snapshots ->
-                    if (!snapshots.isEmpty) {
-                        val existingClassDoc = snapshots.documents[0]
-                        val originalTeacherId = existingClassDoc.getString("teacherId") ?: ""
-
-                        if (originalTeacherId == uid) {
-                            GabAIUtils.showSnackbar(this, "You already own this section!")
-                        } else {
-                            // NEW: Section exists, tell them to use their Join Code instead
-                            showJoinCodeInstructionDialog(fullClassName)
-                        }
-                    } else {
-                        val classData = hashMapOf(
-                            "className" to fullClassName,
-                            "grade" to grade,
-                            "section" to sectionName,
-                            "teacherId" to uid,
-                            "teacherIds" to listOf(uid),
-                            "schoolId" to schoolId,
-                            "isAdviser" to true,
-                            "joinedStudents" to listOf<String>(),
-                            "maxSessionsPerDay" to 3,  // <--- ADD THIS
-                            "maxItemsPerSession" to 10, // <--- ADD THIS
-                            "createdAt" to System.currentTimeMillis()
-
-                        )
-                        db.collection("classes").add(classData)
-                            .addOnSuccessListener {
-                                com.example.gabai.GabAIUtils.showSnackbar(this, "Class '$fullClassName' created!")
-                            }
+                .addOnSuccessListener { gradeCheck ->
+                    if (!gradeCheck.isEmpty) {
+                        GabAIUtils.hideGlobalLoading(this)
+                        GabAIUtils.showSnackbar(this, "Error: You can only create ONE section for $grade.")
+                        return@addOnSuccessListener
                     }
+
+                    // Original logic: Check if name already exists in the school
+                    db.collection("classes")
+                        .whereEqualTo("schoolId", schoolId)
+                        .whereEqualTo("className", fullClassName)
+                        .get()
+                        .addOnSuccessListener { snapshots ->
+                            if (!snapshots.isEmpty) {
+                                GabAIUtils.hideGlobalLoading(this)
+                                val existingClassDoc = snapshots.documents[0]
+                                val originalTeacherId = existingClassDoc.getString("teacherId") ?: ""
+
+                                if (originalTeacherId == uid) {
+                                    GabAIUtils.showSnackbar(this, "You already own this section!")
+                                } else {
+                                    showJoinCodeInstructionDialog(fullClassName)
+                                }
+                            } else {
+                                val classData = hashMapOf(
+                                    "className" to fullClassName,
+                                    "grade" to grade,
+                                    "section" to sectionName,
+                                    "teacherId" to uid,
+                                    "teacherIds" to listOf(uid),
+                                    "schoolId" to schoolId,
+                                    "isAdviser" to true,
+                                    "joinedStudents" to listOf<String>(),
+                                    "maxSessionsPerDay" to 3,
+                                    "maxItemsPerSession" to 10,
+                                    "createdAt" to System.currentTimeMillis()
+                                )
+                                db.collection("classes").add(classData)
+                                    .addOnSuccessListener {
+                                        GabAIUtils.hideGlobalLoading(this)
+                                        GabAIUtils.showSnackbar(this, "Class '$fullClassName' created!")
+                                    }
+                            }
+                        }
                 }
         }
     }

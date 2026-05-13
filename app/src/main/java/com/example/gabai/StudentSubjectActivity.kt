@@ -37,27 +37,17 @@ class StudentSubjectActivity : AppCompatActivity() {
     private fun loadPdfs(subjectId: String, studentSection: String) {
         val container = findViewById<LinearLayout>(R.id.pdf_list_container)
         val db = FirebaseFirestore.getInstance()
-
-        // WE GET THE UID HERE NOW
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        // TURN ON SPINNER
         GabAIUtils.showGlobalLoading(this)
 
-        // ONLY fetch PDFs assigned to this student's UID! (THIS WAS THE BUG)
         db.collection("library_materials")
             .whereEqualTo("subjectId", subjectId)
             .whereArrayContains("assignedSections", uid)
             .addSnapshotListener { snapshots, e ->
-                // TURN OFF SPINNER AS SOON AS DATA ARRIVES
                 GabAIUtils.hideGlobalLoading(this@StudentSubjectActivity)
 
-                if (e != null) {
-                    GabAIUtils.showSnackbar(this@StudentSubjectActivity, "Network Error: ${e.message}")
-                    return@addSnapshotListener
-                }
-
-                if (snapshots == null) return@addSnapshotListener
+                if (e != null || snapshots == null) return@addSnapshotListener
                 container.removeAllViews()
 
                 if (snapshots.isEmpty) {
@@ -70,35 +60,31 @@ class StudentSubjectActivity : AppCompatActivity() {
                     val pdfUrl = doc.getString("pdfUrl") ?: ""
                     val thumbStr = doc.getString("thumbnail") ?: ""
                     val uploader = doc.getString("uploaderName") ?: "Teacher"
+                    val quizJson = doc.getString("quiz_pool_json") ?: "[]"
+                    val hasQuiz = quizJson.length > 5
 
                     val row = layoutInflater.inflate(R.layout.item_pdf_document, container, false)
                     row.findViewById<TextView>(R.id.tv_pdf_title).text = title
                     row.findViewById<TextView>(R.id.tv_uploader_name)?.text = "Uploaded by: $uploader"
 
-                    // HIDE ALL ADMIN BUTTONS FROM STUDENT
-                    row.findViewById<View>(R.id.btn_assign_pdf).visibility = View.GONE
-                    row.findViewById<View>(R.id.btn_edit_pdf).visibility = View.GONE
-                    row.findViewById<View>(R.id.btn_delete_pdf).visibility = View.GONE
-
-                    // LOAD THUMBNAIL
                     val imgThumb = row.findViewById<ImageView>(R.id.img_pdf_thumb)
                     if (thumbStr.isNotEmpty()) {
                         try {
-                            val decodedBytes = Base64.decode(thumbStr, Base64.DEFAULT)
+                            val decodedBytes = android.util.Base64.decode(thumbStr, android.util.Base64.DEFAULT)
                             val bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
                             imgThumb.setImageBitmap(bitmap)
-                        } catch (e: Exception) {
-                            imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
-                        }
-                    } else {
-                        imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
-                    }
+                        } catch (e: Exception) { imgThumb.setImageResource(android.R.drawable.ic_menu_report_image) }
+                    } else imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
 
-                    // OPEN IN APP
-                    row.findViewById<ImageButton>(R.id.btn_open_pdf).setOnClickListener {
-                        val intent = Intent(this, PdfViewerActivity::class.java)
-                        intent.putExtra("PDF_URL", pdfUrl)
-                        intent.putExtra("PDF_TITLE", title)
+                    // 🟢 STUDENT LAUNCH LOGIC 🟢
+                    row.setOnClickListener {
+                        val intent = Intent(this@StudentSubjectActivity, PdfViewerActivity::class.java).apply {
+                            putExtra("PDF_URL", pdfUrl)
+                            putExtra("PDF_TITLE", title)
+                            putExtra("MATERIAL_ID", doc.id)
+                            putExtra("IS_TEACHER", false)
+                            putExtra("HAS_QUIZ", hasQuiz)
+                        }
                         startActivity(intent)
                     }
 

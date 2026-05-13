@@ -78,12 +78,59 @@ class HomeFragment : Fragment() {
         }
         // 1. Get the saved state
         val isEnabled = prefs.getBoolean("bubble_enabled", false)
+        // Check lock status for the Leaderboard UI
+        if (!com.example.gabai.XPManager.canEarnXP(requireContext())) {
+            // Find the views inside the included card (make sure to assign IDs if you haven't)
+            val titleText = binding.btnLeaderboard.getChildAt(0).let { it as? android.widget.LinearLayout }?.getChildAt(0) as? android.widget.TextView
+            val subtitleText = binding.btnLeaderboard.getChildAt(0).let { it as? android.widget.LinearLayout }?.getChildAt(1) as? android.widget.TextView
+            val icon = binding.btnLeaderboard.getChildAt(1) as? android.widget.ImageView
+
+            // Make it look locked
+            titleText?.text = "Leaderboard (Locked)"
+            titleText?.setTextColor(android.graphics.Color.parseColor("#B2BEC3")) // Gray out
+            subtitleText?.text = "Complete Initiation to unlock"
+            icon?.setImageResource(android.R.drawable.ic_secure) // Lock icon
+            icon?.setColorFilter(android.graphics.Color.parseColor("#B2BEC3"))
+        }
+        binding.btnAchievements.setOnClickListener {
+            startActivity(Intent(requireContext(), AchievementsActivity::class.java))
+        }
+        binding.btnDailyQuests.setOnClickListener {
+            if (com.example.gabai.XPManager.canEarnXP(requireContext())) {
+                startActivity(Intent(requireContext(), DailyQuestsActivity::class.java))
+            } else {
+                com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Quests Locked! 🔒 Complete your Apprentice Initiation first.")
+            }
+        }
+
+// Visual Lock (add this with your Leaderboard lock code in onCreateView)
+        if (!com.example.gabai.XPManager.canEarnXP(requireContext())) {
+            val qTitle = binding.btnDailyQuests.getChildAt(0).let { it as? android.widget.LinearLayout }?.getChildAt(0) as? android.widget.TextView
+            val qIcon = binding.btnDailyQuests.getChildAt(1) as? android.widget.ImageView
+            qTitle?.text = "Daily Quests (Locked)"
+            qTitle?.setTextColor(android.graphics.Color.parseColor("#B2BEC3"))
+            qIcon?.setImageResource(android.R.drawable.ic_secure)
+            qIcon?.setColorFilter(android.graphics.Color.parseColor("#B2BEC3"))
+        }
 
         // 2. CLEAR the listener before setting the state to prevent a loop
         binding.bubbleSwitch.setOnCheckedChangeListener(null)
         binding.bubbleSwitch.isChecked = isEnabled
         binding.btnLearningProgress.setOnClickListener {
             startActivity(Intent(requireContext(), ProgressDashboardActivity::class.java))
+        }
+        // Inside your onCreateView in HomeFragment.kt
+        binding.btnLeaderboard.setOnClickListener {
+            // GATEKEEPER: Check if they have unlocked their rank yet!
+            if (com.example.gabai.XPManager.canEarnXP(requireContext())) {
+                startActivity(Intent(requireContext(), LeaderboardActivity::class.java))
+            } else {
+                // Locked state!
+                com.example.gabai.GabAIUtils.showSnackbar(
+                    requireContext(),
+                    "Leaderboard Locked! 🔒 Complete your Apprentice Quests to unlock the Ranking System."
+                )
+            }
         }
         // --- ADD THIS LINE INSIDE setupDashboard() ---
         binding.btnOpenLibrary.setOnClickListener {
@@ -159,20 +206,20 @@ class HomeFragment : Fragment() {
 
         // Real-time listener for user progress (Requirement 7.3)
         // TURN ON SPINNER FOR INITIAL LOAD
-        GabAIUtils.showGlobalLoading(context)
+        GabAIUtils.showGlobalLoading(context, "Syncing...")
 
         // Real-time listener for user progress & onboarding
         db.collection("users").document(uid).addSnapshotListener { snapshot, e ->
             // SAFELY TURN OFF SPINNER
             val safeContext = context
             if (safeContext != null) {
-
+                GabAIUtils.hideGlobalLoading(safeContext)
             }
 
             if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
             val currentLevel = snapshot.getLong("level")?.toInt() ?: 1
             val currentXP = snapshot.getLong("current_xp")?.toInt() ?: 0
-            val maxXP = 100
+            val maxXP = com.example.gabai.XPManager.getMaxXPForLevel(currentLevel)
 
             // Onboarding gamification checks
             val isOnboarded = snapshot.getBoolean("is_onboarded") ?: false
@@ -202,6 +249,7 @@ class HomeFragment : Fragment() {
 
                 binding.tvLevelLabel.text = "LEVEL $currentLevel"
                 binding.tvXpLabel.text = "$currentXP / $maxXP XP"
+                binding.xpProgressBar.max = maxXP
                 binding.xpProgressBar.progress = currentXP
             } else {
                 // UI: LOCKED STATE (Apprentice Mode)
@@ -325,18 +373,32 @@ class HomeFragment : Fragment() {
                     GabAIUtils.showSnackbar(requireContext(), "No teacher found with that code.")
                     return@addOnSuccessListener
                 }
-                val teacherId = userSnaps.documents[0].id
 
-                // 2. Add this student's section to the Teacher's class list
+                val teacherDoc = userSnaps.documents[0]
+                val teacherId = teacherDoc.id
+                val teacherSchoolId = teacherDoc.getString("schoolId") ?: "" // 🟢 NEW: Get Teacher's School ID
+
+                // 2. Fetch the student's data
                 db.collection("users").document(uid).get().addOnSuccessListener { studentDoc ->
+                    val studentSchoolId = studentDoc.getString("schoolId") ?: ""
+
+                    // ==========================================
+                    // 🟢 STRICT CHECK: Enforce School Boundaries
+                    // ==========================================
+                    if (teacherSchoolId != studentSchoolId) {
+                        GabAIUtils.hideGlobalLoading(requireContext())
+                        GabAIUtils.showSnackbar(requireContext(), "Invalid Code! This teacher belongs to a different school.")
+                        return@addOnSuccessListener
+                    }
+                    // ==========================================
+
                     val studentSection = studentDoc.getString("section") ?: ""
                     val studentGrade = studentDoc.getString("grade") ?: ""
-                    val schoolId = studentDoc.getString("schoolId") ?: ""
                     val fullClassName = "$studentGrade - $studentSection"
 
                     // Check if this class already exists for this specific teacher
                     db.collection("classes")
-                        .whereEqualTo("schoolId", schoolId)
+                        .whereEqualTo("schoolId", studentSchoolId)
                         .whereEqualTo("className", fullClassName)
                         .whereArrayContains("teacherIds", teacherId)
                         .get()
@@ -349,9 +411,9 @@ class HomeFragment : Fragment() {
                                     "section" to studentSection,
                                     "teacherId" to teacherId, // Owner
                                     "teacherIds" to listOf(teacherId),
-                                    "schoolId" to schoolId,
+                                    "schoolId" to studentSchoolId,
                                     "isAdviser" to false, // Least Privilege Flag!
-                                    "joinedStudents" to listOf(uid), // <--- FIXED: Student is added!
+                                    "joinedStudents" to listOf(uid),
                                     "createdAt" to System.currentTimeMillis()
                                 )
                                 db.collection("classes").add(classData).addOnSuccessListener {

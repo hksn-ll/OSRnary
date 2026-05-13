@@ -77,6 +77,12 @@
         <activity android:name=".StudentSubjectActivity" android:exported="false" />
         <activity android:name=".QuizHistoryActivity" android:exported="false" />
         <activity android:name=".ProgressDashboardActivity" android:exported="false" />
+        <activity android:name=".LeaderboardActivity" android:exported="false" />
+        <activity android:name=".DailyQuestsActivity" android:exported="false" />
+        <activity android:name=".TeacherPerformanceActivity" android:exported="false" />
+        <activity android:name=".AchievementsActivity" android:exported="false" />
+        <activity android:name=".MaterialQuizActivity" android:exported="false" />
+        <activity android:name=".QuizEditorActivity" android:exported="false" />
     </application>
 
 
