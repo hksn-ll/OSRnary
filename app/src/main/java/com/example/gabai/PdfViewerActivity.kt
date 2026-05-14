@@ -8,16 +8,12 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.barteksc.pdfviewer.PDFView
-import com.google.ai.client.generativeai.GenerativeModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
-import com.tom_roush.pdfbox.pdmodel.PDDocument
-import com.tom_roush.pdfbox.text.PDFTextStripper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
@@ -33,15 +29,10 @@ class PdfViewerActivity : AppCompatActivity() {
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
     private val driveApiUrl = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
 
-    private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash-lite",
-        apiKey = BuildConfig.GEMINI_API_KEY
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         QuestManager.addProgress(this, QuestManager.QUEST_READ)
         super.onCreate(savedInstanceState)
-        PDFBoxResourceLoader.init(applicationContext) // Required for local AI Text Extraction
+        PDFBoxResourceLoader.init(applicationContext)
         setContentView(R.layout.activity_pdf_viewer)
 
         val pdfUrl = intent.getStringExtra("PDF_URL") ?: return finish()
@@ -53,9 +44,6 @@ class PdfViewerActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btn_close_pdf).setOnClickListener { finish() }
 
-        // ==========================================
-        // 🟢 THE NEW MEATBALLS MENU 🟢
-        // ==========================================
         val btnKebab = findViewById<ImageButton>(R.id.btn_kebab_menu)
         btnKebab.setOnClickListener { view ->
             val popup = PopupMenu(this, view)
@@ -103,7 +91,7 @@ class PdfViewerActivity : AppCompatActivity() {
                 val tempFile = File.createTempFile("temp_pdf", ".pdf", cacheDir)
                 tempFile.outputStream().use { output -> input.copyTo(output) }
 
-                downloadedPdfFile = tempFile // SAVE IT SO AI CAN READ IT INSTANTLY LATER
+                downloadedPdfFile = tempFile // SAVE IT SO AI CAN READ IT LATER
 
                 runOnUiThread {
                     progressBar.visibility = View.GONE
@@ -124,25 +112,25 @@ class PdfViewerActivity : AppCompatActivity() {
     }
 
     // ==============================================================
-    // TEACHER ACTION: ADD AI QUIZ
+    // 🟢 TEACHER ACTION: DIRECT TO EDITOR (NO MORE DIALOGS!) 🟢
     // ==============================================================
     private fun checkExistingQuizAndProceed() {
+        if (downloadedPdfFile == null) {
+            GabAIUtils.showSnackbar(this, "Please wait for PDF to finish loading first.")
+            return
+        }
+
         val materialId = intent.getStringExtra("MATERIAL_ID") ?: return
-        GabAIUtils.showGlobalLoading(this, "Checking quiz status...")
+        GabAIUtils.showGlobalLoading(this, "Opening Editor...")
 
         db.collection("library_materials").document(materialId).get()
             .addOnSuccessListener { doc ->
                 GabAIUtils.hideGlobalLoading(this)
                 val quizJson = doc.getString("quiz_pool_json") ?: "[]"
-                val maxItems = doc.getLong("quiz_max_items")?.toInt() ?: 5
+                val maxItems = doc.getLong("quiz_max_items")?.toInt() ?: 10 // Default to 10
 
-                if (quizJson.length > 5 && quizJson != "[]") {
-                    // 🟢 Quiz exists! Open editor directly to edit it.
-                    openQuizEditor(quizJson, maxItems)
-                } else {
-                    // 🟢 No quiz exists. Prompt for initial creation.
-                    promptForInitialQuizGeneration()
-                }
+                // Go straight to the editor!
+                openQuizEditor(quizJson, maxItems)
             }
             .addOnFailureListener {
                 GabAIUtils.hideGlobalLoading(this)
@@ -150,83 +138,12 @@ class PdfViewerActivity : AppCompatActivity() {
             }
     }
 
-    private fun promptForInitialQuizGeneration() {
-        val input = EditText(this).apply {
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            hint = "Number of Quiz Items (Max 15)" // 🟢 Changed hint
-            setPadding(50, 40, 50, 40)
-        }
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Create New AI Quiz")
-            .setMessage("No quiz exists for this material yet. How many questions should GabAI generate to start? (Max 15 at a time)")
-            .setView(input)
-            .setPositiveButton("Generate") { _, _ ->
-                var maxItems = input.text.toString().toIntOrNull() ?: 5
-
-                // 🟢 STRICT AI LIMIT: Cap the request to 15
-                if (maxItems > 15) {
-                    maxItems = 15
-                    GabAIUtils.showSnackbar(this, "AI generation limited to 15 questions at a time.")
-                }
-
-                generateInitialQuizLocally(maxItems)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun generateInitialQuizLocally(maxItems: Int) {
-        if (downloadedPdfFile == null) {
-            GabAIUtils.showSnackbar(this, "Please wait for PDF to finish loading first.")
-            return
-        }
-
-        findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
-        findViewById<TextView>(R.id.tv_action_status).text = "AI is reading the material..."
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val document = PDDocument.load(downloadedPdfFile)
-                val stripper = PDFTextStripper()
-                val text = stripper.getText(document)
-                document.close()
-
-                withContext(Dispatchers.Main) { findViewById<TextView>(R.id.tv_action_status).text = "Generating $maxItems questions..." }
-
-                val prompt = """
-                    You are an AI teacher. Read this text:
-                    ${text.take(10000)}
-                    Create exactly $maxItems multiple choice questions based on the text.
-                    Return ONLY a valid JSON array. Format:
-                    [ { "q": "Question?", "options": ["A", "B", "C", "D"], "ans": 0 } ]
-                """.trimIndent()
-
-                val response = generativeModel.generateContent(prompt)
-                var jsonStr = response.text ?: "[]"
-                val startIndex = jsonStr.indexOf("[")
-                val endIndex = jsonStr.lastIndexOf("]")
-                if (startIndex != -1 && endIndex != -1) jsonStr = jsonStr.substring(startIndex, endIndex + 1)
-
-                withContext(Dispatchers.Main) {
-                    findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
-                    // 🟢 DO NOT SAVE TO DB BLINDLY. Pass to Editor!
-                    openQuizEditor(jsonStr, maxItems)
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
-                    GabAIUtils.showSnackbar(this@PdfViewerActivity, "Error: ${e.message}")
-                }
-            }
-        }
-    }
-
     private fun openQuizEditor(quizJson: String, targetItems: Int) {
         val editorIntent = Intent(this, QuizEditorActivity::class.java).apply {
             putExtra("MATERIAL_ID", intent.getStringExtra("MATERIAL_ID"))
             putExtra("TARGET_ITEMS", targetItems)
             putExtra("QUIZ_JSON", quizJson)
-            // Send the file path so the editor can read the PDF if they click "AI Add More"
+            // Send the file path so the editor can read the PDF for the "AI Add" button
             putExtra("PDF_FILE_PATH", downloadedPdfFile?.absolutePath)
         }
         startActivity(editorIntent)

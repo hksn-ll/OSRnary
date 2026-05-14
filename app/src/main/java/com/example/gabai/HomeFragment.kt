@@ -63,6 +63,16 @@ class HomeFragment : Fragment() {
             com.example.gabai.GabAIUtils.showSnackbar(context, "Permission denied")
         }
     }
+    // NEW: QR Code Scanner Launcher
+    private val qrScanLauncher = registerForActivityResult(com.journeyapps.barcodescanner.ScanContract()) { result ->
+        if (result.contents != null) {
+            // If a QR code is found, send the code directly to your existing join function!
+            joinClassWithCode(result.contents)
+        } else {
+            com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "QR Scan cancelled")
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         setupDashboard()
@@ -222,10 +232,16 @@ class HomeFragment : Fragment() {
             val maxXP = com.example.gabai.XPManager.getMaxXPForLevel(currentLevel)
 
             // Onboarding gamification checks
+            // Change this block in HomeFragment.kt:
             val isOnboarded = snapshot.getBoolean("is_onboarded") ?: false
             val completedQuests = snapshot.get("quests_completed") as? List<String> ?: listOf()
+
             requireContext().getSharedPreferences("OSRnary_XP", android.content.Context.MODE_PRIVATE)
-                .edit().putBoolean("is_onboarded", isOnboarded).apply()
+                .edit()
+                .putBoolean("is_onboarded", isOnboarded)
+                .putInt("current_level", currentLevel) // 🟢 ADD THIS
+                .putInt("current_xp", currentXP)       // 🟢 ADD THIS
+                .apply()
             currentCompletedQuests = completedQuests // Save for the dialog
 
             // --- THE GRAND UNLOCK LOGIC ---
@@ -333,17 +349,50 @@ class HomeFragment : Fragment() {
             .show()
     }
     private fun showJoinClassDialog() {
+        val layout = android.widget.LinearLayout(requireContext()).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 40)
+        }
+
         val input = android.widget.EditText(requireContext()).apply {
             hint = "Enter 6-character Teacher Code"
             inputType = android.text.InputType.TYPE_CLASS_TEXT
-            setPadding(50, 40, 50, 40)
+            setPadding(40, 40, 40, 40)
             isAllCaps = true
         }
 
+        val scanButton = android.widget.Button(requireContext()).apply {
+            text = "📷 Or Scan Teacher's QR Code"
+            setBackgroundColor(android.graphics.Color.parseColor("#00B894")) // Green
+            setTextColor(android.graphics.Color.WHITE)
+            layoutParams = android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 30, 0, 0) }
+
+            setOnClickListener {
+                // Launch the built-in ZXing scanner
+                val options = com.journeyapps.barcodescanner.ScanOptions()
+                options.setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.QR_CODE)
+                options.setPrompt("") // Handled by our custom XML now
+                options.setCameraId(0) // Use back camera
+                options.setBeepEnabled(true)
+                options.setOrientationLocked(true)
+
+                // ADD THIS LINE to link the custom UI!
+                options.setCaptureActivity(CustomScannerActivity::class.java)
+
+                qrScanLauncher.launch(options)
+            }
+        }
+
+        layout.addView(input)
+        layout.addView(scanButton)
+
         com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
             .setTitle("Join a Class")
-            .setMessage("Enter the Join Code provided by your teacher to access their subject materials.")
-            .setView(input)
+            .setMessage("Enter the code or scan the QR provided by your teacher.")
+            .setView(layout)
             .setPositiveButton("Join") { _, _ ->
                 val code = input.text.toString().trim().uppercase()
                 if (code.length == 6) {
@@ -355,7 +404,6 @@ class HomeFragment : Fragment() {
             .setNegativeButton("Cancel", null)
             .show()
     }
-
     private fun joinClassWithCode(joinCode: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()

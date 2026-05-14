@@ -6,23 +6,39 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SplashActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        // Wait for 2 seconds then decide where to go
+        // Simple 1.5s delay then route
         Handler(Looper.getMainLooper()).postDelayed({
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser == null) {
-                // Not logged in -> Auth Screen
-                startActivity(Intent(this, AuthActivity::class.java))
-            } else {
-                // Already logged in -> Main Dashboard
-                startActivity(Intent(this, MainActivity::class.java))
-            }
-            finish() // Close the splash screen
-        }, 2000)
+            handleNavigation()
+        }, 1500)
+    }
+
+    private fun handleNavigation() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+        } else {
+            FirebaseFirestore.getInstance().collection("users").document(user.uid).get()
+                .addOnSuccessListener { doc ->
+                    val role = doc.getString("role") ?: "student"
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.putExtra("USER_ROLE", role)
+                    startActivity(intent)
+                    finish()
+                }
+                .addOnFailureListener {
+                    FirebaseAuth.getInstance().signOut()
+                    startActivity(Intent(this, AuthActivity::class.java))
+                    finish()
+                }
+        }
     }
 }

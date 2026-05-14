@@ -3,28 +3,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#000000">
-
-    <ImageView
-        android:id="@+id/screenshot_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter" />
+    android:background="#1E272E"> <ImageView
+    android:id="@+id/screenshot_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:adjustViewBounds="true"
+    android:scaleType="fitCenter" />
 
     <com.example.gabai.TextOverlayView
         android:id="@+id/text_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageButton
-        android:id="@+id/close_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_margin="16dp"
-        android:background="#80000000"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"
-        android:contentDescription="Close" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:gravity="end">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:cardCornerRadius="24dp"
+            app:cardBackgroundColor="#80000000"
+            app:cardElevation="4dp">
+
+            <ImageButton
+                android:id="@+id/close_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="#FFFFFF"
+                android:contentDescription="Close" />
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/instruction_overlay"
@@ -42,12 +57,11 @@
             android:background="@drawable/pill_background"
             android:paddingHorizontal="32dp"
             android:paddingVertical="16dp"
-            android:text="Please select text"
+            android:text="✨ Tap or swipe to select text"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
             android:elevation="4dp"/>
-
     </RelativeLayout>
 
     <androidx.cardview.widget.CardView
@@ -56,36 +70,61 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
+        android:layout_marginBottom="32dp"
         android:visibility="gone"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="12dp"
         app:cardBackgroundColor="#FFFFFF">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="24dp"
+            android:background="@drawable/bg_card_quiz"
+            android:backgroundTint="#FFFFFF">
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:background="#DFE6E9"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"/>
 
             <TextView
                 android:id="@+id/card_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Select text..."
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#000000"
-                android:maxLines="2"
+                android:textColor="#2D3436"
+                android:maxLines="3"
                 android:ellipsize="end"/>
 
-            <TextView
-                android:id="@+id/card_body"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Tap or swipe text to see it here."
-                android:textSize="14sp"
-                android:textColor="#666666"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/card_body"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Tap to ask GabAI for an explanation 🧠"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#6C5CE7"/>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_send"
+                    app:tint="#6C5CE7"/>
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

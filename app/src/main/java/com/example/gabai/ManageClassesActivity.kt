@@ -233,7 +233,36 @@ class ManageClassesActivity : AppCompatActivity() {
                 } else {
                     subjectCards.forEach { container.addView(it) }
                 }
+                val schoolLookup = mapOf(
+                    "305445" to "Caruhatan NHS", "305446" to "Sitero Francisco Memorial NHS",
+                    "305565" to "Punturin Senior High School", "305566" to "Justice Eliezer R. De Los Santos HS",
+                    "305567" to "Lingunan NHS", "305568" to "Paso De Blas NHS",
+                    "305576" to "Ugong Senior High School", "305705" to "Disiplina Village-Bignay NHS",
+                    "305706" to "Malanday NHS", "305707" to "Veinte Reales NHS",
+                    "305708" to "Lingunan Senior High School", "320401" to "Valenzuela City School of Math and Science",
+                    "320402" to "Vicente Trinidad NHS", "320403" to "Mapulang Lupa NHS",
+                    "320404" to "Bignay NHS", "320405" to "Arkong Bato NHS",
+                    "320406" to "Canumay East NHS", "320407" to "Wawang Pulo NHS",
+                    "320408" to "Bagbaguin NHS", "340729" to "Paso de Blas SHS",
+                    "305436" to "Polo NHS", "305437" to "Dalandanan NHS",
+                    "305438" to "Malinta NHS", "305439" to "Canumay West NHS",
+                    "305440" to "Lawang Bato NHS", "305441" to "Valenzuela NHS",
+                    "305442" to "Parada NHS", "305443" to "Gen. Tiburcio de Leon NHS",
+                    "305444" to "Maysan NHS"
+                )
+
+                val uid = FirebaseAuth.getInstance().currentUser?.uid
+                if (uid != null) {
+                    FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                        .addOnSuccessListener { doc ->
+                            val sId = doc.getString("schoolId") ?: ""
+                            val schoolName = schoolLookup[sId] ?: "EDUCATOR PORTAL"
+                            findViewById<TextView>(R.id.tv_school_name)?.text = schoolName.uppercase()
+                        }
+                }
             }
+
+
     }
     // UPDATE Class
     private fun showEditClassDialog(classId: String, currentGrade: String, currentSection: String, currentMaxSessions: Int, currentMaxItems: Int) {
@@ -616,8 +645,10 @@ class ManageClassesActivity : AppCompatActivity() {
             val firstName = parts.firstOrNull() ?: "Student"
             val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
 
-            val randomNum = (1000..9999).random()
-            val username = "${firstName.replace(" ", "")}${lastName.replace(" ", "")}_$randomNum".lowercase()
+            // FIX: Create a highly unique username by injecting a piece of the School ID and a larger random number
+            val randomNum = (10000..99999).random()
+            val schoolCode = if (schoolId.length >= 2) schoolId.takeLast(2) else "00"
+            val username = "${firstName.replace(" ", "")}${lastName.replace(" ", "")}_${schoolCode}${randomNum}".lowercase()
             val password = java.util.UUID.randomUUID().toString().substring(0, 6)
 
             val studentData = hashMapOf(

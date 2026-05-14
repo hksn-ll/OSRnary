@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,8 +12,10 @@
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="0dp" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -23,290 +26,18 @@
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_scan_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_camera"
+        app:tint="#FFFFFF"
+        app:backgroundTint="#6C5CE7"
+        app:elevation="25dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="50dp"
+        android:contentDescription="Scan Text" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
-
-
-
-
-
-<!--<?xml version="1.0" encoding="utf-8"?>-->
-
-
-
-<!--<androidx.constraintlayout.widget.ConstraintLayout-->
-<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--    xmlns:tools="http://schemas.android.com/tools"-->
-<!--    android:layout_width="match_parent"-->
-<!--    android:layout_height="match_parent"-->
-<!--    android:background="#F5F5F5"-->
-<!--    android:padding="20dp"-->
-<!--    android:id="@+id/main_container">-->
-
-<!--    <FrameLayout-->
-<!--        android:id="@+id/fragment_container"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="0dp"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/bottom_navigation" />-->
-
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/bottom_navigation"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:background="#FFFFFF"-->
-<!--        app:elevation="8dp"-->
-<!--        app:menu="@menu/bottom_nav_menu"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent" />-->
-
-<!--    <ImageView-->
-
-<!--        android:layout_width="64dp"-->
-<!--        android:layout_height="64dp"-->
-<!--        android:src="@mipmap/ic_launcher"-->
-<!--        android:layout_marginTop="12dp"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <ImageView-->
-<!--        android:id="@+id/profile_image"-->
-<!--        android:layout_width="64dp"-->
-<!--        android:layout_height="64dp"-->
-<!--        android:src="@mipmap/ic_launcher"-->
-<!--        android:background="@drawable/bg_card_level"-->
-<!--        android:padding="8dp"-->
-<!--        android:layout_marginTop="16dp"-->
-<!--        android:clipToOutline="true"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <LinearLayout-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="vertical"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        android:gravity="center_vertical"-->
-<!--        app:layout_constraintStart_toEndOf="@id/profile_image"-->
-<!--        app:layout_constraintTop_toTopOf="@id/profile_image"-->
-<!--        app:layout_constraintBottom_toBottomOf="@id/profile_image"-->
-<!--        app:layout_constraintEnd_toStartOf="@id/bubble_switch">-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="OSRnary"-->
-<!--            android:textSize="22sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="#2D3436"-->
-<!--            android:letterSpacing="0.02"/>-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Instant On-Screen Reader"-->
-<!--            android:textSize="13sp"-->
-<!--            android:textColor="#636E72"-->
-<!--            android:layout_marginTop="2dp"/>-->
-<!--    </LinearLayout>-->
-
-<!--    <com.google.android.material.materialswitch.MaterialSwitch-->
-<!--        android:id="@+id/bubble_switch"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="@id/profile_image"-->
-<!--        app:layout_constraintBottom_toBottomOf="@id/profile_image"/>-->
-
-<!--    <ScrollView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_marginTop="24dp"-->
-<!--        android:scrollbars="none"-->
-<!--        android:clipToPadding="false"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/profile_image"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent">-->
-
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:paddingBottom="20dp">-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Hello, Student! 👋"-->
-<!--                android:textSize="24sp"-->
-<!--                android:textStyle="bold"-->
-<!--                android:textColor="#000000"-->
-<!--                android:layout_marginBottom="4dp"/>-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Ready to take a quiz today?"-->
-<!--                android:textSize="14sp"-->
-<!--                android:textColor="#636E72"-->
-<!--                android:layout_marginBottom="24dp"/>-->
-
-<!--            <FrameLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="140dp"-->
-<!--                android:background="@drawable/bg_card_level"-->
-<!--                android:padding="20dp"-->
-<!--                android:layout_marginBottom="16dp">-->
-
-<!--                <LinearLayout-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical">-->
-
-<!--                    <TextView-->
-<!--                        android:id="@+id/tv_level_label"-->
-<!--                        android:text="LEVEL 1"-->
-<!--                        android:textSize="18sp"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:textColor="#FFFFFF"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"/>-->
-
-<!--                    <TextView-->
-<!--                        android:id="@+id/tv_xp_label"-->
-<!--                        android:text="30 / 100 XP"-->
-<!--                        android:textSize="12sp"-->
-<!--                        android:textColor="#FFFFFF"-->
-<!--                        android:layout_gravity="end"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"/>-->
-
-<!--                    <ProgressBar-->
-<!--                        android:id="@+id/xp_progress_bar"-->
-<!--                        style="?android:attr/progressBarStyleHorizontal"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="8dp"-->
-<!--                        android:progress="30"-->
-<!--                        android:progressDrawable="@drawable/pill_background"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:layout_marginBottom="12dp"/>-->
-
-<!--                    <TextView-->
-<!--                        android:text="Gain XP by saving words and taking quizzes!"-->
-<!--                        android:textSize="12sp"-->
-<!--                        android:textColor="#E0E0E0"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"/>-->
-<!--                </LinearLayout>-->
-<!--            </FrameLayout>-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@drawable/bg_card_quiz"-->
-<!--                android:orientation="vertical"-->
-<!--                android:padding="20dp"-->
-<!--                android:layout_marginBottom="16dp">-->
-
-<!--                <TextView-->
-<!--                    android:text="Recall Quiz"-->
-<!--                    android:textSize="18sp"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:textColor="#000000"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"/>-->
-
-<!--                <TextView-->
-<!--                    android:text="Test your memory on past selected contexts"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:textColor="#2D3436"-->
-<!--                    android:layout_marginTop="4dp"-->
-<!--                    android:layout_marginBottom="16dp"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"/>-->
-
-<!--                <Button-->
-<!--                    android:id="@+id/btn_start_quiz"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Start Quiz"-->
-<!--                    android:textColor="#000000"-->
-<!--                    android:backgroundTint="#FFFFFF"-->
-<!--                    android:layout_gravity="center_horizontal"/>-->
-<!--            </LinearLayout>-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@drawable/bg_card_fav"-->
-<!--                android:orientation="vertical"-->
-<!--                android:padding="20dp"-->
-<!--                android:layout_marginBottom="16dp">-->
-
-<!--                <TextView-->
-<!--                    android:text="Favourites"-->
-<!--                    android:textSize="18sp"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:textColor="#000000"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"/>-->
-
-<!--                <TextView-->
-<!--                    android:text="View your saved texts"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:textColor="#2D3436"-->
-<!--                    android:layout_marginTop="4dp"-->
-<!--                    android:layout_marginBottom="16dp"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"/>-->
-
-<!--                <Button-->
-<!--                    android:id="@+id/btn_favs"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="View Favourites"-->
-<!--                    android:textColor="#000000"-->
-<!--                    android:backgroundTint="#FFFFFF"-->
-<!--                    android:layout_gravity="center_horizontal"/>-->
-<!--            </LinearLayout>-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@drawable/bg_card_history"-->
-<!--                android:orientation="vertical"-->
-<!--                android:padding="20dp"-->
-<!--                android:layout_marginBottom="16dp">-->
-
-<!--                <TextView-->
-<!--                    android:text="History"-->
-<!--                    android:textSize="18sp"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:textColor="#000000"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"/>-->
-
-<!--                <TextView-->
-<!--                    android:text="Review all highlighted text blocks"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:textColor="#2D3436"-->
-<!--                    android:layout_marginTop="4dp"-->
-<!--                    android:layout_marginBottom="16dp"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"/>-->
-
-<!--                <Button-->
-<!--                    android:id="@+id/btn_history"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="View History"-->
-<!--                    android:textColor="#000000"-->
-<!--                    android:backgroundTint="#FFFFFF"-->
-<!--                    android:layout_gravity="center_horizontal"/>-->
-<!--            </LinearLayout>-->
-
-<!--        </LinearLayout>-->
-<!--    </ScrollView>-->
-<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

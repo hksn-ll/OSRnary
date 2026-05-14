@@ -16,13 +16,41 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        // 🟢 NEW: Add this permission launcher right here, above onCreate!
+         val requestPermissionLauncher = registerForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                startActivity(Intent(this, CameraActivity::class.java))
+            } else {
+                GabAIUtils.showSnackbar(this, "Camera permission is required to scan books.")
+            }
+        }
         setContentView(binding.root)
-
+        GabAIUtils.checkForCrashes(this)
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             startActivity(Intent(this, AuthActivity::class.java))
             finish()
             return
+        }
+        // Adjust padding for system bars
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.mainContainer) { v, insets ->
+            val systemBars =
+                insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(0, systemBars.top, 0, 0)
+            insets
+        }
+        // 🟢 NEW: Set up the center FAB to launch the Text Scanner
+        // 🟢 NEW: Set up the Extended FAB to actually request permission
+        val fabScanText = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_scan_text)
+        fabScanText.setOnClickListener {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                startActivity(Intent(this, CameraActivity::class.java))
+            } else {
+                // DIRECTLY ASK FOR PERMISSION HERE
+                requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
         }
 
         val userRole = intent.getStringExtra("USER_ROLE")
@@ -98,8 +126,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     // New helper to handle fragment loading and role memory
+    // New helper to handle fragment loading and role memory
     private fun loadDashboard(role: String) {
         binding.root.tag = role // Save role so the bottom menu knows which one to show
+
+        // Hide the Scanner FAB for Teachers
+        val fabScanText = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_scan_text)
+        if (role == "teacher") {
+            fabScanText.visibility = android.view.View.GONE
+        } else {
+            fabScanText.visibility = android.view.View.VISIBLE
+        }
+
         if (role == "teacher") loadFragment(TeacherHomeFragment())
         else loadFragment(HomeFragment())
     }
@@ -113,4 +151,5 @@ class MainActivity : AppCompatActivity() {
             // Use commitAllowingStateLoss for fast navigation
             .commitAllowingStateLoss()
     }
+
 }

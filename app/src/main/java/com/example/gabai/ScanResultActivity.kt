@@ -67,20 +67,24 @@ class ScanResultActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.close_button).setOnClickListener {
             finishAndRemoveTask()
         }
-        // --- QUEST TRIGGER: SCAN ---
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            FirebaseFirestore.getInstance().collection("users").document(uid)
-                .update("quests_completed", FieldValue.arrayUnion("scan"))
-        }
+
     }
 
     private fun runScanner(bitmap: Bitmap, overlay: TextOverlayView, imageView: ImageView) {
         val image = InputImage.fromBitmap(bitmap, 0)
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
+
+                // 🟢 FIX: Trigger quest ONLY if actual text was captured!
+                if (visionText.text.isNotEmpty()) {
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid
+                    if (uid != null) {
+                        FirebaseFirestore.getInstance().collection("users").document(uid)
+                            .update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("scan"))
+                    }
+                }
+
                 // 3. Pass the results to the Overlay to draw boxes
                 // We wait for the ImageView to be laid out to get exact size
                 imageView.post {

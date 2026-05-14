@@ -16,6 +16,10 @@ class GabAIApp : Application() {
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
         firebaseAppCheck.installAppCheckProviderFactory(
             PlayIntegrityAppCheckProviderFactory.getInstance()
+
+
         )
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler(defaultHandler, this))
     }
 }

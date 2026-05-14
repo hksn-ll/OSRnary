@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/mastery_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00B894"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:elevation="4dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            android:tint="#FFFFFF" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Word Mastery 🧠"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#E8F8F5"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="How does Mastery work?"
+                    android:textColor="#2D3436"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Every time you answer a quiz correctly, the word's 'interval' increases. GabAI will wait longer before testing you on it again. Reach an interval of 4 to Master it!\n\nIf you get it wrong, it becomes a 'Weak Word' and GabAI will haunt your daily quizzes with it until you finally learn it."
+                    android:textColor="#636E72"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mastered Words"
+                android:textColor="#00B894"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/mastered_words_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
+                android:elevation="2dp"
+                android:padding="16dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Weak Words (Needs Review)"
+                android:textColor="#D63031"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/weak_words_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
+                android:elevation="2dp"
+                android:padding="16dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

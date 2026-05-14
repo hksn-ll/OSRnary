@@ -121,14 +121,26 @@ class TeacherLibraryActivity : AppCompatActivity() {
             .setPositiveButton("Save") { _, _ ->
                 val newName = input.text.toString().trim()
                 if (newName.isNotEmpty()) {
-                    if (docId == null) {
-                        // Create
-                        val data = hashMapOf("name" to newName, "teacherId" to uid, "teacherName" to teacherFullName, "timestamp" to System.currentTimeMillis())
-                        db.collection("library_subjects").add(data)
-                    } else {
-                        // Update
-                        db.collection("library_subjects").document(docId).update("name", newName)
-                    }
+
+                    // 🟢 FIX: Check if folder name already exists
+                    db.collection("library_subjects")
+                        .whereEqualTo("teacherId", uid)
+                        .whereEqualTo("name", newName)
+                        .get()
+                        .addOnSuccessListener { snaps ->
+                            if (!snaps.isEmpty && docId == null) {
+                                GabAIUtils.showSnackbar(this, "Error: A subject named '$newName' already exists!")
+                            } else {
+                                if (docId == null) {
+                                    // Create
+                                    val data = hashMapOf("name" to newName, "teacherId" to uid, "teacherName" to teacherFullName, "timestamp" to System.currentTimeMillis())
+                                    db.collection("library_subjects").add(data)
+                                } else {
+                                    // Update
+                                    db.collection("library_subjects").document(docId).update("name", newName)
+                                }
+                            }
+                        }
                 }
             }
             .setNegativeButton("Cancel", null)

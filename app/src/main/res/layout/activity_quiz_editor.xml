@@ -44,7 +44,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Questions student will face (Max 20):"
+            android:text="Questions student will face (Max 10):"
             android:textColor="#2D3436"
             android:textStyle="bold"/>
 

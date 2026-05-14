@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/achievements_header"
+        android:id="@+id/logs_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#6C5CE7"
@@ -28,39 +28,47 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="My Badges 🏅"
+            android:text="System Logs &amp; Feedback"
             android:textColor="#FFFFFF"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_forward_dev"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        android:text="Forward Open Reports to Dev 🚀"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="#0984E3"
+        app:cornerRadius="12dp"
+        android:elevation="2dp"/>
+    <Button
+        android:id="@+id/btn_test_crash"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:text="Force Test Crash (Dev Only)"
+        android:textColor="#D63031"
+        app:strokeColor="#D63031"/>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:clipToPadding="false"
-        android:padding="20dp">
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="20dp">
 
         <LinearLayout
+            android:id="@+id/logs_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="Unlock digital badges by completing tasks, keeping your streak alive, and leveling up!"
-                android:textColor="#B2BEC3"
-                android:textStyle="bold"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:id="@+id/badges_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-
-        </LinearLayout>
+            android:orientation="vertical" />
     </ScrollView>
 </LinearLayout>

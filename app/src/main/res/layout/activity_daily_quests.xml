@@ -3,10 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
+    android:background="#F4F6F8"
     android:orientation="vertical">
 
-    <!-- Header -->
     <LinearLayout
         android:id="@+id/quests_header"
         android:layout_width="match_parent"
@@ -14,7 +13,8 @@
         android:background="#00B894"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="20dp"
+        android:elevation="4dp">
 
         <ImageButton
             android:id="@+id/btn_back"
@@ -27,10 +27,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Daily Quests"
+            android:layout_marginStart="8dp"
+            android:text="Daily Quests 🎯"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -38,29 +38,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:padding="16dp">
+        android:padding="20dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <!-- NEW: 🔥 Streak Banner -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 android:background="@drawable/bg_card_quiz"
-                android:elevation="4dp"
+                android:backgroundTint="#FFFFFF"
+                android:elevation="2dp"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="20dp"
                     android:text="🔥"
-                    android:textSize="40sp" />
+                    android:textSize="48sp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -73,14 +75,14 @@
                         android:layout_height="wrap_content"
                         android:text="0 Day Streak!"
                         android:textColor="#D35400"
-                        android:textSize="22sp"
+                        android:textSize="24sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Complete any 1 task to extend it"
+                        android:text="Complete any task to extend it"
                         android:textColor="#636E72"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -89,25 +91,26 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:text="Complete tasks every day to earn massive XP bonuses and climb the leaderboard!"
-                android:textColor="#636E72"
+                android:textColor="#B2BEC3"
+                android:textStyle="bold"
                 android:textSize="14sp" />
 
-            <!-- Quest 1: Quiz -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
                 android:elevation="2dp"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Memory Master"
+                    android:text="🧠 Memory Master"
                     android:textColor="#2D3436"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -118,33 +121,35 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Complete 1 Quiz Session (0/1)"
-                    android:textColor="#636E72" />
+                    android:textStyle="bold"
+                    android:textColor="#6C5CE7" />
 
                 <ProgressBar
                     android:id="@+id/prog_quest_quiz"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="16dp"
                     android:max="1"
                     android:progress="0"
-                    android:progressTint="#0984E3" />
+                    android:progressTint="#00B894"
+                    android:progressBackgroundTint="#DFE6E9"/>
             </LinearLayout>
 
-            <!-- Quest 2: Save Words -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
                 android:elevation="2dp"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Word Collector"
+                    android:text="⭐ Word Collector"
                     android:textColor="#2D3436"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -155,33 +160,35 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Save 2 Words to Favorites (0/2)"
-                    android:textColor="#636E72" />
+                    android:textStyle="bold"
+                    android:textColor="#6C5CE7" />
 
                 <ProgressBar
                     android:id="@+id/prog_quest_save"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="16dp"
                     android:max="2"
                     android:progress="0"
-                    android:progressTint="#0984E3" />
+                    android:progressTint="#00B894"
+                    android:progressBackgroundTint="#DFE6E9"/>
             </LinearLayout>
 
-            <!-- Quest 3: Read PDF -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
                 android:elevation="2dp"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="24dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="The Scholar"
+                    android:text="📚 The Scholar"
                     android:textColor="#2D3436"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -192,17 +199,19 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Open 1 Reading Material (0/1)"
-                    android:textColor="#636E72" />
+                    android:textStyle="bold"
+                    android:textColor="#6C5CE7" />
 
                 <ProgressBar
                     android:id="@+id/prog_quest_read"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="16dp"
                     android:max="1"
                     android:progress="0"
-                    android:progressTint="#0984E3" />
+                    android:progressTint="#00B894"
+                    android:progressBackgroundTint="#DFE6E9"/>
             </LinearLayout>
 
         </LinearLayout>

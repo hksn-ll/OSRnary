@@ -56,6 +56,7 @@ class AuthActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        GabAIUtils.checkForCrashes(this)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
@@ -63,17 +64,17 @@ class AuthActivity : AppCompatActivity() {
         setupSchoolDropdown()
         setupGradeDropdown()
         // --- ADD THIS INSIDE onCreate ---
-        binding.rgRegisterRole.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId == R.id.rb_teacher) {
-                // Hide inputs for Teachers
-                binding.tilRegSection.visibility = View.GONE
-                binding.tilRegGrade.visibility = View.GONE
-            } else {
-                // Show inputs for Students
-                binding.tilRegSection.visibility = View.VISIBLE
-                binding.tilRegGrade.visibility = View.VISIBLE
-            }
-        }
+//        binding.rgRegisterRole.setOnCheckedChangeListener { _, checkedId ->
+//            if (checkedId == R.id.rb_teacher) {
+//                // Hide inputs for Teachers
+//                binding.tilRegSection.visibility = View.GONE
+//                binding.tilRegGrade.visibility = View.GONE
+//            } else {
+//                // Show inputs for Students
+//                binding.tilRegSection.visibility = View.VISIBLE
+//                binding.tilRegGrade.visibility = View.VISIBLE
+//            }
+//        }
         // Role Choice
         binding.btnRoleStudent.setOnClickListener {
             selectedRole = "student"
@@ -113,8 +114,8 @@ class AuthActivity : AppCompatActivity() {
         binding.tvRoleIndicator.text = "$roleTitle Access"
 
         if (roleTitle == "Teacher") {
-            binding.tvAuthGreeting.text = "Hello, Educator! 🍎"
-            binding.rbTeacher.isChecked = true
+            binding.tvAuthGreeting.text = "Hello, Educator! \uD83E\uDDD1\u200D\uD83C\uDFEB"
+
             binding.tilRegSection.visibility = View.GONE
             binding.tilRegGrade.visibility = View.GONE
             binding.tvGoToRegister.visibility = View.VISIBLE
@@ -128,7 +129,7 @@ class AuthActivity : AppCompatActivity() {
 
         } else {
             binding.tvAuthGreeting.text = "Hello, Learner! 👋"
-            binding.rbStudent.isChecked = true
+
             binding.tilRegSection.visibility = View.VISIBLE
             binding.tilRegGrade.visibility = View.VISIBLE
             binding.tvGoToRegister.visibility = View.GONE
@@ -310,6 +311,7 @@ class AuthActivity : AppCompatActivity() {
                                     // Account is valid! Proceed.
                                     db.collection("users").document(user.uid).update("emailVerified", true)
                                     navigateToMain("teacher")
+                                    GabAIUtils.checkForCrashes(this)
                                 } else {
                                     // Account was deleted from the database!
                                     user.delete() // Clean up the orphaned Auth account

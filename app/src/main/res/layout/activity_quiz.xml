@@ -5,15 +5,15 @@
     android:id="@+id/quiz_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
-    android:padding="24dp">
+    android:background="#F4F6F8"
+    android:padding="20dp">
 
     <TextView
         android:id="@+id/quiz_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Recall Quiz"
-        android:textSize="24sp"
+        android:text="🧠 Knowledge Check"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="#2D3436"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,31 +23,39 @@
         android:id="@+id/question_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
+        android:layout_marginTop="24dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintTop_toBottomOf="@id/quiz_header">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="32dp"
+            android:gravity="center">
+
             <TextView
-                android:text="WHAT WORD DOES THIS DEFINE?"
+                android:text="COMPLETE THE SENTENCE"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#636E72"
+                android:letterSpacing="0.1"
+                android:textColor="#B2BEC3"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+
             <TextView
                 android:id="@+id/question_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:textSize="16sp"
+                android:textSize="20sp"
+                android:textStyle="bold"
                 android:textColor="#2D3436"
-                android:text="Loading definition..."/>
+                android:textAlignment="center"
+                android:lineSpacingMultiplier="1.3"
+                android:text="Loading challenge..."/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -59,16 +67,63 @@
         android:layout_marginTop="32dp"
         app:layout_constraintTop_toBottomOf="@id/question_card">
 
-        <Button android:id="@+id/btn_choice1" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option 1"/>
-        <Button android:id="@+id/btn_choice2" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option 2"/>
-        <Button android:id="@+id/btn_choice3" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option 3"/>
-        <Button android:id="@+id/btn_choice4" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:text="Option 4"/>
+        <Button
+            android:id="@+id/btn_choice1"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginBottom="12dp"
+            android:text="Option 1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#6C5CE7"
+            android:backgroundTint="#FFFFFF"
+            android:elevation="2dp"/>
+
+        <Button
+            android:id="@+id/btn_choice2"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginBottom="12dp"
+            android:text="Option 2"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#6C5CE7"
+            android:backgroundTint="#FFFFFF"
+            android:elevation="2dp"/>
+
+        <Button
+            android:id="@+id/btn_choice3"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginBottom="12dp"
+            android:text="Option 3"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#6C5CE7"
+            android:backgroundTint="#FFFFFF"
+            android:elevation="2dp"/>
+
+        <Button
+            android:id="@+id/btn_choice4"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:text="Option 4"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#6C5CE7"
+            android:backgroundTint="#FFFFFF"
+            android:elevation="2dp"/>
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/result_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F8F9FA"
+        android:background="#F4F6F8"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="24dp"
@@ -78,8 +133,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="🏆"
+            android:textSize="64sp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Quiz Finished!"
-            android:textSize="28sp"
+            android:textSize="32sp"
             android:textStyle="bold"
             android:textColor="#2D3436"/>
 
@@ -89,31 +151,39 @@
             android:layout_height="wrap_content"
             android:text="Score: 0 / 5"
             android:textSize="20sp"
-            android:layout_marginTop="16dp"
-            android:textColor="#6C5CE7"/>
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:textColor="#00B894"/>
 
         <Button
             android:id="@+id/btn_restart"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Try Again"
+            android:layout_height="65dp"
+            android:text="Continue"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:backgroundTint="#6C5CE7"
             android:layout_marginTop="40dp"/>
-        <!-- Add this inside your result_view LinearLayout, right below btn_restart -->
+
         <Button
             android:id="@+id/btn_quiz_history"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="View Quiz History"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#0984E3"
-            android:textColor="#FFFFFF" />
+            android:layout_height="65dp"
+            android:text="Review Answers"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#2D3436" />
 
         <Button
             android:id="@+id/btn_exit"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="Back to Menu"
+            android:text="Back to Dashboard"
+            android:textColor="#B2BEC3"
             android:layout_marginTop="12dp"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

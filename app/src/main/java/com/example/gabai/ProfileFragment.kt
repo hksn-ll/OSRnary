@@ -23,16 +23,17 @@ class ProfileFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
-
+        binding.root.findViewById<android.widget.Button>(R.id.btn_report_bug)?.setOnClickListener {
+            GabAIUtils.showReportDialog(requireContext(), "Bug", "General App Bug")
+        }
         loadUserData()
 
         binding.btnLogout.setOnClickListener {
-            // 🟢 NEW: Stop the bubble service and reset the toggle state 🟢
             requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))
             requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
                 .edit().putBoolean("bubble_enabled", false).apply()
+            requireContext().getSharedPreferences("OSRnary_XP", android.content.Context.MODE_PRIVATE).edit().clear().apply()
 
-            // Existing logout logic
             FirebaseAuth.getInstance().signOut()
             startActivity(Intent(requireContext(), AuthActivity::class.java))
             requireActivity().finish()
@@ -45,13 +46,11 @@ class ProfileFragment : Fragment() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         // TURN ON SPINNER
-        GabAIUtils.showGlobalLoading(context)
+        GabAIUtils.showGlobalLoading(requireContext())
 
         FirebaseFirestore.getInstance().collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
-                // SAFELY TURN OFF SPINNER
-                val safeContext = context
-                if (safeContext != null) GabAIUtils.hideGlobalLoading(safeContext)
+                GabAIUtils.hideGlobalLoading(requireContext())
 
                 if (doc.exists() && _binding != null && isAdded) {
                     val role = doc.getString("role") ?: "student"
@@ -61,50 +60,54 @@ class ProfileFragment : Fragment() {
 
                     val sId = doc.getString("schoolId")
                     binding.tvProfileSchool.text = "School: ${schoolLookup[sId] ?: sId}"
-                    // --- BEAUTIFUL DROPDOWN LOGIC ---
+
+                    // --- DROPDOWN LOGIC ---
                     val prefs = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
                     val languageOptions = arrayOf("English", "Taglish", "Tagalog")
 
-// Explicitly tell the adapter it is for Strings
                     val adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, languageOptions)
-
                     val autoText = binding.root.findViewById<AutoCompleteTextView>(R.id.actv_language)
                     autoText.setAdapter(adapter)
 
-// Load the current saved preference (Default to English)
                     val currentLang = prefs.getString("ai_language_pref", "English") ?: "English"
                     autoText.setText(currentLang, false)
 
-// Fix: Use explicit names (parent, view, position, id) instead of 'it' or '_'
-                    autoText.setOnItemClickListener { parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long ->
+                    autoText.setOnItemClickListener { _: AdapterView<*>, _: android.view.View?, position: Int, _: Long ->
                         val selected = languageOptions[position]
                         prefs.edit().putString("ai_language_pref", selected).apply()
-                        com.example.gabai.GabAIUtils.showSnackbar(context, "AI will now explain in $selected")
+                        GabAIUtils.showSnackbar(requireContext(), "AI will now explain in $selected")
                     }
 
                     if (role == "teacher") {
+                        // Update to Teacher PNG
+                        binding.profileImage.setImageResource(R.drawable.ic_teacher_avatar)
+
                         // FOR TEACHERS: Hide section/grade, show Join Code
                         binding.tvProfileSection.visibility = View.GONE
                         val joinCode = doc.getString("joinCode") ?: "N/A"
                         binding.tvProfileGrade.text = "Join Code: $joinCode"
                         binding.tvProfileGrade.setTextColor(android.graphics.Color.parseColor("#6C5CE7"))
                         binding.tvProfileGrade.setTypeface(null, android.graphics.Typeface.BOLD)
+
+                        binding.root.findViewById<View>(R.id.container_preferences)?.visibility = View.GONE
                     } else {
+                        // Update to Student PNG
+                        binding.profileImage.setImageResource(R.drawable.ic_student_avatar)
+
                         // FOR STUDENTS: Show section/grade
                         binding.tvProfileSection.visibility = View.VISIBLE
                         binding.tvProfileSection.text = "Section: ${doc.getString("section")}"
                         binding.tvProfileGrade.text = "Grade: ${doc.getString("grade") ?: "N/A"}"
                         binding.tvProfileGrade.setTextColor(android.graphics.Color.parseColor("#636E72"))
                         binding.tvProfileGrade.setTypeface(null, android.graphics.Typeface.NORMAL)
+
+                        binding.root.findViewById<View>(R.id.container_preferences)?.visibility = View.VISIBLE
                     }
                 }
             }
             .addOnFailureListener {
-                val safeContext = context
-                if (safeContext != null) {
-                    GabAIUtils.hideGlobalLoading(safeContext)
-                    GabAIUtils.showSnackbar(safeContext, "Failed to load profile data.")
-                }
+                GabAIUtils.hideGlobalLoading(requireContext())
+                GabAIUtils.showSnackbar(requireContext(), "Failed to load profile data.")
             }
     }
 

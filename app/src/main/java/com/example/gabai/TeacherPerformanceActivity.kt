@@ -166,6 +166,17 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
                             ).apply { setMargins(0, 0, 0, 16) }
+
+                            // 🟢 ADD THESE LINES TO MAKE IT CLICKABLE 🟢
+                            isClickable = true
+                            isFocusable = true
+                            setOnClickListener {
+                                val intent = android.content.Intent(this@TeacherPerformanceActivity, IndividualStudentPerformanceActivity::class.java)
+                                intent.putExtra("STUDENT_ID", student.uid)
+                                intent.putExtra("STUDENT_NAME", student.name)
+                                startActivity(intent)
+                            }
+                            // ------------------------------------------
                         }
 
                         val nameText = TextView(this@TeacherPerformanceActivity).apply {

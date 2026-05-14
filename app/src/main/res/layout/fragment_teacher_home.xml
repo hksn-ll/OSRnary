@@ -1,85 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="#F8F9FA">
+    android:background="#F4F6F8"
+    android:paddingTop="20dp">
 
-    <TextView
-        android:id="@+id/tvTeacherWelcome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Educator Dashboard"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#2D3436"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Manage your classrooms and distribute materials to your students."
-        android:textSize="14sp"
-        android:textColor="#636E72"
-        android:layout_marginBottom="32dp"/>
+    <ImageView
+        android:id="@+id/profile_image_teacher"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="20dp"
+        android:src="@mipmap/ic_launcher"
+        android:background="@drawable/bg_card_level"
+        android:backgroundTint="#00B894"
+        android:padding="8dp"
+        android:clipToOutline="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/btnManageClasses"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_card_history"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_marginBottom="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="4dp">
+        android:layout_marginStart="16dp"
+        android:gravity="center_vertical"
+        app:layout_constraintStart_toEndOf="@id/profile_image_teacher"
+        app:layout_constraintTop_toTopOf="@id/profile_image_teacher"
+        app:layout_constraintBottom_toBottomOf="@id/profile_image_teacher">
 
         <TextView
-            android:text="Class Sections"
-            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Educator Portal"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#2D3436"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textColor="#2D3436" />
 
         <TextView
-            android:text="Create sections, manage rosters, and generate student accounts."
-            android:textSize="14sp"
-            android:textColor="#636E72"
-            android:layout_marginTop="4dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="Manage Classes &amp; Content"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#B2BEC3" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/btnAssignMaterials"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_card_quiz"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_marginBottom="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="4dp">
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="20dp"
+        app:layout_constraintTop_toBottomOf="@id/profile_image_teacher"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:text="Assign Materials"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#2D3436"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <TextView
-            android:text="Distribute PDFs and external links to specific class sections."
-            android:textSize="14sp"
-            android:textColor="#636E72"
-            android:layout_marginTop="4dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tvTeacherWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome Back! 🧑‍🏫"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#2D3436"
+                android:layout_marginBottom="24dp"/>
 
-</LinearLayout>
+            <LinearLayout
+                android:id="@+id/btnManageClasses"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🏫"
+                    android:textSize="32sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:text="Class Sections"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#2D3436"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Create sections, manage rosters, and generate student accounts."
+                    android:textSize="14sp"
+                    android:textColor="#636E72"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnAssignMaterials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📚"
+                    android:textSize="32sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:text="Library &amp; Materials"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#2D3436"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Upload PDFs, manage AI quizzes, and distribute content to classes."
+                    android:textSize="14sp"
+                    android:textColor="#636E72"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>'
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/btnShowQrCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_quiz"
+                android:backgroundTint="#FFFFFF"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🆔"
+                    android:textSize="32sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:text="Class Join Code"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#2D3436"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Tap this card to generate a scannable QR Code for your students."
+                    android:textSize="14sp"
+                    android:textColor="#636E72"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tv_join_code_display"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="------"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    android:textColor="#6C5CE7"
+                    android:gravity="center"
+                    android:letterSpacing="0.2"
+                    android:background="#F4F6F8"
+                    android:padding="12dp" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/btn_system_logs"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="System Logs &amp; Feedback 🛠️"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:backgroundTint="#DFE6E9"
+                android:textColor="#2D3436"
+                app:cornerRadius="16dp"
+                android:elevation="2dp"
+                android:layout_marginBottom="16dp"/>
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

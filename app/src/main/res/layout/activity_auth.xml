@@ -1,297 +1,386 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:fitsSystemWindows="true"> <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center" android:gravity="center_horizontal" android:orientation="vertical"
-    android:padding="24dp"
-    android:paddingBottom="80dp"> <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    android:text="GabAI"
-    android:textSize="32sp"
-    android:textStyle="bold" />
+    android:background="#F4F6F8"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
-        android:id="@+id/container_greeting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:visibility="gone">
-        <TextView
-            android:id="@+id/tv_auth_greeting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Welcome!"
-            android:textSize="35sp"
-            android:textStyle="bold"
-            android:textColor="#2d3436"/>
+        android:padding="24dp"
+        android:paddingBottom="80dp">
 
-        <TextView
-            android:id="@+id/tv_role_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Student Access"
-            android:textSize="0sp"
-            android:textAllCaps="true"
-            android:textStyle="bold"
-            android:textColor="#0984e3"
-            android:layout_marginBottom="16dp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/container_role"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@mipmap/ic_launcher"
             android:layout_marginBottom="16dp"
-            android:text="Select your role:" />
-        <Button
-            android:id="@+id/btn_role_student"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginBottom="12dp"
-            android:text="I am a Student" />
-        <Button
-            android:id="@+id/btn_role_teacher"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="I am a Teacher" />
-    </LinearLayout>
+            android:elevation="4dp" />
 
-    <LinearLayout
-        android:id="@+id/container_login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="visible">
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email / Username">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_login_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Password">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_login_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/btn_login_submit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Login" />
-        <TextView
-            android:id="@+id/tv_forgot_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:padding="8dp"
-            android:text="Forgot Password?"
-            android:textColor="#3498db"
-            android:textSize="14sp" />
-        <TextView
-            android:id="@+id/tv_go_to_register"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="Don't have an account? Register"
-            android:textColor="?attr/colorPrimary" />
-
-        <Button
-            android:id="@+id/btn_back_to_roles"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:text="Change Role / Go Back"
-            android:textColor="#636e72" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/container_register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Select School">
-            <AutoCompleteTextView
-                android:id="@+id/spinner_school"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Register as a:"
+            android:layout_marginBottom="24dp"
+            android:text="GabAI"
+            android:textColor="#404040"
+            android:textSize="36sp"
             android:textStyle="bold"
-            android:layout_marginTop="12dp"
-            android:visibility="gone"/>
-
-        <RadioGroup
-            android:id="@+id/rg_register_role"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            android:layout_marginBottom="12dp">
-            <RadioButton
-                android:id="@+id/rb_student"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Student"
-                android:checked="true"/>
-            <RadioButton
-                android:id="@+id/rb_teacher"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Teacher"/>
-        </RadioGroup>
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="First Name">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_reg_firstname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Last Name">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_reg_lastname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_reg_grade"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Grade Level">
-            <AutoCompleteTextView
-                android:id="@+id/spinner_grade"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_reg_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Section">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_reg_section"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Email">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_reg_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Password">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_reg_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/btn_register_submit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Register" />
-        <TextView
-            android:id="@+id/tv_go_to_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="Back to Login"
-            android:textColor="?attr/colorPrimary" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/container_loading"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        android:layout_marginTop="32dp">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminateTint="?attr/colorPrimary" />
-
+            android:letterSpacing="0.05" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Connecting to GabAI..."
+            android:text="An AI-Enabled Mobile Reading Assistant with Spaced Repetition System to Enhance the Reading Comprehension"
+            android:textColor="#636E72"
+            android:textSize="16sp"
             android:textStyle="italic"
-            android:textColor="#636e72"/>
-    </LinearLayout>
-</LinearLayout>
+            android:layout_marginBottom="32dp"
+            android:letterSpacing="0.02"
+            android:gravity="center"/>
 
+        <LinearLayout
+            android:id="@+id/container_greeting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_auth_greeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome Back! 👋"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#2D3436"/>
+
+            <TextView
+                android:id="@+id/tv_role_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Student Access"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#00B894"
+                android:background="@drawable/pill_background"
+                android:backgroundTint="#E8F8F5"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/container_role"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Choose your path:"
+                android:textColor="#636E72"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"/>
+
+            <Button
+                android:id="@+id/btn_role_student"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#6C5CE7"
+                android:text="🎒 I am a Student"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="20dp" />
+
+            <Button
+                android:id="@+id/btn_role_teacher"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:backgroundTint="#FFFFFF"
+                android:textColor="#2D3436"
+                android:text="🧑‍🏫 I am a Teacher"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="20dp"
+                android:elevation="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/container_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_quiz"
+            android:backgroundTint="#FFFFFF"
+            android:padding="24dp"
+            android:elevation="4dp"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Email / Username">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_login_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Password">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_login_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btn_login_submit"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#00B894"
+                android:text="Let's Go! 🚀"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_forgot_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:padding="8dp"
+                android:text="Forgot Password?"
+                android:textColor="#0984E3"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_go_to_register"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="New here? Create an account"
+                android:textColor="#6C5CE7"
+                android:textStyle="bold"
+                android:padding="8dp"/>
+
+            <Button
+                android:id="@+id/btn_back_to_roles"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="Wait, let me change my role"
+                android:textColor="#B2BEC3" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/container_register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_quiz"
+            android:backgroundTint="#FFFFFF"
+            android:padding="24dp"
+            android:elevation="4dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Join the Classroom 🏫"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#2D3436"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxCornerRadiusTopStart="16dp" app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp" app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Select School">
+                <AutoCompleteTextView
+                    android:id="@+id/spinner_school"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:boxCornerRadiusTopStart="16dp" app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp" app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="First Name">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_reg_firstname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:boxCornerRadiusTopStart="16dp" app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp" app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Last Name">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_reg_lastname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_reg_grade"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:boxCornerRadiusTopStart="16dp" app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp" app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Grade Level">
+                <AutoCompleteTextView
+                    android:id="@+id/spinner_grade"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_reg_section"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:boxCornerRadiusTopStart="16dp" app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp" app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Section (e.g. Rizal)">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_reg_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:boxCornerRadiusTopStart="16dp" app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp" app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Email">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_reg_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:boxCornerRadiusTopStart="16dp" app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp" app:boxCornerRadiusBottomEnd="16dp"
+                android:hint="Password">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_reg_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btn_register_submit"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="24dp"
+                android:text="Create Account ✨"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:backgroundTint="#6C5CE7"
+                app:cornerRadius="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_go_to_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:text="I already have an account"
+                android:textColor="#00B894"
+                android:textStyle="bold"
+                android:padding="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/container_loading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="32dp">
+
+            <ProgressBar
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:indeterminateTint="#6C5CE7" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Waking up GabAI..."
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#636E72"/>
+        </LinearLayout>
+    </LinearLayout>
 </ScrollView>

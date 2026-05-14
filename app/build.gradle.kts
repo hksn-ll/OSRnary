@@ -70,6 +70,8 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.mlkit:language-id:17.0.4")
 
 

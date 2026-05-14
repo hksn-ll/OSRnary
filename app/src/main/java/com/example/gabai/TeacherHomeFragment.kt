@@ -23,6 +23,9 @@ class TeacherHomeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTeacherHomeBinding.inflate(inflater, container, false)
+        binding.root.findViewById<View>(R.id.btn_system_logs)?.setOnClickListener {
+            startActivity(Intent(requireContext(), SystemLogsActivity::class.java))
+        }
 
         // 1. OPEN NEW CLASS MANAGEMENT SCREEN
         binding.btnManageClasses.setOnClickListener {
@@ -33,10 +36,48 @@ class TeacherHomeFragment : Fragment() {
         binding.btnAssignMaterials.setOnClickListener {
             startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
         }
+// --- ADD THIS INSIDE onCreateView (Before return binding.root) ---
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener { doc ->
+                    val joinCode = doc.getString("joinCode") ?: "N/A"
+                    binding.root.findViewById<TextView>(R.id.tv_join_code_display)?.text = joinCode
 
+                    binding.root.findViewById<View>(R.id.btnShowQrCode)?.setOnClickListener {
+                        showQRCodeDialog(joinCode)
+                    }
+                }
+        }
         return binding.root
     }
+    // --- ADD THIS FUNCTION AT THE BOTTOM OF TeacherHomeFragment ---
+    private fun showQRCodeDialog(joinCode: String) {
+        try {
+            val barcodeEncoder = com.journeyapps.barcodescanner.BarcodeEncoder()
+            val bitmap = barcodeEncoder.encodeBitmap(
+                joinCode,
+                com.google.zxing.BarcodeFormat.QR_CODE,
+                600,
+                600
+            )
 
+            val imageView = android.widget.ImageView(requireContext()).apply {
+                setImageBitmap(bitmap)
+                setPadding(50, 50, 50, 50)
+            }
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Class QR Code")
+                .setMessage("Students can scan this from their Home tab to join your class!")
+                .setView(imageView)
+                .setPositiveButton("Close", null)
+                .show()
+
+        } catch (e: Exception) {
+            com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Failed to generate QR Code.")
+        }
+    }
     private fun showAssignMaterialDialog() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()

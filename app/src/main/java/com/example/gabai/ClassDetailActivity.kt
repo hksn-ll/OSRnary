@@ -111,18 +111,20 @@ class ClassDetailActivity : AppCompatActivity() {
     private fun loadStudents() {
         val pendingContainer = findViewById<LinearLayout>(R.id.pending_students_container)
         val activeContainer = findViewById<LinearLayout>(R.id.active_students_container)
+        val tvPendingTitle = findViewById<TextView>(R.id.tv_pending_title)
 
-        // 1. Fetch the class document to get the joinedStudents list
-        db.collection("classes").document(classId).get().addOnSuccessListener { classDoc ->
+        // FIX: Use addSnapshotListener instead of get() so it updates instantly when a student joins via code!
+        db.collection("classes").document(classId).addSnapshotListener { classDoc, classError ->
+            if (classError != null || classDoc == null || !classDoc.exists()) return@addSnapshotListener
+
             val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
 
-            // ==========================================
-            // PATH A: ADVISER VIEW (FULL PRIVILEGE)
-            // ==========================================
             if (isAdviser) {
+                // ADVISER VIEW: Show Pending and Active
+                tvPendingTitle?.visibility = View.VISIBLE
                 pendingContainer.visibility = View.VISIBLE
 
-                // Read Pending Students
+                // PENDING STUDENTS (Adviser)
                 db.collection("pending_students")
                     .whereEqualTo("schoolId", schoolId)
                     .whereEqualTo("section", sectionName)
@@ -134,18 +136,10 @@ class ClassDetailActivity : AppCompatActivity() {
                         if (snapshots.isEmpty) {
                             pendingContainer.addView(TextView(this).apply { text = "No pending accounts." })
                         } else {
-                            pendingContainer.addView(TextView(this).apply {
-                                text = "Unclaimed Accounts"
-                                setTypeface(null, android.graphics.Typeface.BOLD)
-                                setTextColor(Color.DKGRAY)
-                                setPadding(0, 0, 0, 10)
-                            })
                             for (doc in snapshots) {
-                                val fName = doc.getString("firstName") ?: ""
-                                val lName = doc.getString("lastName") ?: ""
+                                val fName = doc.getString("firstName") ?: ""; val lName = doc.getString("lastName") ?: ""
                                 val fullName = "$fName $lName".trim()
-                                val username = doc.getString("username") ?: ""
-                                val password = doc.getString("password") ?: ""
+                                val username = doc.getString("username") ?: ""; val password = doc.getString("password") ?: ""
 
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, pendingContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
@@ -158,7 +152,7 @@ class ClassDetailActivity : AppCompatActivity() {
                         }
                     }
 
-                // Read Active Students
+                // ACTIVE STUDENTS (Adviser)
                 db.collection("users")
                     .whereEqualTo("role", "student")
                     .whereEqualTo("schoolId", schoolId)
@@ -171,21 +165,18 @@ class ClassDetailActivity : AppCompatActivity() {
                         if (snapshots.isEmpty) {
                             activeContainer.addView(TextView(this).apply { text = "No active students." })
                         } else {
-                            activeContainer.addView(TextView(this).apply {
-                                text = "Active Students"
-                                setTypeface(null, android.graphics.Typeface.BOLD)
-                                setTextColor(Color.DKGRAY)
-                                setPadding(0, 30, 0, 10)
-                            })
                             for (doc in snapshots) {
-                                val fName = doc.getString("firstName") ?: ""
-                                val lName = doc.getString("lastName") ?: ""
+                                val fName = doc.getString("firstName") ?: ""; val lName = doc.getString("lastName") ?: ""
                                 val fullName = "$fName $lName".trim()
                                 val level = doc.getLong("level")?.toInt() ?: 1
 
+                                // FIX: Show User and Pass for active students so the teacher has a backup record
+                                val username = doc.getString("username") ?: "N/A"
+                                val password = doc.getString("password") ?: "N/A"
+
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
-                                view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
+                                view.findViewById<TextView>(R.id.tv_student_details).text = "Lvl $level | User: $username | Pass: $password"
 
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "") }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, false, fullName) }
@@ -194,38 +185,31 @@ class ClassDetailActivity : AppCompatActivity() {
                         }
                     }
 
-            }
-            // ==========================================
-            // PATH B: SUBJECT TEACHER VIEW (LEAST PRIVILEGE)
-            // ==========================================
-            else {
-                // Completely hide the Pending Accounts container
+            } else {
+                // SUBJECT TEACHER VIEW: Hide Pending
+                tvPendingTitle?.visibility = View.GONE
                 pendingContainer.visibility = View.GONE
+
+                if (joinedStudents.isEmpty()) {
+                    activeContainer.removeAllViews()
+                    activeContainer.addView(TextView(this).apply { text = "No students have joined using your code yet." })
+                    return@addSnapshotListener
+                }
 
                 db.collection("users")
                     .whereEqualTo("role", "student")
                     .whereEqualTo("schoolId", schoolId)
-                    .whereEqualTo("section", sectionName)
-                    .whereEqualTo("grade", grade)
                     .addSnapshotListener { snapshots, error ->
                         if (error != null || snapshots == null) return@addSnapshotListener
                         activeContainer.removeAllViews()
 
-                        // GATEKEEPER: Only allow students in the joinedStudents array
                         val activeDocs = snapshots.documents.filter { joinedStudents.contains(it.id) }
 
                         if (activeDocs.isEmpty()) {
                             activeContainer.addView(TextView(this).apply { text = "No students have joined using your code yet." })
                         } else {
-                            activeContainer.addView(TextView(this).apply {
-                                text = "Students Joined"
-                                setTypeface(null, android.graphics.Typeface.BOLD)
-                                setTextColor(Color.DKGRAY)
-                                setPadding(0, 0, 0, 10)
-                            })
                             for (doc in activeDocs) {
-                                val fName = doc.getString("firstName") ?: ""
-                                val lName = doc.getString("lastName") ?: ""
+                                val fName = doc.getString("firstName") ?: ""; val lName = doc.getString("lastName") ?: ""
                                 val fullName = "$fName $lName".trim()
                                 val level = doc.getLong("level")?.toInt() ?: 1
 
@@ -233,7 +217,6 @@ class ClassDetailActivity : AppCompatActivity() {
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
                                 view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
 
-                                // Remove editing controls so they can't mess with the adviser's students
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).visibility = View.GONE
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).visibility = View.GONE
 
@@ -243,8 +226,7 @@ class ClassDetailActivity : AppCompatActivity() {
                     }
             }
         }
-    }
-    // CREATE
+    }    // CREATE
     private fun showGenerateStudentsDialog() {
         val input = EditText(this).apply {
             hint = "Enter student names, one per line\n(e.g.\nJuan Cruz\nMaria Clara)"
