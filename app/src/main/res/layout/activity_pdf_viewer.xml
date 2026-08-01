@@ -16,6 +16,7 @@
 
         <ImageButton
             android:id="@+id/btn_close_pdf"
+            android:contentDescription="@string/cd_close"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@android:drawable/ic_menu_close_clear_cancel"
@@ -37,6 +38,7 @@
 
         <ImageButton
             android:id="@+id/btn_kebab_menu"
+            android:contentDescription="@string/cd_menu"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="8dp"

@@ -2,4 +2,20 @@
     <string name="app_name">GabAI</string>
     <string name="notification_title">GabAI is active</string>
     <string name="notification_text">Your AI reading assistant is ready.</string>
+
+    <!-- Content descriptions (accessibility / TalkBack) -->
+    <string name="cd_back">Go back</string>
+    <string name="cd_close">Close</string>
+    <string name="cd_capture">Capture photo</string>
+    <string name="cd_menu">More options</string>
+    <string name="cd_edit">Edit</string>
+    <string name="cd_delete">Delete</string>
+    <string name="cd_profile_image">Profile picture</string>
+    <string name="cd_pdf_thumbnail">PDF thumbnail</string>
+    <string name="cd_screenshot">Captured screenshot</string>
+
+    <!-- Common user-facing messages -->
+    <string name="error_load_failed">Something went wrong. Please check your connection and try again.</string>
+    <string name="error_load_settings_failed">Couldn\'t load your class settings. Please try again.</string>
+    <string name="action_retry">Return to Dashboard</string>
 </resources>

@@ -22,6 +22,7 @@
             android:textColor="#2D3436"/>
         <ImageButton
             android:id="@+id/btn_delete_q"
+            android:contentDescription="@string/cd_delete"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:background="?attr/selectableItemBackgroundBorderless"

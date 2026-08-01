@@ -21,6 +21,7 @@
         android:layout_marginEnd="16dp">
         <ImageView
             android:id="@+id/img_pdf_thumb"
+            android:contentDescription="@string/cd_pdf_thumbnail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"

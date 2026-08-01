@@ -19,6 +19,7 @@
 
         <ImageButton
             android:id="@+id/btn_back"
+            android:contentDescription="@string/cd_back"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@android:drawable/ic_menu_revert"

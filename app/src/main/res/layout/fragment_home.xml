@@ -8,6 +8,7 @@
 
     <ImageView
         android:id="@+id/profile_image"
+        android:contentDescription="@string/cd_profile_image"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:src="@mipmap/ic_launcher"

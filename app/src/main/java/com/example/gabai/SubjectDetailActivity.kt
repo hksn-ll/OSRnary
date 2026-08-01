@@ -485,7 +485,8 @@ class SubjectDetailActivity : AppCompatActivity() {
 
                                 val studentCheckboxes = mutableListOf<CheckBox>()
                                 for (student in students) {
-                                    val stId = student["id"]!!
+                                    // Skip malformed records instead of crashing on a missing id.
+                                    val stId = student["id"] ?: continue
                                     val stCb = CheckBox(this).apply {
                                         text = student["name"]
                                         textSize = 16f

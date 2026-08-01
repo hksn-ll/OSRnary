@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 class QuizActivity : AppCompatActivity() {
 
     // --- Dynamic Limits (Fetched from Teacher's Settings) ---
-    // --- Dynamic Limits (Fetched from Teacher's Settings) ---
-    private var maxItemsPerSession = 1   // <--- CHANGE THIS TO 1 FOR TESTING
+    // Defaults used only if the teacher's class config can't be loaded; overwritten in initializeQuizSession().
+    private var maxItemsPerSession = 10
     private var maxSessionsPerDay = 3
 
     // --- Session Trackers ---
@@ -93,7 +93,22 @@ class QuizActivity : AppCompatActivity() {
                     }
                     checkDailyLimits(userId)
                 }
-        }
+                .addOnFailureListener { showLoadError() }
+        }.addOnFailureListener { showLoadError() }
+    }
+
+    // Shared error state: surface a clear message + a way back instead of a stuck spinner.
+    private fun showLoadError() {
+        findViewById<View>(R.id.options_container).visibility = View.GONE
+        findViewById<TextView>(R.id.question_text).text = getString(R.string.error_load_settings_failed)
+        val resultView = findViewById<View>(R.id.result_view)
+        val btnRestart = findViewById<Button>(R.id.btn_restart)
+        val scoreText = findViewById<TextView>(R.id.final_score_text)
+        scoreText.visibility = View.VISIBLE
+        scoreText.text = getString(R.string.error_load_settings_failed)
+        btnRestart.text = getString(R.string.action_retry)
+        btnRestart.setOnClickListener { finish() }
+        resultView.visibility = View.VISIBLE
     }
 
     // ========================================================================
@@ -134,6 +149,7 @@ class QuizActivity : AppCompatActivity() {
                     loadWordsForSession(userId)
                 }
             }
+            .addOnFailureListener { showLoadError() }
     }
 
     // ========================================================================
@@ -253,42 +269,6 @@ class QuizActivity : AppCompatActivity() {
         }
     }
 
-//    private fun parseAndDisplayQuiz(rawResult: String) {
-//        try {
-//            val lines = rawResult.lines().map { it.trim() }
-//            val question = lines.find { it.startsWith("Question:") }?.removePrefix("Question:")?.trim() ?: ""
-//
-//            val options = lines.filter { it.matches(Regex("^[A-D]\\).*")) }
-//                .map { it.substringAfter(")").trim().replace("*", "") }
-//
-//            val correctLine = lines.find { it.startsWith("Correct:") } ?: ""
-//            var cleanCorrect = correctLine.removePrefix("Correct:").trim()
-//            cleanCorrect = cleanCorrect.replace(Regex("^[A-D]\\)"), "").replace("*", "").trim().removeSuffix(".")
-//
-//            correctWord = cleanCorrect
-//            findViewById<TextView>(R.id.question_text).text = question
-//
-//            val buttons = listOf(
-//                findViewById<Button>(R.id.btn_choice1),
-//                findViewById<Button>(R.id.btn_choice2),
-//                findViewById<Button>(R.id.btn_choice3),
-//                findViewById<Button>(R.id.btn_choice4)
-//            )
-//
-//            for (i in buttons.indices) {
-//                if (i < options.size) {
-//                    buttons[i].text = options[i]
-//                    buttons[i].setOnClickListener { checkAnswer(options[i]) }
-//                }
-//            }
-//
-//            findViewById<View>(R.id.options_container).visibility = View.VISIBLE
-//            startTime = System.currentTimeMillis() // Start timing for SRS!
-//
-//        } catch (e: Exception) {
-//            startNewQuestion() // If AI hallucinated the format, skip to next word
-//        }
-//    }
 private fun parseAndDisplayQuiz(rawResult: String) {
     try {
         val lines = rawResult.lines().map { it.trim() }
