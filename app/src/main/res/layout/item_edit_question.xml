@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:text="Question"
             android:textStyle="bold"
-            android:textColor="#2D3436"/>
+            android:textColor="@color/text_primary"/>
         <ImageButton
             android:id="@+id/btn_delete_q"
             android:contentDescription="@string/cd_delete"

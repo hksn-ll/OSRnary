@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    android:background="?android:attr/colorBackground"
+    android:padding="@dimen/screen_padding">
 
     <ImageView
         android:id="@+id/profile_image"
@@ -13,7 +14,7 @@
         android:layout_height="64dp"
         android:src="@mipmap/ic_launcher"
         android:background="@drawable/bg_card_level"
-        android:padding="8dp"
+        android:padding="@dimen/space_sm"
         android:clipToOutline="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,7 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/space_md"
         android:gravity="center_vertical"
         app:layout_constraintStart_toEndOf="@id/profile_image"
         app:layout_constraintTop_toTopOf="@id/profile_image"
@@ -32,31 +33,33 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OSRnary"
+            android:text="GabAI"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#2D3436" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Instant On-Screen Reader"
             android:textSize="13sp"
-            android:textColor="#636E72" />
+            android:textColor="@color/text_secondary" />
     </LinearLayout>
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/bubble_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="@dimen/touch_target_min"
+        android:minHeight="@dimen/touch_target_min"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/profile_image"
-        app:layout_constraintBottom_toBottomOf="@id/profile_image"/>
+        app:layout_constraintBottom_toBottomOf="@id/profile_image" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="@dimen/space_lg"
         android:scrollbars="none"
         android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/profile_image"
@@ -66,42 +69,42 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="20dp">
+            android:paddingBottom="@dimen/space_lg">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hello, Student! 👋"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#000000"
-                android:layout_marginBottom="4dp"/>
+                android:textAppearance="@style/TextAppearance.GabAI.Headline"
+                android:layout_marginBottom="@dimen/space_xs" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ready to take a quiz today?"
-                android:textSize="14sp"
-                android:textColor="#636E72"
-                android:layout_marginBottom="24dp"/>
+                android:textAppearance="@style/TextAppearance.GabAI.Body"
+                android:layout_marginBottom="@dimen/space_lg" />
 
+            <!-- XP / Level hero card -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:background="@drawable/bg_card_level"
-                android:layout_marginBottom="16dp">
+                android:clipToOutline="true"
+                android:layout_marginBottom="@dimen/space_md">
 
                 <LinearLayout
                     android:id="@+id/unlocked_xp_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:padding="20dp"
+                    android:padding="@dimen/screen_padding"
                     android:visibility="visible">
-                    <TextView android:id="@+id/tv_level_label" android:text="LEVEL 1" android:textSize="18sp" android:textStyle="bold" android:textColor="#FFFFFF" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    <TextView android:id="@+id/tv_xp_label" android:text="0 / 100 XP" android:textSize="12sp" android:textColor="#FFFFFF" android:layout_gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    <ProgressBar android:id="@+id/xp_progress_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="8dp" android:progress="0" android:progressDrawable="@drawable/pill_background" android:layout_marginTop="4dp" android:layout_marginBottom="12dp"/>
-                    <TextView android:text="Gain XP by saving words and taking quizzes!" android:textSize="12sp" android:textColor="#E0E0E0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+                    <TextView android:id="@+id/tv_level_label" android:text="LEVEL 1" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:id="@+id/tv_xp_label" android:text="0 / 100 XP" android:textSize="12sp" android:textColor="@color/text_on_dark" android:layout_gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <ProgressBar android:id="@+id/xp_progress_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="8dp" android:progress="0" android:progressDrawable="@drawable/pill_background" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" />
+                    <TextView android:text="Gain XP by saving words and taking quizzes!" android:textSize="12sp" android:textColor="@color/text_on_dark_muted" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -110,333 +113,276 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:background="#D9000000"
+                    android:background="@color/scrim"
                     android:visibility="gone">
-                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_secure" app:tint="#FFFFFF"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Leveling Locked" android:textStyle="bold" android:textColor="#FFFFFF" android:textSize="16sp" android:layout_marginTop="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Complete Apprentice Quests to unlock" android:textColor="#CCCCCC" android:textSize="12sp"/>
+
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_secure" app:tint="@color/text_on_dark" android:contentDescription="@null" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Leveling Locked" android:textStyle="bold" android:textColor="@color/text_on_dark" android:textSize="16sp" android:layout_marginTop="@dimen/space_sm" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Complete Apprentice Quests to unlock" android:textColor="@color/text_on_dark_muted" android:textSize="12sp" />
                 </LinearLayout>
             </FrameLayout>
 
-            <LinearLayout
+            <!-- Apprentice Quests board -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/quest_board_container"
+                style="@style/Widget.GabAI.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card_history"
-                android:padding="20dp"
-                android:layout_marginBottom="24dp"
                 android:visibility="gone">
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Apprentice Quests 📜" android:textSize="18sp" android:textStyle="bold" android:textColor="#000000"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Finish these to unlock your rank:" android:textSize="14sp" android:textColor="#444444" android:layout_marginBottom="16dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                <TextView android:id="@+id/quest_bubble" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 1. Activate the Floating Bubble" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
-                <TextView android:id="@+id/quest_read" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 2. Read the 4 Required Materials" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
-                <TextView android:id="@+id/quest_test" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 3. Pass the Initiation Test" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
-                <TextView android:id="@+id/quest_scan" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 4. Scan a text with the Camera" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
-                <TextView android:id="@+id/quest_save" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 5. Save a word to Favorites" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
-                <TextView android:id="@+id/quest_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 6. Check your Scan History" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
-                <TextView android:id="@+id/quest_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 7. View Saved Content" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
-                <TextView android:id="@+id/quest_library" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 8. Open the Digital Library" android:textColor="#000000" android:textSize="15sp" android:paddingVertical="4dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Apprentice Quests 📜" android:textAppearance="@style/TextAppearance.GabAI.Title" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Finish these to unlock your rank:" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginBottom="@dimen/space_md" />
 
-                <Button android:id="@+id/btn_quest_details" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Quest Details" android:layout_marginTop="16dp" android:backgroundTint="#2d3436"/>
-            </LinearLayout>
+                    <TextView android:id="@+id/quest_bubble" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 1. Activate the Floating Bubble" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                    <TextView android:id="@+id/quest_read" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 2. Read the 4 Required Materials" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                    <TextView android:id="@+id/quest_test" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 3. Pass the Initiation Test" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                    <TextView android:id="@+id/quest_scan" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 4. Scan a text with the Camera" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                    <TextView android:id="@+id/quest_save" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 5. Save a word to Favorites" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                    <TextView android:id="@+id/quest_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 6. Check your Scan History" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                    <TextView android:id="@+id/quest_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 7. View Saved Content" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                    <TextView android:id="@+id/quest_library" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 8. Open the Digital Library" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
 
-            <!-- Learning Progress Card -->
-            <LinearLayout
+                    <Button android:id="@+id/btn_quest_details" style="@style/Widget.GabAI.Button.Primary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Quest Details" android:layout_marginTop="@dimen/space_md" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <!-- Learning Progress -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btn_learning_progress"
+                style="@style/Widget.GabAI.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_quiz"
                 android:clickable="true"
-                android:elevation="4dp"
                 android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="20dp"
+                app:contentPadding="@dimen/screen_padding"
                 android:foreground="?attr/selectableItemBackground">
 
-                <!-- Text Content -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Learning Progress"
-                        android:textColor="#2D3436"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="View your level, XP, and accuracy"
-                        android:textColor="#636E72"
-                        android:textSize="14sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Learning Progress" android:textAppearance="@style/TextAppearance.GabAI.Title" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="View your level, XP, and accuracy" android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                    </LinearLayout>
+
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_media_play" app:tint="@color/text_secondary" android:contentDescription="@null" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <!-- Arrow Icon pointing right -->
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_media_play"
-                    app:tint="#B2BEC3" />
-            </LinearLayout>
-            <!-- Daily Quests Card -->
-            <LinearLayout
+            <!-- Daily Quests -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btn_daily_quests"
+                style="@style/Widget.GabAI.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="1dp"
-                android:background="@drawable/bg_card_quiz"
                 android:clickable="true"
-                android:elevation="4dp"
                 android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="20dp"
+                app:contentPadding="@dimen/screen_padding"
                 android:foreground="?attr/selectableItemBackground">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Daily Quests"
-                        android:textColor="#2D3436"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Complete daily tasks for bonus XP!"
-                        android:textColor="#636E72"
-                        android:textSize="14sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Daily Quests" android:textAppearance="@style/TextAppearance.GabAI.Title" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Complete daily tasks for bonus XP!" android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                    </LinearLayout>
+
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_today" app:tint="@color/success_green" android:contentDescription="@null" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    app:tint="#00B894" />
-
-            </LinearLayout>
-            <!-- Achievements & Badges Card -->
-            <LinearLayout
+            <!-- My Badges -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btn_achievements"
+                style="@style/Widget.GabAI.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="0dp"
-                android:background="@drawable/bg_card_quiz"
                 android:clickable="true"
-                android:elevation="4dp"
                 android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="20dp"
+                app:contentPadding="@dimen/screen_padding"
                 android:foreground="?attr/selectableItemBackground">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="My Badges"
-                        android:textColor="#2D3436"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="View your unlocked achievements"
-                        android:textColor="#636E72"
-                        android:textSize="14sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="My Badges" android:textAppearance="@style/TextAppearance.GabAI.Title" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="View your unlocked achievements" android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                    </LinearLayout>
+
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="@color/accent_gold" android:contentDescription="@null" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="#FDCB6E" />
-            </LinearLayout>
-            <!-- Class Leaderboard Card -->
-            <LinearLayout
+            <!-- Class Leaderboard -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btn_leaderboard"
+                style="@style/Widget.GabAI.CardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_quiz"
                 android:clickable="true"
-                android:elevation="4dp"
                 android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="20dp"
+                app:contentPadding="@dimen/screen_padding"
                 android:foreground="?attr/selectableItemBackground">
 
-                <!-- Text Content -->
-
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Class Leaderboard"
-                        android:textColor="#2D3436"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="See how you rank in your section"
-                        android:textColor="#636E72"
-                        android:textSize="14sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Class Leaderboard" android:textAppearance="@style/TextAppearance.GabAI.Title" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="See how you rank in your section" android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                    </LinearLayout>
+
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/btn_star_big_on" app:tint="@color/accent_amber" android:contentDescription="@null" />
                 </LinearLayout>
-
-                <!-- Star/Trophy Icon -->
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/btn_star_big_on"
-                    app:tint="#F1C40F" />
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <Button
                 android:id="@+id/btn_join_class"
+                style="@style/Widget.GabAI.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:backgroundTint="#00B894"
-                android:padding="16dp"
+                android:layout_marginTop="@dimen/space_sm"
+                android:layout_marginBottom="@dimen/space_md"
+                android:backgroundTint="@color/success_green"
+                android:padding="@dimen/space_md"
                 android:text="Join Class with Code"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold"
-                app:cornerRadius="12dp" />
+                android:textColor="@color/white"
+                android:textStyle="bold" />
 
+            <!-- Camera Live Scan (hero) -->
             <LinearLayout
                 android:id="@+id/btn_open_camera"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card_level"
+                android:clipToOutline="true"
                 android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginBottom="16dp"
+                android:padding="@dimen/screen_padding"
+                android:layout_marginBottom="@dimen/space_md"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
-                <TextView
-                    android:text="Camera Live Scan"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:text="Scan physical books and documents in real-time"
-                    android:textSize="14sp"
-                    android:textColor="#F0F0F0"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <TextView android:text="Camera Live Scan" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <TextView android:text="Scan physical books and documents in real-time" android:textSize="14sp" android:textColor="@color/text_on_dark_muted" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
                 <Button
+                    style="@style/Widget.GabAI.Button.OnCard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Open Scanner"
-                    android:textColor="#6C5CE7"
-                    android:backgroundTint="#FFFFFF"
                     android:clickable="false"
-                    android:layout_gravity="center_horizontal"/>
+                    android:duplicateParentState="true"
+                    android:layout_gravity="center_horizontal" />
             </LinearLayout>
+
+            <!-- Digital Library (hero) -->
             <LinearLayout
                 android:id="@+id/btn_open_library"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card_level"
+                android:clipToOutline="true"
                 android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginBottom="16dp"
+                android:padding="@dimen/screen_padding"
+                android:layout_marginBottom="@dimen/space_md"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
-                <TextView
-                    android:text="Digital Library"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:text="View and read materials assigned by your teacher"
-                    android:textSize="14sp"
-                    android:textColor="#F0F0F0"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <TextView android:text="Digital Library" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <TextView android:text="View and read materials assigned by your teacher" android:textSize="14sp" android:textColor="@color/text_on_dark_muted" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
                 <Button
+                    style="@style/Widget.GabAI.Button.OnCard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Open Library"
-                    android:textColor="#6C5CE7"
-                    android:backgroundTint="#FFFFFF"
                     android:clickable="false"
-                    android:layout_gravity="center_horizontal"/>
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_quiz" android:orientation="vertical" android:padding="20dp" android:layout_marginBottom="16dp">
-                <TextView android:text="Recall Quiz" android:textSize="18sp" android:textStyle="bold" android:textColor="#000000" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <TextView android:text="Test your memory on past selected contexts" android:textSize="14sp" android:textColor="#2D3436" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <Button android:id="@+id/btn_start_quiz" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Start Quiz" android:textColor="#000000" android:backgroundTint="#FFFFFF" android:layout_gravity="center_horizontal"/>
+                    android:duplicateParentState="true"
+                    android:layout_gravity="center_horizontal" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_fav" android:orientation="vertical" android:padding="20dp" android:layout_marginBottom="16dp">
-                <TextView android:text="Favourites" android:textSize="18sp" android:textStyle="bold" android:textColor="#000000" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <TextView android:text="View your saved texts" android:textSize="14sp" android:textColor="#2D3436" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <Button android:id="@+id/btn_favs" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Favourites" android:textColor="#000000" android:backgroundTint="#FFFFFF" android:layout_gravity="center_horizontal"/>
-            </LinearLayout>
+            <!-- Recall Quiz -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GabAI.CardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentPadding="@dimen/screen_padding">
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_history" android:orientation="vertical" android:padding="20dp" android:layout_marginBottom="16dp">
-                <TextView android:text="History" android:textSize="18sp" android:textStyle="bold" android:textColor="#000000" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <TextView android:text="Review all highlighted text blocks" android:textSize="14sp" android:textColor="#2D3436" android:layout_marginTop="4dp" android:layout_marginBottom="16dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <Button android:id="@+id/btn_history" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View History" android:textColor="#000000" android:backgroundTint="#FFFFFF" android:layout_gravity="center_horizontal"/>
-            </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                    <TextView android:text="Recall Quiz" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:text="Test your memory on past selected contexts" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <Button android:id="@+id/btn_start_quiz" style="@style/Widget.GabAI.Button.Primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Start Quiz" android:layout_gravity="center_horizontal" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Favourites -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GabAI.CardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentPadding="@dimen/screen_padding">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                    <TextView android:text="Favourites" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:text="View your saved texts" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <Button android:id="@+id/btn_favs" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Favourites" android:layout_gravity="center_horizontal" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- History -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GabAI.CardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentPadding="@dimen/screen_padding">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                    <TextView android:text="History" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:text="Review all highlighted text blocks" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <Button android:id="@+id/btn_history" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View History" android:layout_gravity="center_horizontal" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </ScrollView>

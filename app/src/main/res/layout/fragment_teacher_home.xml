@@ -13,7 +13,7 @@
         android:text="Educator Dashboard"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#2D3436"
+        android:textColor="@color/text_primary"
         android:layout_marginBottom="8dp"/>
 
     <TextView
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:text="Manage your classrooms and distribute materials to your students."
         android:textSize="14sp"
-        android:textColor="#636E72"
+        android:textColor="@color/text_secondary"
         android:layout_marginBottom="32dp"/>
 
     <LinearLayout
@@ -40,14 +40,14 @@
             android:text="Class Sections"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#2D3436"
+            android:textColor="@color/text_primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <TextView
             android:text="Create sections, manage rosters, and generate student accounts."
             android:textSize="14sp"
-            android:textColor="#636E72"
+            android:textColor="@color/text_secondary"
             android:layout_marginTop="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -69,14 +69,14 @@
             android:text="Assign Materials"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#2D3436"
+            android:textColor="@color/text_primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <TextView
             android:text="Distribute PDFs and external links to specific class sections."
             android:textSize="14sp"
-            android:textColor="#636E72"
+            android:textColor="@color/text_secondary"
             android:layout_marginTop="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

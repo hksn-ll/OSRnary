@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- ===== GabAI brand palette (light) ===== -->
+    <!-- Primary purple identity -->
+    <color name="brand_primary">#6C5CE7</color>
+    <color name="brand_primary_light">#8A84FF</color>
+    <color name="brand_primary_variant">#A29BFE</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <!-- Secondary / accents -->
+    <color name="brand_secondary">#A0C4FF</color>
+    <color name="on_secondary">#0B2E4F</color>
+    <color name="success_green">#00B894</color>
+    <color name="accent_gold">#FDCB6E</color>
+    <color name="accent_amber">#F1C40F</color>
+    <color name="accent_lavender">#D6BCFA</color>
+    <color name="link_blue">#0984E3</color>
+
+    <!-- Surfaces & background -->
+    <color name="background">#F5F5F5</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#EFEFF4</color>
+    <color name="on_surface">#2D3436</color>
+    <color name="on_background">#2D3436</color>
+
+    <!-- Text -->
+    <color name="text_primary">#2D3436</color>
+    <color name="text_secondary">#636E72</color>
+    <color name="text_on_dark">#FFFFFF</color>
+    <color name="text_on_dark_muted">#E0E0E0</color>
+
+    <!-- Status -->
+    <color name="error">#E74C3C</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <!-- Card accent fills (pulled from legacy bg_card_*.xml so look is preserved) -->
+    <color name="card_hero_start">#8A84FF</color>
+    <color name="card_hero_end">#A29BFE</color>
+    <color name="card_quiz">#A0C4FF</color>
+    <color name="card_fav">#D6BCFA</color>
+    <color name="card_history">#9E9E9E</color>
+
+    <!-- Overlay -->
+    <color name="scrim">#D9000000</color>
+    <color name="progress_track">#4DFFFFFF</color>
 </resources>

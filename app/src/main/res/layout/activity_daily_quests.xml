@@ -82,7 +82,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Complete any 1 task to extend it"
-                        android:textColor="#636E72"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -92,7 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:text="Complete tasks every day to earn massive XP bonuses and climb the leaderboard!"
-                android:textColor="#636E72"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <!-- Quest 1: Quiz -->
@@ -109,7 +109,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Memory Master"
-                    android:textColor="#2D3436"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -119,7 +119,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Complete 1 Quiz Session (0/1)"
-                    android:textColor="#636E72" />
+                    android:textColor="@color/text_secondary" />
 
                 <ProgressBar
                     android:id="@+id/prog_quest_quiz"
@@ -146,7 +146,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Word Collector"
-                    android:textColor="#2D3436"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -156,7 +156,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Save 2 Words to Favorites (0/2)"
-                    android:textColor="#636E72" />
+                    android:textColor="@color/text_secondary" />
 
                 <ProgressBar
                     android:id="@+id/prog_quest_save"
@@ -183,7 +183,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="The Scholar"
-                    android:textColor="#2D3436"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -193,7 +193,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Open 1 Reading Material (0/1)"
-                    android:textColor="#636E72" />
+                    android:textColor="@color/text_secondary" />
 
                 <ProgressBar
                     android:id="@+id/prog_quest_read"

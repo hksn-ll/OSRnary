@@ -59,7 +59,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Current Rank"
-                    android:textColor="#636E72"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="0 / 100 XP to next level"
-                    android:textColor="#2D3436"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
                 <ProgressBar
@@ -129,7 +129,7 @@
                         android:layout_marginTop="4dp"
                         android:text="Words\nMastered"
                         android:textAlignment="center"
-                        android:textColor="#636E72"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -160,7 +160,7 @@
                         android:layout_marginTop="4dp"
                         android:text="Quiz\nAccuracy"
                         android:textAlignment="center"
-                        android:textColor="#636E72"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>

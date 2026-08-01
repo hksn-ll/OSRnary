@@ -60,8 +60,8 @@
                 <LinearLayout android:id="@+id/bg_bubble" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_bubble" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_bubble" android:text="1. Activate the Bubble" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_bubble" android:text="Turn on the switch on your home screen to enable the GabAI floating assistant." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_bubble" android:text="1. Activate the Bubble" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_bubble" android:text="Turn on the switch on your home screen to enable the GabAI floating assistant." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -70,8 +70,8 @@
                 <LinearLayout android:id="@+id/bg_read" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_read" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_read" android:text="2. Read Required Materials" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_read" android:text="Use your AI companion to read through the 4 assigned scrolls." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_read" android:text="2. Read Required Materials" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_read" android:text="Use your AI companion to read through the 4 assigned scrolls." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -80,8 +80,8 @@
                 <LinearLayout android:id="@+id/bg_test" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_test" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_test" android:text="3. Pass Initiation Test" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_test" android:text="Score at least 3/5 on the AI exams at the end of each reading material." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_test" android:text="3. Pass Initiation Test" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_test" android:text="Score at least 3/5 on the AI exams at the end of each reading material." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -90,8 +90,8 @@
                 <LinearLayout android:id="@+id/bg_scan" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_scan" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_scan" android:text="4. Camera Live Scan" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_scan" android:text="Open the Camera feature and successfully scan a physical document or book." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_scan" android:text="4. Camera Live Scan" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_scan" android:text="Open the Camera feature and successfully scan a physical document or book." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -100,8 +100,8 @@
                 <LinearLayout android:id="@+id/bg_save" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_save" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_save" android:text="5. Save a Word" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_save" android:text="While using GabAI, tap the Star icon to save a definition to Favorites." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_save" android:text="5. Save a Word" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_save" android:text="While using GabAI, tap the Star icon to save a definition to Favorites." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -110,8 +110,8 @@
                 <LinearLayout android:id="@+id/bg_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_history" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_history" android:text="6. Review Scan History" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_history" android:text="Open the History tab from your dashboard to review your past scans." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_history" android:text="6. Review Scan History" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_history" android:text="Open the History tab from your dashboard to review your past scans." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -120,8 +120,8 @@
                 <LinearLayout android:id="@+id/bg_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_detail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_detail" android:text="7. View Saved Content" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_detail" android:text="Tap on any word inside your Favorites or History to read its full AI explanation." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_detail" android:text="7. View Saved Content" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_detail" android:text="Tap on any word inside your Favorites or History to read its full AI explanation." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -130,8 +130,8 @@
                 <LinearLayout android:id="@+id/bg_library" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="#FFFFFF">
                     <TextView android:id="@+id/icon_library" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⭕" android:textSize="24sp" android:layout_marginEnd="16dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:id="@+id/title_library" android:text="8. Digital Library" android:textSize="18sp" android:textStyle="bold" android:textColor="#2D3436" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:id="@+id/desc_library" android:text="Open the Digital Library to see if your teacher has assigned any new materials." android:textColor="#636E72" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/title_library" android:text="8. Digital Library" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/desc_library" android:text="Open the Digital Library to see if your teacher has assigned any new materials." android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -164,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Back to Dashboard"
-            android:textColor="#636E72"
+            android:textColor="@color/text_secondary"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
 

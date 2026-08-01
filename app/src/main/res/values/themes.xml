@@ -1,5 +1,29 @@
 <resources>
     <style name="Base.Theme.GabAI" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Brand color system -->
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/brand_primary_variant</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary</item>
+
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+
+        <!-- System bars -->
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+
+        <!-- Default component styles -->
+        <item name="materialButtonStyle">@style/Widget.GabAI.Button.Primary</item>
+        <item name="materialCardViewStyle">@style/Widget.GabAI.CardView</item>
     </style>
 
     <style name="Theme.GabAI" parent="Base.Theme.GabAI">

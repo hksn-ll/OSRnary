@@ -9,7 +9,7 @@
         android:id="@+id/lib_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2D3436"
+        android:background="@color/text_primary"
         android:padding="24dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
@@ -79,7 +79,7 @@
             android:text="+ Create New Subject"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="#2D3436"/>
+            android:backgroundTint="@color/text_primary"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
