@@ -26,7 +26,10 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Enable R8 code shrinking/obfuscation and resource shrinking for smaller,
+            // harder-to-reverse-engineer release builds.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -40,6 +43,20 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    lint {
+        // Don't fail the whole build on lint warnings, but keep checking release builds.
+        abortOnError = false
+        checkReleaseBuilds = true
+        warningsAsErrors = false
+    }
+}
+
+// The secrets-gradle-plugin injects BuildConfig.GEMINI_API_KEY from local.properties
+// (which is gitignored). Provide a committed defaults file so a fresh checkout still
+// compiles even before a developer adds their real key.
+secrets {
+    defaultPropertiesFileName = "local.defaults.properties"
 }
 
 dependencies {

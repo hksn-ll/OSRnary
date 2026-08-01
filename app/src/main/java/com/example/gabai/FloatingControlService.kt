@@ -291,6 +291,7 @@ class FloatingControlService : Service() {
 
                         // If the user barely moved their finger, treat it as a CLICK
                         if (isClick) {
+                            v.performClick() // Notify accessibility services of the click
                             captureAndScan()
                         }
                         return true

@@ -282,7 +282,7 @@ class OverviewActivity : AppCompatActivity() {
             .set(favEntry)
             .addOnSuccessListener {
 
-                android.util.Log.d("GabAI_DB", "Favorite synced to cloud")
+                if (BuildConfig.DEBUG) android.util.Log.d("GabAI_DB", "Favorite synced to cloud")
                 QuestManager.addProgress(this, QuestManager.QUEST_SAVE)
                 db.collection("users").document(uid).update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("save"))
             }
@@ -315,7 +315,7 @@ class OverviewActivity : AppCompatActivity() {
             .collection("history").document(timestamp.toString())
             .set(historyEntry)
             .addOnSuccessListener {
-                android.util.Log.d("GabAI_DB", "Cloud save successful!")
+                if (BuildConfig.DEBUG) android.util.Log.d("GabAI_DB", "Cloud save successful!")
                 // Optional: Toast for success
                 com.example.gabai.GabAIUtils.showSnackbar(this, "Synced to Cloud")
             }
@@ -326,7 +326,7 @@ class OverviewActivity : AppCompatActivity() {
                     .setMessage("Failed to save history: ${e.localizedMessage}\n\nCheck Logcat (GabAI_DB) for details.")
                     .setPositiveButton("OK", null)
                     .show()
-                android.util.Log.e("GabAI_DB", "Error: ", e)
+                if (BuildConfig.DEBUG) android.util.Log.e("GabAI_DB", "Error: ", e)
             }
     }
     private fun speakWithDetection(text: String) {

@@ -7,6 +7,7 @@
 
     <ImageView
         android:id="@+id/screenshot_view"
+        android:contentDescription="@string/cd_screenshot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"

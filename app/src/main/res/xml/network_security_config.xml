@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Enforce HTTPS-only traffic. All app network calls (Firebase, Gemini, teacher
+  PDF downloads) use HTTPS, so cleartext is disabled app-wide for defense in depth.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
