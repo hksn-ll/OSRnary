@@ -124,7 +124,7 @@
             android:layout_height="wrap_content"
             android:text="⚙️ Manage Initiation Quest"
             android:backgroundTint="#FDCB6E"
-            android:textColor="#2D3436"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp" />
 
         <Button
@@ -134,7 +134,7 @@
             android:text="+ Generate Student Accounts"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="#2D3436"
+            android:backgroundTint="@color/text_primary"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
 

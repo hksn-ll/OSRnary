@@ -29,13 +29,13 @@
             android:text="Subject Name"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#2D3436"/>
+            android:textColor="@color/text_primary"/>
         <TextView
             android:id="@+id/tv_folder_teacher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:textColor="#636E72" />
+            android:textColor="@color/text_secondary" />
     </LinearLayout>
 
     <ImageButton

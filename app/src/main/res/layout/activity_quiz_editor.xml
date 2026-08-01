@@ -46,7 +46,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Questions student will face (Max 20):"
-            android:textColor="#2D3436"
+            android:textColor="@color/text_primary"
             android:textStyle="bold"/>
 
         <EditText
@@ -98,7 +98,7 @@
             android:layout_marginHorizontal="4dp"
             android:layout_weight="1"
             android:backgroundTint="#FDCB6E"
-            android:textColor="#2D3436"
+            android:textColor="@color/text_primary"
             android:text="✨ AI Add" />
 
         <Button

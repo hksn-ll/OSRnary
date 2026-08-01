@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Class Averages"
-                android:textColor="#2D3436"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -88,7 +88,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Avg Score"
-                        android:textColor="#636E72"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -120,7 +120,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Avg Streak"
-                        android:textColor="#636E72"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -152,7 +152,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Quizzes Taken"
-                        android:textColor="#636E72"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -167,7 +167,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Student Roster"
-                android:textColor="#2D3436"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 

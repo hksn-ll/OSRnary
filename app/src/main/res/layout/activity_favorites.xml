@@ -13,7 +13,7 @@
         android:text="My Favorites"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="#2D3436"
+        android:textColor="@color/text_primary"
         android:padding="24dp"
         app:layout_constraintTop_toTopOf="parent"/>
 

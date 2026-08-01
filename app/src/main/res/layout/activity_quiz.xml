@@ -15,7 +15,7 @@
         android:text="Recall Quiz"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="#2D3436"
+        android:textColor="@color/text_primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -37,7 +37,7 @@
                 android:text="WHAT WORD DOES THIS DEFINE?"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#636E72"
+                android:textColor="@color/text_secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <TextView
@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:textSize="16sp"
-                android:textColor="#2D3436"
+                android:textColor="@color/text_primary"
                 android:text="Loading definition..."/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -81,7 +81,7 @@
             android:text="Quiz Finished!"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="#2D3436"/>
+            android:textColor="@color/text_primary"/>
 
         <TextView
             android:id="@+id/final_score_text"

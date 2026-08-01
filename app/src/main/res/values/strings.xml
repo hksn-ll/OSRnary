@@ -13,6 +13,8 @@
     <string name="cd_profile_image">Profile picture</string>
     <string name="cd_pdf_thumbnail">PDF thumbnail</string>
     <string name="cd_screenshot">Captured screenshot</string>
+    <string name="cd_add_favorite">Add to favorites</string>
+    <string name="cd_remove_favorite">Remove from favorites</string>
 
     <!-- Common user-facing messages -->
     <string name="error_load_failed">Something went wrong. Please check your connection and try again.</string>

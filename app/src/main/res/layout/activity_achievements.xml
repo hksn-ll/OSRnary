@@ -23,14 +23,14 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="#2D3436" />
+            app:tint="@color/text_primary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="My Badges"
-            android:textColor="#2D3436"
+            android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:text="Unlock digital badges by completing tasks, keeping your streak alive, and leveling up!"
-                android:textColor="#636E72"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
             <!-- Dynamic Container for Badges -->
