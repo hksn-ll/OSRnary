@@ -10,6 +10,18 @@
         <item name="android:layout_marginBottom">@dimen/space_md</item>
     </style>
 
+    <!-- Glassmorphism card: translucent fill + hairline stroke, no shadow.
+         Designed to sit on the aurora background. -->
+    <style name="Widget.GabAI.CardView.Glass" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/radius_card</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/glass_fill</item>
+        <item name="strokeColor">@color/glass_stroke</item>
+        <item name="strokeWidth">@dimen/stroke_glass</item>
+        <item name="contentPadding">@dimen/space_lg</item>
+        <item name="android:layout_marginBottom">@dimen/space_md</item>
+    </style>
+
     <!-- Hero / gradient card wrapper (background set on inner view) -->
     <style name="Widget.GabAI.CardView.Hero" parent="Widget.GabAI.CardView">
         <item name="cardBackgroundColor">@android:color/transparent</item>
@@ -24,6 +36,17 @@
         <item name="backgroundTint">@color/brand_primary</item>
         <item name="android:textColor">@color/on_primary</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Vibrant gradient CTA (background drawable supplies the gradient) -->
+    <style name="Widget.GabAI.Button.Gradient" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="android:background">@drawable/btn_gradient_primary</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="elevation">@dimen/elevation_hero</item>
     </style>
 
     <style name="Widget.GabAI.Button.Secondary" parent="Widget.Material3.Button.TonalButton">
@@ -58,6 +81,8 @@
         <item name="android:textSize">@dimen/text_headline</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">-0.02</item>
+        <item name="android:lineSpacingMultiplier">1.05</item>
     </style>
 
     <style name="TextAppearance.GabAI.Title" parent="TextAppearance.Material3.TitleMedium">

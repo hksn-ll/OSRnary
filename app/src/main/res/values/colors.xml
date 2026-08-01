@@ -47,4 +47,34 @@
     <!-- Overlay -->
     <color name="scrim">#D9000000</color>
     <color name="progress_track">#4DFFFFFF</color>
+
+    <!-- ===== Modern UI: aurora / mesh gradient stops (light) ===== -->
+    <color name="aurora_bg_base">#F4F1FF</color>       <!-- soft lavender-white canvas -->
+    <color name="aurora_violet">#B79CFF</color>       <!-- violet bloom -->
+    <color name="aurora_magenta">#FF9ECF</color>      <!-- pink bloom -->
+    <color name="aurora_blue">#9CC6FF</color>         <!-- blue bloom -->
+    <color name="aurora_cyan">#8FE3D8</color>         <!-- mint bloom -->
+
+    <!-- Vibrant hero gradient (purple -> violet -> magenta) -->
+    <color name="hero_grad_start">#6C5CE7</color>
+    <color name="hero_grad_mid">#9B5CFF</color>
+    <color name="hero_grad_end">#FF6EC7</color>
+
+    <!-- Secondary hero (teal/blue) for variety -->
+    <color name="hero2_grad_start">#5CC8FF</color>
+    <color name="hero2_grad_mid">#6C5CE7</color>
+    <color name="hero2_grad_end">#8A5CFF</color>
+
+    <!-- Glassmorphism -->
+    <color name="glass_fill">#B3FFFFFF</color>        <!-- 70% white -->
+    <color name="glass_fill_strong">#D9FFFFFF</color> <!-- 85% white -->
+    <color name="glass_stroke">#66FFFFFF</color>      <!-- 40% white hairline -->
+    <color name="glass_shadow">#22000000</color>
+
+    <!-- Accent chips / glows -->
+    <color name="glow_purple">#666C5CE7</color>
+    <color name="chip_purple_bg">#1A6C5CE7</color>
+    <color name="chip_green_bg">#1A00B894</color>
+    <color name="chip_gold_bg">#1AF1C40F</color>
+    <color name="chip_blue_bg">#1A0984E3</color>
 </resources>

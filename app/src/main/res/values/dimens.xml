@@ -10,20 +10,30 @@
     <!-- Screen padding -->
     <dimen name="screen_padding">20dp</dimen>
 
-    <!-- Corner radius -->
-    <dimen name="radius_card">24dp</dimen>
-    <dimen name="radius_button">12dp</dimen>
+    <!-- Corner radius (modern: larger, softer) -->
+    <dimen name="radius_card">28dp</dimen>
+    <dimen name="radius_card_lg">34dp</dimen>
+    <dimen name="radius_tile">24dp</dimen>
+    <dimen name="radius_button">18dp</dimen>
+    <dimen name="radius_chip">14dp</dimen>
     <dimen name="radius_pill">50dp</dimen>
 
     <!-- Elevation -->
-    <dimen name="elevation_card">2dp</dimen>
-    <dimen name="elevation_card_pressed">6dp</dimen>
+    <dimen name="elevation_card">0dp</dimen>
+    <dimen name="elevation_card_pressed">4dp</dimen>
+    <dimen name="elevation_hero">10dp</dimen>
+
+    <!-- Hairline stroke -->
+    <dimen name="stroke_glass">1dp</dimen>
+
+    <!-- Icon tile -->
+    <dimen name="icon_tile">46dp</dimen>
 
     <!-- Touch targets -->
     <dimen name="touch_target_min">48dp</dimen>
 
     <!-- Text sizes -->
-    <dimen name="text_headline">24sp</dimen>
+    <dimen name="text_headline">30sp</dimen>
     <dimen name="text_title">18sp</dimen>
     <dimen name="text_body">14sp</dimen>
     <dimen name="text_caption">12sp</dimen>

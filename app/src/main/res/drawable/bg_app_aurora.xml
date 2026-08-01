@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Aurora / mesh background: soft color blooms over a tinted canvas.
+     Built from stacked radial gradients (each bloom -> transparent). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Canvas -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/aurora_bg_base" />
+        </shape>
+    </item>
+
+    <!-- Violet bloom, top-left -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:startColor="@color/aurora_violet"
+                android:endColor="@android:color/transparent"
+                android:centerX="0.15"
+                android:centerY="0.08"
+                android:gradientRadius="520dp" />
+        </shape>
+    </item>
+
+    <!-- Magenta bloom, top-right -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:startColor="@color/aurora_magenta"
+                android:endColor="@android:color/transparent"
+                android:centerX="0.95"
+                android:centerY="0.02"
+                android:gradientRadius="460dp" />
+        </shape>
+    </item>
+
+    <!-- Blue bloom, bottom-right -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:startColor="@color/aurora_blue"
+                android:endColor="@android:color/transparent"
+                android:centerX="0.9"
+                android:centerY="0.9"
+                android:gradientRadius="560dp" />
+        </shape>
+    </item>
+
+    <!-- Mint bloom, bottom-left -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:startColor="@color/aurora_cyan"
+                android:endColor="@android:color/transparent"
+                android:centerX="0.05"
+                android:centerY="0.95"
+                android:gradientRadius="440dp" />
+        </shape>
+    </item>
+</layer-list>

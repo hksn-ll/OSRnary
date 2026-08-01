@@ -42,4 +42,33 @@
     <!-- Overlay -->
     <color name="scrim">#D9000000</color>
     <color name="progress_track">#4DFFFFFF</color>
+
+    <!-- ===== Modern UI: aurora / mesh gradient stops (dark) ===== -->
+    <color name="aurora_bg_base">#0E0B1A</color>      <!-- deep indigo-black canvas -->
+    <color name="aurora_violet">#3B2E6E</color>
+    <color name="aurora_magenta">#5A2A55</color>
+    <color name="aurora_blue">#233A63</color>
+    <color name="aurora_cyan">#1E4A47</color>
+
+    <!-- Vibrant hero gradient (dark-friendly) -->
+    <color name="hero_grad_start">#5A50C9</color>
+    <color name="hero_grad_mid">#7A4FD6</color>
+    <color name="hero_grad_end">#C44FA0</color>
+
+    <color name="hero2_grad_start">#3E8FC9</color>
+    <color name="hero2_grad_mid">#5A50C9</color>
+    <color name="hero2_grad_end">#6A4FD6</color>
+
+    <!-- Glassmorphism (dark: translucent light film) -->
+    <color name="glass_fill">#26FFFFFF</color>       <!-- 15% white -->
+    <color name="glass_fill_strong">#33FFFFFF</color><!-- 20% white -->
+    <color name="glass_stroke">#33FFFFFF</color>
+    <color name="glass_shadow">#66000000</color>
+
+    <!-- Accent chips / glows -->
+    <color name="glow_purple">#668B80FF</color>
+    <color name="chip_purple_bg">#338B80FF</color>
+    <color name="chip_green_bg">#332ED3B0</color>
+    <color name="chip_gold_bg">#33F5D33F</color>
+    <color name="chip_blue_bg">#3366B2FF</color>
 </resources>

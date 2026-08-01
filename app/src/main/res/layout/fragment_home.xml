@@ -4,20 +4,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:background="@drawable/bg_app_aurora"
     android:padding="@dimen/screen_padding">
 
-    <ImageView
-        android:id="@+id/profile_image"
-        android:contentDescription="@string/cd_profile_image"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@mipmap/ic_launcher"
-        android:background="@drawable/bg_card_level"
-        android:padding="@dimen/space_sm"
-        android:clipToOutline="true"
+    <!-- ===== Header ===== -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/profile_ring"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/glass_stroke"
+        app:strokeWidth="@dimen/stroke_glass"
+        app:cardBackgroundColor="@color/glass_fill_strong"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:contentDescription="@string/cd_profile_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@mipmap/ic_launcher"
+            android:padding="@dimen/space_sm"
+            android:clipToOutline="true" />
+    </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -25,17 +36,18 @@
         android:orientation="vertical"
         android:layout_marginStart="@dimen/space_md"
         android:gravity="center_vertical"
-        app:layout_constraintStart_toEndOf="@id/profile_image"
-        app:layout_constraintTop_toTopOf="@id/profile_image"
-        app:layout_constraintBottom_toBottomOf="@id/profile_image"
+        app:layout_constraintStart_toEndOf="@id/profile_ring"
+        app:layout_constraintTop_toTopOf="@id/profile_ring"
+        app:layout_constraintBottom_toBottomOf="@id/profile_ring"
         app:layout_constraintEnd_toStartOf="@id/bubble_switch">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="GabAI"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold"
+            android:letterSpacing="-0.02"
             android:textColor="@color/text_primary" />
 
         <TextView
@@ -53,8 +65,8 @@
         android:minWidth="@dimen/touch_target_min"
         android:minHeight="@dimen/touch_target_min"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/profile_image"
-        app:layout_constraintBottom_toBottomOf="@id/profile_image" />
+        app:layout_constraintTop_toTopOf="@id/profile_ring"
+        app:layout_constraintBottom_toBottomOf="@id/profile_ring" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -62,7 +74,7 @@
         android:layout_marginTop="@dimen/space_lg"
         android:scrollbars="none"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/profile_image"
+        app:layout_constraintTop_toBottomOf="@id/profile_ring"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
@@ -85,13 +97,14 @@
                 android:textAppearance="@style/TextAppearance.GabAI.Body"
                 android:layout_marginBottom="@dimen/space_lg" />
 
-            <!-- XP / Level hero card -->
+            <!-- ===== XP / Level hero (vibrant aurora gradient) ===== -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
+                android:layout_height="150dp"
                 android:background="@drawable/bg_card_level"
+                android:elevation="@dimen/elevation_hero"
                 android:clipToOutline="true"
-                android:layout_marginBottom="@dimen/space_md">
+                android:layout_marginBottom="@dimen/space_lg">
 
                 <LinearLayout
                     android:id="@+id/unlocked_xp_view"
@@ -101,9 +114,9 @@
                     android:padding="@dimen/screen_padding"
                     android:visibility="visible">
 
-                    <TextView android:id="@+id/tv_level_label" android:text="LEVEL 1" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView android:id="@+id/tv_level_label" android:text="LEVEL 1" android:textSize="20sp" android:textStyle="bold" android:letterSpacing="0.04" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                     <TextView android:id="@+id/tv_xp_label" android:text="0 / 100 XP" android:textSize="12sp" android:textColor="@color/text_on_dark" android:layout_gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <ProgressBar android:id="@+id/xp_progress_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="8dp" android:progress="0" android:progressDrawable="@drawable/pill_background" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" />
+                    <ProgressBar android:id="@+id/xp_progress_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="10dp" android:progress="0" android:progressDrawable="@drawable/pill_background" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" />
                     <TextView android:text="Gain XP by saving words and taking quizzes!" android:textSize="12sp" android:textColor="@color/text_on_dark_muted" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                 </LinearLayout>
 
@@ -122,10 +135,10 @@
                 </LinearLayout>
             </FrameLayout>
 
-            <!-- Apprentice Quests board -->
+            <!-- ===== Apprentice Quests board (glass) ===== -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/quest_board_container"
-                style="@style/Widget.GabAI.CardView"
+                style="@style/Widget.GabAI.CardView.Glass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone">
@@ -147,133 +160,118 @@
                     <TextView android:id="@+id/quest_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 7. View Saved Content" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
                     <TextView android:id="@+id/quest_library" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 8. Open the Digital Library" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
 
-                    <Button android:id="@+id/btn_quest_details" style="@style/Widget.GabAI.Button.Primary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Quest Details" android:layout_marginTop="@dimen/space_md" />
+                    <Button android:id="@+id/btn_quest_details" style="@style/Widget.GabAI.Button.Gradient" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Quest Details" android:layout_marginTop="@dimen/space_md" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Learning Progress -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_learning_progress"
-                style="@style/Widget.GabAI.CardView"
+            <!-- ===== Section label ===== -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Journey"
+                android:textAppearance="@style/TextAppearance.GabAI.Title"
+                android:textSize="16sp"
+                android:layout_marginBottom="@dimen/space_sm" />
+
+            <!-- ===== Bento grid: row 1 ===== -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                app:contentPadding="@dimen/screen_padding"
-                android:foreground="?attr/selectableItemBackground">
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- Learning Progress -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_learning_progress"
+                    style="@style/Widget.GabAI.CardView.Glass"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/space_sm"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Learning Progress" android:textAppearance="@style/TextAppearance.GabAI.Title" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="View your level, XP, and accuracy" android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
+                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_purple">
+                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/ic_media_play" app:tint="@color/brand_primary" android:contentDescription="@null" />
+                        </FrameLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="Learning Progress" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Level, XP &amp; accuracy" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_media_play" app:tint="@color/text_secondary" android:contentDescription="@null" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                <!-- Daily Quests -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_daily_quests"
+                    style="@style/Widget.GabAI.CardView.Glass"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
 
-            <!-- Daily Quests -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_daily_quests"
-                style="@style/Widget.GabAI.CardView"
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
+                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_green">
+                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/ic_menu_today" app:tint="@color/success_green" android:contentDescription="@null" />
+                        </FrameLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="Daily Quests" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Daily tasks for bonus XP" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- ===== Bento grid: row 2 ===== -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                app:contentPadding="@dimen/screen_padding"
-                android:foreground="?attr/selectableItemBackground">
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- My Badges -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_achievements"
+                    style="@style/Widget.GabAI.CardView.Glass"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/space_sm"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Daily Quests" android:textAppearance="@style/TextAppearance.GabAI.Title" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Complete daily tasks for bonus XP!" android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
+                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_gold">
+                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/ic_menu_myplaces" app:tint="@color/accent_gold" android:contentDescription="@null" />
+                        </FrameLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="My Badges" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Unlocked achievements" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_today" app:tint="@color/success_green" android:contentDescription="@null" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- My Badges -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_achievements"
-                style="@style/Widget.GabAI.CardView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                app:contentPadding="@dimen/screen_padding"
-                android:foreground="?attr/selectableItemBackground">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- Class Leaderboard -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_leaderboard"
+                    style="@style/Widget.GabAI.CardView.Glass"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="My Badges" android:textAppearance="@style/TextAppearance.GabAI.Title" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="View your unlocked achievements" android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
+                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_blue">
+                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/btn_star_big_on" app:tint="@color/accent_amber" android:contentDescription="@null" />
+                        </FrameLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="Leaderboard" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Rank in your section" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
                     </LinearLayout>
-
-                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="@color/accent_gold" android:contentDescription="@null" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Class Leaderboard -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_leaderboard"
-                style="@style/Widget.GabAI.CardView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                app:contentPadding="@dimen/screen_padding"
-                android:foreground="?attr/selectableItemBackground">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Class Leaderboard" android:textAppearance="@style/TextAppearance.GabAI.Title" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="See how you rank in your section" android:textAppearance="@style/TextAppearance.GabAI.Body" />
-                    </LinearLayout>
-
-                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/btn_star_big_on" app:tint="@color/accent_amber" android:contentDescription="@null" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btn_join_class"
@@ -281,19 +279,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_sm"
-                android:layout_marginBottom="@dimen/space_md"
+                android:layout_marginBottom="@dimen/space_lg"
                 android:backgroundTint="@color/success_green"
                 android:padding="@dimen/space_md"
                 android:text="Join Class with Code"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 
-            <!-- Camera Live Scan (hero) -->
+            <!-- ===== Tools section ===== -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tools"
+                android:textAppearance="@style/TextAppearance.GabAI.Title"
+                android:textSize="16sp"
+                android:layout_marginBottom="@dimen/space_sm" />
+
+            <!-- Camera Live Scan (vibrant hero) -->
             <LinearLayout
                 android:id="@+id/btn_open_camera"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card_level"
+                android:elevation="@dimen/elevation_hero"
                 android:clipToOutline="true"
                 android:orientation="vertical"
                 android:padding="@dimen/screen_padding"
@@ -302,7 +310,7 @@
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
 
-                <TextView android:text="Camera Live Scan" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <TextView android:text="📷  Camera Live Scan" android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                 <TextView android:text="Scan physical books and documents in real-time" android:textSize="14sp" android:textColor="@color/text_on_dark_muted" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
                 <Button
@@ -315,21 +323,22 @@
                     android:layout_gravity="center_horizontal" />
             </LinearLayout>
 
-            <!-- Digital Library (hero) -->
+            <!-- Digital Library (secondary hero) -->
             <LinearLayout
                 android:id="@+id/btn_open_library"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_card_level"
+                android:background="@drawable/bg_hero_alt"
+                android:elevation="@dimen/elevation_hero"
                 android:clipToOutline="true"
                 android:orientation="vertical"
                 android:padding="@dimen/screen_padding"
-                android:layout_marginBottom="@dimen/space_md"
+                android:layout_marginBottom="@dimen/space_lg"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
 
-                <TextView android:text="Digital Library" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <TextView android:text="📚  Digital Library" android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                 <TextView android:text="View and read materials assigned by your teacher" android:textSize="14sp" android:textColor="@color/text_on_dark_muted" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
                 <Button
@@ -342,45 +351,51 @@
                     android:layout_gravity="center_horizontal" />
             </LinearLayout>
 
-            <!-- Recall Quiz -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.GabAI.CardView"
-                android:layout_width="match_parent"
+            <!-- ===== Review section ===== -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:contentPadding="@dimen/screen_padding">
+                android:text="Review &amp; Recall"
+                android:textAppearance="@style/TextAppearance.GabAI.Title"
+                android:textSize="16sp"
+                android:layout_marginBottom="@dimen/space_sm" />
+
+            <!-- Recall Quiz (glass) -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.GabAI.CardView.Glass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                     <TextView android:text="Recall Quiz" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                     <TextView android:text="Test your memory on past selected contexts" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <Button android:id="@+id/btn_start_quiz" style="@style/Widget.GabAI.Button.Primary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Start Quiz" android:layout_gravity="center_horizontal" />
+                    <Button android:id="@+id/btn_start_quiz" style="@style/Widget.GabAI.Button.Gradient" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Start Quiz" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Favourites -->
+            <!-- Favourites (glass) -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.GabAI.CardView"
+                style="@style/Widget.GabAI.CardView.Glass"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:contentPadding="@dimen/screen_padding">
+                android:layout_height="wrap_content">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                     <TextView android:text="Favourites" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                     <TextView android:text="View your saved texts" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <Button android:id="@+id/btn_favs" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Favourites" android:layout_gravity="center_horizontal" />
+                    <Button android:id="@+id/btn_favs" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Favourites" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- History -->
+            <!-- History (glass) -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.GabAI.CardView"
+                style="@style/Widget.GabAI.CardView.Glass"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:contentPadding="@dimen/screen_padding">
+                android:layout_height="wrap_content">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                     <TextView android:text="History" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                     <TextView android:text="Review all highlighted text blocks" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <Button android:id="@+id/btn_history" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View History" android:layout_gravity="center_horizontal" />
+                    <Button android:id="@+id/btn_history" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View History" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

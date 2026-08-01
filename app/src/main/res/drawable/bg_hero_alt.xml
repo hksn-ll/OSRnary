@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Vibrant aurora hero gradient (primary). 3-stop diagonal sweep. -->
+<!-- Vibrant aurora hero gradient (secondary / cool). -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <gradient
         android:type="linear"
         android:angle="135"
-        android:startColor="@color/hero_grad_start"
-        android:centerColor="@color/hero_grad_mid"
-        android:endColor="@color/hero_grad_end" />
+        android:startColor="@color/hero2_grad_start"
+        android:centerColor="@color/hero2_grad_mid"
+        android:endColor="@color/hero2_grad_end" />
     <corners android:radius="@dimen/radius_card_lg" />
 </shape>

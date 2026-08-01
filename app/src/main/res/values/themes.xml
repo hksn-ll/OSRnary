@@ -9,7 +9,7 @@
         <item name="colorSecondary">@color/brand_secondary</item>
         <item name="colorOnSecondary">@color/on_secondary</item>
 
-        <item name="android:colorBackground">@color/background</item>
+        <item name="android:colorBackground">@color/aurora_bg_base</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/on_surface</item>
         <item name="colorSurfaceVariant">@color/surface_variant</item>
@@ -17,9 +17,12 @@
         <item name="colorError">@color/error</item>
         <item name="colorOnError">@color/on_error</item>
 
-        <!-- System bars -->
-        <item name="android:statusBarColor">@color/background</item>
-        <item name="android:navigationBarColor">@color/background</item>
+        <!-- Modern aurora backdrop applied app-wide -->
+        <item name="android:windowBackground">@drawable/bg_app_aurora</item>
+
+        <!-- System bars blend into the aurora canvas -->
+        <item name="android:statusBarColor">@color/aurora_bg_base</item>
+        <item name="android:navigationBarColor">@color/aurora_bg_base</item>
 
         <!-- Default component styles -->
         <item name="materialButtonStyle">@style/Widget.GabAI.Button.Primary</item>
