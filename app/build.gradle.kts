@@ -50,6 +50,11 @@ android {
         checkReleaseBuilds = true
         warningsAsErrors = false
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 // The secrets-gradle-plugin injects BuildConfig.GEMINI_API_KEY from local.properties
@@ -68,7 +73,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     implementation("io.noties.markwon:core:4.6.2")
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
@@ -78,19 +83,17 @@ dependencies {
     implementation("com.google.firebase:firebase-appcheck-debug")
     implementation("com.google.firebase:firebase-appcheck-playintegrity")
     // CameraX core library using the camera2 implementation
-    implementation("androidx.camera:camera-camera2:1.3.1")
-// CameraX Lifecycle library
-    implementation("androidx.camera:camera-lifecycle:1.3.1")
-// CameraX View class (Provides PreviewView)
-    implementation("androidx.camera:camera-view:1.3.1")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    // CameraX Lifecycle library
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    // CameraX View class (Provides PreviewView)
+    implementation("androidx.camera:camera-view:1.4.1")
     implementation("com.google.guava:guava:31.0.1-android")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.google.mlkit:language-id:17.0.4")
+    implementation("com.google.mlkit:language-id:17.0.6")
 
-
-// Source: https://mvnrepository.com/artifact/com.github.barteksc/android-pdf-viewer
-    implementation("com.github.mhiew:android-pdf-viewer:3.2.0-beta.3")
-
+    // 16KB Page-Size Aligned PDF Viewer
+    implementation("io.github.oothp:android-pdf-viewer:3.2.0-beta06")
 }
