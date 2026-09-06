@@ -257,18 +257,6 @@
     "ast_hash": "3474c617b6cbd8b870daa03a3d4a1c8b",
     "semantic_hash": "3474c617b6cbd8b870daa03a3d4a1c8b"
   },
-  ".agents/rules/graphify.md": {
-    "mtime": 1788702261.774046,
-    "seen": 1788705882.4136224,
-    "ast_hash": "01790130d01973ad2296a8d9edc3fe45",
-    "semantic_hash": ""
-  },
-  ".agents/workflows/graphify.md": {
-    "mtime": 1788701514.708519,
-    "seen": 1788701745.6429849,
-    "ast_hash": "a831cf3669f1e6ab85d8a80ebe655f99",
-    "semantic_hash": "a831cf3669f1e6ab85d8a80ebe655f99"
-  },
   "app/src/main/assets/material1.pdf": {
     "mtime": 1788443407.1108184,
     "seen": 1788701745.6429863,
@@ -291,12 +279,6 @@
     "mtime": 1788725263.302772,
     "seen": 1788725353.406675,
     "ast_hash": "91fa35587bead4f719012098d325c5c3",
-    "semantic_hash": ""
-  },
-  ".agents/rules/user_preferences.md": {
-    "mtime": 1788704245.0069778,
-    "seen": 1788705882.4136238,
-    "ast_hash": "c7682c370bf1ecebac02fe6c37fd0733",
     "semantic_hash": ""
   },
   "admin-portal/index.html": {
@@ -420,9 +402,15 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy-admin.yml": {
-    "mtime": 1788730753.5891185,
-    "seen": 1788730777.6706216,
-    "ast_hash": "a4025d68446fc425dacf9f47d5f87159",
+    "mtime": 1788730868.567281,
+    "seen": 1788731543.3920262,
+    "ast_hash": "caba6ee4b092d528678cbe9144560c1d",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1788731510.8080306,
+    "seen": 1788731543.3920302,
+    "ast_hash": "22355034faf94659f9b1d1b92f6002d1",
     "semantic_hash": ""
   }
 }
