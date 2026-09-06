@@ -49,6 +49,11 @@ class SubjectDetailActivity : AppCompatActivity() {
     private val pdfPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) promptForPdfTitle(uri)
     }
+
+    private val assessmentPdfPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) handlePdfAssessmentSource(uri)
+    }
+
     private val generativeModel = GenerativeModel(
         modelName = "gemini-2.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY
@@ -78,6 +83,10 @@ class SubjectDetailActivity : AppCompatActivity() {
 
         btnUploadPdf.setOnClickListener {
             pdfPickerLauncher.launch("application/pdf")
+        }
+
+        findViewById<View>(R.id.btn_create_assessment)?.setOnClickListener {
+            showAssessmentSourcingDialog()
         }
 
         loadPdfs()
@@ -557,6 +566,310 @@ class SubjectDetailActivity : AppCompatActivity() {
                                 .show()
                         }
                 }
+        }
+    }
+
+    // =========================================================================
+    // 🟢 WEEKLY ASSESSMENT: 3 MATERIAL SOURCING FLOWS
+    // =========================================================================
+
+    private fun showAssessmentSourcingDialog() {
+        val options = arrayOf(
+            "📄 Upload New PDF (Extract Text)",
+            "📚 Select from Existing Library Materials",
+            "💡 Enter Topic Keyword & Grade"
+        )
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("✨ Create Weekly Assessment")
+            .setMessage("Select how you want Gemini to generate the 10-question multiple-choice assessment:")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> assessmentPdfPickerLauncher.launch("application/pdf")
+                    1 -> handleLibraryMaterialSource()
+                    2 -> handleTopicAssessmentSource()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // 1. Source A: PDF Upload & Text Extraction
+    private fun handlePdfAssessmentSource(uri: Uri) {
+        GabAIUtils.showGlobalLoading(this, "Reading PDF & Generating 10 Questions...")
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val text = extractTextFromUri(uri)
+                var originalName = "PDF Material"
+                contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex != -1 && cursor.moveToFirst()) {
+                        originalName = cursor.getString(nameIndex) ?: "PDF Material"
+                    }
+                }
+                if (originalName.endsWith(".pdf", ignoreCase = true)) {
+                    originalName = originalName.substring(0, originalName.length - 4)
+                }
+
+                val prompt = """
+                    You are an expert curriculum developer. Based on this lesson text:
+                    ${text.take(12000)}
+
+                    Create exactly 10 high-quality multiple choice assessment questions for students on this subject ($subjectName).
+                    Each question must have:
+                    - "q": clear, concise question stem
+                    - "options": an array of exactly 4 plausible choices
+                    - "ans": the zero-indexed index of the correct answer (0, 1, 2, or 3)
+                    - "explanation": a concise, educational explanation clarifying why the correct answer is right.
+
+                    Return ONLY a valid JSON array. Format:
+                    [
+                      {
+                        "q": "Question?",
+                        "options": ["Option A", "Option B", "Option C", "Option D"],
+                        "ans": 0,
+                        "explanation": "Educational explanation."
+                      }
+                    ]
+                """.trimIndent()
+
+                val response = generativeModel.generateContent(prompt)
+                var jsonStr = response.text ?: "[]"
+                val startIndex = jsonStr.indexOf("[")
+                val endIndex = jsonStr.lastIndexOf("]")
+                if (startIndex != -1 && endIndex != -1) {
+                    jsonStr = jsonStr.substring(startIndex, endIndex + 1)
+                }
+
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@SubjectDetailActivity)
+                    val intent = Intent(this@SubjectDetailActivity, QuizEditorActivity::class.java).apply {
+                        putExtra("IS_WEEKLY_ASSESSMENT", true)
+                        putExtra("SUBJECT_ID", subjectId)
+                        putExtra("SUBJECT_NAME", subjectName)
+                        putExtra("SOURCE_TYPE", "pdf_upload")
+                        putExtra("SOURCE_REF", originalName)
+                        putExtra("ASSESSMENT_TITLE", "$originalName Assessment")
+                        putExtra("QUIZ_JSON", jsonStr)
+                        putExtra("TARGET_ITEMS", 10)
+                    }
+                    startActivity(intent)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@SubjectDetailActivity)
+                    GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Generation error: ${e.message}")
+                }
+            }
+        }
+    }
+
+    // 2. Source B: Select from library_materials
+    private fun handleLibraryMaterialSource() {
+        GabAIUtils.showGlobalLoading(this, "Loading materials...")
+        db.collection("library_materials")
+            .whereEqualTo("subjectId", subjectId)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                GabAIUtils.hideGlobalLoading(this)
+                if (snapshots.isEmpty) {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("No Library Materials Found")
+                        .setMessage("No lesson materials have been uploaded to $subjectName yet. Would you like to create an assessment by Topic keyword instead?")
+                        .setPositiveButton("Enter Topic") { _, _ -> handleTopicAssessmentSource() }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                    return@addOnSuccessListener
+                }
+
+                val titles = snapshots.documents.map { it.getString("title") ?: "Untitled Document" }.toTypedArray()
+                val existingPools = snapshots.documents.map { it.getString("quiz_pool_json") ?: "" }.toTypedArray()
+
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Select Lesson Document")
+                    .setItems(titles) { _, which ->
+                        val selectedTitle = titles[which]
+                        val existingPool = existingPools[which]
+                        generateAssessmentFromMaterial(selectedTitle, existingPool)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+            .addOnFailureListener { e ->
+                GabAIUtils.hideGlobalLoading(this)
+                GabAIUtils.showSnackbar(this, "Error: ${e.message}")
+            }
+    }
+
+    private fun generateAssessmentFromMaterial(materialTitle: String, existingPoolJson: String) {
+        GabAIUtils.showGlobalLoading(this, "AI is creating 10 questions for '$materialTitle'...")
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val prompt = """
+                    You are an expert DepEd teacher.
+                    Lesson Title: $materialTitle
+                    Subject: $subjectName
+                    ${if (existingPoolJson.length > 20) "Reference Questions/Concepts: $existingPoolJson" else ""}
+
+                    Create exactly 10 comprehensive, curriculum-aligned multiple choice assessment questions for students on "$materialTitle".
+                    Each question must have:
+                    - "q": clearly stated question
+                    - "options": 4 plausible options
+                    - "ans": 0-indexed correct answer (0, 1, 2, or 3)
+                    - "explanation": educational explanation clarifying the correct answer.
+
+                    Return ONLY a valid JSON array. Format:
+                    [
+                      {
+                        "q": "Question?",
+                        "options": ["A", "B", "C", "D"],
+                        "ans": 0,
+                        "explanation": "Detailed explanation."
+                      }
+                    ]
+                """.trimIndent()
+
+                val response = generativeModel.generateContent(prompt)
+                var jsonStr = response.text ?: "[]"
+                val startIndex = jsonStr.indexOf("[")
+                val endIndex = jsonStr.lastIndexOf("]")
+                if (startIndex != -1 && endIndex != -1) jsonStr = jsonStr.substring(startIndex, endIndex + 1)
+
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@SubjectDetailActivity)
+                    val intent = Intent(this@SubjectDetailActivity, QuizEditorActivity::class.java).apply {
+                        putExtra("IS_WEEKLY_ASSESSMENT", true)
+                        putExtra("SUBJECT_ID", subjectId)
+                        putExtra("SUBJECT_NAME", subjectName)
+                        putExtra("SOURCE_TYPE", "library_material")
+                        putExtra("SOURCE_REF", materialTitle)
+                        putExtra("ASSESSMENT_TITLE", "$materialTitle Assessment")
+                        putExtra("QUIZ_JSON", jsonStr)
+                        putExtra("TARGET_ITEMS", 10)
+                    }
+                    startActivity(intent)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@SubjectDetailActivity)
+                    GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Generation error: ${e.message}")
+                }
+            }
+        }
+    }
+
+    // 3. Source C: Topic Keyword & Grade
+    private fun handleTopicAssessmentSource() {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(60, 30, 60, 20)
+        }
+
+        val etTopic = EditText(this).apply {
+            hint = "Topic Keyword (e.g. Photosynthesis, Cellular Division)"
+            textSize = 14f
+        }
+
+        val tvGradeLabel = TextView(this).apply {
+            text = "Grade Level:"
+            setPadding(0, 24, 0, 8)
+            textSize = 12f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        val gradeSpinner = Spinner(this).apply {
+            adapter = ArrayAdapter(
+                this@SubjectDetailActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                arrayOf("Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12")
+            )
+        }
+
+        val etExtra = EditText(this).apply {
+            hint = "Learning Focus / Context (Optional)"
+            textSize = 13f
+            setPadding(0, 20, 0, 10)
+        }
+
+        layout.addView(etTopic)
+        layout.addView(tvGradeLabel)
+        layout.addView(gradeSpinner)
+        layout.addView(etExtra)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Generate from Topic")
+            .setMessage("Enter the topic keyword and grade level. Gemini will generate 10 curriculum-aligned assessment questions with explanations.")
+            .setView(layout)
+            .setPositiveButton("Generate ✨") { _, _ ->
+                val topic = etTopic.text.toString().trim()
+                if (topic.isEmpty()) {
+                    GabAIUtils.showSnackbar(this, "Please enter a topic keyword.")
+                    return@setPositiveButton
+                }
+                val grade = gradeSpinner.selectedItem.toString()
+                val extraFocus = etExtra.text.toString().trim()
+                generateAssessmentFromTopic(topic, grade, extraFocus)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun generateAssessmentFromTopic(topic: String, grade: String, extraFocus: String) {
+        GabAIUtils.showGlobalLoading(this, "Gemini is generating 10 questions for $topic ($grade)...")
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val prompt = """
+                    You are an expert DepEd curriculum designer.
+                    Topic: $topic
+                    Grade Level: $grade
+                    Subject: $subjectName
+                    ${if (extraFocus.isNotBlank()) "Learning Focus: $extraFocus" else ""}
+
+                    Create exactly 10 rigorous, grade-appropriate multiple choice assessment questions for $grade students on "$topic".
+                    Each question must have:
+                    - "q": clear question stem
+                    - "options": exactly 4 distinct plausible options
+                    - "ans": zero-indexed correct answer (0, 1, 2, or 3)
+                    - "explanation": clear educational explanation explaining why this answer is correct.
+
+                    Return ONLY a valid JSON array. Format:
+                    [
+                      {
+                        "q": "Question?",
+                        "options": ["A", "B", "C", "D"],
+                        "ans": 0,
+                        "explanation": "Educational explanation."
+                      }
+                    ]
+                """.trimIndent()
+
+                val response = generativeModel.generateContent(prompt)
+                var jsonStr = response.text ?: "[]"
+                val startIndex = jsonStr.indexOf("[")
+                val endIndex = jsonStr.lastIndexOf("]")
+                if (startIndex != -1 && endIndex != -1) jsonStr = jsonStr.substring(startIndex, endIndex + 1)
+
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@SubjectDetailActivity)
+                    val intent = Intent(this@SubjectDetailActivity, QuizEditorActivity::class.java).apply {
+                        putExtra("IS_WEEKLY_ASSESSMENT", true)
+                        putExtra("SUBJECT_ID", subjectId)
+                        putExtra("SUBJECT_NAME", subjectName)
+                        putExtra("GRADE", grade)
+                        putExtra("SOURCE_TYPE", "topic_keyword")
+                        putExtra("SOURCE_REF", topic)
+                        putExtra("ASSESSMENT_TITLE", "$topic Assessment")
+                        putExtra("QUIZ_JSON", jsonStr)
+                        putExtra("TARGET_ITEMS", 10)
+                    }
+                    startActivity(intent)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@SubjectDetailActivity)
+                    GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Generation error: ${e.message}")
+                }
+            }
         }
     }
 }

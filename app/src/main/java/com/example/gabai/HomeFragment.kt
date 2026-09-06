@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.net.Uri
 import android.widget.Toast
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.gabai.databinding.FragmentHomeBinding
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,6 +70,11 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadActiveWeeklyAssessments()
+    }
+
     private fun setupDashboard() {
         val mediaProjectionManager = requireContext().getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as android.media.projection.MediaProjectionManager
         val prefs = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
@@ -96,6 +102,7 @@ class HomeFragment : Fragment() {
         // 2. CLEAR the listener before setting the state to prevent a loop
         binding.bubbleSwitch.setOnCheckedChangeListener(null)
         binding.bubbleSwitch.isChecked = isEnabled
+        loadActiveWeeklyAssessments()
         binding.btnLearningProgress.setOnClickListener {
             startActivity(Intent(requireContext(), ProgressDashboardActivity::class.java))
         }
@@ -474,4 +481,111 @@ class HomeFragment : Fragment() {
             }
     }
 
+    // =========================================================================
+    // 🟢 LOAD ACTIVE WEEKLY ASSESSMENTS FOR STUDENT
+    // =========================================================================
+    private fun loadActiveWeeklyAssessments() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
+            if (!isAdded || _binding == null) return@addOnSuccessListener
+            val studentSchoolId = userDoc.getString("schoolId") ?: ""
+            val studentGrade = userDoc.getString("grade") ?: ""
+            val studentSection = userDoc.getString("section") ?: ""
+
+            db.collection("weekly_assessments")
+                .whereEqualTo("status", "active")
+                .addSnapshotListener { snapshots, error ->
+                    if (!isAdded || _binding == null || error != null || snapshots == null) return@addSnapshotListener
+
+                    val matchingDocs = snapshots.documents.filter { doc ->
+                        val docSchoolId = doc.getString("schoolId") ?: ""
+                        val docGrade = doc.getString("grade") ?: ""
+                        val docClassName = doc.getString("className") ?: ""
+
+                        val schoolMatches = docSchoolId.isEmpty() || studentSchoolId.isEmpty() || docSchoolId == studentSchoolId
+                        val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains(studentGrade, ignoreCase = true)
+                        val sectionMatches = studentSection.isEmpty() || docClassName.contains(studentSection, ignoreCase = true)
+
+                        schoolMatches && (gradeMatches || sectionMatches)
+                    }
+
+                    if (matchingDocs.isEmpty()) {
+                        binding.sectionWeeklyAssessments.visibility = View.GONE
+                        return@addSnapshotListener
+                    }
+
+                    binding.sectionWeeklyAssessments.visibility = View.VISIBLE
+                    binding.tvAssessmentActiveBadge.text = "${matchingDocs.size} Active"
+                    binding.containerAssessmentCards.removeAllViews()
+
+                    db.collection("assessment_submissions")
+                        .whereEqualTo("studentUid", uid)
+                        .get()
+                        .addOnSuccessListener { subSnaps ->
+                            if (!isAdded || _binding == null) return@addOnSuccessListener
+                            val submissionsByAssessment = subSnaps.documents.associateBy { it.getString("assessmentId") ?: "" }
+
+                            for (doc in matchingDocs) {
+                                val assessmentId = doc.id
+                                val title = doc.getString("title") ?: "Weekly Assessment"
+                                val subject = doc.getString("subjectName") ?: "Subject"
+                                val teacher = doc.getString("teacherName") ?: "Teacher"
+                                val className = doc.getString("className") ?: ""
+                                val count = doc.getLong("questionCount")?.toInt() ?: 10
+                                val dueMillis = doc.getLong("dueDate") ?: 0L
+
+                                val card = layoutInflater.inflate(R.layout.item_weekly_assessment_card, binding.containerAssessmentCards, false)
+
+                                card.findViewById<TextView>(R.id.tv_assessment_subject_badge).text = subject
+                                card.findViewById<TextView>(R.id.tv_assessment_item_count).text = "$count Items"
+                                card.findViewById<TextView>(R.id.tv_assessment_title).text = title
+                                card.findViewById<TextView>(R.id.tv_assessment_meta).text = "Assigned by $teacher • $className"
+
+                                if (dueMillis > 0) {
+                                    val sdf = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault())
+                                    card.findViewById<TextView>(R.id.tv_assessment_due_date).text = "Due: ${sdf.format(java.util.Date(dueMillis))}"
+                                } else {
+                                    card.findViewById<TextView>(R.id.tv_assessment_due_date).visibility = View.GONE
+                                }
+
+                                val subDoc = submissionsByAssessment[assessmentId]
+                                val pill = card.findViewById<TextView>(R.id.tv_assessment_score_pill)
+                                val btn = card.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_action_assessment)
+
+                                if (subDoc != null) {
+                                    val score = subDoc.getLong("score")?.toInt() ?: 0
+                                    val total = subDoc.getLong("totalQuestions")?.toInt() ?: count
+                                    val pct = subDoc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
+
+                                    pill.visibility = View.VISIBLE
+                                    pill.text = "Completed • Score: $score/$total ($pct%) ✓"
+                                    btn.text = "View Results ➔"
+                                    btn.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
+                                } else {
+                                    pill.visibility = View.GONE
+                                    btn.text = "Start Assessment ➔"
+                                }
+
+                                card.setOnClickListener {
+                                    val intent = Intent(requireContext(), WeeklyAssessmentActivity::class.java).apply {
+                                        putExtra("ASSESSMENT_ID", assessmentId)
+                                    }
+                                    startActivity(intent)
+                                }
+
+                                btn.setOnClickListener {
+                                    val intent = Intent(requireContext(), WeeklyAssessmentActivity::class.java).apply {
+                                        putExtra("ASSESSMENT_ID", assessmentId)
+                                    }
+                                    startActivity(intent)
+                                }
+
+                                binding.containerAssessmentCards.addView(card)
+                            }
+                        }
+                }
+        }
+    }
 }

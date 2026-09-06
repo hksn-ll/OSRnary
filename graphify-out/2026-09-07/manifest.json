@@ -1,9 +1,9 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1788443407.1048226,
-    "seen": 1788701745.6429195,
-    "ast_hash": "d1547d56af89a1ac8b84d99ba70915e8",
-    "semantic_hash": "d1547d56af89a1ac8b84d99ba70915e8"
+    "mtime": 1788732138.6812932,
+    "seen": 1788732465.4036214,
+    "ast_hash": "13e0b7ad156973ae5feba18ce2bbd9aa",
+    "semantic_hash": ""
   },
   "app/google-services.json": {
     "mtime": 1788443407.1048226,
@@ -186,10 +186,10 @@
     "semantic_hash": "6194e9e718df9d41a8df956b0a75a4b1"
   },
   "app/src/main/java/com/example/gabai/SplashActivity.kt": {
-    "mtime": 1788443407.1275754,
-    "seen": 1788701745.6429682,
-    "ast_hash": "2bba6dc0881a7057af8df53b6fe9fe0b",
-    "semantic_hash": "2bba6dc0881a7057af8df53b6fe9fe0b"
+    "mtime": 1788732257.8359897,
+    "seen": 1788732465.4036782,
+    "ast_hash": "d0eceb5515e00e05ee4420194b045869",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt": {
     "mtime": 1788443407.1285768,
@@ -411,6 +411,18 @@
     "mtime": 1788731510.8080306,
     "seen": 1788731543.3920302,
     "ast_hash": "22355034faf94659f9b1d1b92f6002d1",
+    "semantic_hash": ""
+  },
+  "app-version.json": {
+    "mtime": 1788732242.781181,
+    "seen": 1788732465.403618,
+    "ast_hash": "710eb4b4b4f82a74a0623f6f3de8e26d",
+    "semantic_hash": ""
+  },
+  "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
+    "mtime": 1788732250.5082998,
+    "seen": 1788732465.403647,
+    "ast_hash": "a3d0eb95880005329ae743ea8d2bf956",
     "semantic_hash": ""
   }
 }

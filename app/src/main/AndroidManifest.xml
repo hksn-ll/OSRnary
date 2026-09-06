@@ -83,6 +83,7 @@
         <activity android:name=".AchievementsActivity" android:exported="false" />
         <activity android:name=".MaterialQuizActivity" android:exported="false" />
         <activity android:name=".QuizEditorActivity" android:exported="false" />
+        <activity android:name=".WeeklyAssessmentActivity" android:exported="false" />
     </application>
 
 

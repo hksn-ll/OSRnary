@@ -100,14 +100,34 @@
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_upload_pdf"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create_assessment"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:text="+ Upload PDF Here"
-            android:textSize="16sp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/btn_gradient_stitch"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="✨ Create Weekly Assessment"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:backgroundTint="#6C5CE7"/>
+            app:backgroundTint="@null"
+            app:cornerRadius="16dp"
+            app:elevation="2dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_upload_pdf"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="+ Upload Lesson PDF"
+            android:textColor="#5341CD"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp"
+            app:strokeColor="#6C5CE7"
+            app:strokeWidth="1.5dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

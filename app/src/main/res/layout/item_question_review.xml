@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Material3.CardView.Filled"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#EDF2F7"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Question Title & Result Badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tv_review_q_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Question 1"
+                android:textColor="#5341CD"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_review_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#D1FAE5"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="Correct ✓"
+                android:textColor="#065F46"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Question Stem -->
+        <TextView
+            android:id="@+id/tv_review_q_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="What is the primary function of chlorophyll?"
+            android:textColor="#0F172A"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Student Answer Row -->
+        <LinearLayout
+            android:id="@+id/container_student_ans"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Answer:"
+                android:textColor="#64748B"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_review_student_ans"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_nunito_sans"
+                android:text="A) Absorb sunlight and convert light energy into chemical energy"
+                android:textColor="#1E293B"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Correct Answer Row (Shown if wrong) -->
+        <LinearLayout
+            android:id="@+id/container_correct_ans"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ECFDF5"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:visibility="gone"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Correct Answer:"
+                android:textColor="#065F46"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_review_correct_ans"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_nunito_sans"
+                android:text="B) Correct option text here"
+                android:textColor="#065F46"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Explanation Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F8FAFC"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💡 Educational Explanation:"
+                android:textColor="#5341CD"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:layout_marginBottom="3dp" />
+
+            <TextView
+                android:id="@+id/tv_review_explanation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_nunito_sans"
+                android:lineSpacingMultiplier="1.2"
+                android:text="Chlorophyll pigments absorb blue and red light wavelengths, enabling plants to convert solar energy into glucose."
+                android:textColor="#334155"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -6,11 +6,12 @@
     android:background="#F8F9FA"
     android:orientation="vertical">
 
+    <!-- Stitch Gradient Header -->
     <LinearLayout
         android:id="@+id/editor_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#6C5CE7"
+        android:background="@drawable/bg_header_gradient"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="16dp">
@@ -18,47 +19,185 @@
         <ImageButton
             android:id="@+id/btn_back"
             android:contentDescription="@string/cd_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_close_clear_cancel"
             app:tint="#FFFFFF" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Review &amp; Edit Quiz Pool"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/tv_editor_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="ASSESSMENT BUILDER"
+                android:textColor="#E4DFFF"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_editor_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Review &amp; Edit Questions"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
+    <!-- Assessment Metadata Card (Visible in Weekly Assessment mode) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_assessment_meta"
+        style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_margin="14dp"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#EDF2F7"
+        app:contentPadding="0dp"
+        app:cardBackgroundColor="#FFFFFF">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Questions student will face (Max 20):"
-            android:textColor="@color/text_primary"
-            android:textStyle="bold"/>
+            android:orientation="vertical"
+            android:padding="14dp">
 
-        <EditText
-            android:id="@+id/et_target_items"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:gravity="center"
-            android:text="5"
-            android:background="@drawable/bg_card_history"
-            android:padding="8dp"/>
-    </LinearLayout>
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Assessment Title"
+                android:textColor="#64748B"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/et_assessment_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input_field"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:hint="e.g. Week 1: Photosynthesis Assessment"
+                android:padding="10dp"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="10dp" />
+
+            <!-- Row: Target Class & Due Date -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <!-- Class Selector -->
+                <LinearLayout
+                    android:id="@+id/container_class_select"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Assign to Class:"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_target_class"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_input_field" />
+                </LinearLayout>
+
+                <!-- Due Date Picker -->
+                <LinearLayout
+                    android:id="@+id/container_due_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Due Date:"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_due_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_input_field"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="10dp"
+                        android:text="Select Date 📅"
+                        android:textColor="#0F172A"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Target Items Count -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Target question count:"
+                    android:textColor="#64748B"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/et_target_items"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:gravity="center"
+                    android:text="10"
+                    android:textColor="#0F172A"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_input_field"
+                    android:padding="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <ScrollView
         android:layout_width="match_parent"

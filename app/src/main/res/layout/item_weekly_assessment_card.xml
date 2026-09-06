@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Material3.CardView.Filled"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="22dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#EDF2F7"
+    app:contentPadding="0dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <!-- Top Badges Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/tv_assessment_subject_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_level_pill"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:text="Science 9"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_assessment_item_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_input_field"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="10 Questions"
+                android:textColor="#64748B"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Due Date Badge -->
+            <TextView
+                android:id="@+id/tv_assessment_due_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Due: Sep 14"
+                android:textColor="#EF4444"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Assessment Title -->
+        <TextView
+            android:id="@+id/tv_assessment_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="Weekly Reading Diagnostic Assessment"
+            android:textColor="#0F172A"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Teacher and Class Subtitle -->
+        <TextView
+            android:id="@+id/tv_assessment_meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_nunito_sans"
+            android:text="Assigned by Teacher Santos • Grade 9 - Diamond"
+            android:textColor="#64748B"
+            android:textSize="12sp"
+            android:layout_marginBottom="14dp" />
+
+        <!-- Bottom Action / Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Result Score Pill (Shown if completed) -->
+            <TextView
+                android:id="@+id/tv_assessment_score_pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#D1FAE5"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="Completed • 9/10 (90%) ✓"
+                android:textColor="#065F46"
+                android:textSize="12sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_action_assessment"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:background="@drawable/btn_gradient_stitch"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Take Assessment ➔"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                app:cornerRadius="14dp"
+                app:elevation="2dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

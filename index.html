@@ -692,6 +692,62 @@
   </div>
 
 
+  
+  <!-- MODAL: WEEKLY ASSESSMENT SUBMISSIONS ROSTER -->
+  <div id="modalAssessmentSubmissions" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📋</span>
+          <div>
+            <h3 id="submissionsModalTitle" class="font-bold text-base text-slate-900">Assessment Submissions Roster</h3>
+            <p id="submissionsModalSubtitle" class="text-xs text-slate-500">Student submissions, scores, and accuracy</p>
+          </div>
+        </div>
+        <button onclick="closeAssessmentSubmissionsModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 text-xs shrink-0">
+        <div class="p-3 bg-purple-50 rounded-xl border border-purple-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Total Turned In</div>
+          <div id="subModalTurnedIn" class="text-lg font-black text-[#6C5CE7] mt-0.5">0</div>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Class Average</div>
+          <div id="subModalClassAvg" class="text-lg font-black text-emerald-700 mt-0.5">0%</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Assessment Total Items</div>
+          <div id="subModalTotalItems" class="text-lg font-black text-slate-800 mt-0.5">10 Items</div>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto border border-slate-200 rounded-xl">
+        <table class="w-full text-left text-xs">
+          <thead class="sticky top-0 bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <tr>
+              <th class="p-3">Student Name</th>
+              <th class="p-3">LRN / Email</th>
+              <th class="p-3">Score</th>
+              <th class="p-3">Accuracy</th>
+              <th class="p-3 text-right">Submitted At</th>
+            </tr>
+          </thead>
+          <tbody id="assessmentSubmissionsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pt-3 flex justify-end border-t border-slate-100 shrink-0">
+        <button onclick="closeAssessmentSubmissionsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow">
+          Close Roster
+        </button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- ========================================================================= -->
   <!-- 6. MAIN ADMINISTRATIVE DASHBOARD -->
   <!-- ========================================================================= -->
@@ -834,7 +890,7 @@
                   <span>📚</span> Library Subjects &amp; PDFs
                 </button>
                 <button onclick="switchTab('tab-weekly-assessments')" id="btn-tab-weekly-assessments" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
-                  <span>📝</span> Weekly Student Assessments <span class="ml-auto bg-purple-100 text-[#5341CD] border border-purple-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Phase 2</span>
+                  <span>📝</span> Weekly Student Assessments <span class="ml-auto bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Live</span>
                 </button>
               </nav>
             </div>
@@ -1204,21 +1260,89 @@
           </div>
         </div>
 
-        <!-- VIEW 8: WEEKLY ASSESSMENTS (Phase 2 Preview) -->
+        <!-- VIEW 8: WEEKLY ASSESSMENTS -->
         <div id="tab-weekly-assessments" class="tab-content hidden space-y-6">
-          <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 text-indigo-950 space-y-3">
-            <div class="flex items-center gap-2">
-              <span class="text-2xl">📝</span>
-              <h3 class="font-bold text-base">Weekly Student Assessment Engine</h3>
-              <span class="px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider">Ready for Phase 2</span>
+          <!-- KPI Metrics Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-purple-50 text-[#6C5CE7] flex items-center justify-center text-xl font-bold">📝</div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Assessments</div>
+                <div id="statTotalAssessments" class="text-xl font-black text-slate-800">0</div>
+              </div>
             </div>
-            <p class="text-xs text-indigo-900 leading-relaxed max-w-3xl">
-              This module is wired to the app's native <code class="bg-white/80 px-1 py-0.5 rounded font-mono text-indigo-800">quiz_pool_json</code> assessment architecture.
-              Weekly reading passages and multiple-choice items will be scheduled here and dispatched to students' mobile home screens.
-            </p>
-            <div class="pt-2 flex items-center gap-4 text-xs font-semibold">
-              <span class="flex items-center gap-1 text-emerald-700">✓ Admin Schema Aligned 1:1 with GabAI</span>
-              <span class="flex items-center gap-1 text-indigo-700">⏳ Phase 2 Assessment Dispatcher</span>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">🎯</div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Assessments</div>
+                <div id="statActiveAssessments" class="text-xl font-black text-emerald-600">0</div>
+              </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">👥</div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Submissions</div>
+                <div id="statTotalSubmissions" class="text-xl font-black text-blue-600">0</div>
+              </div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">📊</div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Division Avg Score</div>
+                <div id="statAvgAssessmentScore" class="text-xl font-black text-amber-600">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls and Filters -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="relative">
+                <input type="text" id="assessmentSearchInput" oninput="renderAssessmentsTable()" placeholder="Search title, subject, teacher, class..." 
+                  class="w-64 pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-[#6C5CE7]">
+                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+              </div>
+              <select id="assessmentGradeFilter" onchange="renderAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+                <option value="ALL">All Grade Levels</option>
+                <option value="Grade 7">Grade 7</option>
+                <option value="Grade 8">Grade 8</option>
+                <option value="Grade 9">Grade 9</option>
+                <option value="Grade 10">Grade 10</option>
+              </select>
+              <select id="assessmentStatusFilter" onchange="renderAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+                <option value="ALL">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="closed">Closed / Expired</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="assessmentsCountBadge" class="text-xs font-semibold text-slate-500">0 Assessments</span>
+            </div>
+          </div>
+
+          <!-- Assessments Data Table -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-display">
+                    <th class="p-3.5">Assessment & Subject</th>
+                    <th class="p-3.5">Target Class & Campus</th>
+                    <th class="p-3.5">Assigned Educator</th>
+                    <th class="p-3.5">Due Date</th>
+                    <th class="p-3.5">Submissions & Avg Score</th>
+                    <th class="p-3.5">Status</th>
+                    <th class="p-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="assessmentsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                  <tr>
+                    <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+                      Loading weekly assessments...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1333,9 +1457,13 @@
     let cachedPendingStudents = [];
     let cachedSubjects = [];
     let cachedMaterials = [];
+    let cachedWeeklyAssessments = [];
+    let cachedSubmissions = [];
 
     // Active Quiz Inspector State
+    let activeInspectorType = null; // 'material' | 'assessment'
     let activeInspectorMaterialId = null;
+    let activeInspectorAssessmentId = null;
     let activeInspectorQuestions = [];
 
     let unsubs = [];
@@ -1531,7 +1659,9 @@
       const m = cachedMaterials.find(item => item.id === materialId);
       if (!m) return;
 
+      activeInspectorType = 'material';
       activeInspectorMaterialId = materialId;
+      activeInspectorAssessmentId = null;
       activeInspectorQuestions = getMaterialQuestions(m);
 
       document.getElementById('quizInspectorTitle').textContent = `Quiz Pool: ${m.title || 'Untitled Document'}`;
@@ -1541,9 +1671,38 @@
       document.getElementById('modalQuizInspector').classList.remove('hidden');
     };
 
+    window.openAssessmentInspectorModal = function(assessmentId) {
+      const a = cachedWeeklyAssessments.find(item => item.id === assessmentId);
+      if (!a) return;
+
+      activeInspectorType = 'assessment';
+      activeInspectorAssessmentId = assessmentId;
+      activeInspectorMaterialId = null;
+      
+      let qs = [];
+      try {
+        if (a.quiz_pool_json) {
+          qs = typeof a.quiz_pool_json === 'string' ? JSON.parse(a.quiz_pool_json) : a.quiz_pool_json;
+        } else if (a.quiz_json) {
+          qs = typeof a.quiz_json === 'string' ? JSON.parse(a.quiz_json) : a.quiz_json;
+        }
+      } catch (e) {
+        console.error("Parse assessment quiz error:", e);
+      }
+      activeInspectorQuestions = Array.isArray(qs) ? qs : [];
+
+      document.getElementById('quizInspectorTitle').textContent = `Weekly Assessment: ${a.title || 'Untitled Assessment'}`;
+      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured • ${a.className || 'Class'} (${a.subjectName || 'Subject'})`;
+      
+      renderQuizQuestionsList();
+      document.getElementById('modalQuizInspector').classList.remove('hidden');
+    };
+
     window.closeQuizInspector = function() {
       document.getElementById('modalQuizInspector').classList.add('hidden');
+      activeInspectorType = null;
       activeInspectorMaterialId = null;
+      activeInspectorAssessmentId = null;
       activeInspectorQuestions = [];
     };
 
@@ -1594,6 +1753,24 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
               ${optionsHtml}
             </div>
+
+            ${q.explanation ? `
+              <div class="mt-2 p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-lg text-xs text-indigo-950 flex items-start justify-between gap-2">
+                <div>
+                  <span class="font-bold text-indigo-800">💡 Educational Explanation:</span>
+                  <p class="mt-0.5 text-indigo-900">${q.explanation}</p>
+                </div>
+                <button onclick="editQuestionExplanation(${idx})" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 shrink-0">
+                  Edit
+                </button>
+              </div>
+            ` : `
+              <div class="mt-2 text-right">
+                <button onclick="editQuestionExplanation(${idx})" class="text-[11px] text-slate-400 hover:text-indigo-600 font-semibold">
+                  + Add Educational Explanation
+                </button>
+              </div>
+            `}
           </div>
         `;
       }).join('');
@@ -1619,14 +1796,26 @@
       if (correctLetter === 'C') ansIndex = 2;
       if (correctLetter === 'D') ansIndex = 3;
 
+      const explanation = prompt("Educational Explanation for students (displayed after answering):", "") || "";
+
       activeInspectorQuestions.push({
         q: promptText.trim(),
         options: [optA.trim(), optB.trim(), optC ? optC.trim() : "None", optD ? optD.trim() : "None"],
-        ans: ansIndex
+        ans: ansIndex,
+        explanation: explanation.trim()
       });
 
       renderQuizQuestionsList();
       window.showToast("Question added. Click 'Save All Questions' to publish changes.", "info");
+    };
+
+    window.editQuestionExplanation = function(idx) {
+      const q = activeInspectorQuestions[idx];
+      const newExp = prompt("Edit Educational Explanation:", q.explanation || "");
+      if (newExp !== null) {
+        q.explanation = newExp.trim();
+        renderQuizQuestionsList();
+      }
     };
 
     window.editQuestionPrompt = function(idx) {
@@ -1647,7 +1836,7 @@
     };
 
     window.saveCurrentQuizPool = async function() {
-      if (!activeInspectorMaterialId) return;
+      if (!activeInspectorMaterialId && !activeInspectorAssessmentId) return;
 
       const btn = document.getElementById('btnSaveQuizPool');
       btn.disabled = true;
@@ -1656,17 +1845,27 @@
       const jsonString = JSON.stringify(activeInspectorQuestions);
 
       try {
-        await updateDoc(doc(db, "library_materials", activeInspectorMaterialId), {
-          quiz_pool_json: jsonString,
-          quiz_json: jsonString,
-          quiz_max_items: activeInspectorQuestions.length,
-          updatedAt: Date.now()
-        });
-        window.showToast(`Quiz pool saved! (${activeInspectorQuestions.length} questions attached)`, "success");
+        if (activeInspectorAssessmentId) {
+          await updateDoc(doc(db, "weekly_assessments", activeInspectorAssessmentId), {
+            quiz_pool_json: jsonString,
+            quiz_json: jsonString,
+            questionCount: activeInspectorQuestions.length,
+            updatedAt: Date.now()
+          });
+          window.showToast(`Weekly assessment updated! (${activeInspectorQuestions.length} questions attached)`, "success");
+        } else if (activeInspectorMaterialId) {
+          await updateDoc(doc(db, "library_materials", activeInspectorMaterialId), {
+            quiz_pool_json: jsonString,
+            quiz_json: jsonString,
+            quiz_max_items: activeInspectorQuestions.length,
+            updatedAt: Date.now()
+          });
+          window.showToast(`Quiz pool saved! (${activeInspectorQuestions.length} questions attached)`, "success");
+        }
         closeQuizInspector();
       } catch (err) {
         console.error("Save quiz error:", err);
-        window.showToast("Failed to save quiz pool: " + err.message, "error");
+        window.showToast("Failed to save questions: " + err.message, "error");
       } finally {
         btn.disabled = false;
         btn.textContent = "Save All Questions";
@@ -1916,6 +2115,22 @@
         renderMaterialsTable();
       }, (err) => console.warn("Legacy library listener:", err));
       unsubs.push(unsubLegacyLibrary);
+
+      // 7. weekly_assessments (SubjectDetailActivity.kt & QuizEditorActivity.kt)
+      const unsubAssessments = onSnapshot(collection(db, "weekly_assessments"), (snapshot) => {
+        cachedWeeklyAssessments = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        updateAssessmentMetrics();
+        renderAssessmentsTable();
+      }, (err) => console.warn("Weekly assessments listener:", err));
+      unsubs.push(unsubAssessments);
+
+      // 8. assessment_submissions (WeeklyAssessmentActivity.kt)
+      const unsubSubmissions = onSnapshot(collection(db, "assessment_submissions"), (snapshot) => {
+        cachedSubmissions = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        updateAssessmentMetrics();
+        renderAssessmentsTable();
+      }, (err) => console.warn("Assessment submissions listener:", err));
+      unsubs.push(unsubSubmissions);
     }
 
     function stopRealtimeListeners() {
@@ -1980,6 +2195,8 @@
       renderPerformanceTable();
       renderSubjectFolders();
       renderMaterialsTable();
+      updateAssessmentMetrics();
+      renderAssessmentsTable();
       
       const label = val === 'ALL' ? 'All Secondary Schools' : getSchoolName(val);
       window.showToast(`Jurisdiction filtered: ${label}`, 'info');
@@ -3198,6 +3415,269 @@
       }).join('');
     }
 
+
+    // =========================================================================
+    // 7. WEEKLY STUDENT ASSESSMENTS MANAGEMENT & ANALYTICS
+    // =========================================================================
+    window.updateAssessmentMetrics = function() {
+      let list = cachedWeeklyAssessments;
+      let subs = cachedSubmissions;
+
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(a => String(a.schoolId) === selectedJurisdiction);
+        subs = subs.filter(s => {
+          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
+          return a && String(a.schoolId) === selectedJurisdiction;
+        });
+      }
+
+      const now = Date.now();
+      const activeCount = list.filter(a => a.status === 'active' && (!a.dueDate || a.dueDate > now)).length;
+
+      const statTotal = document.getElementById('statTotalAssessments');
+      const statActive = document.getElementById('statActiveAssessments');
+      const statSub = document.getElementById('statTotalSubmissions');
+      const statAvg = document.getElementById('statAvgAssessmentScore');
+
+      if (statTotal) statTotal.textContent = list.length;
+      if (statActive) statActive.textContent = activeCount;
+      if (statSub) statSub.textContent = subs.length;
+
+      if (statAvg) {
+        if (subs.length > 0) {
+          const totalPct = subs.reduce((acc, curr) => {
+            const score = curr.score || 0;
+            const total = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((score * 100) / total));
+          }, 0);
+          const avg = Math.round(totalPct / subs.length);
+          statAvg.textContent = `${avg}%`;
+        } else {
+          statAvg.textContent = `0%`;
+        }
+      }
+    };
+
+    window.renderAssessmentsTable = function() {
+      const tbody = document.getElementById('assessmentsTableBody');
+      if (!tbody) return;
+
+      let list = cachedWeeklyAssessments;
+
+      // School jurisdiction filter
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(a => String(a.schoolId) === selectedJurisdiction);
+      }
+
+      // Search filter
+      const search = (document.getElementById('assessmentSearchInput')?.value || '').toLowerCase().trim();
+      if (search) {
+        list = list.filter(a => {
+          const title = (a.title || '').toLowerCase();
+          const subject = (a.subjectName || '').toLowerCase();
+          const teacher = (a.teacherName || '').toLowerCase();
+          const cName = (a.className || '').toLowerCase();
+          return title.includes(search) || subject.includes(search) || teacher.includes(search) || cName.includes(search);
+        });
+      }
+
+      // Grade filter
+      const gradeFilter = document.getElementById('assessmentGradeFilter')?.value || 'ALL';
+      if (gradeFilter !== 'ALL') {
+        list = list.filter(a => (a.grade || '').includes(gradeFilter) || (a.className || '').includes(gradeFilter));
+      }
+
+      // Status filter
+      const statusFilter = document.getElementById('assessmentStatusFilter')?.value || 'ALL';
+      const now = Date.now();
+      if (statusFilter === 'active') {
+        list = list.filter(a => a.status === 'active' && (!a.dueDate || a.dueDate > now));
+      } else if (statusFilter === 'closed') {
+        list = list.filter(a => a.status === 'closed' || (a.dueDate && a.dueDate <= now));
+      }
+
+      const countBadge = document.getElementById('assessmentsCountBadge');
+      if (countBadge) countBadge.textContent = `${list.length} Assessment${list.length === 1 ? '' : 's'}`;
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+              No weekly assessments found matching criteria.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(a => {
+        const subs = cachedSubmissions.filter(s => s.assessmentId === a.id);
+        const subCount = subs.length;
+        let avgPct = 0;
+        if (subCount > 0) {
+          const sum = subs.reduce((acc, curr) => {
+            const score = curr.score || 0;
+            const total = curr.totalQuestions || a.questionCount || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((score * 100) / total));
+          }, 0);
+          avgPct = Math.round(sum / subCount);
+        }
+
+        const isExpired = a.dueDate && a.dueDate <= now;
+        const isActive = a.status === 'active' && !isExpired;
+
+        let dueDateStr = "No due date";
+        if (a.dueDate) {
+          dueDateStr = new Date(a.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        let sourceBadge = "";
+        if (a.sourceType === "pdf") {
+          sourceBadge = `<span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200">PDF Upload</span>`;
+        } else if (a.sourceType === "material") {
+          sourceBadge = `<span class="px-2 py-0.5 rounded bg-purple-50 text-purple-700 text-[10px] font-bold border border-purple-200">Library Doc</span>`;
+        } else {
+          sourceBadge = `<span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold border border-amber-200">Topic Prompt</span>`;
+        }
+
+        const safeTitle = (a.title || 'Weekly Assessment').replace(/'/g, "\'");
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3.5">
+              <div class="font-bold text-slate-900 text-sm">${a.title || 'Weekly Assessment'}</div>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="px-2 py-0.5 rounded-full bg-purple-100 text-[#5341CD] text-[10px] font-bold">${a.subjectName || 'Subject'}</span>
+                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">${a.questionCount || 10} Items</span>
+                ${sourceBadge}
+              </div>
+            </td>
+            <td class="p-3.5">
+              <div class="font-bold text-slate-800">${a.className || 'Class'}</div>
+              <div class="text-[11px] text-slate-500">${a.grade || ''} &bull; ${getSchoolName(a.schoolId)}</div>
+            </td>
+            <td class="p-3.5">
+              <div class="font-semibold text-slate-800">${a.teacherName || 'Faculty'}</div>
+              <div class="text-[10px] text-slate-400 font-mono">ID: ${(a.teacherId || '').substring(0,8)}...</div>
+            </td>
+            <td class="p-3.5">
+              <div class="font-semibold ${isExpired ? 'text-red-600' : 'text-slate-700'}">${dueDateStr}</div>
+              ${isExpired ? '<span class="text-[10px] text-red-500 font-bold">Past Due</span>' : ''}
+            </td>
+            <td class="p-3.5">
+              <div class="flex items-center gap-2">
+                <button onclick="openAssessmentSubmissionsModal('${a.id}')" class="font-bold text-slate-800 hover:text-indigo-600 underline">
+                  ${subCount} Turned In
+                </button>
+                ${subCount > 0 ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${avgPct >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${avgPct}% Avg</span>` : ''}
+              </div>
+            </td>
+            <td class="p-3.5">
+              ${isActive ? `
+                <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold flex items-center gap-1 w-fit">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active
+                </span>
+              ` : `
+                <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-bold w-fit">
+                  Closed
+                </span>
+              `}
+            </td>
+            <td class="p-3.5 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="openAssessmentInspectorModal('${a.id}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1">
+                  <span>🧠</span> Questions
+                </button>
+                <button onclick="openAssessmentSubmissionsModal('${a.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1">
+                  <span>📋</span> Submissions
+                </button>
+                <button onclick="deleteAssessment('${a.id}', '${safeTitle}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold" title="Delete Assessment">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    window.deleteAssessment = async function(id, title) {
+      if (confirm(`Are you sure you want to delete the weekly assessment "${title}"? This cannot be undone.`)) {
+        try {
+          await deleteDoc(doc(db, "weekly_assessments", id));
+          window.showToast(`Assessment "${title}" removed.`, "info");
+        } catch (err) {
+          console.error("Delete assessment error:", err);
+          window.showToast("Failed to delete assessment: " + err.message, "error");
+        }
+      }
+    };
+
+    window.openAssessmentSubmissionsModal = function(assessmentId) {
+      const a = cachedWeeklyAssessments.find(item => item.id === assessmentId);
+      if (!a) return;
+
+      const subs = cachedSubmissions.filter(s => s.assessmentId === assessmentId);
+      
+      document.getElementById('submissionsModalTitle').textContent = `Submissions: ${a.title || 'Weekly Assessment'}`;
+      document.getElementById('submissionsModalSubtitle').textContent = `${a.className || 'Class'} • ${a.subjectName || 'Subject'} • ${getSchoolName(a.schoolId)}`;
+
+      document.getElementById('subModalTurnedIn').textContent = `${subs.length}`;
+      document.getElementById('subModalTotalItems').textContent = `${a.questionCount || 10} Items`;
+
+      if (subs.length > 0) {
+        const totalPct = subs.reduce((acc, curr) => {
+          const score = curr.score || 0;
+          const total = curr.totalQuestions || a.questionCount || 10;
+          return acc + (curr.percentage !== undefined ? curr.percentage : ((score * 100) / total));
+        }, 0);
+        const avg = Math.round(totalPct / subs.length);
+        document.getElementById('subModalClassAvg').textContent = `${avg}%`;
+      } else {
+        document.getElementById('subModalClassAvg').textContent = `0%`;
+      }
+
+      const tbody = document.getElementById('assessmentSubmissionsTableBody');
+      if (subs.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="p-8 text-center text-slate-400 font-medium">
+              No students have completed this assessment yet.
+            </td>
+          </tr>`;
+      } else {
+        tbody.innerHTML = subs.map(sub => {
+          const studentName = sub.studentName || 'Student';
+          const studentEmail = sub.studentEmail || sub.studentUid || '';
+          const score = sub.score !== undefined ? sub.score : 0;
+          const total = sub.totalQuestions || a.questionCount || 10;
+          const pct = sub.percentage !== undefined ? sub.percentage : Math.round((score * 100) / total);
+          const dateStr = sub.submittedAt ? new Date(sub.submittedAt).toLocaleString() : 'Recently';
+
+          const pctBadgeClass = pct >= 75 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (pct >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200');
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3 font-bold text-slate-900">${studentName}</td>
+              <td class="p-3 text-slate-500 font-mono text-[11px]">${studentEmail}</td>
+              <td class="p-3 font-bold text-slate-800">${score} / ${total}</td>
+              <td class="p-3">
+                <span class="px-2 py-0.5 rounded-full border text-[11px] font-bold ${pctBadgeClass}">
+                  ${pct}%
+                </span>
+              </td>
+              <td class="p-3 text-right text-slate-400 text-[11px]">${dateStr}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('modalAssessmentSubmissions').classList.remove('hidden');
+    };
+
+    window.closeAssessmentSubmissionsModal = function() {
+      document.getElementById('modalAssessmentSubmissions').classList.add('hidden');
+    };
+
     // =========================================================================
     // 6. 29-SCHOOL MATRIX
     // =========================================================================
@@ -3266,7 +3746,7 @@
         'tab-batch-credentials': ['Student Credential Vault', 'Manage batch-generated student accounts (pending_students) & onboarding states.'],
         'tab-school-matrix': ['Valenzuela City School Matrix', 'Overview of all 29 secondary schools with DepEd IDs.'],
         'tab-library-management': ['Library Subjects & PDF Materials', 'PDF documents (pdfUrl) and interactive multiple-choice question pools (quiz_pool_json).'],
-        'tab-weekly-assessments': ['Weekly Student Assessments', 'Automated diagnostic reading assessments (Phase 2).']
+        'tab-weekly-assessments': ['Weekly Student Assessments', 'Manage, inspect, and evaluate classroom weekly diagnostic reading assessments across the division.']
       };
 
       if (titles[tabId]) {
