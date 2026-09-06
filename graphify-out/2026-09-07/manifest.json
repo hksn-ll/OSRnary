@@ -288,9 +288,9 @@
     "semantic_hash": "89b6d43452bbc03628ec0d59149020a4"
   },
   "admin-portal/launch.ps1": {
-    "mtime": 1788708157.2332273,
-    "seen": 1788708253.9174943,
-    "ast_hash": "1a46477e4d64f3f542edbfecc9ec83d4",
+    "mtime": 1788725263.302772,
+    "seen": 1788725353.406675,
+    "ast_hash": "91fa35587bead4f719012098d325c5c3",
     "semantic_hash": ""
   },
   ".agents/rules/user_preferences.md": {
@@ -300,9 +300,9 @@
     "semantic_hash": ""
   },
   "admin-portal/index.html": {
-    "mtime": 1788725070.500708,
-    "seen": 1788725096.1823022,
-    "ast_hash": "ee993b872cc9b47fea0220e10a86dfb3",
+    "mtime": 1788730684.6255157,
+    "seen": 1788730777.6706233,
+    "ast_hash": "22355034faf94659f9b1d1b92f6002d1",
     "semantic_hash": ""
   },
   "app/src/main/res/drawable/ic_gabai_logo.png": {
@@ -405,6 +405,24 @@
     "mtime": 1788722567.969971,
     "seen": 1788723516.876355,
     "ast_hash": "56a3e63f9be7fa665e0dfc32cf78c1ee",
+    "semantic_hash": ""
+  },
+  "admin-portal/serve.py": {
+    "mtime": 1788725314.9842448,
+    "seen": 1788725353.406683,
+    "ast_hash": "a67a493c96d879d62b018ac4764be7cc",
+    "semantic_hash": ""
+  },
+  "firebase.json": {
+    "mtime": 1788730739.7464125,
+    "seen": 1788730777.6706123,
+    "ast_hash": "616317325ceac16524498c46968be3c5",
+    "semantic_hash": ""
+  },
+  ".github/workflows/deploy-admin.yml": {
+    "mtime": 1788730753.5891185,
+    "seen": 1788730777.6706216,
+    "ast_hash": "a4025d68446fc425dacf9f47d5f87159",
     "semantic_hash": ""
   }
 }
