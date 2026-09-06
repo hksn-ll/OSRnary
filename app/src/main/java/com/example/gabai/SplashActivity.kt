@@ -12,17 +12,24 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        // Wait for 2 seconds then decide where to go
-        Handler(Looper.getMainLooper()).postDelayed({
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser == null) {
-                // Not logged in -> Auth Screen
-                startActivity(Intent(this, AuthActivity::class.java))
-            } else {
-                // Already logged in -> Main Dashboard
-                startActivity(Intent(this, MainActivity::class.java))
-            }
-            finish() // Close the splash screen
-        }, 2000)
+        val startTime = System.currentTimeMillis()
+
+        // Check for required GitHub updates before letting user proceed
+        GitHubUpdateHelper.checkUpdate(this) {
+            val elapsedTime = System.currentTimeMillis() - startTime
+            val remainingDelay = (1200 - elapsedTime).coerceAtLeast(0)
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (!isFinishing && !isDestroyed) {
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    if (currentUser == null) {
+                        startActivity(Intent(this, AuthActivity::class.java))
+                    } else {
+                        startActivity(Intent(this, MainActivity::class.java))
+                    }
+                    finish()
+                }
+            }, remainingDelay)
+        }
     }
 }

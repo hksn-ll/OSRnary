@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Material3.CardView.Filled"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#EDF2F7"
+    app:contentPadding="0dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="28dp">
+
+        <!-- Icon Badge -->
+        <FrameLayout
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:background="@drawable/bg_bento_purple">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🚀"
+                android:textSize="32sp" />
+        </FrameLayout>
+
+        <!-- Title & Subtitle -->
+        <TextView
+            android:id="@+id/tv_update_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Update Required"
+            android:textColor="#0F172A"
+            android:textSize="22sp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_update_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:text="A new version of GabAI is available on GitHub. Please update to continue using the application."
+            android:textColor="#64748B"
+            android:textSize="13sp"
+            android:fontFamily="@font/font_nunito_sans"
+            android:lineSpacingMultiplier="1.2" />
+
+        <!-- Version Comparison Pill -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input_field"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_current_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current: v1.0.0"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:text="➔"
+                android:textColor="#5341CD"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_new_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New: v1.1.0"
+                android:textColor="#00B894"
+                android:textSize="12sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Changelog box (if available) -->
+        <TextView
+            android:id="@+id/tv_changelog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#F8FAFC"
+            android:padding="12dp"
+            android:text="What's new:\n• Bug fixes and performance improvements"
+            android:textColor="#475569"
+            android:textSize="11sp"
+            android:fontFamily="@font/font_nunito_sans"
+            android:visibility="gone" />
+
+        <!-- Download & Update Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_update_now"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/btn_gradient_stitch"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="Download &amp; Update  ➔"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"
+            app:cornerRadius="16dp"
+            app:elevation="4dp" />
+
+        <!-- Exit App Button -->
+        <TextView
+            android:id="@+id/btn_exit_app"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:padding="6dp"
+            android:text="Exit Application"
+            android:textColor="#94A3B8"
+            android:textSize="13sp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

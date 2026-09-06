@@ -1,0 +1,11 @@
+{
+  "versionCode": 1,
+  "versionName": "1.0.0",
+  "minRequiredVersionCode": 1,
+  "forceUpdate": false,
+  "title": "Update Required",
+  "message": "A new version of GabAI is available on GitHub. Please update to continue using the application.",
+  "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
+  "changelog": "• Updated Stitch UI design system\n• Pure white cards & enhanced readability\n• Performance optimizations"
+}
