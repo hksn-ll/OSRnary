@@ -77,4 +77,21 @@
     <color name="chip_green_bg">#1A00B894</color>
     <color name="chip_gold_bg">#1AF1C40F</color>
     <color name="chip_blue_bg">#1A0984E3</color>
+
+    <!-- Stitch Design Tokens -->
+    <color name="stitch_primary">#5341CD</color>
+    <color name="stitch_primary_end">#7556FA</color>
+    <color name="stitch_surface_bg">#F4FAFD</color>
+    <color name="stitch_card_bg">#FFFFFF</color>
+    <color name="stitch_card_stroke">#EDF2F7</color>
+    <color name="stitch_tab_bg">#EEF3F6</color>
+    <color name="stitch_input_bg">#F8FAFC</color>
+    <color name="stitch_input_stroke">#E2E8F0</color>
+    <color name="stitch_text_title">#0F172A</color>
+    <color name="stitch_text_muted">#64748B</color>
+    <color name="stitch_banner_student_bg">#EEF0FF</color>
+    <color name="stitch_banner_student_text">#4029BA</color>
+    <color name="stitch_banner_educator_bg">#EEF5F7</color>
+    <color name="stitch_banner_educator_badge">#6DFAD2</color>
+    <color name="stitch_banner_educator_icon">#006B55</color>
 </resources>

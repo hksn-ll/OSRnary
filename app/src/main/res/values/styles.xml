@@ -2,11 +2,12 @@
 <resources>
 
     <!-- ===== Cards ===== -->
-    <style name="Widget.GabAI.CardView" parent="Widget.Material3.CardView.Elevated">
+    <style name="Widget.GabAI.CardView" parent="Widget.Material3.CardView.Filled">
         <item name="cardCornerRadius">@dimen/radius_card</item>
-        <item name="cardElevation">@dimen/elevation_card</item>
-        <item name="cardBackgroundColor">@color/surface</item>
-        <item name="contentPadding">@dimen/space_lg</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#EDF2F7</item>
+        <item name="contentPadding">0dp</item>
         <item name="android:layout_marginBottom">@dimen/space_md</item>
     </style>
 
@@ -27,6 +28,7 @@
         <item name="cardBackgroundColor">@android:color/transparent</item>
         <item name="contentPadding">0dp</item>
         <item name="cardElevation">@dimen/elevation_card</item>
+        <item name="strokeWidth">0dp</item>
     </style>
 
     <!-- ===== Buttons ===== -->
@@ -101,4 +103,27 @@
         <item name="android:textColor">@color/text_secondary</item>
     </style>
 
+
+    <!-- Bottom Nav Labels -->
+    <style name="NavLabelActive" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/font_plus_jakarta_sans</item>
+        <item name="android:fontFamily">@font/font_plus_jakarta_sans</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="NavLabelInactive" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/font_nunito_sans</item>
+        <item name="android:fontFamily">@font/font_nunito_sans</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <!-- Stitch Pure White Card -->
+    <style name="Widget.Stitch.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">#FFFFFF</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#EDF2F7</item>
+    </style>
 </resources>

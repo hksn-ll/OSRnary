@@ -12,21 +12,20 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <!-- Glass logo badge -->
+        <!-- App logo badge -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="140dp"
             android:layout_height="140dp"
-            app:cardCornerRadius="@dimen/radius_card_lg"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/glass_stroke"
-            app:strokeWidth="@dimen/stroke_glass"
-            app:cardBackgroundColor="@color/glass_fill_strong">
+            app:cardCornerRadius="36dp"
+            app:cardElevation="10dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
 
             <ImageView
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_gravity="center"
-                android:src="@mipmap/ic_launcher"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_gabai_logo"
                 android:contentDescription="@string/app_name" />
         </com.google.android.material.card.MaterialCardView>
 

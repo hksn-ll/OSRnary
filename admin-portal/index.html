@@ -1,0 +1,3288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GabAI Administrative Portal - SDO Valenzuela City</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Nunito Sans"', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif']
+          },
+          colors: {
+            gabai: {
+              purple: '#6C5CE7',
+              indigo: '#5341CD',
+              mint: '#00B894',
+              teal: '#006B55',
+              rose: '#FD79A8',
+              magenta: '#A31E79',
+              amber: '#F59E0B',
+              dark: '#161D1F',
+              muted: '#64748B',
+              border: '#EDF2F7',
+              surface: '#FFFFFF'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .bg-aurora {
+      background-color: #F8FAFC;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(237, 233, 254, 0.75) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(220, 252, 231, 0.65) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(224, 242, 254, 0.65) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(250, 232, 255, 0.75) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+    .nav-active {
+      background: linear-gradient(135deg, #6C5CE7, #5341CD) !important;
+      color: #FFFFFF !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 14px rgba(108, 92, 231, 0.25) !important;
+    }
+    .nav-active span {
+      color: #FFFFFF !important;
+    }
+    aside nav button:focus-visible {
+      outline: 2px solid #6C5CE7 !important;
+      outline-offset: 2px !important;
+    }
+    .badge-pending {
+      background: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #FDE68A;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .badge-verified {
+      background: #D1FAE5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="bg-aurora text-slate-800 antialiased font-sans min-h-screen flex flex-col justify-start items-stretch p-0 m-0">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. SEAMLESS AUTHENTICATION SCREEN -->
+  <!-- ========================================================================= -->
+  <div id="authScreen" class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden mx-auto my-auto p-0 transition-all duration-300">
+    <div class="bg-gradient-to-br from-[#6C5CE7] via-[#5341CD] to-[#161D1F] text-white p-8 text-center relative overflow-hidden">
+      <div class="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
+      <div class="absolute top-2 right-8 w-16 h-16 rounded-full bg-emerald-400/20 blur-lg pointer-events-none"></div>
+
+      <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 p-2 mx-auto mb-4 flex items-center justify-center shadow-lg">
+        <div class="w-full h-full bg-white rounded-xl flex items-center justify-center font-black text-[#5341CD] text-2xl tracking-wider shadow-inner">
+          📖
+        </div>
+      </div>
+      <h1 class="text-xl font-bold tracking-tight text-white font-display">GabAI Admin Portal</h1>
+      <p class="text-xs text-purple-100 font-medium mt-0.5">Schools Division Office of Valenzuela City</p>
+      <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] text-white font-semibold backdrop-blur-sm">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Institutional Literacy Governance
+      </div>
+    </div>
+
+    <div class="p-8 space-y-5 bg-white">
+      <div id="loginAlertBox" class="hidden p-3 rounded-lg text-xs font-medium"></div>
+
+      <form id="loginForm" class="space-y-4" onsubmit="handleLoginSubmit(event)">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Administrative Email</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm">✉️</span>
+            <input type="email" id="loginEmail" required placeholder="admin@depedvalenzuela.gov.ph"
+              class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Secure Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm">🔒</span>
+            <input type="password" id="loginPassword" required placeholder="••••••••"
+              class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-600">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="rememberMe" checked class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+            <span>Keep session active</span>
+          </label>
+          <a href="#" onclick="showResetPasswordModal(event)" class="text-indigo-600 hover:text-indigo-800 font-semibold">Forgot password?</a>
+        </div>
+
+        <button type="submit" id="btnLoginSubmit"
+          class="w-full py-3 px-4 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 font-display">
+          <span id="btnLoginText">Sign In to Management Portal</span>
+          <span id="btnLoginSpinner" class="hidden animate-spin">⏳</span>
+        </button>
+      </form>
+
+      <div class="pt-4 border-t border-slate-200">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 text-xs shadow-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700">First-Time Setup?</span>
+            <button onclick="toggleProvisionModal(true)" class="text-[#6C5CE7] hover:text-[#5341CD] font-bold underline">
+              Provision Admin Key
+            </button>
+          </div>
+          <p class="text-slate-500 text-[11px] mt-1">
+            Initialize an authorized Division Executive account using the division master key.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2. FIRST-TIME PROVISIONING MODAL -->
+  <!-- ========================================================================= -->
+  <div id="provisionModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🛡️</span>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">Provision Division Admin</h3>
+            <p class="text-[11px] text-slate-500">Register new institutional administrator</p>
+          </div>
+        </div>
+        <button onclick="toggleProvisionModal(false)" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <div id="provisionAlertBox" class="hidden p-2.5 rounded-lg text-xs font-medium"></div>
+
+      <form id="provisionForm" onsubmit="handleProvisionSubmit(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">First Name</label>
+            <input type="text" id="provFirstName" required placeholder="Division" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Last Name</label>
+            <input type="text" id="provLastName" required placeholder="Superintendent" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Official DepEd Admin Email</label>
+          <input type="email" id="provEmail" required placeholder="sdo.valenzuela@deped.gov.ph" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Account Password</label>
+          <input type="password" id="provPassword" required minlength="6" placeholder="At least 6 characters" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Division Master Passkey</label>
+          <input type="password" id="provMasterKey" required placeholder="Enter authorized division passkey" autocomplete="off" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Confidential authorization key issued exclusively by SDO Valenzuela IT.</p>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="toggleProvisionModal(false)" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnProvisionSubmit" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Create &amp; Authorize Admin
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 3. INTERACTIVE PDF VIEWER MODAL (Full Browser Preview) -->
+  <!-- ========================================================================= -->
+  <div id="modalPdfViewer" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full h-[92vh] flex flex-col border border-slate-200 overflow-hidden">
+      <!-- Header -->
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">📄</span>
+          <div>
+            <h3 id="pdfViewerTitle" class="font-bold text-sm text-white">Document Viewer</h3>
+            <p id="pdfViewerMeta" class="text-[11px] text-slate-400">Subject &bull; School</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnTogglePdfEngine" onclick="togglePdfPreviewEngine()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all" title="Toggle between Google Docs Preview and Direct Browser Embed">
+            <span>🔄</span> <span id="pdfEngineLabel">Switch to Docs Viewer</span>
+          </button>
+          <a id="pdfDirectLink" href="#" target="_blank" class="px-3 py-1 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-semibold shadow-sm font-display flex items-center gap-1 transition-all">
+            <span>↗</span> Open in New Tab
+          </a>
+          <button onclick="closePdfViewer()" class="text-slate-400 hover:text-white text-xl font-bold px-2">&times;</button>
+        </div>
+      </div>
+
+      <!-- Iframe Body -->
+      <div class="flex-1 bg-slate-100 p-2 relative flex flex-col">
+        <div id="pdfLoadingNotice" class="absolute inset-0 flex items-center justify-center bg-slate-50/80 z-10 text-xs font-semibold text-slate-500">
+          Loading document preview...
+        </div>
+        <iframe id="pdfViewerIframe" class="w-full h-full rounded-xl border border-slate-300 bg-white" onload="document.getElementById('pdfLoadingNotice').classList.add('hidden')"></iframe>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 4. VISUAL QUIZ QUESTION INSPECTOR & BUILDER MODAL -->
+  <!-- ========================================================================= -->
+  <div id="modalQuizInspector" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col border border-slate-200 overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🧠</span>
+          <div>
+            <h3 id="quizInspectorTitle" class="font-bold text-base text-white">Attached Reading Assessment Pool</h3>
+            <p id="quizInspectorSubtitle" class="text-xs text-indigo-300">0 Multiple Choice Questions (quiz_pool_json)</p>
+          </div>
+        </div>
+        <button onclick="closeQuizInspector()" class="text-slate-400 hover:text-white text-2xl font-bold px-2">&times;</button>
+      </div>
+
+      <!-- Questions List Area -->
+      <div class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50" id="quizQuestionsListContainer">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Footer / Add Question & Save -->
+      <div class="p-4 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <button onclick="openAddQuestionForm()" class="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all">
+          <span>➕</span> Add New Question
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeQuizInspector()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Close
+          </button>
+          <button onclick="saveCurrentQuizPool()" id="btnSaveQuizPool" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5 transition-all">
+            <span>💾</span> Save All Questions
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 5. OTHER CRUD MODALS (FACULTY, SECTION, BATCH STUDENTS, SUBJECT, MATERIAL) -->
+  <!-- ========================================================================= -->
+
+  <!-- MODAL: CREATE / EDIT EDUCATOR -->
+  <div id="modalTeacher" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">👨‍🏫</span>
+          <div>
+            <h3 id="modalTeacherTitle" class="font-bold text-sm text-slate-900">Provision Faculty Account</h3>
+            <p class="text-[11px] text-slate-500">Configure educator profile and school assignment</p>
+          </div>
+        </div>
+        <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <form id="formTeacher" onsubmit="handleTeacherFormSubmit(event)" class="space-y-3">
+        <input type="hidden" id="teacherEditUid" value="">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">First Name</label>
+            <input type="text" id="teacherFirstName" required placeholder="Maria" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Last Name</label>
+            <input type="text" id="teacherLastName" required placeholder="Santos" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Official DepEd Email</label>
+          <input type="email" id="teacherEmail" required placeholder="maria.santos@deped.gov.ph" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Secondary School</label>
+          <select id="teacherSchoolSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+            <!-- Populated via script -->
+          </select>
+        </div>
+
+        <div id="teacherApprovalField" class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="teacherIsApproved" checked class="rounded border-slate-300 text-indigo-600">
+          <label for="teacherIsApproved" class="text-xs text-slate-700 font-semibold cursor-pointer">Grant Immediate Accreditation</label>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeTeacherModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnSaveTeacher" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Save Educator Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE / EDIT CLASSROOM SECTION -->
+  <div id="modalSection" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏷️</span>
+          <div>
+            <h3 id="modalSectionTitle" class="font-bold text-sm text-slate-900">Create Classroom Section</h3>
+            <p class="text-[11px] text-slate-500">Configure grade, section name and master join code</p>
+          </div>
+        </div>
+        <button onclick="closeSectionModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <form id="formSection" onsubmit="handleSectionFormSubmit(event)" class="space-y-3">
+        <input type="hidden" id="sectionEditId" value="">
+        
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Section Name</label>
+          <input type="text" id="sectionNameInput" required placeholder="e.g. Diamond, Rizal, Emerald" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Grade Level</label>
+            <select id="sectionGradeSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+              <option value="7">Grade 7</option>
+              <option value="8">Grade 8</option>
+              <option value="9">Grade 9</option>
+              <option value="10">Grade 10</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Master Join Code</label>
+            <div class="flex gap-1">
+              <input type="text" id="sectionJoinCodeInput" required maxlength="6" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono font-bold uppercase">
+              <button type="button" onclick="generateRandomJoinCode()" class="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs rounded-lg font-bold" title="Randomize">
+                🎲
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Campus</label>
+          <select id="sectionSchoolSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+            <!-- Populated via script -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Initiation Assessment Questions Count</label>
+          <input type="number" id="sectionInitiationItems" min="3" max="20" value="5" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          <p class="text-[10px] text-slate-400 mt-0.5">Number of questions students must take upon joining (InitiationActivity.kt).</p>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeSectionModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnSaveSection" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Save Class Section
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DEEP CLASS INSPECTOR -->
+  <div id="modalClassInspector" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="inspectSectionName" class="font-bold text-base text-slate-900">Class Section Details</h3>
+            <span id="inspectJoinCodeBadge" class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-mono font-bold text-xs">#CODE</span>
+          </div>
+          <p id="inspectSchoolAndGrade" class="text-xs text-slate-500">School ID &bull; Grade Level</p>
+        </div>
+        <button onclick="closeClassInspector()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 text-xs">
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Enrolled Active Learners</div>
+          <div id="inspectEnrolledCount" class="text-lg font-black text-slate-800 mt-0.5">0</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Unclaimed Batch Accounts</div>
+          <div id="inspectPendingCount" class="text-lg font-black text-amber-700 mt-0.5">0</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Initiation Target Items</div>
+          <div id="inspectInitiationCount" class="text-lg font-black text-indigo-700 mt-0.5">5 Items</div>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Active Enrolled Learners in Section</h4>
+        <div id="inspectEnrolledList" class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs divide-y divide-slate-200 max-h-48 overflow-y-auto"></div>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Unclaimed Temporary Account Slips (pending_students)</h4>
+        <div id="inspectPendingList" class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs divide-y divide-slate-200 max-h-48 overflow-y-auto"></div>
+      </div>
+
+      <div class="pt-3 flex justify-end border-t border-slate-100">
+        <button onclick="closeClassInspector()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow">
+          Close Inspector
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BATCH GENERATE STUDENT ACCOUNTS -->
+  <div id="modalBatchStudents" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🔑</span>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">Batch Generate Learner Accounts</h3>
+            <p class="text-[11px] text-slate-500">Auto-generate login usernames and passwords matching app algorithm</p>
+          </div>
+        </div>
+        <button onclick="closeBatchStudentsModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <form id="formBatchStudents" onsubmit="handleBatchStudentsSubmit(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Target School</label>
+            <select id="batchSchoolSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+              <!-- Populated via script -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Class Section Name</label>
+            <input type="text" id="batchSectionName" required placeholder="e.g. Diamond" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Learner Full Names (One name per line)</label>
+          <textarea id="batchStudentNames" required rows="6" placeholder="Juan Dela Cruz&#10;Maria Santos&#10;Jose Rizal&#10;Andres Bonifacio" 
+            class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono"></textarea>
+          <p class="text-[10px] text-slate-400 mt-0.5">The system will generate unique usernames (e.g. juandelacruz_4892) and 6-character passcodes.</p>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeBatchStudentsModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnGenerateBatch" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Generate &amp; Store Credentials
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE / EDIT LIBRARY SUBJECT -->
+  <div id="modalSubject" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📁</span>
+          <div>
+            <h3 id="modalSubjectTitle" class="font-bold text-sm text-slate-900">Create Library Subject Folder</h3>
+            <p class="text-[11px] text-slate-500">Corresponds to library_subjects in mobile app</p>
+          </div>
+        </div>
+        <button onclick="closeSubjectModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <form id="formSubject" onsubmit="handleSubjectSubmit(event)" class="space-y-3">
+        <input type="hidden" id="subjectEditId" value="">
+        
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Subject Folder Name</label>
+          <input type="text" id="subjectNameInput" required placeholder="e.g. English 7, Filipino 8, Science 9" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Secondary Campus</label>
+          <select id="subjectSchoolSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+            <!-- Populated via script -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Lead Instructor Name</label>
+          <input type="text" id="subjectTeacherName" required placeholder="e.g. Teacher Santos / Division Curriculum" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeSubjectModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnSaveSubject" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Save Subject Folder
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT MATERIAL & QUIZ -->
+  <div id="modalMaterial" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📄</span>
+          <div>
+            <h3 id="modalMaterialTitle" class="font-bold text-sm text-slate-900">Add PDF Material &amp; Attached Quiz</h3>
+            <p class="text-[11px] text-slate-500">Directly syncs to library_materials with pdfUrl &amp; quiz_pool_json</p>
+          </div>
+        </div>
+        <button onclick="closeMaterialModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <form id="formMaterial" onsubmit="handleMaterialSubmit(event)" class="space-y-3">
+        <input type="hidden" id="materialEditId" value="">
+        
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Parent Subject Folder</label>
+          <select id="matSubjectSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+            <!-- Populated from library_subjects -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Reading Document Title</label>
+          <input type="text" id="matTitleInput" required placeholder="e.g. Life of Dr. Pio Valenzuela" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">PDF File / Document URL (Google Drive or Direct Link)</label>
+          <input type="url" id="matDownloadUrl" required placeholder="https://drive.google.com/file/d/... or https://..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono">
+          <p class="text-[10px] text-slate-400 mt-0.5">Supports direct links and Google Drive links. Stored as <code class="text-indigo-600 font-mono">pdfUrl</code> and <code class="text-indigo-600 font-mono">downloadUrl</code>.</p>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-[11px] font-bold text-slate-700">Attached Quiz Questions (quiz_pool_json)</label>
+            <button type="button" onclick="loadSampleQuizJson()" class="text-[10px] text-indigo-600 font-bold hover:underline">
+              Insert Sample Format
+            </button>
+          </div>
+          <textarea id="matQuizJson" rows="6" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono" placeholder='[
+  {
+    "q": "What was Dr. Pio Valenzuela known for?",
+    "options": ["Physician & Revolutionary", "Astronomer", "Merchant", "Sailor"],
+    "ans": 0
+  }
+]'></textarea>
+          <p class="text-[10px] text-slate-400 mt-0.5">Stored as <code class="text-indigo-600 font-mono">quiz_pool_json</code> matching the mobile app's native quiz runner.</p>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeMaterialModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnSaveMaterial" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Save Library Material
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: STUDENT QUIZ HISTORY VIEWER -->
+  <div id="modalQuizHistory" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 id="historyStudentName" class="font-bold text-base text-slate-900">Learner Quiz Performance</h3>
+          <p id="historyStudentMeta" class="text-xs text-slate-500">Section &bull; Level &bull; XP</p>
+        </div>
+        <button onclick="closeQuizHistoryModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-4 gap-3 text-xs">
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Accuracy Rate</div>
+          <div id="historyAverageScore" class="text-lg font-black text-emerald-700 mt-0.5">0%</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Total Quizzes</div>
+          <div id="historyTotalQuizzes" class="text-lg font-black text-slate-800 mt-0.5">0</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Current Streak</div>
+          <div id="historyCurrentStreak" class="text-lg font-black text-amber-700 mt-0.5">0 Days</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Level &amp; XP</div>
+          <div id="historyLevelXp" class="text-lg font-black text-indigo-700 mt-0.5">Lvl 1</div>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Recorded Quiz Attempts (users/{uid}/quiz_history)</h4>
+        <div id="historyAttemptsList" class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs divide-y divide-slate-200 max-h-64 overflow-y-auto"></div>
+      </div>
+
+      <div class="pt-3 flex justify-end border-t border-slate-100">
+        <button onclick="closeQuizHistoryModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow">
+          Close Record
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 6. MAIN ADMINISTRATIVE DASHBOARD -->
+  <!-- ========================================================================= -->
+  <div id="mainDashboard" class="hidden w-full min-h-screen flex flex-col bg-aurora">
+    
+    <!-- Top Division Header Bar -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 shadow-xs">
+      <div class="flex items-center gap-3">
+        <!-- Mobile Sidebar Toggle Button -->
+        <button id="btnToggleMobileSidebar" type="button" onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 focus:outline-none transition-colors" aria-label="Toggle navigation menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#6C5CE7] to-[#5341CD] p-2 flex items-center justify-center shadow-md text-white font-bold text-base shrink-0">
+          📖
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-sm text-slate-900 tracking-tight font-display">GabAI Admin Portal</h1>
+            <span class="hidden sm:inline-block bg-purple-50 text-[#6C5CE7] border border-purple-200 text-[10px] px-2 py-0.5 rounded-full font-bold">SDO Valenzuela</span>
+          </div>
+          <p class="text-[11px] text-slate-500 hidden md:block">Institutional Administration &amp; Academic Governance</p>
+        </div>
+      </div>
+
+      <!-- Scope Switcher, User Status & Logout -->
+      <div class="flex items-center gap-2.5 sm:gap-4 text-xs">
+        <div class="hidden md:flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+          <span class="text-slate-400 font-medium">Jurisdiction:</span>
+          <select id="jurisdictionSelect" onchange="handleJurisdictionChange(this.value)" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs">
+            <option value="ALL">All Secondary Schools (29 Campuses)</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-emerald-700 text-[11px] font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span class="hidden sm:inline">Live Sync</span>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-slate-200">
+          <div class="text-right hidden sm:block">
+            <div id="adminUserDisplayName" class="font-bold text-slate-800 text-xs font-display">Administrator</div>
+            <div id="adminUserEmail" class="text-[10px] text-slate-500 truncate max-w-[140px]">admin@deped.gov.ph</div>
+          </div>
+          <button onclick="handleLogout()" title="Sign Out" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 font-semibold text-xs transition-colors flex items-center gap-1">
+            <span>🚪</span>
+            <span class="hidden sm:inline">Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sub-Navbar -->
+    <div class="bg-white/60 backdrop-blur-sm border-b border-slate-200/80 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-2">
+      <div class="flex items-center gap-3">
+        <span class="font-semibold text-slate-700 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Network Online: Valenzuela City Secondary DepEd
+        </span>
+        <span class="text-slate-300">|</span>
+        <span>Academic Year: <strong>2026 – 2027</strong></span>
+        <span class="text-slate-300">|</span>
+        <span>Curriculum: <strong>DepEd K to 12 Literacy Framework</strong></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="refreshAllData()" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg font-medium text-slate-700 shadow-sm flex items-center gap-1">
+          <span>🔄</span> Force Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="flex flex-1 overflow-hidden relative">
+      <!-- Mobile Backdrop -->
+      <div id="mobileSidebarBackdrop" onclick="toggleMobileSidebar(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden lg:hidden transition-opacity duration-300"></div>
+      <!-- Navigation Sidebar (Responsive: Slide-over Drawer on Mobile, Rail on Desktop) -->
+      <aside id="mainSidebar" aria-label="Main Navigation" class="fixed inset-y-0 left-0 z-50 w-72 bg-white/95 backdrop-blur-xl border-r border-slate-200/80 p-4 flex flex-col justify-between overflow-y-auto shadow-2xl -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:w-64 xl:w-72 lg:shadow-none shrink-0">
+        <!-- Mobile Drawer Close Button -->
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100 lg:hidden mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-[#6C5CE7] text-white flex items-center justify-center text-xs font-bold">📖</div>
+            <span class="font-bold text-xs text-slate-800 font-display">Navigation Menu</span>
+          </div>
+          <button onclick="toggleMobileSidebar(false)" aria-label="Close navigation" class="text-slate-500 hover:text-slate-700 p-1 text-lg font-bold">&times;</button>
+        </div>
+        <div class="space-y-6">
+          <div id="sidebarApprovalAlert" onclick="switchTab('tab-faculty-verification')" role="alert" class="hidden bg-amber-50 border border-amber-300 rounded-2xl p-3 cursor-pointer hover:bg-amber-100/80 hover:border-amber-400 transition-all shadow-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-amber-950 flex items-center gap-1.5">
+                <span class="text-amber-600">⚠️</span> Verification Needed
+              </span>
+              <span id="pendingTeachersBadge" class="px-2 py-0.5 rounded-full bg-amber-600 text-white font-extrabold text-[10px] shadow-xs">0</span>
+            </div>
+            <p id="pendingTeachersBadgeText" class="text-[11px] text-amber-900 mt-1 font-semibold leading-tight">
+              0 Educator accounts awaiting division accreditation
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 px-3 mb-1.5 font-display">Division Governance</div>
+              <nav class="space-y-1 text-xs font-medium">
+                <button onclick="switchTab('tab-division-dashboard')" id="btn-tab-division-dashboard" aria-current="page" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left nav-active transition-colors">
+                  <span>🏛️</span> Executive Overview
+                </button>
+                <button onclick="switchTab('tab-school-matrix')" id="btn-tab-school-matrix" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
+                  <span>🏢</span> 29-School Campus Roster
+                </button>
+              </nav>
+            </div>
+
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 px-3 mb-1.5 font-display">Faculty &amp; Classes</div>
+              <nav class="space-y-1 text-xs font-medium">
+                <button onclick="switchTab('tab-faculty-verification')" id="btn-tab-faculty-verification" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
+                  <span>🛡️</span> Faculty Registry &amp; Queue 
+                  <span id="navPendingCount" class="ml-auto bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                </button>
+                <button onclick="switchTab('tab-classroom-sections')" id="btn-tab-classroom-sections" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
+                  <span>🏷️</span> Classroom Sections &amp; Codes
+                </button>
+              </nav>
+            </div>
+
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 px-3 mb-1.5 font-display">Learners &amp; Analytics</div>
+              <nav class="space-y-1 text-xs font-medium">
+                <button onclick="switchTab('tab-learner-performance')" id="btn-tab-learner-performance" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
+                  <span>📈</span> Performance &amp; Quiz History
+                </button>
+                <button onclick="switchTab('tab-batch-credentials')" id="btn-tab-batch-credentials" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
+                  <span>🔑</span> Student Credential Vault
+                </button>
+              </nav>
+            </div>
+
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 px-3 mb-1.5 font-display">Curriculum &amp; Assessments</div>
+              <nav class="space-y-1 text-xs font-medium">
+                <button onclick="switchTab('tab-library-management')" id="btn-tab-library-management" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
+                  <span>📚</span> Library Subjects &amp; PDFs
+                </button>
+                <button onclick="switchTab('tab-weekly-assessments')" id="btn-tab-weekly-assessments" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
+                  <span>📝</span> Weekly Student Assessments <span class="ml-auto bg-purple-100 text-[#5341CD] border border-purple-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Phase 2</span>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-200/80 text-[11px]">
+          <p class="font-bold text-slate-700">Institutional Governance</p>
+          <p class="text-[10px] text-slate-500 font-medium">DepEd Valenzuela &bull; GabAI v2.0</p>
+        </div>
+      </aside>
+
+      <!-- Main Operational Canvas -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto w-full max-w-[1600px] mx-auto">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
+          <div>
+            <h2 id="currentTabTitle" class="text-xl sm:text-2xl font-bold text-slate-900 font-display">Division Executive Overview</h2>
+            <p id="currentTabSubtitle" class="text-xs text-slate-500">Live indicators across all 29 secondary institutions in the Schools Division of Valenzuela City.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <input type="text" id="globalSearchInput" oninput="handleGlobalSearch(this.value)" placeholder="Search educator, student, section, code, PDF..." 
+                class="w-72 pl-8 pr-3 py-2 text-xs bg-white border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 1: EXECUTIVE DASHBOARD -->
+        <div id="tab-division-dashboard" class="tab-content space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-faculty-verification')">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Accredited Faculty</span>
+                <span class="p-2 rounded-lg bg-emerald-50 text-emerald-600">👨‍🏫</span>
+              </div>
+              <div class="mt-2 text-2xl sm:text-3xl font-black text-slate-900 font-display" id="kpiVerifiedTeachers">0</div>
+              <p class="text-[11px] text-emerald-600 font-medium mt-1">Authorized for classroom instruction</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-amber-200 bg-amber-50/20 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-faculty-verification')">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span class="text-amber-800">Pending Approvals</span>
+                <span class="p-2 rounded-lg bg-amber-100 text-amber-700">⏳</span>
+              </div>
+              <div class="mt-2 text-2xl font-black text-amber-900" id="kpiPendingTeachers">0</div>
+              <p class="text-[11px] text-amber-700 font-medium mt-1">Action needed to grant app access</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-classroom-sections')">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Class Sections</span>
+                <span class="p-2 rounded-lg bg-indigo-50 text-indigo-600">🏷️</span>
+              </div>
+              <div class="mt-2 text-2xl sm:text-3xl font-black text-slate-900 font-display" id="kpiTotalClasses">0</div>
+              <p class="text-[11px] text-slate-500 font-medium mt-1">Active sections across Grades 7-10</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-learner-performance')">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Enrolled Learners</span>
+                <span class="p-2 rounded-lg bg-blue-50 text-blue-600">🎒</span>
+              </div>
+              <div class="mt-2 text-2xl sm:text-3xl font-black text-slate-900 font-display" id="kpiTotalStudents">0</div>
+              <p class="text-[11px] text-slate-500 font-medium mt-1">Accounts active or pending claim</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>⚡</span> Immediate Division Actions
+                </h3>
+                <span class="text-xs text-indigo-600 font-semibold cursor-pointer hover:underline" onclick="switchTab('tab-faculty-verification')">
+                  View full queue &rarr;
+                </span>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs min-w-[700px]">
+                  <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold">
+                    <tr>
+                      <th class="p-3">Educator</th>
+                      <th class="p-3">School / Campus</th>
+                      <th class="p-3">Status</th>
+                      <th class="p-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quickPendingTableBody" class="divide-y divide-slate-100">
+                    <tr>
+                      <td colspan="4" class="p-4 text-center text-slate-400">Loading pending requests...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
+              <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <span>🏛️</span> SDO Valenzuela Jurisdiction
+              </h3>
+              <p class="text-xs text-slate-500">
+                Institutional literacy governance across all 29 secondary public high schools in Valenzuela City.
+              </p>
+              <div class="space-y-2 pt-2 text-xs">
+                <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                  <span class="text-slate-600">Total Secondary Schools</span>
+                  <span class="font-bold text-slate-900">29 Campuses</span>
+                </div>
+                <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                  <span class="text-slate-600">Target Grade Levels</span>
+                  <span class="font-bold text-slate-900">Grades 7, 8, 9, 10</span>
+                </div>
+                <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+                  <span class="text-slate-600">Assessment Cycles</span>
+                  <span class="font-bold text-emerald-600">Initiation + Weekly Quiz</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: FACULTY ACCREDITATION QUEUE & CRUD -->
+        <div id="tab-faculty-verification" class="tab-content hidden space-y-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold text-slate-600">View Status:</span>
+              <button onclick="setTeacherFilter('ALL')" id="filterBtn-ALL" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white shadow-sm">
+                All Faculty (<span id="countAllTeachers">0</span>)
+              </button>
+              <button onclick="setTeacherFilter('PENDING')" id="filterBtn-PENDING" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                Pending Approval (<span id="countPendingTeachers">0</span>)
+              </button>
+              <button onclick="setTeacherFilter('APPROVED')" id="filterBtn-APPROVED" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                Accredited (<span id="countApprovedTeachers">0</span>)
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="openCreateTeacherModal()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all">
+                <span>➕</span> Provision Educator Record
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">Faculty Member</th>
+                    <th class="p-3.5">Official Email</th>
+                    <th class="p-3.5">Assigned Institution</th>
+                    <th class="p-3.5">Registered Date</th>
+                    <th class="p-3.5">Accreditation Status</th>
+                    <th class="p-3.5 text-right">Actions (CRUD)</th>
+                  </tr>
+                </thead>
+                <tbody id="teachersTableBody" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="6" class="p-8 text-center text-slate-400">Loading faculty accounts...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 3: CLASSROOM SECTIONS & JOIN CODES & INSPECTOR -->
+        <div id="tab-classroom-sections" class="tab-content hidden space-y-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Master Classroom Sections Roster</h3>
+              <p class="text-xs text-slate-500">Official section join codes used by students and teachers in GabAI. Click any section to inspect roster and initiation assessments.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-semibold text-slate-600">Total Sections: <span id="sectionsCountDisplay" class="text-indigo-600 font-bold">0</span></span>
+              <button onclick="openCreateSectionModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-md font-display-sm flex items-center gap-1.5 transition-all">
+                <span>➕</span> Create New Section
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">Section Name</th>
+                    <th class="p-3.5">Grade Level</th>
+                    <th class="p-3.5">School / Campus</th>
+                    <th class="p-3.5">Master Join Code</th>
+                    <th class="p-3.5">Initiation Items</th>
+                    <th class="p-3.5">Enrolled Learners</th>
+                    <th class="p-3.5 text-right">Actions (CRUD)</th>
+                  </tr>
+                </thead>
+                <tbody id="sectionsTableBody" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="7" class="p-8 text-center text-slate-400">Loading classroom sections...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 4: LEARNER PERFORMANCE & QUIZ HISTORY -->
+        <div id="tab-learner-performance" class="tab-content hidden space-y-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Learner Academic Performance &amp; Quiz Analytics</h3>
+              <p class="text-xs text-slate-500">Live score averages, quiz attempts, and reading streak data matching TeacherPerformanceActivity.kt.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">Learner Name</th>
+                    <th class="p-3.5">Campus ID &bull; Section</th>
+                    <th class="p-3.5">Account Type</th>
+                    <th class="p-3.5">Gamification (Level &amp; XP)</th>
+                    <th class="p-3.5">Reading Streak</th>
+                    <th class="p-3.5">Quests Done</th>
+                    <th class="p-3.5 text-right">Inspect Quiz History</th>
+                  </tr>
+                </thead>
+                <tbody id="performanceTableBody" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="7" class="p-8 text-center text-slate-400">Loading learner performance profiles...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 5: BATCH CREDENTIAL VAULT (pending_students) -->
+        <div id="tab-batch-credentials" class="tab-content hidden space-y-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Learner Access Credentials Vault</h3>
+              <p class="text-xs text-slate-500">Batch-generated student accounts (pending_students). Manage passwords and inspect onboarding status.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openBatchStudentsModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all">
+                <span>➕</span> Batch Generate Accounts
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">Learner Full Name</th>
+                    <th class="p-3.5">System Username</th>
+                    <th class="p-3.5">Default Password</th>
+                    <th class="p-3.5">Class Section</th>
+                    <th class="p-3.5">Campus ID</th>
+                    <th class="p-3.5">Onboarding State</th>
+                    <th class="p-3.5 text-right">Actions (CRUD)</th>
+                  </tr>
+                </thead>
+                <tbody id="pendingStudentsTableBody" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="7" class="p-8 text-center text-slate-400">Loading student credentials...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 6: 29-SCHOOL CAMPUS ROSTER -->
+        <div id="tab-school-matrix" class="tab-content hidden space-y-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-sm text-slate-800">Valenzuela City Secondary Schools Matrix</h3>
+            <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all 29 secondary high schools.</p>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3.5">DepEd ID</th>
+                    <th class="p-3.5">Secondary School Name</th>
+                    <th class="p-3.5">Accredited Faculty</th>
+                    <th class="p-3.5">Class Sections</th>
+                    <th class="p-3.5">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="schoolsTableBody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 7: REAL LIBRARY SUBJECTS & MATERIALS (library_subjects + library_materials) -->
+        <div id="tab-library-management" class="tab-content hidden space-y-6">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>📁</span> Subject Folders (library_subjects)
+                </h3>
+                <p class="text-xs text-slate-500">Subjects created by teachers in TeacherLibraryActivity.kt for organizing reading modules.</p>
+              </div>
+              <button onclick="openCreateSubjectModal()" class="px-3 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display-sm">
+                ➕ New Subject Folder
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="subjectFoldersContainer"></div>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>📄</span> PDF Materials &amp; Attached Quizzes (library_materials)
+                </h3>
+                <p class="text-xs text-slate-500">Reads both <code class="text-indigo-600 font-mono">pdfUrl</code> and <code class="text-indigo-600 font-mono">quiz_pool_json</code> from the mobile app.</p>
+              </div>
+              <button onclick="openCreateMaterialModal()" class="px-3 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display-sm">
+                ➕ Add PDF Document &amp; Quiz
+              </button>
+            </div>
+
+            <!-- Active Subject Filter Banner -->
+            <div id="materialsActiveFilterBanner" class="hidden p-2.5 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-between text-xs text-indigo-900">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">🔍</span>
+                <span>Filtered by Subject: <strong id="filterBannerSubjectName" class="text-indigo-800 font-bold">All</strong></span>
+                <span id="filterBannerCount" class="px-2 py-0.5 rounded-full bg-indigo-200 text-indigo-800 text-[10px] font-bold">0 Documents</span>
+              </div>
+              <button onclick="toggleSubjectFilter('ALL')" class="text-xs font-bold text-indigo-700 hover:text-indigo-900 underline flex items-center gap-1">
+                <span>✕</span> Show All Documents
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3">Document Title</th>
+                    <th class="p-3">Parent Subject</th>
+                    <th class="p-3">Campus</th>
+                    <th class="p-3">PDF Document Link</th>
+                    <th class="p-3">Attached Quiz Questions</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="materialsTableBody" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="6" class="p-6 text-center text-slate-400">Loading library materials...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 8: WEEKLY ASSESSMENTS (Phase 2 Preview) -->
+        <div id="tab-weekly-assessments" class="tab-content hidden space-y-6">
+          <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 text-indigo-950 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">📝</span>
+              <h3 class="font-bold text-base">Weekly Student Assessment Engine</h3>
+              <span class="px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider">Ready for Phase 2</span>
+            </div>
+            <p class="text-xs text-indigo-900 leading-relaxed max-w-3xl">
+              This module is wired to the app's native <code class="bg-white/80 px-1 py-0.5 rounded font-mono text-indigo-800">quiz_pool_json</code> assessment architecture.
+              Weekly reading passages and multiple-choice items will be scheduled here and dispatched to students' mobile home screens.
+            </p>
+            <div class="pt-2 flex items-center gap-4 text-xs font-semibold">
+              <span class="flex items-center gap-1 text-emerald-700">✓ Admin Schema Aligned 1:1 with GabAI</span>
+              <span class="flex items-center gap-1 text-indigo-700">⏳ Phase 2 Assessment Dispatcher</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- FIREBASE MODULAR SDK LOGIC -->
+  <!-- ========================================================================= -->
+  <script type="module">
+    // Mobile Sidebar Drawer Toggle
+    window.toggleMobileSidebar = function(force) {
+      const sidebar = document.getElementById('mainSidebar');
+      const backdrop = document.getElementById('mobileSidebarBackdrop');
+      if (!sidebar || !backdrop) return;
+      const isClosed = sidebar.classList.contains('-translate-x-full');
+      const shouldOpen = typeof force === 'boolean' ? force : isClosed;
+      if (shouldOpen) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
+      }
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      signInWithEmailAndPassword, 
+      createUserWithEmailAndPassword,
+      signOut, 
+      onAuthStateChanged,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      doc, 
+      getDoc, 
+      getDocs,
+      setDoc, 
+      addDoc,
+      updateDoc, 
+      deleteDoc,
+      onSnapshot, 
+      query, 
+      where 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Config for gabai-6b004
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_vWBQMWfODv8LvWC9oIE7IfNg1MJFQmo",
+      authDomain: "gabai-6b004.firebaseapp.com",
+      projectId: "gabai-6b004",
+      storageBucket: "gabai-6b004.firebasestorage.app",
+      messagingSenderId: "187455593642",
+      appId: "1:187455593642:android:fb2cbc6179490f1b3b04d3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Valenzuela 29 Secondary Schools
+    const VALENZUELA_SCHOOLS = [
+      { name: "Caruhatan National High School", id: "305445" },
+      { name: "Sitero Francisco Memorial National High School", id: "305446" },
+      { name: "Punturin Senior High School", id: "305565" },
+      { name: "Justice Eliezer R. De Los Santos High School", id: "305566" },
+      { name: "Lingunan National High School", id: "305567" },
+      { name: "Paso De Blas National High School", id: "305568" },
+      { name: "Ugong Senior High School", id: "305576" },
+      { name: "Disiplina Village-Bignay National High School", id: "305705" },
+      { name: "Malanday National High School", id: "305706" },
+      { name: "Veinte Reales National High School", id: "305707" },
+      { name: "Lingunan Senior High School", id: "305708" },
+      { name: "Valenzuela City School of Mathematics and Science", id: "320401" },
+      { name: "Vicente Trinidad National High School (Punturin NHS)", id: "320402" },
+      { name: "Mapulang Lupa National High School", id: "320403" },
+      { name: "Bignay National High School", id: "320404" },
+      { name: "Arkong Bato National High School", id: "320405" },
+      { name: "Canumay East National High School", id: "320406" },
+      { name: "Wawang Pulo National High School", id: "320407" },
+      { name: "Bagbaguin National High School", id: "320408" },
+      { name: "Paso de Blas Senior High School", id: "340729" },
+      { name: "Polo National High School", id: "305436" },
+      { name: "Dalandanan National High School", id: "305437" },
+      { name: "Malinta National High School", id: "305438" },
+      { name: "Canumay West National High School", id: "305439" },
+      { name: "Lawang Bato National High School", id: "305440" },
+      { name: "Valenzuela National High School", id: "305441" },
+      { name: "Parada National High School", id: "305442" },
+      { name: "Gen. Tiburcio de Leon National High School", id: "305443" },
+      { name: "Maysan National High School", id: "305444" }
+    ];
+
+    // Global State
+    let currentAdminUser = null;
+    let selectedJurisdiction = "ALL";
+    let teacherFilterMode = "ALL"; // ALL | PENDING | APPROVED
+    let searchQuery = "";
+    let selectedSubjectFilter = "ALL";
+
+    let cachedUsers = [];
+    let cachedTeachers = [];
+    let cachedClasses = [];
+    let cachedPendingStudents = [];
+    let cachedSubjects = [];
+    let cachedMaterials = [];
+
+    // Active Quiz Inspector State
+    let activeInspectorMaterialId = null;
+    let activeInspectorQuestions = [];
+
+    let unsubs = [];
+    // Cryptographic SHA-256 hash of authorized passkey (Plaintext is never stored in source code)
+    const DIVISION_MASTER_KEY_HASH = "886905510448e38e8068295263755b335714cba339c05c3fa0ca1369bce11ca5";
+
+    // Toast Utility
+    window.showToast = function(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let bg = 'bg-slate-900 text-white';
+      if (type === 'success') bg = 'bg-emerald-600 text-white';
+      if (type === 'error') bg = 'bg-red-600 text-white';
+      if (type === 'warning') bg = 'bg-amber-500 text-white';
+
+      toast.className = `${bg} px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 pointer-events-auto border border-white/20`;
+      toast.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    };
+
+    function getSchoolName(schoolId) {
+      if (!schoolId) return "Unassigned Campus";
+      const s = VALENZUELA_SCHOOLS.find(item => item.id === String(schoolId));
+      return s ? s.name : `School #${schoolId}`;
+    }
+
+    // =========================================================================
+    // UNIVERSAL PDF & QUIZ DETECTORS (Fixes PDF & Quiz detection)
+    // =========================================================================
+    let currentViewerRawUrl = "";
+    let currentViewerDriveId = "";
+    let currentViewerUseGoogleDocs = false;
+
+    window.getMaterialPdfUrl = function(m) {
+      if (!m) return "";
+      if (m.pdfUrl && typeof m.pdfUrl === 'string' && m.pdfUrl.trim()) return m.pdfUrl.trim();
+      if (m.downloadUrl && typeof m.downloadUrl === 'string' && m.downloadUrl.trim()) return m.downloadUrl.trim();
+      if (m.url && typeof m.url === 'string' && m.url.trim()) return m.url.trim();
+      if (m.pdf && typeof m.pdf === 'string' && m.pdf.trim()) return m.pdf.trim();
+      const driveId = m.driveFileId || m.fileId || m.driveId;
+      if (driveId) return `https://drive.google.com/file/d/${driveId}/view`;
+      return "";
+    };
+
+    window.getEmbedPdfUrl = function(url, driveId, forceDocsViewer = false) {
+      if (!url && driveId) return `https://drive.google.com/file/d/${driveId}/preview`;
+      if (!url) return "";
+      
+      // 1. Google Drive link -> always embed with /preview
+      const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+      }
+      if (url.includes("drive.google.com") && url.includes("/view")) {
+        return url.replace(/\/view(\?.*)?$/, "/preview");
+      }
+
+      // 2. If user explicitly requested Google Docs Viewer fallback:
+      if (forceDocsViewer) {
+        return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+      }
+
+      // 3. Direct PDF file (Firebase Storage, direct .pdf URL, blobs):
+      // Modern browsers (Chrome, Edge, Firefox) natively render PDFs inside iframes with high fidelity and zoom controls.
+      if (url.toLowerCase().includes(".pdf") || url.includes("firebasestorage.googleapis.com") || url.includes(".appspot.com") || url.startsWith("blob:") || url.startsWith("data:")) {
+        return url;
+      }
+
+      // 4. Fallback to Google Docs Viewer for other remote document URLs:
+      if (url.startsWith("http://") || url.startsWith("https://")) {
+        return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+      }
+      return url;
+    };
+
+    window.togglePdfPreviewEngine = function() {
+      if (!currentViewerRawUrl) return;
+      currentViewerUseGoogleDocs = !currentViewerUseGoogleDocs;
+      
+      const label = document.getElementById('pdfEngineLabel');
+      if (label) {
+        label.textContent = currentViewerUseGoogleDocs ? "Switch to Direct PDF" : "Switch to Docs Viewer";
+      }
+
+      const notice = document.getElementById('pdfLoadingNotice');
+      if (notice) {
+        notice.textContent = currentViewerUseGoogleDocs ? "Loading via Google Docs Viewer..." : "Loading native document stream...";
+        notice.classList.remove('hidden');
+      }
+
+      const embedUrl = getEmbedPdfUrl(currentViewerRawUrl, currentViewerDriveId, currentViewerUseGoogleDocs);
+      document.getElementById('pdfViewerIframe').src = embedUrl;
+    };
+
+    window.getMaterialQuestions = function(m) {
+      if (!m) return [];
+      const raw = m.quiz_pool_json || m.quiz_json || m.quiz || m.questions || m.quizList || m.quizPool || "[]";
+      try {
+        let parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        if (!Array.isArray(parsed) && typeof parsed === 'object' && parsed !== null) {
+          parsed = parsed.questions || parsed.quizList || parsed.pool || parsed.items || Object.values(parsed);
+        }
+        if (Array.isArray(parsed)) {
+          return parsed.map((item, idx) => {
+            let opts = [];
+            if (Array.isArray(item.options)) opts = item.options;
+            else if (Array.isArray(item.choices)) opts = item.choices;
+            else if (typeof item.options === 'object' && item.options !== null) opts = Object.values(item.options);
+            else if (typeof item.choices === 'object' && item.choices !== null) opts = Object.values(item.choices);
+            else opts = ["Option A", "Option B", "Option C", "Option D"];
+
+            let ans = 0;
+            if (typeof item.ans === 'number') ans = item.ans;
+            else if (typeof item.correctAnswer === 'number') ans = item.correctAnswer;
+            else if (typeof item.correct_answer === 'number') ans = item.correct_answer;
+            else if (typeof item.answer === 'number') ans = item.answer;
+            else if (typeof item.ans === 'string') {
+              const letter = item.ans.trim().toUpperCase();
+              if (letter === 'A' || letter === '0') ans = 0;
+              else if (letter === 'B' || letter === '1') ans = 1;
+              else if (letter === 'C' || letter === '2') ans = 2;
+              else if (letter === 'D' || letter === '3') ans = 3;
+            }
+
+            return {
+              q: item.q || item.question || item.title || `Question ${idx + 1}`,
+              options: opts.map(o => String(o)),
+              ans: ans
+            };
+          });
+        }
+      } catch (e) {
+        console.warn("Error parsing quiz JSON for material", m.id, e);
+      }
+      return [];
+    };
+
+    // =========================================================================
+    // IN-BROWSER PDF VIEWER MODAL
+    // =========================================================================
+    window.openPdfViewerModal = function(materialId) {
+      const m = cachedMaterials.find(item => item.id === materialId);
+      if (!m) return;
+
+      const rawUrl = getMaterialPdfUrl(m);
+      if (!rawUrl) {
+        alert("No valid PDF URL or Google Drive file was recorded for this document.");
+        return;
+      }
+
+      currentViewerRawUrl = rawUrl;
+      currentViewerDriveId = m.driveFileId || m.fileId || "";
+      currentViewerUseGoogleDocs = false; // default to native direct embed for speed and privacy
+
+      const label = document.getElementById('pdfEngineLabel');
+      if (label) label.textContent = "Switch to Docs Viewer";
+
+      const embedUrl = getEmbedPdfUrl(rawUrl, currentViewerDriveId, false);
+      const sub = cachedSubjects.find(s => s.id === m.subjectId);
+
+      document.getElementById('pdfViewerTitle').textContent = m.title || "Document Viewer";
+      document.getElementById('pdfViewerMeta').textContent = `${sub ? sub.name : 'General Subject'} • ${getSchoolName(sub ? sub.schoolId : m.schoolId)}`;
+      document.getElementById('pdfDirectLink').href = rawUrl;
+
+      const notice = document.getElementById('pdfLoadingNotice');
+      if (notice) {
+        notice.textContent = "Loading document preview...";
+        notice.classList.remove('hidden');
+      }
+
+      document.getElementById('pdfViewerIframe').src = embedUrl;
+      document.getElementById('modalPdfViewer').classList.remove('hidden');
+    };
+
+    window.closePdfViewer = function() {
+      document.getElementById('pdfViewerIframe').src = "about:blank";
+      document.getElementById('modalPdfViewer').classList.add('hidden');
+      currentViewerRawUrl = "";
+      currentViewerDriveId = "";
+    };
+
+    // =========================================================================
+    // IN-BROWSER QUIZ QUESTION INSPECTOR & EDITOR MODAL
+    // =========================================================================
+    window.openQuizInspectorModal = function(materialId) {
+      const m = cachedMaterials.find(item => item.id === materialId);
+      if (!m) return;
+
+      activeInspectorMaterialId = materialId;
+      activeInspectorQuestions = getMaterialQuestions(m);
+
+      document.getElementById('quizInspectorTitle').textContent = `Quiz Pool: ${m.title || 'Untitled Document'}`;
+      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json)`;
+      
+      renderQuizQuestionsList();
+      document.getElementById('modalQuizInspector').classList.remove('hidden');
+    };
+
+    window.closeQuizInspector = function() {
+      document.getElementById('modalQuizInspector').classList.add('hidden');
+      activeInspectorMaterialId = null;
+      activeInspectorQuestions = [];
+    };
+
+    function renderQuizQuestionsList() {
+      const container = document.getElementById('quizQuestionsListContainer');
+      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json)`;
+
+      if (activeInspectorQuestions.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center bg-white rounded-xl border border-dashed border-slate-300 text-slate-500">
+            <div class="text-3xl mb-2">📝</div>
+            <p class="font-bold text-sm text-slate-800">No Questions in Pool Yet</p>
+            <p class="text-xs text-slate-400 mt-1">Click <strong>Add New Question</strong> below to initialize multiple-choice questions for this reading material.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = activeInspectorQuestions.map((q, idx) => {
+        const optionsHtml = q.options.map((opt, optIdx) => {
+          const isCorrect = optIdx === q.ans;
+          return `
+            <div class="p-2.5 rounded-lg border text-xs flex items-center justify-between ${isCorrect ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700'}">
+              <span><strong class="mr-1">${String.fromCharCode(65 + optIdx)}.</strong> ${opt}</span>
+              ${isCorrect ? '<span class="px-2 py-0.5 bg-emerald-600 text-white text-[10px] rounded-full">✓ Correct Choice</span>' : ''}
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                  ${idx + 1}
+                </span>
+                <h4 class="font-bold text-sm text-slate-900">${q.q}</h4>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button onclick="editQuestionPrompt(${idx})" class="p-1 text-slate-400 hover:text-indigo-600 text-xs font-bold" title="Edit Question">
+                  ✏️
+                </button>
+                <button onclick="deleteQuestion(${idx})" class="p-1 text-slate-400 hover:text-red-600 text-xs font-bold" title="Delete Question">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
+              ${optionsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.openAddQuestionForm = function() {
+      const promptText = prompt("Enter question text:");
+      if (!promptText || !promptText.trim()) return;
+
+      const optA = prompt("Choice A:", "");
+      const optB = prompt("Choice B:", "");
+      const optC = prompt("Choice C:", "");
+      const optD = prompt("Choice D:", "");
+
+      if (!optA || !optB) {
+        alert("Please provide at least Choices A and B.");
+        return;
+      }
+
+      const correctLetter = (prompt("Which choice is correct? (A, B, C, or D):", "A") || "A").trim().toUpperCase();
+      let ansIndex = 0;
+      if (correctLetter === 'B') ansIndex = 1;
+      if (correctLetter === 'C') ansIndex = 2;
+      if (correctLetter === 'D') ansIndex = 3;
+
+      activeInspectorQuestions.push({
+        q: promptText.trim(),
+        options: [optA.trim(), optB.trim(), optC ? optC.trim() : "None", optD ? optD.trim() : "None"],
+        ans: ansIndex
+      });
+
+      renderQuizQuestionsList();
+      window.showToast("Question added. Click 'Save All Questions' to publish changes.", "info");
+    };
+
+    window.editQuestionPrompt = function(idx) {
+      const q = activeInspectorQuestions[idx];
+      const newPrompt = prompt("Edit Question Text:", q.q);
+      if (newPrompt && newPrompt.trim()) {
+        q.q = newPrompt.trim();
+        renderQuizQuestionsList();
+      }
+    };
+
+    window.deleteQuestion = function(idx) {
+      if (confirm(`Remove Question ${idx + 1}?`)) {
+        activeInspectorQuestions.splice(idx, 1);
+        renderQuizQuestionsList();
+        window.showToast("Question removed from pool.", "info");
+      }
+    };
+
+    window.saveCurrentQuizPool = async function() {
+      if (!activeInspectorMaterialId) return;
+
+      const btn = document.getElementById('btnSaveQuizPool');
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      const jsonString = JSON.stringify(activeInspectorQuestions);
+
+      try {
+        await updateDoc(doc(db, "library_materials", activeInspectorMaterialId), {
+          quiz_pool_json: jsonString,
+          quiz_json: jsonString,
+          quiz_max_items: activeInspectorQuestions.length,
+          updatedAt: Date.now()
+        });
+        window.showToast(`Quiz pool saved! (${activeInspectorQuestions.length} questions attached)`, "success");
+        closeQuizInspector();
+      } catch (err) {
+        console.error("Save quiz error:", err);
+        window.showToast("Failed to save quiz pool: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save All Questions";
+      }
+    };
+
+    window.loadSampleQuizJson = function() {
+      document.getElementById('matQuizJson').value = JSON.stringify([
+        {
+          "q": "What was Dr. Pio Valenzuela's primary contribution to the Katipunan?",
+          "options": ["Physician, co-founder and editor of Kalayaan", "Chief military strategist in Cavite", "Diplomat in Spain", "Treasurer in Hong Kong"],
+          "ans": 0
+        },
+        {
+          "q": "What publication was overseen by Dr. Pio Valenzuela?",
+          "options": ["La Solidaridad", "Kalayaan", "El Filibusterismo", "Diario de Manila"],
+          "ans": 1
+        }
+      ], null, 2);
+    };
+
+    // =========================================================================
+    // AUTHENTICATION OBSERVER
+    // =========================================================================
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.role === 'admin' || data.isAdmin === true || data.schoolId === 'DIVISION_OFFICE') {
+              currentAdminUser = { uid: user.uid, ...data, email: user.email };
+              showAdminDashboard();
+              startRealtimeListeners();
+              window.showToast(`Authenticated: Welcome, ${data.firstName || 'Administrator'}`, 'success');
+              return;
+            }
+          }
+
+          await signOut(auth);
+          showLoginError("Access Restricted: This account does not possess Division Administrator authority.");
+          showAuthScreen();
+
+        } catch (err) {
+          console.error("Auth error:", err);
+          showLoginError("Authentication check error: " + err.message);
+          showAuthScreen();
+        }
+      } else {
+        currentAdminUser = null;
+        stopRealtimeListeners();
+        showAuthScreen();
+      }
+    });
+
+    function showAuthScreen() {
+      document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('mainDashboard').classList.add('hidden');
+    }
+
+    function showAdminDashboard() {
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('mainDashboard').classList.remove('hidden');
+      
+      const nameElem = document.getElementById('adminUserDisplayName');
+      const emailElem = document.getElementById('adminUserEmail');
+      
+      nameElem.textContent = `${currentAdminUser.firstName || 'Division'} ${currentAdminUser.lastName || 'Admin'}`;
+      emailElem.textContent = currentAdminUser.email;
+
+      populateSchoolsDropdowns();
+      renderSchoolsMatrix();
+    }
+
+    function showLoginError(msg) {
+      const box = document.getElementById('loginAlertBox');
+      box.className = "p-3 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
+      box.textContent = msg;
+      box.classList.remove('hidden');
+    }
+
+    window.handleLoginSubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      
+      const btn = document.getElementById('btnLoginSubmit');
+      const btnText = document.getElementById('btnLoginText');
+      const spinner = document.getElementById('btnLoginSpinner');
+
+      btn.disabled = true;
+      btnText.textContent = "Verifying Credentials...";
+      spinner.classList.remove('hidden');
+      document.getElementById('loginAlertBox').classList.add('hidden');
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        let msg = "Invalid administrative credentials.";
+        if (err.code === 'auth/user-not-found') msg = "No administrator registered with this email. Click 'Provision Admin Key' below.";
+        if (err.code === 'auth/wrong-password') msg = "Incorrect password.";
+        if (err.code === 'auth/invalid-credential') msg = "Invalid login credentials. Please re-check or use Provision Admin Key.";
+        showLoginError(msg);
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = "Sign In to Management Portal";
+        spinner.classList.add('hidden');
+      }
+    };
+
+    window.handleLogout = async function() {
+      if (confirm("Are you sure you want to end your administrative session?")) {
+        await signOut(auth);
+        window.showToast("Signed out successfully.", "info");
+      }
+    };
+
+    window.toggleProvisionModal = function(show) {
+      const m = document.getElementById('provisionModal');
+      if (show) m.classList.remove('hidden');
+      else m.classList.add('hidden');
+    };
+
+    window.handleProvisionSubmit = async function(e) {
+      e.preventDefault();
+      const fName = document.getElementById('provFirstName').value.trim();
+      const lName = document.getElementById('provLastName').value.trim();
+      const email = document.getElementById('provEmail').value.trim();
+      const pass = document.getElementById('provPassword').value.trim();
+      const key = document.getElementById('provMasterKey').value.trim();
+
+      const alertBox = document.getElementById('provisionAlertBox');
+      alertBox.classList.add('hidden');
+
+      // Cryptographically verify passkey via SHA-256 hash using native Web Crypto
+      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key));
+      const keyHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      if (keyHash !== DIVISION_MASTER_KEY_HASH) {
+        document.getElementById('provMasterKey').value = '';
+        alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
+        alertBox.textContent = "Unauthorized: Invalid Division Master Passkey.";
+        alertBox.classList.remove('hidden');
+        return;
+      }
+      document.getElementById('provMasterKey').value = '';
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        const user = cred.user;
+
+        await setDoc(doc(db, "users", user.uid), {
+          firstName: fName,
+          lastName: lName,
+          email: email,
+          role: "admin",
+          schoolId: "DIVISION_OFFICE",
+          isApproved: true,
+          emailVerified: true,
+          createdAt: Date.now()
+        });
+
+        window.showToast("Division Administrator provisioned successfully!", "success");
+        window.toggleProvisionModal(false);
+
+      } catch (err) {
+        console.error("Provisioning error:", err);
+        alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
+        alertBox.textContent = err.message;
+        alertBox.classList.remove('hidden');
+      }
+    };
+
+    window.showResetPasswordModal = async function(e) {
+      e.preventDefault();
+      const email = prompt("Enter your official administrative email address for password reset:");
+      if (email) {
+        try {
+          await sendPasswordResetEmail(auth, email.trim());
+          alert("Password reset instructions dispatched to " + email);
+        } catch (err) {
+          alert("Reset request failed: " + err.message);
+        }
+      }
+    };
+
+    // =========================================================================
+    // REAL-TIME LISTENERS
+    // =========================================================================
+    function startRealtimeListeners() {
+      stopRealtimeListeners();
+
+      // 1. users
+      const unsubUsers = onSnapshot(collection(db, "users"), (snapshot) => {
+        cachedUsers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        cachedTeachers = cachedUsers.filter(u => u.role === 'teacher');
+        updateDashboardMetrics();
+        renderTeachersTable();
+        renderPerformanceTable();
+        renderSchoolsMatrix();
+      }, (err) => console.error("Users listener:", err));
+      unsubs.push(unsubUsers);
+
+      // 2. classes
+      const unsubClasses = onSnapshot(collection(db, "classes"), (snapshot) => {
+        cachedClasses = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateDashboardMetrics();
+        renderSectionsTable();
+        renderSchoolsMatrix();
+      }, (err) => console.error("Classes listener:", err));
+      unsubs.push(unsubClasses);
+
+      // 3. pending_students
+      const unsubPending = onSnapshot(collection(db, "pending_students"), (snapshot) => {
+        cachedPendingStudents = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateDashboardMetrics();
+        renderPendingStudentsTable();
+      }, (err) => console.error("Pending students listener:", err));
+      unsubs.push(unsubPending);
+
+      // 4. library_subjects (TeacherLibraryActivity.kt)
+      const unsubSubjects = onSnapshot(collection(db, "library_subjects"), (snapshot) => {
+        cachedSubjects = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        renderSubjectFolders();
+        populateSubjectDropdown();
+        renderMaterialsTable();
+      }, (err) => console.warn("Subjects listener:", err));
+      unsubs.push(unsubSubjects);
+
+      // 5. library_materials (SubjectDetailActivity.kt)
+      const unsubMaterials = onSnapshot(collection(db, "library_materials"), (snapshot) => {
+        cachedMaterials = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        renderSubjectFolders();
+        renderMaterialsTable();
+      }, (err) => console.warn("Materials listener:", err));
+      unsubs.push(unsubMaterials);
+
+      // 6. library (TeacherHomeFragment.kt legacy/alternative collection)
+      const unsubLegacyLibrary = onSnapshot(collection(db, "library"), (snapshot) => {
+        const legacyItems = snapshot.docs.map(d => ({ ...d.data(), id: d.id, isLegacy: true }));
+        legacyItems.forEach(item => {
+          if (!cachedMaterials.some(m => m.id === item.id || (m.pdfUrl && m.pdfUrl === item.pdfUrl))) {
+            cachedMaterials.push(item);
+          }
+        });
+        renderSubjectFolders();
+        renderMaterialsTable();
+      }, (err) => console.warn("Legacy library listener:", err));
+      unsubs.push(unsubLegacyLibrary);
+    }
+
+    function stopRealtimeListeners() {
+      unsubs.forEach(fn => fn());
+      unsubs = [];
+    }
+
+    window.refreshAllData = function() {
+      startRealtimeListeners();
+      window.showToast("Synchronizing with division data network...", "info");
+    };
+
+    function populateSchoolsDropdowns() {
+      const dropdowns = [
+        document.getElementById('jurisdictionSelect'),
+        document.getElementById('teacherSchoolSelect'),
+        document.getElementById('sectionSchoolSelect'),
+        document.getElementById('batchSchoolSelect'),
+        document.getElementById('subjectSchoolSelect')
+      ];
+
+      const mainSelect = dropdowns[0];
+      mainSelect.innerHTML = `<option value="ALL">All Secondary Schools (29 Campuses)</option>`;
+      VALENZUELA_SCHOOLS.forEach(school => {
+        const opt = document.createElement('option');
+        opt.value = school.id;
+        // clean option styling
+        opt.textContent = `${school.name} (${school.id})`;
+        mainSelect.appendChild(opt);
+      });
+
+      dropdowns.slice(1).forEach(sel => {
+        if (!sel) return;
+        sel.innerHTML = `<option value="">Select Campus...</option>`;
+        VALENZUELA_SCHOOLS.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.name} (${s.id})`;
+          sel.appendChild(opt);
+        });
+      });
+    }
+
+    function populateSubjectDropdown() {
+      const sel = document.getElementById('matSubjectSelect');
+      if (!sel) return;
+      sel.innerHTML = `<option value="">Select Parent Subject Folder...</option>`;
+      cachedSubjects.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub.id;
+        opt.textContent = `${sub.name || 'Unnamed Subject'} (ID: ${sub.id.substring(0, 6)}...)`;
+        sel.appendChild(opt);
+      });
+    }
+
+    window.handleJurisdictionChange = function(val) {
+      selectedJurisdiction = val;
+      updateDashboardMetrics();
+      renderTeachersTable();
+      renderSectionsTable();
+      renderPendingStudentsTable();
+      renderPerformanceTable();
+      renderSubjectFolders();
+      renderMaterialsTable();
+      
+      const label = val === 'ALL' ? 'All Secondary Schools' : getSchoolName(val);
+      window.showToast(`Jurisdiction filtered: ${label}`, 'info');
+    };
+
+    window.handleGlobalSearch = function(q) {
+      searchQuery = q.toLowerCase().trim();
+      renderTeachersTable();
+      renderSectionsTable();
+      renderPendingStudentsTable();
+      renderPerformanceTable();
+      renderSubjectFolders();
+      renderMaterialsTable();
+    };
+
+    // =========================================================================
+    // METRICS CALCULATOR
+    // =========================================================================
+    function updateDashboardMetrics() {
+      let teachers = cachedTeachers;
+      let classes = cachedClasses;
+      let pendingStudents = cachedPendingStudents;
+      let claimedStudents = cachedUsers.filter(u => u.role === 'student');
+
+      if (selectedJurisdiction !== 'ALL') {
+        teachers = teachers.filter(t => String(t.schoolId) === selectedJurisdiction);
+        classes = classes.filter(c => String(c.schoolId) === selectedJurisdiction);
+        pendingStudents = pendingStudents.filter(s => String(s.schoolId) === selectedJurisdiction);
+        claimedStudents = claimedStudents.filter(s => String(s.schoolId) === selectedJurisdiction);
+      }
+
+      const verifiedTeachers = teachers.filter(t => t.isApproved === true);
+      const pendingTeachers = teachers.filter(t => t.isApproved !== true);
+      const totalStudents = pendingStudents.length + claimedStudents.length;
+
+      document.getElementById('kpiVerifiedTeachers').textContent = verifiedTeachers.length;
+      document.getElementById('kpiPendingTeachers').textContent = pendingTeachers.length;
+      document.getElementById('kpiTotalClasses').textContent = classes.length;
+      document.getElementById('kpiTotalStudents').textContent = totalStudents;
+
+      const badge = document.getElementById('pendingTeachersBadge');
+      const badgeText = document.getElementById('pendingTeachersBadgeText');
+      const sidebarAlert = document.getElementById('sidebarApprovalAlert');
+      const navPending = document.getElementById('navPendingCount');
+
+      badge.textContent = pendingTeachers.length;
+      navPending.textContent = pendingTeachers.length;
+      badgeText.textContent = `${pendingTeachers.length} Educator account${pendingTeachers.length === 1 ? '' : 's'} awaiting division accreditation`;
+
+      if (pendingTeachers.length > 0) sidebarAlert.classList.remove('hidden');
+      else sidebarAlert.classList.add('hidden');
+
+      renderQuickPendingTable(pendingTeachers);
+    }
+
+    function renderQuickPendingTable(pendingTeachers) {
+      const tbody = document.getElementById('quickPendingTableBody');
+      if (pendingTeachers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="p-6 text-center text-slate-400">
+              <span class="text-emerald-600 font-bold">✓ All faculty accounts accredited.</span>
+              <div class="text-[11px] text-slate-400 mt-0.5">No pending authorizations in the division queue.</div>
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = pendingTeachers.slice(0, 5).map(t => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="p-3 font-semibold text-slate-800">
+            ${t.firstName || ''} ${t.lastName || ''}
+            <div class="text-[10px] text-slate-400 font-normal">${t.email}</div>
+          </td>
+          <td class="p-3 text-slate-600">${getSchoolName(t.schoolId)}</td>
+          <td class="p-3">
+            <span class="badge-pending px-2 py-0.5 rounded-full text-[10px] font-bold">Pending Review</span>
+          </td>
+          <td class="p-3 text-right">
+            <button onclick="approveTeacher('${t.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
+              Approve
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // =========================================================================
+    // 1. FACULTY ACCREDITATION & CRUD
+    // =========================================================================
+    window.setTeacherFilter = function(mode) {
+      teacherFilterMode = mode;
+      ['ALL', 'PENDING', 'APPROVED'].forEach(m => {
+        const btn = document.getElementById(`filterBtn-${m}`);
+        if (m === mode) {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-[#6C5CE7] text-white shadow-sm";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200";
+        }
+      });
+      renderTeachersTable();
+    };
+
+    function renderTeachersTable() {
+      const tbody = document.getElementById('teachersTableBody');
+      let list = cachedTeachers;
+
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(t => String(t.schoolId) === selectedJurisdiction);
+      }
+
+      const totalAll = list.length;
+      const totalPending = list.filter(t => t.isApproved !== true).length;
+      const totalApproved = list.filter(t => t.isApproved === true).length;
+
+      document.getElementById('countAllTeachers').textContent = totalAll;
+      document.getElementById('countPendingTeachers').textContent = totalPending;
+      document.getElementById('countApprovedTeachers').textContent = totalApproved;
+
+      if (teacherFilterMode === 'PENDING') list = list.filter(t => t.isApproved !== true);
+      else if (teacherFilterMode === 'APPROVED') list = list.filter(t => t.isApproved === true);
+
+      if (searchQuery) {
+        list = list.filter(t => {
+          const name = `${t.firstName || ''} ${t.lastName || ''}`.toLowerCase();
+          const email = (t.email || '').toLowerCase();
+          const school = getSchoolName(t.schoolId).toLowerCase();
+          return name.includes(searchQuery) || email.includes(searchQuery) || school.includes(searchQuery);
+        });
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
+              No faculty records match the selected filter.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(t => {
+        const isApproved = t.isApproved === true;
+        const regDate = t.createdAt ? new Date(t.createdAt).toLocaleDateString() : 'Recorded';
+        
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3.5">
+              <div class="font-bold text-slate-900">${t.firstName || ''} ${t.lastName || ''}</div>
+              <div class="text-[10px] text-slate-400">UID: ${t.id.substring(0, 8)}...</div>
+            </td>
+            <td class="p-3.5 font-medium text-slate-700">${t.email || 'N/A'}</td>
+            <td class="p-3.5">
+              <div class="font-semibold text-slate-800">${getSchoolName(t.schoolId)}</div>
+              <div class="text-[10px] text-slate-400">DepEd ID: ${t.schoolId || 'Unassigned'}</div>
+            </td>
+            <td class="p-3.5 text-slate-500">${regDate}</td>
+            <td class="p-3.5">
+              ${isApproved 
+                ? '<span class="badge-verified px-2.5 py-1 rounded-full text-[11px] font-bold">Accredited / Active</span>' 
+                : '<span class="badge-pending px-2.5 py-1 rounded-full text-[11px] font-bold">Pending Review</span>'}
+            </td>
+            <td class="p-3.5 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                ${!isApproved ? `
+                  <button onclick="approveTeacher('${t.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
+                    Approve
+                  </button>
+                ` : `
+                  <button onclick="revokeTeacher('${t.id}')" class="px-2 py-1 bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 border border-slate-300 rounded text-xs">
+                    Hold
+                  </button>
+                `}
+                <button onclick="openEditTeacherModal('${t.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold" title="Edit Educator Profile">
+                  ✏️
+                </button>
+                <button onclick="deleteTeacher('${t.id}', '${t.firstName || 'Educator'} ${t.lastName || ''}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold" title="Delete Account">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.openCreateTeacherModal = function() {
+      document.getElementById('modalTeacherTitle').textContent = "Provision Faculty Account";
+      document.getElementById('teacherEditUid').value = "";
+      document.getElementById('teacherFirstName').value = "";
+      document.getElementById('teacherLastName').value = "";
+      document.getElementById('teacherEmail').value = "";
+      document.getElementById('teacherSchoolSelect').value = selectedJurisdiction !== 'ALL' ? selectedJurisdiction : "";
+      document.getElementById('teacherIsApproved').checked = true;
+      document.getElementById('modalTeacher').classList.remove('hidden');
+    };
+
+    window.openEditTeacherModal = function(uid) {
+      const t = cachedTeachers.find(item => item.id === uid);
+      if (!t) return;
+
+      document.getElementById('modalTeacherTitle').textContent = "Edit Educator Profile";
+      document.getElementById('teacherEditUid').value = uid;
+      document.getElementById('teacherFirstName').value = t.firstName || "";
+      document.getElementById('teacherLastName').value = t.lastName || "";
+      document.getElementById('teacherEmail').value = t.email || "";
+      document.getElementById('teacherSchoolSelect').value = t.schoolId || "";
+      document.getElementById('teacherIsApproved').checked = t.isApproved === true;
+      document.getElementById('modalTeacher').classList.remove('hidden');
+    };
+
+    window.closeTeacherModal = function() {
+      document.getElementById('modalTeacher').classList.add('hidden');
+    };
+
+    window.handleTeacherFormSubmit = async function(e) {
+      e.preventDefault();
+      const editUid = document.getElementById('teacherEditUid').value;
+      const firstName = document.getElementById('teacherFirstName').value.trim();
+      const lastName = document.getElementById('teacherLastName').value.trim();
+      const email = document.getElementById('teacherEmail').value.trim();
+      const schoolId = document.getElementById('teacherSchoolSelect').value;
+      const isApproved = document.getElementById('teacherIsApproved').checked;
+
+      const btn = document.getElementById('btnSaveTeacher');
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      try {
+        if (editUid) {
+          await updateDoc(doc(db, "users", editUid), {
+            firstName,
+            lastName,
+            email,
+            schoolId,
+            isApproved,
+            updatedAt: Date.now()
+          });
+          window.showToast("Educator profile updated.", "success");
+        } else {
+          const newDocRef = doc(collection(db, "users"));
+          const joinCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+          await setDoc(newDocRef, {
+            firstName,
+            lastName,
+            email,
+            schoolId,
+            role: "teacher",
+            isApproved,
+            joinCode,
+            emailVerified: true,
+            createdAt: Date.now()
+          });
+          window.showToast("Educator record created successfully.", "success");
+        }
+        closeTeacherModal();
+      } catch (err) {
+        console.error("Save teacher error:", err);
+        window.showToast("Error saving record: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Educator Record";
+      }
+    };
+
+    window.deleteTeacher = async function(uid, name) {
+      if (confirm(`Are you sure you want to permanently remove educator "${name}"?`)) {
+        try {
+          await deleteDoc(doc(db, "users", uid));
+          window.showToast(`Educator "${name}" deleted.`, "info");
+        } catch (err) {
+          console.error("Delete educator error:", err);
+          window.showToast("Failed to delete educator: " + err.message, "error");
+        }
+      }
+    };
+
+    window.approveTeacher = async function(uid) {
+      try {
+        await updateDoc(doc(db, "users", uid), {
+          isApproved: true,
+          approvedAt: Date.now(),
+          approvedBy: currentAdminUser ? currentAdminUser.email : 'Division Admin'
+        });
+        window.showToast("Faculty accreditation granted. Educator can now log in.", "success");
+      } catch (err) {
+        console.error("Approval error:", err);
+        window.showToast("Action failed: " + err.message, "error");
+      }
+    };
+
+    window.revokeTeacher = async function(uid) {
+      if (confirm("Hold educator accreditation? This pauses their login access.")) {
+        try {
+          await updateDoc(doc(db, "users", uid), {
+            isApproved: false,
+            revokedAt: Date.now()
+          });
+          window.showToast("Educator accreditation held.", "warning");
+        } catch (err) {
+          console.error("Revocation error:", err);
+          window.showToast("Action failed: " + err.message, "error");
+        }
+      }
+    };
+
+    // =========================================================================
+    // 2. CLASSROOM SECTIONS & INITIATION CONTROLS
+    // =========================================================================
+    window.generateRandomJoinCode = function() {
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      document.getElementById('sectionJoinCodeInput').value = code;
+    };
+
+    window.openCreateSectionModal = function() {
+      document.getElementById('modalSectionTitle').textContent = "Create Classroom Section";
+      document.getElementById('sectionEditId').value = "";
+      document.getElementById('sectionNameInput').value = "";
+      document.getElementById('sectionGradeSelect').value = "7";
+      document.getElementById('sectionSchoolSelect').value = selectedJurisdiction !== 'ALL' ? selectedJurisdiction : "";
+      document.getElementById('sectionInitiationItems').value = "5";
+      generateRandomJoinCode();
+      document.getElementById('modalSection').classList.remove('hidden');
+    };
+
+    window.openEditSectionModal = function(id) {
+      const c = cachedClasses.find(item => item.id === id);
+      if (!c) return;
+
+      document.getElementById('modalSectionTitle').textContent = "Edit Classroom Section";
+      document.getElementById('sectionEditId').value = id;
+      document.getElementById('sectionNameInput').value = c.section || c.className || "";
+      document.getElementById('sectionGradeSelect').value = String(c.grade || "7");
+      document.getElementById('sectionJoinCodeInput').value = c.joinCode || "";
+      document.getElementById('sectionSchoolSelect').value = c.schoolId || "";
+      document.getElementById('sectionInitiationItems').value = String(c.initiation_items || 5);
+      document.getElementById('modalSection').classList.remove('hidden');
+    };
+
+    window.closeSectionModal = function() {
+      document.getElementById('modalSection').classList.add('hidden');
+    };
+
+    window.handleSectionFormSubmit = async function(e) {
+      e.preventDefault();
+      const editId = document.getElementById('sectionEditId').value;
+      const sectionName = document.getElementById('sectionNameInput').value.trim();
+      const grade = parseInt(document.getElementById('sectionGradeSelect').value, 10);
+      const joinCode = document.getElementById('sectionJoinCodeInput').value.trim().toUpperCase();
+      const schoolId = document.getElementById('sectionSchoolSelect').value;
+      const initiationItems = parseInt(document.getElementById('sectionInitiationItems').value, 10) || 5;
+
+      const btn = document.getElementById('btnSaveSection');
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      try {
+        if (editId) {
+          await updateDoc(doc(db, "classes", editId), {
+            section: sectionName,
+            className: sectionName,
+            grade,
+            joinCode,
+            schoolId,
+            initiation_items: initiationItems,
+            updatedAt: Date.now()
+          });
+          window.showToast("Classroom section updated.", "success");
+        } else {
+          await addDoc(collection(db, "classes"), {
+            section: sectionName,
+            className: sectionName,
+            grade,
+            joinCode,
+            schoolId,
+            initiation_items: initiationItems,
+            studentIds: [],
+            teacherIds: [],
+            createdAt: Date.now()
+          });
+          window.showToast("Classroom section created with code #" + joinCode, "success");
+        }
+        closeSectionModal();
+      } catch (err) {
+        console.error("Save class error:", err);
+        window.showToast("Error saving section: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Class Section";
+      }
+    };
+
+    window.deleteSection = async function(id, name) {
+      if (confirm(`Delete classroom section "${name}"?`)) {
+        try {
+          await deleteDoc(doc(db, "classes", id));
+          window.showToast(`Section "${name}" deleted.`, "info");
+        } catch (err) {
+          console.error("Delete section error:", err);
+          window.showToast("Failed to delete section: " + err.message, "error");
+        }
+      }
+    };
+
+    window.inspectClassRoster = function(classId) {
+      const c = cachedClasses.find(item => item.id === classId);
+      if (!c) return;
+
+      const secName = c.section || c.className || 'Class';
+      document.getElementById('inspectSectionName').textContent = `Section: ${secName}`;
+      document.getElementById('inspectJoinCodeBadge').textContent = `#${c.joinCode || 'NO_CODE'}`;
+      document.getElementById('inspectSchoolAndGrade').textContent = `${getSchoolName(c.schoolId)} • Grade ${c.grade || 7}`;
+      document.getElementById('inspectInitiationCount').textContent = `${c.initiation_items || 5} Items`;
+
+      const joinedIds = c.studentIds || c.joinedStudents || [];
+      const enrolledStudents = cachedUsers.filter(u => u.role === 'student' && (joinedIds.includes(u.id) || (u.section === secName && String(u.schoolId) === String(c.schoolId))));
+      document.getElementById('inspectEnrolledCount').textContent = enrolledStudents.length;
+
+      const enrolledContainer = document.getElementById('inspectEnrolledList');
+      if (enrolledStudents.length === 0) {
+        enrolledContainer.innerHTML = `<div class="p-3 text-slate-400 text-center">No active learners enrolled yet.</div>`;
+      } else {
+        enrolledContainer.innerHTML = enrolledStudents.map(s => `
+          <div class="py-2 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-slate-800">${s.firstName || ''} ${s.lastName || ''}</span>
+              <span class="text-[10px] text-slate-400 font-mono ml-1">(${s.email || s.username || s.id.substring(0,6)})</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-indigo-700">Lvl ${s.level || 1}</span>
+              <button onclick="viewStudentQuizHistory('${s.id}')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-semibold text-slate-700">
+                Performance &rarr;
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const pendingInSec = cachedPendingStudents.filter(s => s.section === secName && String(s.schoolId) === String(c.schoolId));
+      document.getElementById('inspectPendingCount').textContent = pendingInSec.length;
+
+      const pendingContainer = document.getElementById('inspectPendingList');
+      if (pendingInSec.length === 0) {
+        pendingContainer.innerHTML = `<div class="p-3 text-slate-400 text-center">No pending batch accounts for this section.</div>`;
+      } else {
+        pendingContainer.innerHTML = pendingInSec.map(s => `
+          <div class="py-2 flex items-center justify-between">
+            <div>
+              <span class="font-bold text-slate-800">${s.firstName || ''} ${s.lastName || ''}</span>
+              <div class="font-mono text-[10px] text-slate-500">User: ${s.username} | Pass: ${s.password}</div>
+            </div>
+            <span class="badge-pending px-2 py-0.5 rounded text-[10px] font-bold">Unclaimed</span>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('modalClassInspector').classList.remove('hidden');
+    };
+
+    window.closeClassInspector = function() {
+      document.getElementById('modalClassInspector').classList.add('hidden');
+    };
+
+    function renderSectionsTable() {
+      const tbody = document.getElementById('sectionsTableBody');
+      let list = cachedClasses;
+
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(c => String(c.schoolId) === selectedJurisdiction);
+      }
+
+      if (searchQuery) {
+        list = list.filter(c => {
+          const sec = (c.section || c.className || '').toLowerCase();
+          const code = (c.joinCode || '').toLowerCase();
+          const grade = String(c.grade || '').toLowerCase();
+          return sec.includes(searchQuery) || code.includes(searchQuery) || grade.includes(searchQuery);
+        });
+      }
+
+      document.getElementById('sectionsCountDisplay').textContent = list.length;
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+              No classroom sections found. Click <strong>Create New Section</strong> above to add one.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(c => {
+        const joinCode = c.joinCode || 'NONE';
+        const studentCount = (c.studentIds && c.studentIds.length) || (c.joinedStudents && c.joinedStudents.length) || 0;
+        const secName = c.section || c.className || 'Unnamed Section';
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3.5">
+              <span onclick="inspectClassRoster('${c.id}')" class="font-bold text-indigo-700 hover:text-indigo-900 cursor-pointer underline">
+                ${secName}
+              </span>
+            </td>
+            <td class="p-3.5 font-semibold text-slate-700">Grade ${c.grade || '7'}</td>
+            <td class="p-3.5 text-slate-600">${getSchoolName(c.schoolId)}</td>
+            <td class="p-3.5">
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 font-mono font-bold text-xs">
+                <span>#${joinCode}</span>
+                <button onclick="copyToClipboard('${joinCode}', 'Join code copied!')" title="Copy Code" class="hover:text-indigo-900">
+                  📋
+                </button>
+              </div>
+            </td>
+            <td class="p-3.5 font-medium text-slate-600">${c.initiation_items || 5} Questions</td>
+            <td class="p-3.5 font-semibold text-slate-800">${studentCount} Learners</td>
+            <td class="p-3.5 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="inspectClassRoster('${c.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-xs font-semibold">
+                  Roster &rarr;
+                </button>
+                <button onclick="openEditSectionModal('${c.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold" title="Edit Section">
+                  ✏️
+                </button>
+                <button onclick="deleteSection('${c.id}', '${secName}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold" title="Delete Section">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 3. LEARNER PERFORMANCE & QUIZ HISTORY (users/{uid}/quiz_history)
+    // =========================================================================
+    function renderPerformanceTable() {
+      const tbody = document.getElementById('performanceTableBody');
+      let list = cachedUsers.filter(u => u.role === 'student');
+
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(u => String(u.schoolId) === selectedJurisdiction);
+      }
+
+      if (searchQuery) {
+        list = list.filter(u => {
+          const name = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+          const email = (u.email || u.username || '').toLowerCase();
+          const sec = (u.section || '').toLowerCase();
+          return name.includes(searchQuery) || email.includes(searchQuery) || sec.includes(searchQuery);
+        });
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+              No active student performance records found for this view.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(u => {
+        const streak = u.current_streak || 0;
+        const quests = (u.quests_completed && u.quests_completed.length) || 0;
+        const isOnboarded = u.is_onboarded === true;
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3.5">
+              <div class="font-bold text-slate-900">${u.firstName || ''} ${u.lastName || ''}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${u.email || u.username || 'App Account'}</div>
+            </td>
+            <td class="p-3.5">
+              <div class="font-semibold text-slate-800">${getSchoolName(u.schoolId)}</div>
+              <div class="text-[10px] text-slate-400 font-medium">Section: ${u.section || 'General'}</div>
+            </td>
+            <td class="p-3.5">
+              ${isOnboarded 
+                ? '<span class="badge-verified px-2 py-0.5 rounded text-[10px] font-bold">Claimed &bull; Active</span>' 
+                : '<span class="badge-pending px-2 py-0.5 rounded text-[10px] font-bold">Unclaimed Temp</span>'}
+            </td>
+            <td class="p-3.5">
+              <span class="font-bold text-indigo-700">Lvl ${u.level || 1}</span>
+              <span class="text-slate-400 text-[10px]">(${u.current_xp || 0} XP)</span>
+            </td>
+            <td class="p-3.5 font-bold ${streak > 0 ? 'text-amber-600' : 'text-slate-400'}">
+              🔥 ${streak} Days
+            </td>
+            <td class="p-3.5 font-semibold text-slate-600">${quests} Quests</td>
+            <td class="p-3.5 text-right">
+              <button onclick="viewStudentQuizHistory('${u.id}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-sm">
+                View History &rarr;
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.viewStudentQuizHistory = async function(uid) {
+      const student = cachedUsers.find(item => item.id === uid);
+      const studentName = student ? `${student.firstName || ''} ${student.lastName || ''}`.trim() : 'Learner';
+
+      document.getElementById('historyStudentName').textContent = `${studentName} — Quiz Performance`;
+      document.getElementById('historyStudentMeta').textContent = `${getSchoolName(student ? student.schoolId : '')} • Section ${student ? student.section : 'General'}`;
+      document.getElementById('historyCurrentStreak').textContent = `${(student && student.current_streak) || 0} Days`;
+      document.getElementById('historyLevelXp').textContent = `Lvl ${(student && student.level) || 1} (${(student && student.current_xp) || 0} XP)`;
+
+      const listContainer = document.getElementById('historyAttemptsList');
+      listContainer.innerHTML = `<div class="p-4 text-center text-slate-400">Loading recorded attempts...</div>`;
+      document.getElementById('modalQuizHistory').classList.remove('hidden');
+
+      try {
+        const snap = await getDocs(collection(db, "users", uid, "quiz_history"));
+        if (snap.empty) {
+          document.getElementById('historyAverageScore').textContent = "0%";
+          document.getElementById('historyTotalQuizzes').textContent = "0";
+          listContainer.innerHTML = `<div class="p-4 text-center text-slate-400">No quiz attempts recorded for this learner yet.</div>`;
+          return;
+        }
+
+        let totalScore = 0;
+        let totalAttempts = 0;
+        const attempts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        attempts.forEach(q => {
+          totalScore += q.finalScore || 0;
+          totalAttempts += q.totalAttempts || 1;
+        });
+
+        const avg = totalAttempts > 0 ? Math.round((totalScore / totalAttempts) * 100) : 0;
+        document.getElementById('historyAverageScore').textContent = `${avg}%`;
+        document.getElementById('historyTotalQuizzes').textContent = attempts.length;
+
+        listContainer.innerHTML = attempts.map(a => {
+          const date = a.timestamp ? new Date(a.timestamp).toLocaleString() : 'Recorded';
+          return `
+            <div class="py-2.5 flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-800">${a.subject || a.materialId || 'Reading Quiz'}</div>
+                <div class="text-[10px] text-slate-400">${date}</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold text-indigo-700">${a.finalScore || 0} / ${a.totalAttempts || 0}</div>
+                <div class="text-[10px] text-slate-500 font-medium">Attempts: ${a.totalAttempts || 1}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error("Quiz history load error:", err);
+        listContainer.innerHTML = `<div class="p-4 text-center text-red-500 text-xs">Error loading quiz history: ${err.message}</div>`;
+      }
+    };
+
+    window.closeQuizHistoryModal = function() {
+      document.getElementById('modalQuizHistory').classList.add('hidden');
+    };
+
+    // =========================================================================
+    // 4. BATCH CREDENTIAL VAULT (pending_students)
+    // =========================================================================
+    window.openBatchStudentsModal = function() {
+      document.getElementById('batchSchoolSelect').value = selectedJurisdiction !== 'ALL' ? selectedJurisdiction : "";
+      document.getElementById('batchSectionName').value = "";
+      document.getElementById('batchStudentNames').value = "";
+      document.getElementById('modalBatchStudents').classList.remove('hidden');
+    };
+
+    window.closeBatchStudentsModal = function() {
+      document.getElementById('modalBatchStudents').classList.add('hidden');
+    };
+
+    window.handleBatchStudentsSubmit = async function(e) {
+      e.preventDefault();
+      const schoolId = document.getElementById('batchSchoolSelect').value;
+      const sectionName = document.getElementById('batchSectionName').value.trim();
+      const rawNames = document.getElementById('batchStudentNames').value;
+
+      const lines = rawNames.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length === 0) {
+        alert("Please provide at least one learner name.");
+        return;
+      }
+
+      const btn = document.getElementById('btnGenerateBatch');
+      btn.disabled = true;
+      btn.textContent = `Generating ${lines.length} Accounts...`;
+
+      try {
+        let created = 0;
+        for (const fullName of lines) {
+          const parts = fullName.split(" ");
+          const firstName = parts[0] || "Student";
+          const lastName = parts.slice(1).join(" ") || "";
+
+          const randomNum = Math.floor(1000 + Math.random() * 9000);
+          const username = `${firstName.replace(/\s+/g, '')}${lastName.replace(/\s+/g, '')}_${randomNum}`.toLowerCase();
+          const password = Math.random().toString(36).substring(2, 8);
+
+          await setDoc(doc(db, "pending_students", username), {
+            firstName,
+            lastName,
+            username,
+            password,
+            role: "student",
+            section: sectionName,
+            schoolId,
+            current_xp: 0,
+            level: 1,
+            isApproved: true,
+            is_onboarded: false,
+            quests_completed: [],
+            createdAt: Date.now()
+          });
+          created++;
+        }
+
+        window.showToast(`Success: Generated ${created} learner accounts for Section ${sectionName}!`, "success");
+        closeBatchStudentsModal();
+      } catch (err) {
+        console.error("Batch generate error:", err);
+        window.showToast("Batch generation error: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Generate & Store Credentials";
+      }
+    };
+
+    window.resetStudentPassword = async function(username) {
+      const newPass = prompt(`Enter new password for student account "${username}":`, Math.random().toString(36).substring(2, 8));
+      if (newPass && newPass.trim().length >= 4) {
+        try {
+          await updateDoc(doc(db, "pending_students", username), {
+            password: newPass.trim()
+          });
+          window.showToast(`Password updated for ${username}!`, "success");
+        } catch (err) {
+          console.error("Password reset error:", err);
+          window.showToast("Failed to reset password: " + err.message, "error");
+        }
+      }
+    };
+
+    window.deleteStudentAccount = async function(username) {
+      if (confirm(`Permanently delete credentials for "${username}"?`)) {
+        try {
+          await deleteDoc(doc(db, "pending_students", username));
+          window.showToast(`Account "${username}" deleted.`, "info");
+        } catch (err) {
+          console.error("Delete student error:", err);
+          window.showToast("Failed to delete account: " + err.message, "error");
+        }
+      }
+    };
+
+    function renderPendingStudentsTable() {
+      const tbody = document.getElementById('pendingStudentsTableBody');
+      let list = cachedPendingStudents;
+
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(s => String(s.schoolId) === selectedJurisdiction);
+      }
+
+      if (searchQuery) {
+        list = list.filter(s => {
+          const name = `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase();
+          const user = (s.username || '').toLowerCase();
+          const sec = (s.section || '').toLowerCase();
+          return name.includes(searchQuery) || user.includes(searchQuery) || sec.includes(searchQuery);
+        });
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+              No batch credentials found. Click <strong>Batch Generate Accounts</strong> above to initialize student logins.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(s => {
+        const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Learner';
+        const isClaimed = s.is_onboarded === true;
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3.5 font-bold text-slate-900">${fullName}</td>
+            <td class="p-3.5 font-mono text-slate-700 font-semibold">${s.username || 'N/A'}</td>
+            <td class="p-3.5 font-mono text-indigo-700 font-bold">${s.password || '••••••'}</td>
+            <td class="p-3.5 text-slate-700">${s.section || 'General'}</td>
+            <td class="p-3.5 text-slate-500">${s.schoolId || 'N/A'}</td>
+            <td class="p-3.5">
+              ${isClaimed 
+                ? '<span class="badge-verified px-2 py-0.5 rounded text-[10px] font-bold">Claimed in App</span>' 
+                : '<span class="badge-pending px-2 py-0.5 rounded text-[10px] font-bold">Unclaimed / Temp Slip</span>'}
+            </td>
+            <td class="p-3.5 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="copyToClipboard('${s.username} / ${s.password}', 'Credentials copied!')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-[11px] font-semibold text-slate-700">
+                  Copy
+                </button>
+                <button onclick="resetStudentPassword('${s.username}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-[11px] font-semibold text-slate-700" title="Reset Password">
+                  🔑
+                </button>
+                <button onclick="deleteStudentAccount('${s.username}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-[11px] font-semibold" title="Delete Credential">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 5. REAL LIBRARY ARCHITECTURE (library_subjects + library_materials)
+    // =========================================================================
+    window.openCreateSubjectModal = function() {
+      document.getElementById('modalSubjectTitle').textContent = "Create Library Subject Folder";
+      document.getElementById('subjectEditId').value = "";
+      document.getElementById('subjectNameInput').value = "";
+      document.getElementById('subjectSchoolSelect').value = selectedJurisdiction !== 'ALL' ? selectedJurisdiction : "";
+      document.getElementById('subjectTeacherName').value = currentAdminUser ? `${currentAdminUser.firstName} ${currentAdminUser.lastName}` : "Division Curriculum";
+      document.getElementById('modalSubject').classList.remove('hidden');
+    };
+
+    window.closeSubjectModal = function() {
+      document.getElementById('modalSubject').classList.add('hidden');
+    };
+
+    window.handleSubjectSubmit = async function(e) {
+      e.preventDefault();
+      const editId = document.getElementById('subjectEditId').value;
+      const name = document.getElementById('subjectNameInput').value.trim();
+      const schoolId = document.getElementById('subjectSchoolSelect').value;
+      const teacherName = document.getElementById('subjectTeacherName').value.trim();
+
+      const btn = document.getElementById('btnSaveSubject');
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      try {
+        if (editId) {
+          await updateDoc(doc(db, "library_subjects", editId), {
+            name,
+            schoolId,
+            teacherName,
+            updatedAt: Date.now()
+          });
+          window.showToast("Subject folder updated.", "success");
+        } else {
+          await addDoc(collection(db, "library_subjects"), {
+            name,
+            schoolId,
+            teacherName,
+            teacherId: currentAdminUser ? currentAdminUser.uid : "ADMIN",
+            timestamp: Date.now()
+          });
+          window.showToast("Subject folder created.", "success");
+        }
+        closeSubjectModal();
+      } catch (err) {
+        console.error("Save subject error:", err);
+        window.showToast("Error saving subject: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Subject Folder";
+      }
+    };
+
+    window.deleteSubject = async function(subjectId, name) {
+      if (confirm(`Delete subject folder "${name}"? This removes the folder from the mobile app.`)) {
+        try {
+          await deleteDoc(doc(db, "library_subjects", subjectId));
+          window.showToast(`Subject "${name}" deleted.`, "info");
+        } catch (err) {
+          console.error("Delete subject error:", err);
+          window.showToast("Failed to delete subject: " + err.message, "error");
+        }
+      }
+    };
+
+    window.materialBelongsToSubject = function(m, s) {
+      if (!m || !s) return false;
+      const sId = String(s.id || '').trim();
+      const sName = String(s.name || s.title || '').trim();
+
+      const mSubId = String(m.subjectId || m.subject_id || m.subject || m.folderId || '').trim();
+      const mSubName = String(m.subjectName || m.subject || '').trim();
+
+      if (sId && mSubId && (sId === mSubId || sId.toLowerCase() === mSubId.toLowerCase())) return true;
+      if (sName && mSubId && (sName === mSubId || sName.toLowerCase() === mSubId.toLowerCase())) return true;
+      if (sName && mSubName && (sName === mSubName || sName.toLowerCase() === mSubName.toLowerCase())) return true;
+      return false;
+    };
+
+    window.findSubjectForMaterial = function(m) {
+      if (!m) return null;
+      return cachedSubjects.find(s => materialBelongsToSubject(m, s)) || null;
+    };
+
+    window.toggleSubjectFilter = function(subId) {
+      if (selectedSubjectFilter === subId) {
+        selectedSubjectFilter = "ALL";
+      } else {
+        selectedSubjectFilter = subId;
+      }
+      renderSubjectFolders();
+      renderMaterialsTable();
+      
+      if (selectedSubjectFilter === "ALL") {
+        window.showToast("Showing all PDF documents across all subjects.", "info");
+      } else {
+        const sub = cachedSubjects.find(s => s.id === subId);
+        window.showToast(`Filtered documents: ${sub ? sub.name : 'Selected Subject'}`, "info");
+      }
+    };
+
+    function renderSubjectFolders() {
+      const container = document.getElementById('subjectFoldersContainer');
+      if (!container) return;
+
+      let list = cachedSubjects;
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(s => String(s.schoolId) === selectedJurisdiction);
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-3 p-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+            No subject folders created yet. Click <strong>New Subject Folder</strong> to add subjects (e.g. English 7, Science 8).
+          </div>`;
+        return;
+      }
+
+      const allTotal = cachedMaterials.length;
+      const isAllActive = selectedSubjectFilter === 'ALL';
+
+      // "All Folders" overview card
+      let cardsHtml = `
+        <div onclick="toggleSubjectFilter('ALL')" class="p-4 rounded-xl border transition-all cursor-pointer space-y-2 select-none ${isAllActive ? 'bg-indigo-50 border-indigo-500 shadow-md ring-2 ring-indigo-500/20' : 'bg-slate-50 border-slate-200 hover:border-indigo-300 hover:bg-white'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+              <span>📚</span> All Subject Folders
+            </span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isAllActive ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">
+              ${list.length} Folders
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-500">Comprehensive division document registry</div>
+          <div class="flex items-center justify-between pt-1 border-t border-slate-200/80 text-xs">
+            <span class="font-bold text-indigo-700">${allTotal} PDF Document${allTotal === 1 ? '' : 's'}</span>
+            <span class="text-[11px] font-semibold ${isAllActive ? 'text-indigo-700 underline' : 'text-slate-500'}">
+              ${isAllActive ? 'Active View ✓' : 'View All &rarr;'}
+            </span>
+          </div>
+        </div>
+      `;
+
+      cardsHtml += list.map(s => {
+        const matsInSub = cachedMaterials.filter(m => materialBelongsToSubject(m, s)).length;
+        const isActive = selectedSubjectFilter === s.id;
+
+        return `
+          <div onclick="toggleSubjectFilter('${s.id}')" class="p-4 rounded-xl border transition-all cursor-pointer space-y-2 select-none ${isActive ? 'bg-indigo-50 border-indigo-500 shadow-md ring-2 ring-indigo-500/20' : 'bg-slate-50 border-slate-200 hover:border-indigo-300 hover:bg-white'}">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                <span>📁</span> ${s.name || 'Subject'}
+              </span>
+              <button onclick="event.stopPropagation(); deleteSubject('${s.id}', '${s.name}')" class="text-slate-400 hover:text-red-600 text-xs font-bold p-1 rounded hover:bg-red-50 transition-colors" title="Delete Folder">
+                🗑️
+              </button>
+            </div>
+            <div class="text-[11px] text-slate-500 flex items-center justify-between">
+              <span>By: ${s.teacherName || 'Teacher'}</span>
+              <span class="text-slate-400 text-[10px] font-mono">${getSchoolName(s.schoolId)}</span>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-200/80 text-xs">
+              <span class="font-bold ${matsInSub > 0 ? 'text-indigo-600' : 'text-slate-400'}">
+                ${matsInSub} PDF Document${matsInSub === 1 ? '' : 's'}
+              </span>
+              <span class="text-[11px] font-semibold ${isActive ? 'text-indigo-700 underline' : 'text-slate-500'}">
+                ${isActive ? 'Active Filter ✓' : 'Filter &rarr;'}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = cardsHtml;
+    }
+
+    // Material CRUD (library_materials)
+    window.openCreateMaterialModal = function() {
+      populateSubjectDropdown();
+      document.getElementById('modalMaterialTitle').textContent = "Add PDF Material & Attached Quiz";
+      document.getElementById('materialEditId').value = "";
+      document.getElementById('matTitleInput').value = "";
+      document.getElementById('matDownloadUrl').value = "";
+      document.getElementById('matQuizJson').value = `[
+  {
+    "q": "Sample multiple choice question?",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "ans": 0
+  }
+]`;
+      document.getElementById('modalMaterial').classList.remove('hidden');
+    };
+
+    window.openEditMaterialModal = function(id) {
+      const m = cachedMaterials.find(item => item.id === id);
+      if (!m) return;
+
+      populateSubjectDropdown();
+      document.getElementById('modalMaterialTitle').textContent = "Edit PDF Material & Quiz Pool";
+      document.getElementById('materialEditId').value = id;
+      document.getElementById('matSubjectSelect').value = m.subjectId || "";
+      document.getElementById('matTitleInput').value = m.title || "";
+      document.getElementById('matDownloadUrl').value = getMaterialPdfUrl(m);
+      
+      const questions = getMaterialQuestions(m);
+      document.getElementById('matQuizJson').value = JSON.stringify(questions, null, 2);
+      document.getElementById('modalMaterial').classList.remove('hidden');
+    };
+
+    window.closeMaterialModal = function() {
+      document.getElementById('modalMaterial').classList.add('hidden');
+    };
+
+    window.handleMaterialSubmit = async function(e) {
+      e.preventDefault();
+      const editId = document.getElementById('materialEditId').value;
+      const subjectId = document.getElementById('matSubjectSelect').value;
+      const title = document.getElementById('matTitleInput').value.trim();
+      const downloadUrl = document.getElementById('matDownloadUrl').value.trim();
+      const quizJson = document.getElementById('matQuizJson').value.trim();
+
+      // Validate JSON
+      let parsed = [];
+      try {
+        parsed = JSON.parse(quizJson);
+        if (!Array.isArray(parsed)) throw new Error("Quiz questions must be a JSON array.");
+      } catch (err) {
+        alert("Attached Quiz JSON is invalid: " + err.message);
+        return;
+      }
+
+      // Extract drive ID if present
+      let driveId = "";
+      const match = downloadUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || downloadUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) driveId = match[1];
+
+      const btn = document.getElementById('btnSaveMaterial');
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      try {
+        if (editId) {
+          await updateDoc(doc(db, "library_materials", editId), {
+            title,
+            subjectId,
+            pdfUrl: downloadUrl,
+            downloadUrl: downloadUrl,
+            driveFileId: driveId,
+            quiz_pool_json: quizJson,
+            quiz_json: quizJson,
+            quiz_max_items: parsed.length,
+            updatedAt: Date.now()
+          });
+          window.showToast("Library material and quiz updated.", "success");
+        } else {
+          await addDoc(collection(db, "library_materials"), {
+            title,
+            subjectId,
+            pdfUrl: downloadUrl,
+            downloadUrl: downloadUrl,
+            driveFileId: driveId,
+            quiz_pool_json: quizJson,
+            quiz_json: quizJson,
+            quiz_max_items: parsed.length,
+            teacherName: currentAdminUser ? `${currentAdminUser.firstName} ${currentAdminUser.lastName}` : "Division Admin",
+            createdAt: Date.now(),
+            timestamp: Date.now()
+          });
+          window.showToast("New reading document and quiz attached.", "success");
+        }
+        closeMaterialModal();
+      } catch (err) {
+        console.error("Save material error:", err);
+        window.showToast("Error saving material: " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Library Material";
+      }
+    };
+
+    window.deleteMaterial = async function(id, title) {
+      if (confirm(`Remove reading document "${title}" from the library?`)) {
+        try {
+          await deleteDoc(doc(db, "library_materials", id));
+          window.showToast(`Document "${title}" removed.`, "info");
+        } catch (err) {
+          console.error("Delete material error:", err);
+          window.showToast("Failed to remove material: " + err.message, "error");
+        }
+      }
+    };
+
+    function renderMaterialsTable() {
+      const tbody = document.getElementById('materialsTableBody');
+      if (!tbody) return;
+
+      let list = cachedMaterials;
+
+      // 1. School Jurisdiction filter
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(m => {
+          const sub = findSubjectForMaterial(m);
+          const mSchool = m.schoolId || (sub ? sub.schoolId : '');
+          return String(mSchool) === selectedJurisdiction;
+        });
+      }
+
+      // 2. Subject Folder filter
+      const banner = document.getElementById('materialsActiveFilterBanner');
+      if (selectedSubjectFilter !== 'ALL') {
+        const activeSub = cachedSubjects.find(s => s.id === selectedSubjectFilter);
+        list = list.filter(m => materialBelongsToSubject(m, activeSub));
+
+        if (banner) {
+          banner.classList.remove('hidden');
+          document.getElementById('filterBannerSubjectName').textContent = activeSub ? activeSub.name : 'Selected Subject';
+          document.getElementById('filterBannerCount').textContent = `${list.length} PDF Document${list.length === 1 ? '' : 's'}`;
+        }
+      } else {
+        if (banner) banner.classList.add('hidden');
+      }
+
+      // 3. Search Query filter
+      if (searchQuery) {
+        list = list.filter(m => {
+          const title = (m.title || '').toLowerCase();
+          const sub = findSubjectForMaterial(m);
+          const subName = sub ? (sub.name || '').toLowerCase() : '';
+          return title.includes(searchQuery) || subName.includes(searchQuery);
+        });
+      }
+
+      if (list.length === 0) {
+        const isFiltered = selectedSubjectFilter !== 'ALL';
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
+              ${isFiltered ? 'No PDF materials under this subject folder.' : 'No PDF materials uploaded yet.'}
+              ${isFiltered ? '<button onclick="toggleSubjectFilter(\'ALL\')" class="block mx-auto mt-2 text-indigo-600 hover:underline font-bold text-xs">Show all documents</button>' : '<span class="block mt-1">Click <strong>Add PDF Document &amp; Quiz</strong> above to add one.</span>'}
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(m => {
+        const sub = findSubjectForMaterial(m);
+        const subName = sub ? sub.name : (m.subjectName || m.subject || 'General Subject');
+        const questions = getMaterialQuestions(m);
+        const qCount = questions.length;
+        const pdfUrl = getMaterialPdfUrl(m);
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3">
+              <span onclick="openPdfViewerModal('${m.id}')" class="font-bold text-slate-900 hover:text-indigo-600 cursor-pointer underline flex items-center gap-1.5">
+                <span>📄</span> ${m.title || 'Untitled Document'}
+              </span>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ${m.id.substring(0,8)}...</div>
+            </td>
+            <td class="p-3">
+              <span class="font-semibold text-slate-700 flex items-center gap-1">
+                <span>📁</span> ${subName}
+              </span>
+              ${sub ? `<button onclick="toggleSubjectFilter('${sub.id}')" class="text-[10px] text-indigo-600 hover:underline font-semibold mt-0.5 block">Filter folder</button>` : ''}
+            </td>
+            <td class="p-3 text-slate-500">${getSchoolName(sub ? sub.schoolId : m.schoolId)}</td>
+            <td class="p-3">
+              ${pdfUrl ? `
+                <button onclick="openPdfViewerModal('${m.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm">
+                  <span>👁️</span> View Document
+                </button>
+              ` : `
+                <span class="text-slate-400 text-xs italic">No URL</span>
+              `}
+            </td>
+            <td class="p-3">
+              <button onclick="openQuizInspectorModal('${m.id}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm">
+                <span>🧠</span> ${qCount} Question${qCount === 1 ? '' : 's'} &bull; Inspect &rarr;
+              </button>
+            </td>
+            <td class="p-3 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="openEditMaterialModal('${m.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold" title="Edit Document & Quiz">
+                  ✏️
+                </button>
+                <button onclick="deleteMaterial('${m.id}', '${m.title || 'Document'}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold" title="Delete Document">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 6. 29-SCHOOL MATRIX
+    // =========================================================================
+    function renderSchoolsMatrix() {
+      const tbody = document.getElementById('schoolsTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = VALENZUELA_SCHOOLS.map(school => {
+        const teachersInSchool = cachedTeachers.filter(t => String(t.schoolId) === school.id);
+        const approvedCount = teachersInSchool.filter(t => t.isApproved === true).length;
+        const pendingCount = teachersInSchool.filter(t => t.isApproved !== true).length;
+        const classesInSchool = cachedClasses.filter(c => String(c.schoolId) === school.id).length;
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3.5 font-mono font-bold text-slate-700">${school.id}</td>
+            <td class="p-3.5 font-bold text-slate-900">${school.name}</td>
+            <td class="p-3.5">
+              <span class="font-bold text-emerald-700">${approvedCount} Verified</span>
+              ${pendingCount > 0 ? `<span class="ml-1.5 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">${pendingCount} Pending</span>` : ''}
+            </td>
+            <td class="p-3.5 font-semibold text-slate-700">${classesInSchool} Sections</td>
+            <td class="p-3.5">
+              <button onclick="inspectSchool('${school.id}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-sm">
+                Filter Campus
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.inspectSchool = function(id) {
+      document.getElementById('jurisdictionSelect').value = id;
+      handleJurisdictionChange(id);
+      switchTab('tab-division-dashboard');
+    };
+
+    // =========================================================================
+    // TAB SWITCHING & UTILITIES
+    // =========================================================================
+    window.switchTab = function(tabId) {
+      if (typeof window.toggleMobileSidebar === 'function') window.toggleMobileSidebar(false);
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('aside nav button').forEach(btn => {
+        btn.classList.remove('nav-active');
+        btn.classList.add('text-slate-700', 'hover:bg-purple-50', 'hover:text-[#5341CD]');
+        btn.removeAttribute('aria-current');
+      });
+
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-700', 'hover:bg-purple-50', 'hover:text-[#5341CD]');
+        activeBtn.classList.add('nav-active');
+        activeBtn.setAttribute('aria-current', 'page');
+      }
+
+      const titles = {
+        'tab-division-dashboard': ['Division Executive Overview', 'Live indicators across all 29 secondary institutions in Valenzuela City.'],
+        'tab-faculty-verification': ['Faculty Accreditation & Registry', 'Manage teacher verifications for instant mobile app access (AuthActivity.kt).'],
+        'tab-classroom-sections': ['Classroom Sections & Join Codes', 'Inspect class rosters, master codes, and initiation assessments (ClassDetailActivity.kt).'],
+        'tab-learner-performance': ['Learner Academic Performance', 'Real quiz history, average scores, and streaks (TeacherPerformanceActivity.kt).'],
+        'tab-batch-credentials': ['Student Credential Vault', 'Manage batch-generated student accounts (pending_students) & onboarding states.'],
+        'tab-school-matrix': ['Valenzuela City School Matrix', 'Overview of all 29 secondary schools with DepEd IDs.'],
+        'tab-library-management': ['Library Subjects & PDF Materials', 'PDF documents (pdfUrl) and interactive multiple-choice question pools (quiz_pool_json).'],
+        'tab-weekly-assessments': ['Weekly Student Assessments', 'Automated diagnostic reading assessments (Phase 2).']
+      };
+
+      if (titles[tabId]) {
+        document.getElementById('currentTabTitle').textContent = titles[tabId][0];
+        document.getElementById('currentTabSubtitle').textContent = titles[tabId][1];
+      }
+    };
+
+    window.copyToClipboard = function(text, msg) {
+      navigator.clipboard.writeText(text).then(() => {
+        window.showToast(msg || "Copied to clipboard!", "success");
+      }).catch(err => {
+        prompt("Copy text manually:", text);
+      });
+    };
+
+  </script>
+</body>
+</html>

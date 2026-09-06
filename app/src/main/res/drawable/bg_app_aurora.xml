@@ -1,64 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aurora / mesh background: soft color blooms over a tinted canvas.
-     Built from stacked radial gradients (each bloom -> transparent). -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- Canvas -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/aurora_bg_base" />
+            <gradient
+                android:type="linear"
+                android:angle="270"
+                android:startColor="#F4FAFD"
+                android:centerColor="#F0F6F9"
+                android:endColor="#F4FAFD" />
         </shape>
     </item>
-
-    <!-- Violet bloom, top-left -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:type="radial"
-                android:startColor="@color/aurora_violet"
-                android:endColor="@android:color/transparent"
-                android:centerX="0.15"
-                android:centerY="0.08"
-                android:gradientRadius="520dp" />
+                android:startColor="#26E4DFFF"
+                android:endColor="#00E4DFFF"
+                android:centerX="0.0"
+                android:centerY="0.0"
+                android:gradientRadius="480dp" />
         </shape>
     </item>
-
-    <!-- Magenta bloom, top-right -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:type="radial"
-                android:startColor="@color/aurora_magenta"
-                android:endColor="@android:color/transparent"
-                android:centerX="0.95"
-                android:centerY="0.02"
-                android:gradientRadius="460dp" />
+                android:startColor="#20FFD8EA"
+                android:endColor="#00FFD8EA"
+                android:centerX="1.0"
+                android:centerY="0.12"
+                android:gradientRadius="450dp" />
         </shape>
     </item>
-
-    <!-- Blue bloom, bottom-right -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:type="radial"
-                android:startColor="@color/aurora_blue"
-                android:endColor="@android:color/transparent"
-                android:centerX="0.9"
-                android:centerY="0.9"
-                android:gradientRadius="560dp" />
+                android:startColor="#1E6DFAD2"
+                android:endColor="#006DFAD2"
+                android:centerX="1.0"
+                android:centerY="0.55"
+                android:gradientRadius="500dp" />
         </shape>
     </item>
-
-    <!-- Mint bloom, bottom-left -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:type="radial"
-                android:startColor="@color/aurora_cyan"
-                android:endColor="@android:color/transparent"
-                android:centerX="0.05"
-                android:centerY="0.95"
-                android:gradientRadius="440dp" />
+                android:startColor="#22C6BFFF"
+                android:endColor="#00C6BFFF"
+                android:centerX="0.0"
+                android:centerY="0.90"
+                android:gradientRadius="500dp" />
         </shape>
     </item>
 </layer-list>

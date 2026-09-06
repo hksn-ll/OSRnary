@@ -78,19 +78,26 @@ class HomeFragment : Fragment() {
         }
         // 1. Get the saved state
         val isEnabled = prefs.getBoolean("bubble_enabled", false)
-        // Check lock status for the Leaderboard UI
+        // Check lock status for the Leaderboard and Daily Quests UI
         if (!com.example.gabai.XPManager.canEarnXP(requireContext())) {
-            // Find the views inside the included card (make sure to assign IDs if you haven't)
-            val titleText = binding.btnLeaderboard.getChildAt(0).let { it as? android.widget.LinearLayout }?.getChildAt(0) as? android.widget.TextView
-            val subtitleText = binding.btnLeaderboard.getChildAt(0).let { it as? android.widget.LinearLayout }?.getChildAt(1) as? android.widget.TextView
-            val icon = binding.btnLeaderboard.getChildAt(1) as? android.widget.ImageView
+            binding.tvLeaderboardTitle.text = "Leaderboard (Locked)"
+            binding.tvLeaderboardTitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            binding.tvLeaderboardSubtitle.text = "Complete Initiation to unlock"
+            binding.ivLeaderboardIcon.setImageResource(R.drawable.ic_lock)
+            binding.ivLeaderboardIcon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
 
-            // Make it look locked
-            titleText?.text = "Leaderboard (Locked)"
-            titleText?.setTextColor(android.graphics.Color.parseColor("#B2BEC3")) // Gray out
-            subtitleText?.text = "Complete Initiation to unlock"
-            icon?.setImageResource(android.R.drawable.ic_secure) // Lock icon
-            icon?.setColorFilter(android.graphics.Color.parseColor("#B2BEC3"))
+            binding.tvDailyQuestsTitle.text = "Daily Quests (Locked)"
+            binding.tvDailyQuestsTitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            binding.tvDailyQuestsSubtitle.text = "Complete Initiation to unlock"
+            binding.ivDailyQuestsIcon.setImageResource(R.drawable.ic_lock)
+            binding.ivDailyQuestsIcon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
+        }
+
+        // 2. CLEAR the listener before setting the state to prevent a loop
+        binding.bubbleSwitch.setOnCheckedChangeListener(null)
+        binding.bubbleSwitch.isChecked = isEnabled
+        binding.btnLearningProgress.setOnClickListener {
+            startActivity(Intent(requireContext(), ProgressDashboardActivity::class.java))
         }
         binding.btnAchievements.setOnClickListener {
             startActivity(Intent(requireContext(), AchievementsActivity::class.java))
@@ -101,23 +108,6 @@ class HomeFragment : Fragment() {
             } else {
                 com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Quests Locked! 🔒 Complete your Apprentice Initiation first.")
             }
-        }
-
-// Visual Lock (add this with your Leaderboard lock code in onCreateView)
-        if (!com.example.gabai.XPManager.canEarnXP(requireContext())) {
-            val qTitle = binding.btnDailyQuests.getChildAt(0).let { it as? android.widget.LinearLayout }?.getChildAt(0) as? android.widget.TextView
-            val qIcon = binding.btnDailyQuests.getChildAt(1) as? android.widget.ImageView
-            qTitle?.text = "Daily Quests (Locked)"
-            qTitle?.setTextColor(android.graphics.Color.parseColor("#B2BEC3"))
-            qIcon?.setImageResource(android.R.drawable.ic_secure)
-            qIcon?.setColorFilter(android.graphics.Color.parseColor("#B2BEC3"))
-        }
-
-        // 2. CLEAR the listener before setting the state to prevent a loop
-        binding.bubbleSwitch.setOnCheckedChangeListener(null)
-        binding.bubbleSwitch.isChecked = isEnabled
-        binding.btnLearningProgress.setOnClickListener {
-            startActivity(Intent(requireContext(), ProgressDashboardActivity::class.java))
         }
         // Inside your onCreateView in HomeFragment.kt
         binding.btnLeaderboard.setOnClickListener {
@@ -217,6 +207,10 @@ class HomeFragment : Fragment() {
             }
 
             if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
+            val firstName = snapshot.getString("firstName") ?: snapshot.getString("first_name") ?: ""
+            if (firstName.isNotEmpty()) {
+                binding.tvGreetingTitle.text = "Hello, $firstName!"
+            }
             val currentLevel = snapshot.getLong("level")?.toInt() ?: 1
             val currentXP = snapshot.getLong("current_xp")?.toInt() ?: 0
             val maxXP = com.example.gabai.XPManager.getMaxXPForLevel(currentLevel)
@@ -254,30 +248,71 @@ class HomeFragment : Fragment() {
             } else {
                 // UI: LOCKED STATE (Apprentice Mode)
                 binding.root.findViewById<View>(R.id.locked_xp_view).visibility = View.VISIBLE
-                binding.root.findViewById<View>(R.id.unlocked_xp_view).visibility = View.INVISIBLE
+                binding.root.findViewById<View>(R.id.unlocked_xp_view).visibility = View.GONE
                 binding.root.findViewById<View>(R.id.quest_board_container).visibility = View.VISIBLE
 
-                // Find all 8 text views
-                val qBubble = binding.root.findViewById<android.widget.TextView>(R.id.quest_bubble)
-                val qRead = binding.root.findViewById<android.widget.TextView>(R.id.quest_read)
-                val qTest = binding.root.findViewById<android.widget.TextView>(R.id.quest_test)
-                val qScan = binding.root.findViewById<android.widget.TextView>(R.id.quest_scan)
-                val qSave = binding.root.findViewById<android.widget.TextView>(R.id.quest_save)
-                val qHistory = binding.root.findViewById<android.widget.TextView>(R.id.quest_history)
-                val qDetail = binding.root.findViewById<android.widget.TextView>(R.id.quest_detail)
-                val qLibrary = binding.root.findViewById<android.widget.TextView>(R.id.quest_library)
+                // Update badge and quest rows with clean Google Stitch styling
+                val countDone = completedQuests.size.coerceAtMost(8)
+                binding.root.findViewById<android.widget.TextView>(R.id.tv_quest_progress_badge)?.text = "$countDone / 8 Done"
 
-                // Update text to show checkmarks
-                qBubble.text = if (completedQuests.contains("bubble")) "✅ 1. Activate the Floating Bubble" else "❌ 1. Activate the Floating Bubble"
-                qRead.text = if (completedQuests.contains("read")) "✅ 2. Read the 4 Required Materials" else "❌ 2. Read the 4 Required Materials"
-                qTest.text = if (completedQuests.contains("test")) "✅ 3. Pass the Initiation Test" else "❌ 3. Pass the Initiation Test"
-                qScan.text = if (completedQuests.contains("scan")) "✅ 4. Scan a text with the Camera" else "❌ 4. Scan a text with the Camera"
-                qSave.text = if (completedQuests.contains("save")) "✅ 5. Save a word to Favorites" else "❌ 5. Save a word to Favorites"
-                qHistory.text = if (completedQuests.contains("history")) "✅ 6. Check your Scan History" else "❌ 6. Check your Scan History"
-                qDetail.text = if (completedQuests.contains("detail")) "✅ 7. View Saved Content" else "❌ 7. View Saved Content"
-                qLibrary.text = if (completedQuests.contains("library")) "✅ 8. Open the Digital Library" else "❌ 8. Open the Digital Library"
+                setQuestRowState(R.id.row_quest_bubble, R.id.indicator_quest_bubble, R.id.quest_bubble, R.id.badge_quest_bubble, "Activate the Floating Bubble", completedQuests.contains("bubble"))
+                setQuestRowState(R.id.row_quest_read, R.id.indicator_quest_read, R.id.quest_read, R.id.badge_quest_read, "Read the 4 Required Materials", completedQuests.contains("read"))
+                setQuestRowState(R.id.row_quest_test, R.id.indicator_quest_test, R.id.quest_test, R.id.badge_quest_test, "Pass the Initiation Test", completedQuests.contains("test"))
+                setQuestRowState(R.id.row_quest_scan, R.id.indicator_quest_scan, R.id.quest_scan, R.id.badge_quest_scan, "Scan a text with the Camera", completedQuests.contains("scan"))
+                setQuestRowState(R.id.row_quest_save, R.id.indicator_quest_save, R.id.quest_save, R.id.badge_quest_save, "Save a word to Favorites", completedQuests.contains("save"))
+                setQuestRowState(R.id.row_quest_history, R.id.indicator_quest_history, R.id.quest_history, R.id.badge_quest_history, "Check your Scan History", completedQuests.contains("history"))
+                setQuestRowState(R.id.row_quest_detail, R.id.indicator_quest_detail, R.id.quest_detail, R.id.badge_quest_detail, "View Saved Content", completedQuests.contains("detail"))
+                setQuestRowState(R.id.row_quest_library, R.id.indicator_quest_library, R.id.quest_library, R.id.badge_quest_library, "Open the Digital Library", completedQuests.contains("library"))
             }
             GabAIUtils.hideGlobalLoading(safeContext)
+        }
+    }
+
+    private fun setQuestRowState(
+        containerId: Int,
+        indicatorId: Int,
+        textId: Int,
+        badgeId: Int?,
+        title: String,
+        isDone: Boolean
+    ) {
+        val container = binding.root.findViewById<View>(containerId) ?: return
+        val indicator = binding.root.findViewById<android.widget.ImageView>(indicatorId)
+        val textView = binding.root.findViewById<android.widget.TextView>(textId)
+        val badge = if (badgeId != null) binding.root.findViewById<View>(badgeId) else null
+
+        textView?.text = title
+        val isAlwaysTealCheck = (badgeId == R.id.badge_quest_bubble || badgeId == R.id.badge_quest_read || 
+                                 badgeId == R.id.badge_quest_scan || badgeId == R.id.badge_quest_library)
+
+        if (isDone) {
+            container.setBackgroundResource(R.drawable.bg_quest_row_done)
+            indicator?.setBackgroundResource(R.drawable.bg_badge_mint)
+            indicator?.setImageResource(R.drawable.ic_check_bold)
+            indicator?.setColorFilter(android.graphics.Color.parseColor("#006B55"))
+            indicator?.setPadding(10, 10, 10, 10)
+            textView?.setTextColor(android.graphics.Color.parseColor("#64748B"))
+            textView?.paintFlags = (textView?.paintFlags ?: 0) or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+            
+            if (isAlwaysTealCheck) {
+                badge?.visibility = View.VISIBLE
+            } else {
+                badge?.visibility = View.GONE
+            }
+        } else {
+            container.setBackgroundResource(R.drawable.bg_quest_row_pending)
+            indicator?.setBackgroundResource(R.drawable.bg_badge_rose)
+            indicator?.setImageResource(R.drawable.ic_close_bold)
+            indicator?.setColorFilter(android.graphics.Color.parseColor("#BA1A1A"))
+            indicator?.setPadding(10, 10, 10, 10)
+            textView?.setTextColor(android.graphics.Color.parseColor("#161D1F"))
+            textView?.paintFlags = (textView?.paintFlags ?: 0) and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+
+            if (isAlwaysTealCheck) {
+                badge?.visibility = View.GONE
+            } else {
+                badge?.visibility = View.VISIBLE
+            }
         }
     }
     override fun onDestroyView() {

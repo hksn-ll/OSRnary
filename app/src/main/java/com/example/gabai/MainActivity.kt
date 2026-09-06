@@ -58,26 +58,36 @@ class MainActivity : AppCompatActivity() {
             val systemBars =
                 insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
             v.setPadding(0, systemBars.top, 0, 0)
+            binding.bottomNavigation.setPadding(0, 0, 0, systemBars.bottom)
             insets
         }
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            // 1. Get the currently selected tab ID
-            val currentTab = binding.bottomNavigation.selectedItemId
-
-            // 2. ONLY switch if the user clicked a DIFFERENT tab
-            if (item.itemId != currentTab) {
-                val currentRole = binding.root.tag as? String ?: "student"
-                when (item.itemId) {
-                    R.id.nav_home -> {
-                        if (currentRole == "teacher") loadFragment(TeacherHomeFragment())
-                        else loadFragment(HomeFragment())
-                    }
-
-                    R.id.nav_profile -> loadFragment(ProfileFragment())
+            val currentRole = binding.root.tag as? String ?: "student"
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    if (currentRole == "teacher") loadFragment(TeacherHomeFragment())
+                    else loadFragment(HomeFragment())
+                    true
                 }
+                R.id.nav_library -> {
+                    if (currentRole == "teacher") {
+                        startActivity(Intent(this, TeacherLibraryActivity::class.java))
+                    } else {
+                        startActivity(Intent(this, LibraryActivity::class.java))
+                    }
+                    false // Don't highlight library tab since it's a separate full activity
+                }
+                R.id.nav_scanner -> {
+                    startActivity(Intent(this, CameraActivity::class.java))
+                    false // Don't highlight scanner tab since it's a separate full activity
+                }
+                R.id.nav_profile -> {
+                    loadFragment(ProfileFragment())
+                    true
+                }
+                else -> false
             }
-            true
         }
     }
 

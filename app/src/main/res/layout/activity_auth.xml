@@ -7,7 +7,9 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_app_aurora"
     android:fillViewport="true"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
     <LinearLayout
         android:id="@+id/auth_main_layout"
@@ -15,57 +17,57 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingHorizontal="16dp"
         android:paddingTop="32dp"
-        android:paddingBottom="48dp">
+        android:paddingBottom="56dp"
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
-        <!-- ================= BRAND HEADER ================= -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="6dp"
-            app:strokeColor="@color/glass_stroke"
-            app:strokeWidth="1.5dp"
-            app:cardBackgroundColor="@color/glass_fill_strong">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:src="@mipmap/ic_launcher"
-                android:contentDescription="@string/app_name" />
-        </com.google.android.material.card.MaterialCardView>
+        <!-- ================= APP LOGO & BRAND HEADER ================= -->
+        <ImageView
+            android:id="@+id/iv_auth_brand_logo"
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_gabai_logo"
+            android:contentDescription="@string/app_name" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:text="GabAI"
-            android:textColor="@color/brand_primary"
+            android:textColor="#5341CD"
             android:textSize="28sp"
-            android:fontFamily="sans-serif-black"
-            android:letterSpacing="-0.01" />
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="20dp"
             android:text="AI Reading &amp; Learning Companion"
-            android:textColor="@color/text_secondary"
+            android:textColor="#64748B"
+            android:fontFamily="@font/font_nunito_sans"
             android:textSize="13sp" />
 
-        <!-- ================= GLASS BENTO AUTH CARD ================= -->
+        <!-- ================= STITCH ELEVATED CARD ================= -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_auth_container"
+            style="@style/Widget.Material3.CardView.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="2dp"
-            app:strokeColor="@color/glass_stroke"
-            app:strokeWidth="1.5dp"
-            app:cardBackgroundColor="@color/glass_fill_strong">
+            android:layout_marginHorizontal="4dp"
+            android:layout_marginVertical="6dp"
+            app:cardUseCompatPadding="false"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#EDF2F7"
+            app:contentPadding="0dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:id="@+id/card_inner_layout"
@@ -75,14 +77,14 @@
                 android:paddingHorizontal="22dp"
                 android:paddingVertical="26dp">
 
-                <!-- ================= SEGMENTED ROLE SWITCHER ================= -->
+                <!-- ================= SEGMENTED ROLE SWITCHER (PILL) ================= -->
                 <LinearLayout
                     android:id="@+id/container_role_switcher"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="46dp"
                     android:background="@drawable/bg_role_tab_container"
                     android:orientation="horizontal"
-                    android:padding="4dp"
+                    android:padding="3dp"
                     android:layout_marginBottom="20dp">
 
                     <!-- Student Tab -->
@@ -93,14 +95,15 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:background="@drawable/bg_role_tab_indicator"
-                        android:text="🎓 Student"
-                        android:textColor="@color/brand_primary"
+                        android:text="🎓  Student"
+                        android:textColor="#5341CD"
                         android:textSize="14sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold"
                         android:clickable="true"
                         android:focusable="true" />
 
-                    <!-- Teacher Tab -->
+                    <!-- Educator Tab -->
                     <TextView
                         android:id="@+id/btn_tab_teacher"
                         android:layout_width="0dp"
@@ -108,9 +111,10 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:background="@android:color/transparent"
-                        android:text="🍎 Educator"
-                        android:textColor="@color/text_secondary"
+                        android:text="🍎  Educator"
+                        android:textColor="#64748B"
                         android:textSize="14sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold"
                         android:clickable="true"
                         android:focusable="true" />
@@ -129,9 +133,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Welcome Back! 👋"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#0F172A"
                         android:textSize="22sp"
-                        android:fontFamily="sans-serif-medium"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold" />
 
                     <TextView
@@ -139,8 +143,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Enter your student credentials to continue"
-                        android:textColor="@color/text_secondary"
+                        android:text="Enter your credentials to continue reading."
+                        android:textColor="#64748B"
+                        android:fontFamily="@font/font_nunito_sans"
                         android:textSize="13sp" />
                 </LinearLayout>
 
@@ -163,34 +168,41 @@
                     android:orientation="vertical"
                     android:visibility="visible">
 
-                    <!-- Email / Username Input -->
+                    <!-- Username / Email Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_login_email"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="14dp"
-                        app:boxCornerRadiusBottomEnd="16dp"
-                        app:boxCornerRadiusBottomStart="16dp"
-                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxBackgroundColor="#F8FAFC"
                         app:boxCornerRadiusTopStart="16dp"
-                        app:boxStrokeColor="@color/brand_primary"
-                        app:boxStrokeWidth="1.5dp"
-                        app:boxStrokeWidthFocused="2dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="#E2E8F0"
+                        app:boxStrokeWidthFocused="1.5dp"
                         app:startIconDrawable="@drawable/ic_person"
-                        app:startIconTint="@color/brand_primary"
-                        android:hint="Username">
+                        app:startIconTint="#94A3B8"
+                        app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_login_email"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
+                            android:hint="Username"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingVertical="0dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="16dp"
+                            android:gravity="center_vertical"
                             android:inputType="text"
                             android:imeOptions="actionNext"
-                            android:maxLines="1"
-                            android:paddingVertical="14dp"
-                            android:textColor="@color/text_primary"
-                            android:textSize="15sp" />
+                            android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Password Input -->
@@ -199,28 +211,36 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:boxCornerRadiusBottomEnd="16dp"
-                        app:boxCornerRadiusBottomStart="16dp"
-                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxBackgroundColor="#F8FAFC"
                         app:boxCornerRadiusTopStart="16dp"
-                        app:boxStrokeColor="@color/brand_primary"
-                        app:boxStrokeWidth="1.5dp"
-                        app:boxStrokeWidthFocused="2dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="#E2E8F0"
+                        app:boxStrokeWidthFocused="1.5dp"
                         app:passwordToggleEnabled="true"
+                        app:passwordToggleTint="#94A3B8"
                         app:startIconDrawable="@drawable/ic_lock"
-                        app:startIconTint="@color/brand_primary"
-                        android:hint="Password">
+                        app:startIconTint="#94A3B8"
+                        app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_login_password"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
+                            android:hint="Password"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingVertical="0dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="16dp"
+                            android:gravity="center_vertical"
                             android:inputType="textPassword"
                             android:imeOptions="actionDone"
-                            android:maxLines="1"
-                            android:paddingVertical="14dp"
-                            android:textColor="@color/text_primary"
-                            android:textSize="15sp" />
+                            android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Forgot Password Link (Teacher only) -->
@@ -230,64 +250,76 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:layout_marginTop="6dp"
-                        android:padding="6dp"
+                        android:padding="4dp"
                         android:text="Forgot Password?"
-                        android:textColor="@color/link_blue"
+                        android:textColor="#5341CD"
                         android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold"
                         android:visibility="gone" />
 
-                    <!-- Login Submit CTA -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_login_submit"
-                        style="@style/Widget.GabAI.Button.Gradient"
-                        android:layout_width="match_parent"
-                        android:layout_height="54dp"
-                        android:layout_marginTop="18dp"
-                        android:text="Sign In"
-                        android:textSize="16sp"
-                        app:cornerRadius="18dp" />
-
-                    <!-- Student Info Note -->
+                    <!-- Student Helper Banner -->
                     <LinearLayout
                         android:id="@+id/container_student_note"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:background="@drawable/bg_info_banner"
+                        android:background="@drawable/bg_banner_student"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:padding="14dp">
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="10dp"
                             android:src="@drawable/ic_school"
-                            app:tint="@color/link_blue" />
+                            app:tint="#5341CD" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Student accounts are provisioned by teachers. Log in with your assigned username."
-                            android:textColor="@color/link_blue"
-                            android:textSize="12sp" />
+                            android:text="Student accounts are provisioned by your classroom teacher. Use your assigned credentials."
+                            android:textColor="#4338CA"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingMultiplier="1.15" />
                     </LinearLayout>
+
+                    <!-- Sign In CTA Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_login_submit"
+                        android:layout_width="match_parent"
+                        android:layout_height="73dp"
+                        android:layout_marginTop="18dp"
+                        android:background="@drawable/btn_gradient_stitch"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:letterSpacing="0.01"
+                        android:outlineAmbientShadowColor="#5341CD"
+                        android:outlineSpotShadowColor="#5341CD"
+                        android:text="Sign In  ➔"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="18dp"
+                        app:elevation="6dp" />
 
                     <!-- Teacher Register Link -->
                     <TextView
                         android:id="@+id/tv_go_to_register"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="16dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="18dp"
                         android:minHeight="@dimen/touch_target_min"
                         android:gravity="center"
-                        android:padding="8dp"
+                        android:padding="6dp"
                         android:text="New Educator? Create an Account"
-                        android:textColor="@color/brand_primary"
+                        android:textColor="#5341CD"
                         android:textSize="14sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold"
                         android:visibility="gone" />
 
@@ -301,7 +333,7 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- ================= REGISTER FORM CONTAINER (TEACHER) ================= -->
+                <!-- ================= REGISTER FORM CONTAINER (EDUCATOR) ================= -->
                 <LinearLayout
                     android:id="@+id/container_register"
                     android:layout_width="match_parent"
@@ -309,7 +341,7 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
-                    <!-- Back to Login Row -->
+                    <!-- Back to Sign In Row -->
                     <LinearLayout
                         android:id="@+id/btn_reg_back_header"
                         android:layout_width="wrap_content"
@@ -317,21 +349,24 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingVertical="4dp"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="14dp"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
                             android:src="@drawable/ic_arrow_back"
-                            app:tint="@color/brand_primary" />
+                            app:tint="#5341CD" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
                             android:text="Back to Sign In"
-                            android:textColor="@color/brand_primary"
+                            android:textColor="#5341CD"
                             android:textSize="14sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -339,8 +374,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Educator Registration"
-                        android:textColor="@color/text_primary"
-                        android:textSize="20sp"
+                        android:textColor="#0F172A"
+                        android:textSize="22sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold" />
 
                     <TextView
@@ -348,8 +384,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="14dp"
-                        android:text="Join your school's GabAI educator portal"
-                        android:textColor="@color/text_secondary"
+                        android:text="Create an account to manage your classes and library."
+                        android:textColor="#64748B"
+                        android:fontFamily="@font/font_nunito_sans"
                         android:textSize="13sp" />
 
                     <!-- Verification Notice Banner -->
@@ -357,7 +394,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="14dp"
-                        android:background="@drawable/bg_info_banner"
+                        android:background="@drawable/bg_banner_educator"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="12dp">
@@ -366,16 +403,17 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_badge_check"
-                            app:tint="@color/link_blue" />
+                            android:src="@drawable/ic_verified_teal" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Educator accounts undergo administrative verification before activation."
-                            android:textColor="@color/link_blue"
-                            android:textSize="12sp" />
+                            android:textColor="#0F172A"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingMultiplier="1.15" />
                     </LinearLayout>
 
                     <!-- 2-Column Names Row -->
@@ -383,29 +421,41 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="10dp">
 
                         <com.google.android.material.textfield.TextInputLayout
                             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="6dp"
-                            app:boxCornerRadiusBottomEnd="14dp"
-                            app:boxCornerRadiusBottomStart="14dp"
-                            app:boxCornerRadiusTopEnd="14dp"
-                            app:boxCornerRadiusTopStart="14dp"
-                            app:boxStrokeColor="@color/brand_primary"
-                            android:hint="First Name">
+                            android:layout_marginEnd="4dp"
+                            app:boxBackgroundColor="#F8FAFC"
+                            app:boxCornerRadiusTopStart="16dp"
+                            app:boxCornerRadiusTopEnd="16dp"
+                            app:boxCornerRadiusBottomStart="16dp"
+                            app:boxCornerRadiusBottomEnd="16dp"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeColor="#E2E8F0"
+                            app:boxStrokeWidthFocused="1.5dp"
+                            app:startIconDrawable="@drawable/ic_person"
+                            app:startIconTint="#94A3B8"
+                            app:hintEnabled="false">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_reg_firstname"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="50dp"
+                                android:hint="First Name"
+                                android:textColor="#0F172A"
+                                android:textColorHint="#94A3B8"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:paddingVertical="0dp"
+                                android:paddingStart="4dp"
+                                android:paddingEnd="12dp"
+                                android:gravity="center_vertical"
                                 android:inputType="textPersonName|textCapWords"
-                                android:maxLines="1"
-                                android:paddingVertical="13dp"
-                                android:textSize="14sp" />
+                                android:maxLines="1" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -413,22 +463,32 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="6dp"
-                            app:boxCornerRadiusBottomEnd="14dp"
-                            app:boxCornerRadiusBottomStart="14dp"
-                            app:boxCornerRadiusTopEnd="14dp"
-                            app:boxCornerRadiusTopStart="14dp"
-                            app:boxStrokeColor="@color/brand_primary"
-                            android:hint="Last Name">
+                            android:layout_marginStart="4dp"
+                            app:boxBackgroundColor="#F8FAFC"
+                            app:boxCornerRadiusTopStart="16dp"
+                            app:boxCornerRadiusTopEnd="16dp"
+                            app:boxCornerRadiusBottomStart="16dp"
+                            app:boxCornerRadiusBottomEnd="16dp"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeColor="#E2E8F0"
+                            app:boxStrokeWidthFocused="1.5dp"
+                            app:hintEnabled="false">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_reg_lastname"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="50dp"
+                                android:hint="Last Name"
+                                android:textColor="#0F172A"
+                                android:textColorHint="#94A3B8"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:paddingVertical="0dp"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="12dp"
+                                android:gravity="center_vertical"
                                 android:inputType="textPersonName|textCapWords"
-                                android:maxLines="1"
-                                android:paddingVertical="13dp"
-                                android:textSize="14sp" />
+                                android:maxLines="1" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
@@ -437,23 +497,34 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        app:boxCornerRadiusBottomEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxStrokeColor="@color/brand_primary"
+                        android:layout_marginBottom="10dp"
+                        app:boxBackgroundColor="#F8FAFC"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="#E2E8F0"
+                        app:boxStrokeWidthFocused="1.5dp"
                         app:startIconDrawable="@drawable/ic_school"
-                        app:startIconTint="@color/brand_primary"
-                        android:hint="Select School">
+                        app:startIconTint="#94A3B8"
+                        app:endIconTint="#94A3B8"
+                        app:hintEnabled="false">
 
                         <AutoCompleteTextView
                             android:id="@+id/spinner_school"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:paddingVertical="13dp"
-                            android:textSize="14sp" />
+                            android:layout_height="50dp"
+                            android:hint="Select School"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingVertical="0dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="12dp"
+                            android:gravity="center_vertical"
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Email Input -->
@@ -461,24 +532,34 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        app:boxCornerRadiusBottomEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxStrokeColor="@color/brand_primary"
+                        android:layout_marginBottom="10dp"
+                        app:boxBackgroundColor="#F8FAFC"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="#E2E8F0"
+                        app:boxStrokeWidthFocused="1.5dp"
                         app:startIconDrawable="@drawable/ic_mail"
-                        app:startIconTint="@color/brand_primary"
-                        android:hint="Email Address">
+                        app:startIconTint="#94A3B8"
+                        app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_reg_email"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
+                            android:hint="Official School Email Address"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingVertical="0dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="12dp"
+                            android:gravity="center_vertical"
                             android:inputType="textEmailAddress"
-                            android:maxLines="1"
-                            android:paddingVertical="13dp"
-                            android:textSize="14sp" />
+                            android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Password Input -->
@@ -486,26 +567,88 @@
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        app:boxCornerRadiusBottomEnd="14dp"
-                        app:boxCornerRadiusBottomStart="14dp"
-                        app:boxCornerRadiusTopEnd="14dp"
-                        app:boxCornerRadiusTopStart="14dp"
-                        app:boxStrokeColor="@color/brand_primary"
+                        android:layout_marginBottom="10dp"
+                        app:boxBackgroundColor="#F8FAFC"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="#E2E8F0"
+                        app:boxStrokeWidthFocused="1.5dp"
                         app:passwordToggleEnabled="true"
+                        app:passwordToggleTint="#94A3B8"
                         app:startIconDrawable="@drawable/ic_lock"
-                        app:startIconTint="@color/brand_primary"
-                        android:hint="Create Password">
+                        app:startIconTint="#94A3B8"
+                        app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_reg_password"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="50dp"
+                            android:hint="Create Password"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingVertical="0dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="12dp"
+                            android:gravity="center_vertical"
                             android:inputType="textPassword"
-                            android:maxLines="1"
-                            android:paddingVertical="13dp"
-                            android:textSize="14sp" />
+                            android:imeOptions="actionNext"
+                            android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Confirm Password Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_reg_confirm_password"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        app:boxBackgroundColor="#F8FAFC"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="#E2E8F0"
+                        app:boxStrokeWidthFocused="1.5dp"
+                        app:passwordToggleEnabled="true"
+                        app:passwordToggleTint="#94A3B8"
+                        app:startIconDrawable="@drawable/ic_lock"
+                        app:startIconTint="#94A3B8"
+                        app:hintEnabled="false">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_reg_confirm_password"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:hint="Confirm Password"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingVertical="0dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="12dp"
+                            android:gravity="center_vertical"
+                            android:inputType="textPassword"
+                            android:imeOptions="actionDone"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Micro Password Rule Info -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Must contain at least 8 characters, one number, and a symbol."
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="16dp" />
 
                     <!-- Hidden legacy fallback views for student registration compatibility -->
                     <RadioGroup
@@ -534,25 +677,34 @@
                     <!-- Register Submit CTA -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_register_submit"
-                        style="@style/Widget.GabAI.Button.Gradient"
                         android:layout_width="match_parent"
-                        android:layout_height="54dp"
-                        android:text="Create Educator Account"
+                        android:layout_height="72dp"
+                        android:background="@drawable/btn_gradient_stitch"
+                        app:backgroundTint="@null"
+                        android:text="Create Educator Account  ➔"
+                        android:textColor="#FFFFFF"
                         android:textSize="15sp"
-                        app:cornerRadius="18dp" />
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.01"
+                        app:cornerRadius="18dp"
+                        app:elevation="6dp"
+                        android:outlineAmbientShadowColor="#5341CD"
+                        android:outlineSpotShadowColor="#5341CD" />
 
                     <TextView
                         android:id="@+id/tv_go_to_login"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="16dp"
                         android:minHeight="@dimen/touch_target_min"
                         android:gravity="center"
-                        android:padding="8dp"
+                        android:padding="6dp"
                         android:text="Already have an account? Sign In"
-                        android:textColor="@color/brand_primary"
+                        android:textColor="#5341CD"
                         android:textSize="14sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -569,15 +721,16 @@
                     <ProgressBar
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:indeterminateTint="@color/brand_primary" />
+                        android:indeterminateTint="#5341CD" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Connecting to GabAI..."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#64748B"
                         android:textSize="14sp"
+                        android:fontFamily="@font/font_nunito_sans"
                         android:textStyle="italic" />
                 </LinearLayout>
             </LinearLayout>

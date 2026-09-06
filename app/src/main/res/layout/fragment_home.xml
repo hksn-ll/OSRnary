@@ -1,404 +1,1621 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app_aurora"
-    android:padding="@dimen/screen_padding">
+    android:background="@android:color/transparent">
 
-    <!-- ===== Header ===== -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/profile_ring"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/glass_stroke"
-        app:strokeWidth="@dimen/stroke_glass"
-        app:cardBackgroundColor="@color/glass_fill_strong"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/profile_image"
-            android:contentDescription="@string/cd_profile_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@mipmap/ic_launcher"
-            android:padding="@dimen/space_sm"
-            android:clipToOutline="true" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="@dimen/space_md"
-        android:gravity="center_vertical"
-        app:layout_constraintStart_toEndOf="@id/profile_ring"
-        app:layout_constraintTop_toTopOf="@id/profile_ring"
-        app:layout_constraintBottom_toBottomOf="@id/profile_ring"
-        app:layout_constraintEnd_toStartOf="@id/bubble_switch">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="GabAI"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:letterSpacing="-0.02"
-            android:textColor="@color/text_primary" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Instant On-Screen Reader"
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary" />
-    </LinearLayout>
-
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/bubble_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="@dimen/touch_target_min"
-        android:minHeight="@dimen/touch_target_min"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/profile_ring"
-        app:layout_constraintBottom_toBottomOf="@id/profile_ring" />
-
-    <ScrollView
+    <!-- ================================================================= -->
+    <!-- MAIN SCROLLABLE DASHBOARD (Slides underneath top and bottom bars) -->
+    <!-- ================================================================= -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_content"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/space_lg"
-        android:scrollbars="none"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/profile_ring"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:paddingTop="76dp"
+        android:paddingBottom="96dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/space_lg">
+            android:paddingHorizontal="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hello, Student! 👋"
-                android:textAppearance="@style/TextAppearance.GabAI.Headline"
-                android:layout_marginBottom="@dimen/space_xs" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ready to take a quiz today?"
-                android:textAppearance="@style/TextAppearance.GabAI.Body"
-                android:layout_marginBottom="@dimen/space_lg" />
-
-            <!-- ===== XP / Level hero (vibrant aurora gradient) ===== -->
-            <FrameLayout
+            <!-- ========================================================= -->
+            <!-- 1. GREETING SECTION                                       -->
+            <!-- ========================================================= -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:background="@drawable/bg_card_level"
-                android:elevation="@dimen/elevation_hero"
-                android:clipToOutline="true"
-                android:layout_marginBottom="@dimen/space_lg">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="16dp"
+                android:paddingHorizontal="4dp">
 
                 <LinearLayout
-                    android:id="@+id/unlocked_xp_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="@dimen/screen_padding"
-                    android:visibility="visible">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                    <TextView android:id="@+id/tv_level_label" android:text="LEVEL 1" android:textSize="20sp" android:textStyle="bold" android:letterSpacing="0.04" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:id="@+id/tv_xp_label" android:text="0 / 100 XP" android:textSize="12sp" android:textColor="@color/text_on_dark" android:layout_gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <ProgressBar android:id="@+id/xp_progress_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="10dp" android:progress="0" android:progressDrawable="@drawable/pill_background" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" />
-                    <TextView android:text="Gain XP by saving words and taking quizzes!" android:textSize="12sp" android:textColor="@color/text_on_dark_muted" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tv_greeting_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hello, Student!"
+                        android:textColor="#161D1F"
+                        android:textSize="26sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="👋"
+                        android:textSize="24sp" />
                 </LinearLayout>
+            </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/locked_xp_view"
+            <!-- ========================================================= -->
+            <!-- 2. XP / LEVEL HERO CARD (Single Card, No Double Frame)   -->
+            <!-- ========================================================= -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:contentPadding="0dp"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="@color/scrim"
-                    android:visibility="gone">
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_hero_xp_gradient">
 
-                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_secure" app:tint="@color/text_on_dark" android:contentDescription="@null" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Leveling Locked" android:textStyle="bold" android:textColor="@color/text_on_dark" android:textSize="16sp" android:layout_marginTop="@dimen/space_sm" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Complete Apprentice Quests to unlock" android:textColor="@color/text_on_dark_muted" android:textSize="12sp" />
-                </LinearLayout>
-            </FrameLayout>
+                    <!-- Unlocked State View -->
+                    <LinearLayout
+                        android:id="@+id/unlocked_xp_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="140dp"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:padding="18dp"
+                        android:visibility="gone">
 
-            <!-- ===== Apprentice Quests board (glass) ===== -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/tv_level_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_level_pill"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="LEVEL 1"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="Novice Reader"
+                                android:textColor="#E4DFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/tv_xp_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_level_pill"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="0 / 100 XP"
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/xp_progress_bar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="14dp"
+                            android:layout_marginBottom="10dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/bg_progress_mint" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gain XP by saving words, pronunciation practice, and quizzes!"
+                            android:textColor="#F4FAFD"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_nunito_sans" />
+                    </LinearLayout>
+
+                    <!-- Locked Overlay View -->
+                    <LinearLayout
+                        android:id="@+id/locked_xp_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="140dp"
+                        android:background="#B3161D1F"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingVertical="18dp">
+
+                        <!-- Frosted Lock Icon Frame -->
+                        <FrameLayout
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_level_pill"
+                            android:layout_marginEnd="14dp">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lock"
+                                app:tint="#FFFFFF"
+                                android:contentDescription="@null" />
+                        </FrameLayout>
+
+                        <!-- Lock Text Description -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Leveling Locked"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Complete Apprentice Quests to unlock."
+                                android:textColor="#DDE4E6"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_nunito_sans" />
+                        </LinearLayout>
+
+                        <!-- Chevron Arrow -->
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right_white"
+                            app:tint="#DDE4E6"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ========================================================= -->
+            <!-- 3. APPRENTICE QUESTS CARD                                 -->
+            <!-- ========================================================= -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/quest_board_container"
-                style="@style/Widget.GabAI.CardView.Glass"
+                style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone">
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7"
+                app:contentPadding="0dp"
+                app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Apprentice Quests 📜" android:textAppearance="@style/TextAppearance.GabAI.Title" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Finish these to unlock your rank:" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginBottom="@dimen/space_md" />
+                    <!-- Header Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
 
-                    <TextView android:id="@+id/quest_bubble" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 1. Activate the Floating Bubble" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
-                    <TextView android:id="@+id/quest_read" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 2. Read the 4 Required Materials" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
-                    <TextView android:id="@+id/quest_test" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 3. Pass the Initiation Test" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
-                    <TextView android:id="@+id/quest_scan" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 4. Scan a text with the Camera" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
-                    <TextView android:id="@+id/quest_save" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 5. Save a word to Favorites" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
-                    <TextView android:id="@+id/quest_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 6. Check your Scan History" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
-                    <TextView android:id="@+id/quest_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 7. View Saved Content" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
-                    <TextView android:id="@+id/quest_library" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="❌ 8. Open the Digital Library" android:textColor="@color/text_primary" android:textSize="15sp" android:paddingVertical="@dimen/space_xs" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
-                    <Button android:id="@+id/btn_quest_details" style="@style/Widget.GabAI.Button.Gradient" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Quest Details" android:layout_marginTop="@dimen/space_md" />
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Apprentice Quests"
+                                    android:textColor="#161D1F"
+                                    android:textSize="17sp"
+                                    android:fontFamily="@font/font_plus_jakarta_sans"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="📜"
+                                    android:textSize="16sp" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Finish these tasks to unlock your grade rank:"
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_nunito_sans" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_quest_progress_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tag_k12"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:text="1 / 8 Done"
+                            android:textColor="#5341CD"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- The 8 Quest Items -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Item 1: Bubble -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_bubble"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_bubble"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_bubble"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Activate the Floating Bubble"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <ImageView
+                                android:id="@+id/badge_quest_bubble"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_verified_teal"
+                                android:visibility="gone"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <!-- Item 2: Read -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_read"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_read"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_read"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Read the 4 Required Materials"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <ImageView
+                                android:id="@+id/badge_quest_read"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_verified_teal"
+                                android:visibility="gone"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <!-- Item 3: Test (with Quiz Required tag) -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_test"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_test"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_test"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Pass the Initiation Test"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:id="@+id/badge_quest_test"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_tag_quiz_req"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="Quiz Required"
+                                android:textColor="#A31E79"
+                                android:textSize="10sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Item 4: Scan -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_scan"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_scan"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_scan"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Scan a text with the Camera"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <ImageView
+                                android:id="@+id/badge_quest_scan"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_verified_teal"
+                                android:visibility="gone"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <!-- Item 5: Save (with Bookmark icon) -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_save"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_save"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_save"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Save a word to Favorites"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <ImageView
+                                android:id="@+id/badge_quest_save"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_bookmark_outline"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <!-- Item 6: History (with Clock icon) -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_history"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_history"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_history"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Check your Scan History"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <ImageView
+                                android:id="@+id/badge_quest_history"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_clock_outline"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <!-- Item 7: Detail / Folder -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_detail"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_detail"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="View Saved Content"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <ImageView
+                                android:id="@+id/badge_quest_detail"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_folder_outline"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <!-- Item 8: Library -->
+                        <LinearLayout
+                            android:id="@+id/row_quest_library"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/bg_quest_row_pending"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="10dp">
+
+                            <ImageView
+                                android:id="@+id/indicator_quest_library"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:background="@drawable/bg_badge_rose"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_close_bold"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/quest_library"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="10dp"
+                                android:text="Open the Digital Library"
+                                android:textColor="#161D1F"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <ImageView
+                                android:id="@+id/badge_quest_library"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_verified_teal"
+                                android:visibility="gone"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Full-Width Vibrant Gradient Pill CTA -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_quest_details"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_btn_gradient_quest"
+                        app:backgroundTint="@null"
+                        android:text="View Quest Details  →"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        app:cornerRadius="24dp"
+                        app:elevation="0dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- ===== Section label ===== -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your Journey"
-                android:textAppearance="@style/TextAppearance.GabAI.Title"
-                android:textSize="16sp"
-                android:layout_marginBottom="@dimen/space_sm" />
-
-            <!-- ===== Bento grid: row 1 ===== -->
+            <!-- ========================================================= -->
+            <!-- 4. YOUR JOURNEY SECTION                                   -->
+            <!-- ========================================================= -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
-
-                <!-- Learning Progress -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btn_learning_progress"
-                    style="@style/Widget.GabAI.CardView.Glass"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/space_sm"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
-                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_purple">
-                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/ic_media_play" app:tint="@color/brand_primary" android:contentDescription="@null" />
-                        </FrameLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="Learning Progress" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Level, XP &amp; accuracy" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Daily Quests -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btn_daily_quests"
-                    style="@style/Widget.GabAI.CardView.Glass"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="@dimen/space_sm"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
-                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_green">
-                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/ic_menu_today" app:tint="@color/success_green" android:contentDescription="@null" />
-                        </FrameLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="Daily Quests" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Daily tasks for bonus XP" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- ===== Bento grid: row 2 ===== -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
-
-                <!-- My Badges -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btn_achievements"
-                    style="@style/Widget.GabAI.CardView.Glass"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/space_sm"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
-                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_gold">
-                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/ic_menu_myplaces" app:tint="@color/accent_gold" android:contentDescription="@null" />
-                        </FrameLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="My Badges" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Unlocked achievements" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Class Leaderboard -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btn_leaderboard"
-                    style="@style/Widget.GabAI.CardView.Glass"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="@dimen/space_sm"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:minHeight="128dp">
-                        <FrameLayout android:layout_width="@dimen/icon_tile" android:layout_height="@dimen/icon_tile" android:background="@drawable/bg_icon_tile_blue">
-                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@android:drawable/btn_star_big_on" app:tint="@color/accent_amber" android:contentDescription="@null" />
-                        </FrameLayout>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_md" android:text="Leaderboard" android:textAppearance="@style/TextAppearance.GabAI.Title" android:textSize="16sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:text="Rank in your section" android:textAppearance="@style/TextAppearance.GabAI.Caption" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btn_join_class"
-                style="@style/Widget.GabAI.Button.Primary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_sm"
-                android:layout_marginBottom="@dimen/space_lg"
-                android:backgroundTint="@color/success_green"
-                android:padding="@dimen/space_md"
-                android:text="Join Class with Code"
-                android:textColor="@color/white"
-                android:textStyle="bold" />
-
-            <!-- ===== Tools section ===== -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tools"
-                android:textAppearance="@style/TextAppearance.GabAI.Title"
-                android:textSize="16sp"
-                android:layout_marginBottom="@dimen/space_sm" />
-
-            <!-- Camera Live Scan (vibrant hero) -->
-            <LinearLayout
-                android:id="@+id/btn_open_camera"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_card_level"
-                android:elevation="@dimen/elevation_hero"
-                android:clipToOutline="true"
                 android:orientation="vertical"
-                android:padding="@dimen/screen_padding"
-                android:layout_marginBottom="@dimen/space_md"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
+                android:layout_marginBottom="24dp">
 
-                <TextView android:text="📷  Camera Live Scan" android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                <TextView android:text="Scan physical books and documents in real-time" android:textSize="14sp" android:textColor="@color/text_on_dark_muted" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-
-                <Button
-                    style="@style/Widget.GabAI.Button.OnCard"
+                <!-- Section Title Header with purple pill -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Open Scanner"
-                    android:clickable="false"
-                    android:duplicateParentState="true"
-                    android:layout_gravity="center_horizontal" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#5341CD" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="YOUR JOURNEY"
+                        android:textColor="#161D1F"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
+                </LinearLayout>
+
+                <!-- Row 1 of Bento (Progress + Daily Quests) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <!-- Progress Tile -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_learning_progress"
+                        style="@style/Widget.Material3.CardView.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="5dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#EDF2F7"
+                        app:contentPadding="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_purple"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_insights"
+                                android:contentDescription="@null" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Progress"
+                                android:textColor="#161D1F"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Level, XP &amp; accuracy"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Daily Quests Tile -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_daily_quests"
+                        style="@style/Widget.Material3.CardView.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#EDF2F7"
+                        app:contentPadding="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:id="@+id/iv_daily_quests_icon"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_mint"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_task_alt"
+                                android:contentDescription="@null" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/tv_daily_quests_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Daily Quests"
+                                android:textColor="#161D1F"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_daily_quests_subtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Daily tasks for bonus XP"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Row 2 of Bento (My Badges + Leaderboard) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <!-- My Badges Tile -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_achievements"
+                        style="@style/Widget.Material3.CardView.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="5dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#EDF2F7"
+                        app:contentPadding="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_rose"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_military_tech"
+                                android:contentDescription="@null" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="My Badges"
+                                android:textColor="#161D1F"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Unlocked achievements"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Leaderboard Tile -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_leaderboard"
+                        style="@style/Widget.Material3.CardView.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="136dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#EDF2F7"
+                        app:contentPadding="0dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:id="@+id/iv_leaderboard_icon"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_lavender"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_leaderboard"
+                                android:contentDescription="@null" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/tv_leaderboard_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Leaderboard"
+                                android:textColor="#161D1F"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_leaderboard_subtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Rank in your section"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Full-Width Deep Teal Join Class Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_join_class"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:background="@drawable/btn_teal_stitch"
+                    app:backgroundTint="@null"
+                    android:text="  Join Class with Code"
+                    app:icon="@drawable/ic_vpn_key"
+                    app:iconGravity="textStart"
+                    app:iconSize="20dp"
+                    app:iconTint="#FFFFFF"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    app:cornerRadius="16dp"
+                    app:elevation="0dp" />
             </LinearLayout>
 
-            <!-- Digital Library (secondary hero) -->
+            <!-- ========================================================= -->
+            <!-- 5. TOOLS SECTION (Single Cards, No Gray Border)           -->
+            <!-- ========================================================= -->
             <LinearLayout
-                android:id="@+id/btn_open_library"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_hero_alt"
-                android:elevation="@dimen/elevation_hero"
-                android:clipToOutline="true"
                 android:orientation="vertical"
-                android:padding="@dimen/screen_padding"
-                android:layout_marginBottom="@dimen/space_lg"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
+                android:layout_marginBottom="24dp">
 
-                <TextView android:text="📚  Digital Library" android:textSize="19sp" android:textStyle="bold" android:textColor="@color/text_on_dark" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                <TextView android:text="View and read materials assigned by your teacher" android:textSize="14sp" android:textColor="@color/text_on_dark_muted" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-
-                <Button
-                    style="@style/Widget.GabAI.Button.OnCard"
+                <!-- Section Title -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Open Library"
-                    android:clickable="false"
-                    android:duplicateParentState="true"
-                    android:layout_gravity="center_horizontal" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#5341CD" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TOOLS"
+                        android:textColor="#161D1F"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
+                </LinearLayout>
+
+                <!-- Camera Live Scan Action Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_open_camera"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_tools_camera_gradient"
+                        android:orientation="vertical"
+                        android:padding="18dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="top">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="📷"
+                                        android:textSize="18sp"
+                                        android:layout_marginEnd="6dp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Camera Live Scan"
+                                        android:textColor="#FFFFFF"
+                                        android:textSize="19sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Scan physical books and school modules in real-time with instant word assistance."
+                                    android:textColor="#E4DFFF"
+                                    android:textSize="12sp"
+                                    android:fontFamily="@font/font_nunito_sans" />
+                            </LinearLayout>
+
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="@drawable/bg_level_pill"
+                                android:layout_marginStart="12dp">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_center_focus"
+                                    app:tint="#FFFFFF"
+                                    android:contentDescription="@null" />
+                            </FrameLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="⚡ Instant OCR"
+                                android:textColor="#F4FAFD"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_pill_white"
+                                android:gravity="center"
+                                android:paddingHorizontal="16dp"
+                                android:text="Open Scanner  →"
+                                android:textColor="#5341CD"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Digital Library Action Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_open_library"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_tools_library_gradient"
+                        android:orientation="vertical"
+                        android:padding="18dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="top">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="📚"
+                                        android:textSize="18sp"
+                                        android:layout_marginEnd="6dp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Digital Library"
+                                        android:textColor="#FFFFFF"
+                                        android:textSize="19sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="View and read grade-level materials assigned directly by your teacher."
+                                    android:textColor="#E0F2FE"
+                                    android:textSize="12sp"
+                                    android:fontFamily="@font/font_nunito_sans" />
+                            </LinearLayout>
+
+                            <FrameLayout
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:background="@drawable/bg_level_pill"
+                                android:layout_marginStart="12dp">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_menu_book"
+                                    app:tint="#FFFFFF"
+                                    android:contentDescription="@null" />
+                            </FrameLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Class Materials"
+                                android:textColor="#F4FAFD"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_pill_white"
+                                android:gravity="center"
+                                android:paddingHorizontal="16dp"
+                                android:text="Open Library  →"
+                                android:textColor="#006B55"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- ===== Review section ===== -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- ========================================================= -->
+            <!-- 6. REVIEW & RECALL SECTION                                -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Review &amp; Recall"
-                android:textAppearance="@style/TextAppearance.GabAI.Title"
-                android:textSize="16sp"
-                android:layout_marginBottom="@dimen/space_sm" />
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
 
-            <!-- Recall Quiz (glass) -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.GabAI.CardView.Glass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                <!-- Section Title -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:text="Recall Quiz" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:text="Test your memory on past selected contexts" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <Button android:id="@+id/btn_start_quiz" style="@style/Widget.GabAI.Button.Gradient" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Start Quiz" />
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#5341CD" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="REVIEW &amp; RECALL"
+                        android:textColor="#161D1F"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Favourites (glass) -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.GabAI.CardView.Glass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                <!-- Recall Quiz Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_start_quiz"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:text="Favourites" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:text="View your saved texts" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <Button android:id="@+id/btn_favs" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View Favourites" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="14dp">
 
-            <!-- History (glass) -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.GabAI.CardView.Glass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_bento_rose"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_psychology"
+                            android:contentDescription="@null" />
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:text="History" android:textAppearance="@style/TextAppearance.GabAI.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <TextView android:text="Review all highlighted text blocks" android:textAppearance="@style/TextAppearance.GabAI.Body" android:layout_marginTop="@dimen/space_xs" android:layout_marginBottom="@dimen/space_md" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    <Button android:id="@+id/btn_history" style="@style/Widget.GabAI.Button.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="View History" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Recall Quiz"
+                                android:textColor="#161D1F"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Test your memory on past contexts."
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_btn_pill_purple"
+                            android:gravity="center"
+                            android:paddingHorizontal="14dp"
+                            android:text="Start Quiz"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Favourites Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_favs"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="14dp">
+
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_bento_mint"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_favorite"
+                            android:contentDescription="@null" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Favourites"
+                                android:textColor="#161D1F"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="View your saved vocabulary words."
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_btn_pill_grey"
+                            android:gravity="center"
+                            android:paddingHorizontal="14dp"
+                            android:text="View Favourites"
+                            android:textColor="#475569"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- History Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_history"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="14dp">
+
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_bento_purple"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_manage_search"
+                            android:contentDescription="@null" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="History"
+                                android:textColor="#161D1F"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Review all scanned and read passages."
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:singleLine="true" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_btn_pill_grey"
+                            android:gravity="center"
+                            android:paddingHorizontal="14dp"
+                            android:text="View History"
+                            android:textColor="#475569"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ================================================================= -->
+    <!-- PINNED FROSTED GABAI ASSISTANT HEADER (The True App Header)      -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/header_assistant_bar"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:background="@drawable/bg_glass_top_bar"
+        android:elevation="0dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <!-- Left: GabAI App Logo Squircle with Ready Tag -->
+        <FrameLayout
+            android:id="@+id/profile_ring"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profile_image"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_gabai_logo"
+                android:scaleType="fitCenter"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium" />
+
+            <!-- Ready status badge -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/bg_tag_ready"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="1dp">
+
+                <ImageView
+                    android:layout_width="7dp"
+                    android:layout_height="7dp"
+                    android:src="@drawable/ic_check_bold"
+                    app:tint="#FFFFFF"
+                    android:contentDescription="@null" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Middle: Brand Title and Instant Reader subtitle -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GabAI"
+                android:textColor="#5341CD"
+                android:textSize="20sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Instant On-Screen Reader"
+                android:textColor="#64748B"
+                android:textSize="12sp"
+                android:fontFamily="@font/font_nunito_sans" />
+        </LinearLayout>
+
+        <!-- Right: Bubble Toggle Switch -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_badge_mint" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bubble"
+                    android:textColor="#64748B"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/bubble_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:layout_marginTop="2dp"
+                android:track="@drawable/switch_track_stitch"
+                android:thumb="@drawable/switch_thumb_stitch"
+                app:thumbTint="@null"
+                app:trackTint="@null"
+                android:contentDescription="Toggle Floating Reader Bubble" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -115,8 +115,8 @@ class AuthActivity : AppCompatActivity() {
             }
         }
 
-        // Trigger Register on Enter / Done from Register Password Field
-        binding.etRegPassword.setOnEditorActionListener { _, actionId, event ->
+        // Trigger Register on Enter / Done from Register Confirm Password Field
+        binding.etRegConfirmPassword.setOnEditorActionListener { _, actionId, event ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
                 actionId == android.view.inputmethod.EditorInfo.IME_ACTION_GO ||
                 (event != null && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER && event.action == android.view.KeyEvent.ACTION_DOWN)
@@ -149,29 +149,29 @@ class AuthActivity : AppCompatActivity() {
         }
 
         selectedRole = role
-        val primaryColor = ContextCompat.getColor(this, R.color.brand_primary)
-        val mutedColor = ContextCompat.getColor(this, R.color.text_secondary)
+        val primaryColor = ContextCompat.getColor(this, R.color.stitch_primary)
+        val mutedColor = ContextCompat.getColor(this, R.color.stitch_text_muted)
 
-        // Ensure completely flat segmented buttons with no residual shadow artifacts
         binding.btnTabStudent.stateListAnimator = null
         binding.btnTabTeacher.stateListAnimator = null
-        binding.btnTabStudent.elevation = 0f
-        binding.btnTabTeacher.elevation = 0f
 
         if (role == "teacher") {
-            // Teacher Tab Active Styling
-            binding.btnTabTeacher.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+            // Educator Tab Active Styling
+            binding.btnTabTeacher.setBackgroundResource(R.drawable.bg_role_tab_indicator)
             binding.btnTabTeacher.setTextColor(primaryColor)
+            binding.btnTabTeacher.elevation = 2f
 
             // Student Tab Inactive Styling
-            binding.btnTabStudent.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+            binding.btnTabStudent.setBackgroundResource(android.R.color.transparent)
             binding.btnTabStudent.setTextColor(mutedColor)
+            binding.btnTabStudent.elevation = 0f
 
             // Update UI Copy & Inputs
-            binding.tvAuthGreeting.text = "Welcome, Educator! 🍎"
-            binding.tvRoleIndicator.text = "Sign in to manage classes and quizzes"
+            binding.tvAuthGreeting.text = "Educator Portal 📖"
+            binding.tvRoleIndicator.text = "Sign in to review student literacy journeys."
 
-            binding.tilLoginEmail.hint = "Email Address"
+            binding.tilLoginEmail.hint = "Email or Username"
+            binding.etLoginEmail.hint = "Email or Username"
             binding.tilLoginEmail.setStartIconDrawable(R.drawable.ic_mail)
             binding.etLoginEmail.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
 
@@ -181,18 +181,21 @@ class AuthActivity : AppCompatActivity() {
             binding.rbTeacher.isChecked = true
         } else {
             // Student Tab Active Styling
-            binding.btnTabStudent.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+            binding.btnTabStudent.setBackgroundResource(R.drawable.bg_role_tab_indicator)
             binding.btnTabStudent.setTextColor(primaryColor)
+            binding.btnTabStudent.elevation = 2f
 
-            // Teacher Tab Inactive Styling
-            binding.btnTabTeacher.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+            // Educator Tab Inactive Styling
+            binding.btnTabTeacher.setBackgroundResource(android.R.color.transparent)
             binding.btnTabTeacher.setTextColor(mutedColor)
+            binding.btnTabTeacher.elevation = 0f
 
             // Update UI Copy & Inputs
             binding.tvAuthGreeting.text = "Welcome Back! 👋"
-            binding.tvRoleIndicator.text = "Enter your student credentials to continue"
+            binding.tvRoleIndicator.text = "Enter your credentials to continue reading."
 
             binding.tilLoginEmail.hint = "Username"
+            binding.etLoginEmail.hint = "Username"
             binding.tilLoginEmail.setStartIconDrawable(R.drawable.ic_person)
             binding.etLoginEmail.inputType = InputType.TYPE_CLASS_TEXT
 
@@ -227,6 +230,7 @@ class AuthActivity : AppCompatActivity() {
         binding.containerGreeting.visibility = View.GONE
         binding.containerRoleSwitcher.visibility = View.GONE
         binding.containerRegister.visibility = View.VISIBLE
+        binding.tvGoToLogin.text = android.text.Html.fromHtml("Already have an account? <font color='#5341CD'><b>Sign In</b></font>", android.text.Html.FROM_HTML_MODE_LEGACY)
     }
 
     private fun setupGradeDropdown() {
@@ -371,6 +375,7 @@ class AuthActivity : AppCompatActivity() {
     private fun performRegistration() {
         val email = binding.etRegEmail.text.toString().trim()
         val pass = binding.etRegPassword.text.toString().trim()
+        val confirmPass = binding.etRegConfirmPassword.text.toString().trim()
         val firstName = binding.etRegFirstname.text.toString().trim()
         val lastName = binding.etRegLastname.text.toString().trim()
 
@@ -385,9 +390,21 @@ class AuthActivity : AppCompatActivity() {
         // Anti-spam disable
         binding.btnRegisterSubmit.isEnabled = false
 
-        if (email.isEmpty() || pass.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || schoolId.isEmpty() ||
+        if (email.isEmpty() || pass.isEmpty() || confirmPass.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || schoolId.isEmpty() ||
             (role == "student" && (section.isEmpty() || grade.isEmpty()))) {
             showErrorDialog("Incomplete Form", "Please fill in all details.")
+            binding.btnRegisterSubmit.isEnabled = true
+            return
+        }
+
+        if (pass != confirmPass) {
+            showErrorDialog("Password Mismatch", "Passwords do not match. Please re-enter your password.")
+            binding.btnRegisterSubmit.isEnabled = true
+            return
+        }
+
+        if (pass.length < 6) {
+            showErrorDialog("Weak Password", "Password should be at least 6 characters.")
             binding.btnRegisterSubmit.isEnabled = true
             return
         }

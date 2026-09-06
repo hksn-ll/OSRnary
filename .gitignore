@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+graphify-out/cache/
+.agents/
