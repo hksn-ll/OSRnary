@@ -95,9 +95,15 @@ class QuizEditorActivity : AppCompatActivity() {
             cardMeta.visibility = View.GONE
         }
 
+        targetClassId = intent.getStringExtra("TARGET_CLASS_ID") ?: ""
+        targetClassName = intent.getStringExtra("TARGET_CLASS_NAME") ?: ""
+
         loadTeacherInfo()
         loadInitialQuestions(initialJson)
     }
+
+    private var targetClassId: String = ""
+    private var targetClassName: String = ""
 
     private fun loadTeacherInfo() {
         val uid = auth.currentUser?.uid ?: return
@@ -127,6 +133,10 @@ class QuizEditorActivity : AppCompatActivity() {
                     enrolledClasses.add(ClassInfo(doc.id, fullCName, sId, cGrade))
                 }
 
+                if (targetClassId.isNotEmpty() && enrolledClasses.none { it.id == targetClassId }) {
+                    enrolledClasses.add(0, ClassInfo(targetClassId, if (targetClassName.isNotEmpty()) targetClassName else "Target Class", intent.getStringExtra("SCHOOL_ID") ?: "", intent.getStringExtra("GRADE") ?: ""))
+                }
+
                 if (enrolledClasses.isEmpty()) {
                     val emptyAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, arrayOf("No Classes Available (Create a class first)"))
                     spinnerClass.adapter = emptyAdapter
@@ -134,6 +144,13 @@ class QuizEditorActivity : AppCompatActivity() {
                     val classNames = enrolledClasses.map { it.name }.toTypedArray()
                     val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, classNames)
                     spinnerClass.adapter = adapter
+
+                    if (targetClassId.isNotEmpty()) {
+                        val targetIdx = enrolledClasses.indexOfFirst { it.id == targetClassId }
+                        if (targetIdx != -1) {
+                            spinnerClass.setSelection(targetIdx)
+                        }
+                    }
                 }
             }
     }

@@ -36,10 +36,10 @@
     "semantic_hash": "a2d8031aae0e91a9f0cf5563501da48b"
   },
   "app/src/main/java/com/example/gabai/ClassDetailActivity.kt": {
-    "mtime": 1788443407.1155787,
-    "seen": 1788701745.6429348,
-    "ast_hash": "d62c73be04c35a4db075127ec9f83881",
-    "semantic_hash": "d62c73be04c35a4db075127ec9f83881"
+    "mtime": 1788755352.113393,
+    "seen": 1788755548.539555,
+    "ast_hash": "f228b24a7cc50036d69ada5c3057c251",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt": {
     "mtime": 1788443407.1165826,
@@ -168,9 +168,9 @@
     "semantic_hash": "38e2e1ab71a7c98460feb6f6c0e2107a"
   },
   "app/src/main/java/com/example/gabai/QuizEditorActivity.kt": {
-    "mtime": 1788733415.5040438,
-    "seen": 1788733890.8708937,
-    "ast_hash": "7a794c1be38aa5aeb1088b071e14b3ed",
+    "mtime": 1788755236.866619,
+    "seen": 1788755548.5396216,
+    "ast_hash": "345106f66df3b19153385e74e8377651",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt": {
@@ -198,9 +198,9 @@
     "semantic_hash": "a35afbb2fc49ab1d8a768db6c1b2d533"
   },
   "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt": {
-    "mtime": 1788733357.8016996,
-    "seen": 1788733890.870901,
-    "ast_hash": "6eb52130e23a55cfc22bb9cc04718b73",
+    "mtime": 1788755201.7956028,
+    "seen": 1788755548.5396361,
+    "ast_hash": "9a5149fb1930b4a5de2314cc427234dc",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/TeacherHomeFragment.kt": {
@@ -429,12 +429,6 @@
     "mtime": 1788733473.3254645,
     "seen": 1788733890.8709087,
     "ast_hash": "7738b9c6fa6e4b1e35004fc32f9e606c",
-    "semantic_hash": ""
-  },
-  "scratch_release.py": {
-    "mtime": 1788753324.9001918,
-    "seen": 1788754350.9372945,
-    "ast_hash": "a2178ccf5ba8373572e1625f5f8d691b",
     "semantic_hash": ""
   }
 }

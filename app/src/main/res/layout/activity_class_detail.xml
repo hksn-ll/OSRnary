@@ -95,7 +95,25 @@
                 android:id="@+id/active_students_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Weekly Assessments"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#6C5CE7"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp"/>
+
+            <LinearLayout
+                android:id="@+id/section_weekly_assessments_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp"/>
         </LinearLayout>
     </ScrollView>
 
@@ -108,6 +126,19 @@
         android:padding="20dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create_weekly_assessment"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="✨ Create Weekly Assessment"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp"
+            android:background="@drawable/btn_gradient_stitch"
+            app:backgroundTint="@null"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="6dp" />
 
         <Button
             android:id="@+id/btn_view_performance"

@@ -21,6 +21,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import androidx.appcompat.app.AlertDialog // Make sure you have this
+import android.provider.OpenableColumns
+import com.google.ai.client.generativeai.GenerativeModel
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.text.PDFTextStripper
+import org.json.JSONArray
+import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ClassDetailActivity : AppCompatActivity() {
 
@@ -38,6 +48,15 @@ class ClassDetailActivity : AppCompatActivity() {
     private val driveApiUrl = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
     private var activeDialog: androidx.appcompat.app.AlertDialog? = null
 
+    // --- WEEKLY ASSESSMENT VARIABLES ---
+    private var selectedGeminiFocus: String = "Standard Comprehensive (Balanced concepts & applications)"
+
+    private val assessmentPdfPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            handleAssessmentPdfSelected(uri)
+        }
+    }
+
     private val pdfPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             activeDialog?.dismiss() // Close settings dialog while we name the file
@@ -48,6 +67,9 @@ class ClassDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_class_detail)
+
+        // Initialize PDFBox for in-memory PDF parsing and text extraction
+        PDFBoxResourceLoader.init(applicationContext)
 
         // 1. Get Data from Intent (FIXED: Removed 'val' so it uses your class variables)
         classId = intent.getStringExtra("CLASS_ID") ?: return finish()
@@ -106,6 +128,12 @@ class ClassDetailActivity : AppCompatActivity() {
 
         // 5. Load the students into the lists
         loadStudents()
+
+        // 6. Weekly Assessment Builder & Section Roster Assessment List
+        findViewById<View>(R.id.btn_create_weekly_assessment)?.setOnClickListener {
+            showCreateAssessmentDialog()
+        }
+        loadWeeklyAssessments()
     }
 
     private fun loadStudents() {
@@ -513,5 +541,226 @@ class ClassDetailActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    // =========================================================
+    // WEEKLY ASSESSMENT GENERATION & SECTION ROSTER METHODS
+    // =========================================================
+
+    private fun showCreateAssessmentDialog() {
+        val focusOptions = arrayOf(
+            "Standard Comprehensive (Balanced concepts & applications)",
+            "Higher-Order Thinking & Problem Solving (Scenario & analytical)",
+            "Core Vocabulary & Key Terms (Definitions & concept recall)",
+            "Quick Diagnostic (Core knowledge & fast check)"
+        )
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Select how you want Gemini to generate the assessment")
+            .setItems(focusOptions) { _, which ->
+                selectedGeminiFocus = focusOptions[which]
+                promptUploadAssessmentPdf()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun promptUploadAssessmentPdf() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("📄 Upload PDF for Weekly Assessment")
+            .setMessage("Please upload the lesson PDF or reviewer document for Section $sectionName ($className).\n\nGemini will analyze the material and create 10 multiple-choice questions focusing on:\n• $selectedGeminiFocus.")
+            .setPositiveButton("Choose PDF") { _, _ ->
+                assessmentPdfPickerLauncher.launch("application/pdf")
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun handleAssessmentPdfSelected(uri: Uri) {
+        val fileName = getFileNameFromUri(uri)
+        GabAIUtils.showGlobalLoading(this, "Gemini is generating 10 weekly assessment questions for $sectionName...")
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val extractedText = extractTextFromUri(uri)
+                if (extractedText.isBlank()) {
+                    withContext(Dispatchers.Main) {
+                        GabAIUtils.hideGlobalLoading(this@ClassDetailActivity)
+                        GabAIUtils.showSnackbar(this@ClassDetailActivity, "Could not extract text from this PDF. Please select a readable document.")
+                    }
+                    return@launch
+                }
+
+                val generativeModel = GenerativeModel(
+                    modelName = "gemini-2.5-flash-lite",
+                    apiKey = BuildConfig.GEMINI_API_KEY
+                )
+
+                val prompt = """
+                    You are an expert DepEd curriculum designer and assessment specialist.
+                    Section: $sectionName
+                    Class/Subject: $className
+                    Grade Level: $grade
+                    Generation Style / Assessment Focus: $selectedGeminiFocus
+
+                    Analyze the following lesson material and generate exactly 10 high-quality multiple choice assessment questions following the specified focus style.
+
+                    Source Text:
+                    ${extractedText.take(12000)}
+
+                    Requirements:
+                    1. Generate exactly 10 questions.
+                    2. 4 plausible multiple-choice options per question.
+                    3. "ans" must be the 0-indexed integer of the correct option (0, 1, 2, or 3).
+                    4. "explanation" must be a clear educational explanation of why the correct choice is right.
+                    5. Return ONLY a valid JSON array. No markdown fences or commentary.
+
+                    JSON Array format:
+                    [
+                      {
+                        "q": "Question text here?",
+                        "options": ["Choice A", "Choice B", "Choice C", "Choice D"],
+                        "ans": 0,
+                        "explanation": "Clear educational explanation."
+                      }
+                    ]
+                """.trimIndent()
+
+                val response = generativeModel.generateContent(prompt)
+                var jsonStr = response.text ?: "[]"
+                val startIndex = jsonStr.indexOf("[")
+                val endIndex = jsonStr.lastIndexOf("]")
+                if (startIndex != -1 && endIndex != -1) {
+                    jsonStr = jsonStr.substring(startIndex, endIndex + 1)
+                }
+
+                val array = JSONArray(jsonStr)
+                if (array.length() == 0) throw Exception("No questions generated by AI.")
+
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@ClassDetailActivity)
+                    val intent = Intent(this@ClassDetailActivity, QuizEditorActivity::class.java).apply {
+                        putExtra("IS_WEEKLY_ASSESSMENT", true)
+                        putExtra("TARGET_CLASS_ID", classId)
+                        putExtra("TARGET_CLASS_NAME", if (grade.isNotEmpty() && !className.contains(grade)) "$grade - $className" else className)
+                        putExtra("SECTION_NAME", sectionName)
+                        putExtra("GRADE", grade)
+                        putExtra("SCHOOL_ID", schoolId)
+                        putExtra("SUBJECT_NAME", className)
+                        val cleanTitle = fileName.removeSuffix(".pdf").replace('_', ' ')
+                        putExtra("ASSESSMENT_TITLE", "Weekly Assessment: $cleanTitle")
+                        putExtra("TARGET_ITEMS", 10)
+                        putExtra("SOURCE_TYPE", "pdf")
+                        putExtra("SOURCE_REF", fileName)
+                        putExtra("QUIZ_JSON", jsonStr)
+                    }
+                    startActivity(intent)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(this@ClassDetailActivity)
+                    GabAIUtils.showSnackbar(this@ClassDetailActivity, "Generation error: ${e.localizedMessage ?: e.message}")
+                }
+            }
+        }
+    }
+
+    private fun extractTextFromUri(uri: Uri): String {
+        return try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val document = PDDocument.load(inputStream)
+            val stripper = PDFTextStripper()
+            val text = stripper.getText(document)
+            document.close()
+            inputStream?.close()
+            text
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
+    private fun getFileNameFromUri(uri: Uri): String {
+        var name = "assessment_document.pdf"
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex != -1 && cursor.moveToFirst()) {
+                name = cursor.getString(nameIndex)
+            }
+        }
+        return name
+    }
+
+    private fun loadWeeklyAssessments() {
+        val container = findViewById<LinearLayout>(R.id.section_weekly_assessments_container) ?: return
+
+        db.collection("weekly_assessments")
+            .whereEqualTo("classId", classId)
+            .addSnapshotListener { snapshots, error ->
+                if (error != null || snapshots == null) return@addSnapshotListener
+                container.removeAllViews()
+
+                if (snapshots.isEmpty) {
+                    val emptyView = TextView(this).apply {
+                        text = "No weekly assessments created for this section yet.\nTap '✨ Create Weekly Assessment' below to generate one with Gemini."
+                        setTextColor(Color.parseColor("#8898AA"))
+                        textSize = 13f
+                        setPadding(16, 20, 16, 20)
+                        gravity = android.view.Gravity.CENTER
+                    }
+                    container.addView(emptyView)
+                    return@addSnapshotListener
+                }
+
+                val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+
+                for (doc in snapshots) {
+                    val assessmentId = doc.id
+                    val title = doc.getString("title") ?: "Weekly Assessment"
+                    val subject = doc.getString("subjectName") ?: className
+                    val teacher = doc.getString("teacherName") ?: "Teacher"
+                    val count = doc.getLong("questionCount")?.toInt() ?: 10
+                    val dueMillis = doc.getLong("dueDate") ?: 0L
+
+                    val card = layoutInflater.inflate(R.layout.item_weekly_assessment_card, container, false)
+                    card.findViewById<TextView>(R.id.tv_assessment_subject_badge)?.text = subject
+                    card.findViewById<TextView>(R.id.tv_assessment_item_count)?.text = "$count Items"
+                    card.findViewById<TextView>(R.id.tv_assessment_title)?.text = title
+                    card.findViewById<TextView>(R.id.tv_assessment_meta)?.text = "Assigned by $teacher"
+
+                    val tvDueDate = card.findViewById<TextView>(R.id.tv_assessment_due_date)
+                    if (dueMillis > 0) {
+                        tvDueDate?.visibility = View.VISIBLE
+                        tvDueDate?.text = "Due: ${sdf.format(Date(dueMillis))}"
+                    } else {
+                        tvDueDate?.visibility = View.GONE
+                    }
+
+                    val btnAction = card.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_action_assessment)
+                    btnAction?.text = "Preview ➔"
+                    btnAction?.setOnClickListener {
+                        val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
+                            putExtra("ASSESSMENT_ID", assessmentId)
+                            putExtra("CLASS_ID", classId)
+                            putExtra("CLASS_NAME", className)
+                            putExtra("GRADE", grade)
+                            putExtra("SCHOOL_ID", schoolId)
+                        }
+                        startActivity(intent)
+                    }
+
+                    card.setOnClickListener {
+                        val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
+                            putExtra("ASSESSMENT_ID", assessmentId)
+                            putExtra("CLASS_ID", classId)
+                            putExtra("CLASS_NAME", className)
+                            putExtra("GRADE", grade)
+                            putExtra("SCHOOL_ID", schoolId)
+                        }
+                        startActivity(intent)
+                    }
+
+                    container.addView(card)
+                }
+            }
     }
 }
