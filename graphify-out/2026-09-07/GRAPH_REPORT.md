@@ -1,22 +1,22 @@
 # Graph Report - OSRnary  (2026-09-07)
 
 ## Corpus Check
-- 48 files · ~79,542 words
+- 49 files · ~86,698 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 438 nodes · 816 edges · 37 communities (27 shown, 7 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.86)
+- 473 nodes · 882 edges · 39 communities (29 shown, 7 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `75efb1bd`
+- Built from commit: `bca8bd76`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Intent
-- .showSnackbar
+- SubjectDetailActivity
 - InitiationActivity
 - ManageClassesActivity
 - ScanResultActivity
@@ -31,10 +31,11 @@
 - CameraActivity.kt
 - TextOverlayView
 - ProfileFragment.kt
-- TeacherLibraryActivity
+- launch.ps1
 - QuestManager
 - QuestDetailsActivity.kt
-- ProgressDashboardActivity.kt
+- .showSnackbar
+- WeeklyAssessmentActivity
 - DailyQuestsActivity.kt
 - FavoritesActivity
 - HistoryActivity
@@ -45,45 +46,44 @@
 - ExampleInstrumentedTest
 - Earthquakes: Movement of the Earth's Crust
 - ExampleUnitTest
+- LeaderboardActivity.kt
 - ic_launcher-playstore (main)
 - ic_search_bubble (drawable)
 - DualStackHandler
 - LibraryActivity
 
 ## God Nodes (most connected - your core abstractions)
-1. `AuthActivity` - 19 edges
-2. `FloatingControlService` - 18 edges
-3. `SubjectDetailActivity` - 18 edges
-4. `HomeFragment` - 15 edges
-5. `InitiationActivity` - 14 edges
-6. `QuizActivity` - 14 edges
-7. `ClassDetailActivity` - 13 edges
-8. `OverviewActivity` - 13 edges
-9. `ManageClassesActivity` - 12 edges
-10. `QuizEditorActivity` - 12 edges
+1. `SubjectDetailActivity` - 24 edges
+2. `AuthActivity` - 19 edges
+3. `WeeklyAssessmentActivity` - 19 edges
+4. `FloatingControlService` - 18 edges
+5. `HomeFragment` - 17 edges
+6. `QuizEditorActivity` - 17 edges
+7. `InitiationActivity` - 14 edges
+8. `QuizActivity` - 14 edges
+9. `ClassDetailActivity` - 13 edges
+10. `OverviewActivity` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `AuthActivity` --references--> `FirebaseAuth`  [EXTRACTED]
   app/src/main/java/com/example/gabai/AuthActivity.kt →   _Bridges community 6 → community 10_
-- `SubjectDetailActivity` --references--> `ProgressBar`  [EXTRACTED]
-  app/src/main/java/com/example/gabai/SubjectDetailActivity.kt →   _Bridges community 1 → community 2_
 
 ## Import Cycles
 - None detected.
 
-## Communities (37 total, 7 thin omitted)
+## Communities (39 total, 7 thin omitted)
 
 ### Community 0 - "Intent"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (18): ActivityMainBinding, HomeFragment, Bundle, Fragment, LayoutInflater, View, ViewGroup, AppCompatActivity (+10 more)
 
-### Community 1 - ".showSnackbar"
-Cohesion: 0.10
-Nodes (13): androidx, ClassDetailActivity, AppCompatActivity, Bundle, Uri, AppCompatActivity, Bundle, LinearLayout (+5 more)
+### Community 1 - "SubjectDetailActivity"
+Cohesion: 0.13
+Nodes (9): AppCompatActivity, Bundle, Button, LinearLayout, ProgressBar, TextView, Uri, SubjectDetailActivity (+1 more)
 
 ### Community 2 - "InitiationActivity"
-Cohesion: 0.12
-Nodes (12): GabAIUtils, Context, GeneratedQuestion, InitiationActivity, InitiationMaterial, AppCompatActivity, Bundle, FirebaseFirestore (+4 more)
+Cohesion: 0.15
+Nodes (9): GeneratedQuestion, InitiationActivity, InitiationMaterial, AppCompatActivity, Bundle, FirebaseFirestore, AppCompatActivity, Bundle (+1 more)
 
 ### Community 3 - "ManageClassesActivity"
 Cohesion: 0.25
@@ -114,12 +114,12 @@ Cohesion: 0.30
 Nodes (7): Activity, GitHubUpdateHelper, Callback, Callback, VersionInfo, Call, Response
 
 ### Community 10 - "FirebaseAuth"
-Cohesion: 0.16
-Nodes (8): AppCompatActivity, Bundle, LeaderboardActivity, AppCompatActivity, Bundle, QuizActivity, com, FirebaseAuth
+Cohesion: 0.15
+Nodes (8): AppCompatActivity, Bundle, ProgressDashboardActivity, AppCompatActivity, Bundle, QuizActivity, com, FirebaseAuth
 
 ### Community 11 - "QuizEditorActivity"
-Cohesion: 0.17
-Nodes (8): AppCompatActivity, Bundle, LinearLayout, QuizEditorActivity, AppCompatActivity, Bundle, StudentStats, TeacherPerformanceActivity
+Cohesion: 0.22
+Nodes (6): ClassInfo, AppCompatActivity, Bundle, LinearLayout, TextView, QuizEditorActivity
 
 ### Community 12 - "PdfViewerActivity"
 Cohesion: 0.29
@@ -137,17 +137,21 @@ Nodes (5): MotionEvent, View, TextOverlayView, WordBox, Text
 Cohesion: 0.31
 Nodes (7): Bundle, Fragment, LayoutInflater, View, ViewGroup, ProfileFragment, FragmentProfileBinding
 
-### Community 16 - "TeacherLibraryActivity"
-Cohesion: 0.42
-Nodes (3): AppCompatActivity, Bundle, TeacherLibraryActivity
+### Community 16 - "launch.ps1"
+Cohesion: 0.20
+Nodes (7): AppCompatActivity, Bundle, TeacherLibraryActivity, AppCompatActivity, Bundle, StudentStats, TeacherPerformanceActivity
 
 ### Community 18 - "QuestDetailsActivity.kt"
 Cohesion: 0.48
 Nodes (3): AppCompatActivity, Bundle, QuestDetailsActivity
 
-### Community 19 - "ProgressDashboardActivity.kt"
-Cohesion: 0.48
-Nodes (3): AppCompatActivity, Bundle, ProgressDashboardActivity
+### Community 19 - ".showSnackbar"
+Cohesion: 0.17
+Nodes (7): androidx, ClassDetailActivity, AppCompatActivity, Bundle, Uri, GabAIUtils, Context
+
+### Community 20 - "WeeklyAssessmentActivity"
+Cohesion: 0.18
+Nodes (8): AssessmentQuestion, AppCompatActivity, Bundle, Button, ProgressBar, TextView, View, WeeklyAssessmentActivity
 
 ### Community 21 - "DailyQuestsActivity.kt"
 Cohesion: 0.53
@@ -177,29 +181,33 @@ Nodes (3): gradlew script, die(), warn()
 Cohesion: 1.00
 Nodes (3): Earthquakes: Movement of the Earth's Crust, Seismic Waves, Tectonic Plates and Fault Lines
 
+### Community 31 - "LeaderboardActivity.kt"
+Cohesion: 0.53
+Nodes (3): AppCompatActivity, Bundle, LeaderboardActivity
+
 ### Community 52 - "LibraryActivity"
 Cohesion: 0.43
 Nodes (3): AppCompatActivity, Bundle, LibraryActivity
 
 ## Knowledge Gaps
 - **2 isolated node(s):** `ic_launcher-playstore (main)`, `ic_search_bubble (drawable)`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 31 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 36 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `HomeFragment` connect `Intent` to `.showSnackbar`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
-- **Why does `AuthActivity` connect `AuthActivity` to `FirebaseAuth`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
-- **Why does `SubjectDetailActivity` connect `.showSnackbar` to `InitiationActivity`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
 - **What connects `ic_launcher-playstore (main)`, `ic_search_bubble (drawable)` to the rest of the system?**
   _2 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Intent` be split into smaller, more focused modules?**
-  _Cohesion score 0.09615384615384616 - nodes in this community are weakly interconnected._
-- **Should `.showSnackbar` be split into smaller, more focused modules?**
-  _Cohesion score 0.09986504723346828 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09291521486643438 - nodes in this community are weakly interconnected._
+- **Should `SubjectDetailActivity` be split into smaller, more focused modules?**
+  _Cohesion score 0.1330049261083744 - nodes in this community are weakly interconnected._
 - **Should `InitiationActivity` be split into smaller, more focused modules?**
-  _Cohesion score 0.11586452762923351 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1455026455026455 - nodes in this community are weakly interconnected._
+- **Should `ScanResultActivity` be split into smaller, more focused modules?**
+  _Cohesion score 0.10483870967741936 - nodes in this community are weakly interconnected._
+- **Should `FloatingControlService` be split into smaller, more focused modules?**
+  _Cohesion score 0.12535612535612536 - nodes in this community are weakly interconnected._
