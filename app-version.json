@@ -1,11 +1,11 @@
 {
-  "versionCode": 2,
-  "versionName": "0.1.9",
-  "minRequiredVersionCode": 1,
+  "versionCode": 3,
+  "versionName": "0.2.0",
+  "minRequiredVersionCode": 2,
   "forceUpdate": true,
   "title": "Update Available",
-  "message": "A new version of GabAI (0.1.9) is available on GitHub with Weekly Assessments and Educational Explanations. Please update to continue.",
+  "message": "A new version of GabAI (0.2.0) is available with native in-app updater and automatic APK installation. Please update to continue.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Complete Weekly Assessment feature for Teachers, Students, and Admins\n• AI-powered 10-question assessment generation with educational explanations\n• Student interactive quiz runner and instant explanation reviews\n• Division Admin assessment analytics and submission rosters"
+  "changelog": "• Native in-app APK download with real-time progress indicator\n• Seamless automatic package installer integration via FileProvider\n• DepEd School directory architecture and multi-tier role foundation"
 }
