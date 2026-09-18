@@ -1,11 +1,11 @@
 {
-  "versionCode": 3,
-  "versionName": "0.2.0",
-  "minRequiredVersionCode": 2,
+  "versionCode": 4,
+  "versionName": "0.3.0",
+  "minRequiredVersionCode": 4,
   "forceUpdate": true,
-  "title": "Update Available",
-  "message": "A new version of GabAI (0.2.0) is available with native in-app updater and automatic APK installation. Please update to continue.",
+  "title": "Platform Partitioning & Governance",
+  "message": "GabAI v0.3.0 separates administrative governance to the Web Portal while optimizing the mobile app exclusively for Teachers and Students.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Native in-app APK download with real-time progress indicator\n• Seamless automatic package installer integration via FileProvider\n• DepEd School directory architecture and multi-tier role foundation"
+  "changelog": "• Web Administrative Portal: Multi-tier governance for Super Admin (SDO) and School Admin\n• SDO School Manager: Issue official invite codes for all 29 Valenzuela secondary campuses\n• School Admin Claim Flow: Onboard via official SDO invite code bound to DepEd School ID\n• Administrative Remarks & Guidance: Review modules and submit pedagogical notes\n• Mobile App Platform Security: Strict Teacher & Student access with Web Portal redirect for admins"
 }

@@ -241,8 +241,11 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun setupSchoolDropdown() {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, schoolMap.keys.toList())
-        binding.spinnerSchool.setAdapter(adapter)
+        SchoolRepository.fetchSchools { schools ->
+            val schoolDisplayNames = schools.map { it.displayName }
+            val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, schoolDisplayNames)
+            binding.spinnerSchool.setAdapter(adapter)
+        }
     }
 
     private fun performLogin() {
@@ -266,6 +269,20 @@ class AuthActivity : AppCompatActivity() {
                         db.collection("users").document(user.uid).get()
                             .addOnSuccessListener { doc ->
                                 if (doc.exists()) {
+                                    val role = doc.getString("role") ?: "teacher"
+
+                                    // 🟢 RESTRICT ADMIN ROLES TO WEB PORTAL
+                                    if (role == "super_admin" || role == "school_admin" || role == "admin") {
+                                        auth.signOut()
+                                        toggleLoading(false)
+                                        showErrorDialog(
+                                            "Web Administrative Portal Only",
+                                            "Super Admin and School Admin accounts must access GabAI using the Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students."
+                                        )
+                                        showLogin()
+                                        return@addOnSuccessListener
+                                    }
+
                                     // 🟢 CHECK ADMIN APPROVAL STATUS
                                     val isApproved = doc.getBoolean("isApproved") ?: false
 

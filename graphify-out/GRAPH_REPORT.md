@@ -1,29 +1,29 @@
 # Graph Report - OSRnary  (2026-09-17)
 
 ## Corpus Check
-- 50 files · ~99,421 words
+- 50 files · ~90,004 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 487 nodes · 906 edges · 37 communities (27 shown, 7 thin omitted)
+- 488 nodes · 909 edges · 38 communities (28 shown, 7 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `40a77a47`
+- Built from commit: `3aa885a3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Intent
-- SubjectDetailActivity
+- .showSnackbar
 - InitiationActivity
 - ManageClassesActivity
 - ScanResultActivity
 - FloatingControlService
 - AuthActivity
 - TeacherHomeFragment.kt
-- .showSnackbar
+- OverviewActivity
 - SchoolRepository
 - FirebaseAuth
 - QuizEditorActivity
@@ -46,6 +46,7 @@
 - ExampleInstrumentedTest
 - Earthquakes: Movement of the Earth's Crust
 - ExampleUnitTest
+- FavoritesActivity
 - ic_launcher-playstore (main)
 - ic_search_bubble (drawable)
 - DualStackHandler
@@ -69,15 +70,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (37 total, 7 thin omitted)
+## Communities (38 total, 7 thin omitted)
 
 ### Community 0 - "Intent"
 Cohesion: 0.09
 Nodes (18): ActivityMainBinding, HomeFragment, Bundle, Fragment, LayoutInflater, View, ViewGroup, AppCompatActivity (+10 more)
 
-### Community 1 - "SubjectDetailActivity"
-Cohesion: 0.15
-Nodes (9): AppCompatActivity, Bundle, Button, LinearLayout, ProgressBar, TextView, Uri, SubjectDetailActivity (+1 more)
+### Community 1 - ".showSnackbar"
+Cohesion: 0.11
+Nodes (11): GabAIUtils, Context, AppCompatActivity, Bundle, Button, LinearLayout, ProgressBar, TextView (+3 more)
 
 ### Community 2 - "InitiationActivity"
 Cohesion: 0.15
@@ -100,12 +101,12 @@ Cohesion: 0.24
 Nodes (5): ActivityAuthBinding, AuthActivity, AppCompatActivity, Bundle, FirebaseFirestore
 
 ### Community 7 - "TeacherHomeFragment.kt"
-Cohesion: 0.27
+Cohesion: 0.33
 Nodes (7): Bundle, Fragment, LayoutInflater, View, ViewGroup, TeacherHomeFragment, FragmentTeacherHomeBinding
 
-### Community 8 - ".showSnackbar"
-Cohesion: 0.11
-Nodes (11): FavoritesActivity, AppCompatActivity, Bundle, GabAIUtils, Context, android, AppCompatActivity, Bundle (+3 more)
+### Community 8 - "OverviewActivity"
+Cohesion: 0.18
+Nodes (6): android, AppCompatActivity, Bundle, OverviewActivity, WebViewClient, TextToSpeech
 
 ### Community 9 - "SchoolRepository"
 Cohesion: 0.33
@@ -179,6 +180,10 @@ Nodes (3): gradlew script, die(), warn()
 Cohesion: 1.00
 Nodes (3): Earthquakes: Movement of the Earth's Crust, Seismic Waves, Tectonic Plates and Fault Lines
 
+### Community 31 - "FavoritesActivity"
+Cohesion: 0.53
+Nodes (3): FavoritesActivity, AppCompatActivity, Bundle
+
 ## Knowledge Gaps
 - **2 isolated node(s):** `ic_launcher-playstore (main)`, `ic_search_bubble (drawable)`
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 37 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
@@ -188,16 +193,16 @@ Nodes (3): Earthquakes: Movement of the Earth's Crust, Seismic Waves, Tectonic P
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `HomeFragment` connect `Intent` to `.showSnackbar`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
+  _High betweenness centrality (0.059) - this node is a cross-community bridge._
 - **What connects `ic_launcher-playstore (main)`, `ic_search_bubble (drawable)` to the rest of the system?**
   _2 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Intent` be split into smaller, more focused modules?**
-  _Cohesion score 0.09291521486643438 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09191583610188261 - nodes in this community are weakly interconnected._
+- **Should `.showSnackbar` be split into smaller, more focused modules?**
+  _Cohesion score 0.11397849462365592 - nodes in this community are weakly interconnected._
 - **Should `InitiationActivity` be split into smaller, more focused modules?**
   _Cohesion score 0.1455026455026455 - nodes in this community are weakly interconnected._
 - **Should `ScanResultActivity` be split into smaller, more focused modules?**
   _Cohesion score 0.10483870967741936 - nodes in this community are weakly interconnected._
 - **Should `FloatingControlService` be split into smaller, more focused modules?**
   _Cohesion score 0.12535612535612536 - nodes in this community are weakly interconnected._
-- **Should `.showSnackbar` be split into smaller, more focused modules?**
-  _Cohesion score 0.10967741935483871 - nodes in this community are weakly interconnected._

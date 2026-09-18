@@ -92,8 +92,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ==========================================
-    // 🟢 NEW FUNCTION: FORCE LOGOUT DIALOG 🟢
     // ==========================================
+    // 🟢 FORCE LOGOUT DIALOGS 🟢
+    // ==========================================
+    private fun showAdminWebOnlyDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Web Administrative Portal Only")
+            .setMessage("Super Admin and School Admin accounts must sign in using the GabAI Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students.")
+            .setCancelable(false)
+            .setPositiveButton("Log Out") { _, _ ->
+                FirebaseAuth.getInstance().signOut()
+                startActivity(Intent(this, AuthActivity::class.java))
+                finish()
+            }
+            .show()
+    }
+
     private fun showAccountDeletedDialog() {
         MaterialAlertDialogBuilder(this)
             .setTitle("Account Not Found")
@@ -109,6 +123,10 @@ class MainActivity : AppCompatActivity() {
 
     // New helper to handle fragment loading and role memory
     private fun loadDashboard(role: String) {
+        if (role == "super_admin" || role == "school_admin" || role == "admin") {
+            showAdminWebOnlyDialog()
+            return
+        }
         binding.root.tag = role // Save role so the bottom menu knows which one to show
         if (role == "teacher") loadFragment(TeacherHomeFragment())
         else loadFragment(HomeFragment())

@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1789581768.185222,
-    "seen": 1789581854.1456468,
-    "ast_hash": "a1b9eff1e5a73e36975ad85baab16ba1",
+    "mtime": 1789586380.418208,
+    "seen": 1789586495.7847915,
+    "ast_hash": "ae3bd239997b2db430891811abafd0f0",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -24,9 +24,9 @@
     "semantic_hash": "f93f4fc990b17c2a689f6795805b8022"
   },
   "app/src/main/java/com/example/gabai/AuthActivity.kt": {
-    "mtime": 1788720385.5506976,
-    "seen": 1788720627.198524,
-    "ast_hash": "897fe7450b3ec0a57c62cbb77ad7ccf1",
+    "mtime": 1789584325.0452907,
+    "seen": 1789586171.0069077,
+    "ast_hash": "3333306a9ee7309eadc78b3cb5c6409d",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/CameraActivity.kt": {
@@ -108,9 +108,9 @@
     "semantic_hash": "ce55d73809c8fc69375697cfc576475c"
   },
   "app/src/main/java/com/example/gabai/MainActivity.kt": {
-    "mtime": 1788722727.2168403,
-    "seen": 1788723516.8762336,
-    "ast_hash": "81eaa74ac32671ab53c90f5ebb81bce7",
+    "mtime": 1789584411.9760053,
+    "seen": 1789586171.0069306,
+    "ast_hash": "f6285b41002b3543a725ed0c72604be1",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ManageClassesActivity.kt": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "admin-portal/index.html": {
-    "mtime": 1788733810.1587257,
-    "seen": 1788733890.8709204,
-    "ast_hash": "611ce6d9d2bfb75eae6ab6634749995e",
+    "mtime": 1789585996.120642,
+    "seen": 1789586171.0069752,
+    "ast_hash": "31b25891818b14da14de6afec0f3b99e",
     "semantic_hash": ""
   },
   "app/src/main/res/drawable/ic_gabai_logo.png": {
@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1789581798.6903331,
-    "seen": 1789581854.1456442,
-    "ast_hash": "f1f3ce7020206bb46e2c7f5b95c8e3e6",
+    "mtime": 1789586351.2142186,
+    "seen": 1789586495.784789,
+    "ast_hash": "4521f24cc43be3d0897030b16c7ceabb",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {

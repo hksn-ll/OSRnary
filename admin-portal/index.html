@@ -176,6 +176,20 @@
             Initialize an authorized Division Executive account using the division master key.
           </p>
         </div>
+
+        <div class="mt-3 bg-purple-50/70 rounded-2xl p-4 border border-purple-200 text-xs shadow-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span>🏫</span> School Principal / IT?
+            </span>
+            <button type="button" onclick="toggleSchoolAdminClaimModal(true)" class="text-[#5341CD] hover:text-[#6C5CE7] font-bold underline">
+              Claim School Account
+            </button>
+          </div>
+          <p class="text-slate-500 text-[11px] mt-1">
+            Set up administrative governance for your specific School ID using an official SDO Invite Code.
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -233,6 +247,140 @@
           </button>
           <button type="submit" id="btnProvisionSubmit" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
             Create &amp; Authorize Admin
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2B. SCHOOL ADMIN ONBOARDING / INVITE CLAIM MODAL -->
+  <!-- ========================================================================= -->
+  <div id="modalSchoolAdminClaim" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏫</span>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900 font-display">School Admin Setup</h3>
+            <p class="text-[11px] text-slate-500">Claim your school portal using an official SDO Invite Code</p>
+          </div>
+        </div>
+        <button type="button" onclick="toggleSchoolAdminClaimModal(false)" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <div id="claimAlertBox" class="hidden p-2.5 rounded-lg text-xs font-medium"></div>
+
+      <form id="formSchoolAdminClaim" onsubmit="handleSchoolAdminClaimSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">SDO School Invite Code</label>
+          <input type="text" id="claimInviteCode" required placeholder="e.g. SDO-305445-ABCD" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs uppercase font-mono tracking-wider font-bold text-indigo-700">
+          <p class="text-[10px] text-slate-400 mt-0.5">Confidential invite code issued by SDO Valenzuela for your DepEd School ID.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">First Name</label>
+            <input type="text" id="claimFirstName" required placeholder="Juan" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Last Name</label>
+            <input type="text" id="claimLastName" required placeholder="Dela Cruz" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Position / Designation</label>
+          <select id="claimPosition" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+            <option value="School Principal">School Principal</option>
+            <option value="School IT Coordinator">School IT Coordinator</option>
+            <option value="Head Teacher / Dept Head">Head Teacher / Academic Coordinator</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Official DepEd Email</label>
+          <input type="email" id="claimEmail" required placeholder="principal@deped.gov.ph" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Account Password</label>
+          <input type="password" id="claimPassword" required minlength="6" placeholder="At least 6 characters" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="toggleSchoolAdminClaimModal(false)" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnClaimSubmit" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Verify &amp; Activate School Admin
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2C. SDO INVITE CODE DISPLAY MODAL -->
+  <!-- ========================================================================= -->
+  <div id="modalInviteCodeDisplay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-200 text-center space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-[#5341CD] flex items-center justify-center mx-auto text-2xl">
+        🎫
+      </div>
+      <div>
+        <h3 class="font-bold text-base text-slate-900 font-display">School Admin Invite Code</h3>
+        <p id="inviteModalSchoolName" class="text-xs text-slate-500 mt-0.5">School Name</p>
+      </div>
+      <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+        <span id="inviteModalCode" class="font-mono text-lg font-extrabold text-[#5341CD] tracking-widest select-all"></span>
+      </div>
+      <p class="text-[11px] text-slate-500">Provide this official code to the School Principal or IT Coordinator. They will use it to claim and activate their school's administrative account.</p>
+      <div class="flex gap-2">
+        <button onclick="copyToClipboard(document.getElementById('inviteModalCode').textContent, 'Invite code copied!')" class="flex-1 py-2.5 bg-[#5341CD] text-white font-bold rounded-xl text-xs shadow hover:opacity-90">
+          📋 Copy Code
+        </button>
+        <button onclick="document.getElementById('modalInviteCodeDisplay').classList.add('hidden')" class="px-4 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2D. ADMINISTRATIVE REMARKS & GUIDANCE DRAWER -->
+  <!-- ========================================================================= -->
+  <div id="modalAdminRemarks" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 flex flex-col max-h-[85vh] space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">💬</span>
+          <div>
+            <h3 id="remarksModalTitle" class="font-bold text-sm text-slate-900 font-display">Administrative Remarks &amp; Guidance</h3>
+            <p id="remarksModalSubtitle" class="text-[11px] text-slate-500">Module Feedback &bull; Read-Only Oversight</p>
+          </div>
+        </div>
+        <button onclick="closeAdminRemarksModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <!-- Feed of previous remarks -->
+      <div id="remarksFeedContainer" class="flex-1 overflow-y-auto space-y-3 p-1 min-h-[150px]">
+        <div class="text-slate-400 text-center text-xs py-6">Loading remarks...</div>
+      </div>
+
+      <!-- Post new remark -->
+      <form id="formAddRemark" onsubmit="handlePostRemarkSubmit(event)" class="shrink-0 space-y-2 pt-2 border-t border-slate-100">
+        <label class="block text-[11px] font-bold text-slate-700">Add Guidance or Academic Intervention Note</label>
+        <textarea id="inputRemarkText" required rows="3" placeholder="Enter instructional guidance, pedagogical remarks, or feedback for the teacher..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white"></textarea>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeAdminRemarksModal()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Close
+          </button>
+          <button type="submit" id="btnPostRemark" class="px-4 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] text-white rounded-xl text-xs font-bold shadow-sm font-display">
+            Submit Remark
           </button>
         </div>
       </form>
@@ -767,7 +915,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-sm text-slate-900 tracking-tight font-display">GabAI Admin Portal</h1>
-            <span class="hidden sm:inline-block bg-purple-50 text-[#6C5CE7] border border-purple-200 text-[10px] px-2 py-0.5 rounded-full font-bold">SDO Valenzuela</span>
+            <span id="adminRoleBadge" class="hidden sm:inline-block bg-purple-50 text-[#6C5CE7] border border-purple-200 text-[10px] px-2 py-0.5 rounded-full font-bold">SDO Valenzuela</span>
           </div>
           <p class="text-[11px] text-slate-500 hidden md:block">Institutional Administration &amp; Academic Governance</p>
         </div>
@@ -1186,6 +1334,7 @@
                     <th class="p-3.5">Secondary School Name</th>
                     <th class="p-3.5">Accredited Faculty</th>
                     <th class="p-3.5">Class Sections</th>
+                    <th class="p-3.5">School Admin (SDO Invite)</th>
                     <th class="p-3.5">Action</th>
                   </tr>
                 </thead>
@@ -1446,6 +1595,8 @@
 
     // Global State
     let currentAdminUser = null;
+    let isSuperAdmin = false;
+    let isSchoolAdmin = false;
     let selectedJurisdiction = "ALL";
     let teacherFilterMode = "ALL"; // ALL | PENDING | APPROVED
     let searchQuery = "";
@@ -1459,12 +1610,16 @@
     let cachedMaterials = [];
     let cachedWeeklyAssessments = [];
     let cachedSubmissions = [];
+    let cachedSchoolInvites = [];
 
     // Active Quiz Inspector State
     let activeInspectorType = null; // 'material' | 'assessment'
     let activeInspectorMaterialId = null;
     let activeInspectorAssessmentId = null;
     let activeInspectorQuestions = [];
+
+    // Active Remarks Drawer State
+    let activeRemarkTarget = { type: null, id: null, title: null };
 
     let unsubs = [];
     // Cryptographic SHA-256 hash of authorized passkey (Plaintext is never stored in source code)
@@ -1896,17 +2051,23 @@
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
-            if (data.role === 'admin' || data.isAdmin === true || data.schoolId === 'DIVISION_OFFICE') {
+            const superAdmin = data.role === 'super_admin' || data.role === 'admin' || data.isAdmin === true || data.schoolId === 'DIVISION_OFFICE';
+            const schoolAdmin = data.role === 'school_admin';
+
+            if (superAdmin || schoolAdmin) {
+              isSuperAdmin = superAdmin;
+              isSchoolAdmin = schoolAdmin;
               currentAdminUser = { uid: user.uid, ...data, email: user.email };
               showAdminDashboard();
               startRealtimeListeners();
-              window.showToast(`Authenticated: Welcome, ${data.firstName || 'Administrator'}`, 'success');
+              const welcomeTitle = isSuperAdmin ? 'Division Super Admin' : `School Admin (${getSchoolName(data.schoolId)})`;
+              window.showToast(`Authenticated: Welcome, ${data.firstName || welcomeTitle}`, 'success');
               return;
             }
           }
 
           await signOut(auth);
-          showLoginError("Access Restricted: This account does not possess Division Administrator authority.");
+          showLoginError("Access Restricted: This account does not possess Administrative authority. Web Portal is reserved for Super Admin & School Admin.");
           showAuthScreen();
 
         } catch (err) {
@@ -1916,6 +2077,8 @@
         }
       } else {
         currentAdminUser = null;
+        isSuperAdmin = false;
+        isSchoolAdmin = false;
         stopRealtimeListeners();
         showAuthScreen();
       }
@@ -1932,11 +2095,45 @@
       
       const nameElem = document.getElementById('adminUserDisplayName');
       const emailElem = document.getElementById('adminUserEmail');
+      const roleBadge = document.getElementById('adminRoleBadge');
+      const jurisdictionSelect = document.getElementById('jurisdictionSelect');
+      const btnMatrix = document.getElementById('btn-tab-school-matrix');
+      const overviewBtnText = document.getElementById('btn-tab-division-dashboard');
       
-      nameElem.textContent = `${currentAdminUser.firstName || 'Division'} ${currentAdminUser.lastName || 'Admin'}`;
+      nameElem.textContent = `${currentAdminUser.firstName || ''} ${currentAdminUser.lastName || ''}`.trim() || (isSuperAdmin ? 'Division Admin' : 'School Admin');
       emailElem.textContent = currentAdminUser.email;
 
-      populateSchoolsDropdowns();
+      if (isSchoolAdmin) {
+        const schoolName = getSchoolName(currentAdminUser.schoolId);
+        if (roleBadge) {
+          roleBadge.textContent = `School Admin • ${schoolName}`;
+          roleBadge.className = "hidden sm:inline-block bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] px-2 py-0.5 rounded-full font-bold";
+        }
+        // Lock jurisdiction to their assigned school
+        selectedJurisdiction = String(currentAdminUser.schoolId);
+        if (jurisdictionSelect) {
+          jurisdictionSelect.innerHTML = `<option value="${currentAdminUser.schoolId}">${schoolName} (${currentAdminUser.schoolId})</option>`;
+          jurisdictionSelect.value = currentAdminUser.schoolId;
+          jurisdictionSelect.disabled = true;
+        }
+        if (btnMatrix) btnMatrix.style.display = 'none';
+        if (overviewBtnText) overviewBtnText.innerHTML = `<span>🏛️</span> Campus Overview`;
+      } else {
+        // Super Admin (SDO)
+        if (roleBadge) {
+          roleBadge.textContent = "Super Admin (SDO)";
+          roleBadge.className = "hidden sm:inline-block bg-purple-50 text-[#6C5CE7] border border-purple-200 text-[10px] px-2 py-0.5 rounded-full font-bold";
+        }
+        if (btnMatrix) btnMatrix.style.display = 'flex';
+        if (overviewBtnText) overviewBtnText.innerHTML = `<span>🏛️</span> Executive Overview`;
+
+        populateSchoolsDropdowns();
+        if (jurisdictionSelect) {
+          jurisdictionSelect.disabled = false;
+          jurisdictionSelect.value = selectedJurisdiction;
+        }
+      }
+
       renderSchoolsMatrix();
     }
 
@@ -2131,6 +2328,13 @@
         renderAssessmentsTable();
       }, (err) => console.warn("Assessment submissions listener:", err));
       unsubs.push(unsubSubmissions);
+
+      // 9. school_admin_invites
+      const unsubInvites = onSnapshot(collection(db, "school_admin_invites"), (snapshot) => {
+        cachedSchoolInvites = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderSchoolsMatrix();
+      }, (err) => console.warn("Invites listener:", err));
+      unsubs.push(unsubInvites);
     }
 
     function stopRealtimeListeners() {
@@ -2187,7 +2391,11 @@
     }
 
     window.handleJurisdictionChange = function(val) {
-      selectedJurisdiction = val;
+      if (isSchoolAdmin) {
+        selectedJurisdiction = String(currentAdminUser.schoolId);
+      } else {
+        selectedJurisdiction = val;
+      }
       updateDashboardMetrics();
       renderTeachersTable();
       renderSectionsTable();
@@ -2198,7 +2406,7 @@
       updateAssessmentMetrics();
       renderAssessmentsTable();
       
-      const label = val === 'ALL' ? 'All Secondary Schools' : getSchoolName(val);
+      const label = selectedJurisdiction === 'ALL' ? 'All Secondary Schools' : getSchoolName(selectedJurisdiction);
       window.showToast(`Jurisdiction filtered: ${label}`, 'info');
     };
 
@@ -3402,10 +3610,13 @@
             </td>
             <td class="p-3 text-right">
               <div class="flex items-center justify-end gap-1.5">
+                <button onclick="openAdminRemarksModal('material', '${m.id}', '${(m.title || 'Material').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded text-xs font-bold" title="Pedagogical Guidance & Remarks">
+                  💬 Remarks
+                </button>
                 <button onclick="openEditMaterialModal('${m.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold" title="Edit Document & Quiz">
                   ✏️
                 </button>
-                <button onclick="deleteMaterial('${m.id}', '${m.title || 'Document'}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold" title="Delete Document">
+                <button onclick="deleteMaterial('${m.id}', '${(m.title || 'Document').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold" title="Delete Document">
                   🗑️
                 </button>
               </div>
@@ -3584,6 +3795,9 @@
             </td>
             <td class="p-3.5 text-right">
               <div class="flex items-center justify-end gap-1.5">
+                <button onclick="openAdminRemarksModal('assessment', '${a.id}', '${safeTitle}')" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1" title="Pedagogical Guidance & Remarks">
+                  <span>💬</span> Remarks
+                </button>
                 <button onclick="openAssessmentInspectorModal('${a.id}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1">
                   <span>🧠</span> Questions
                 </button>
@@ -3691,6 +3905,37 @@
         const pendingCount = teachersInSchool.filter(t => t.isApproved !== true).length;
         const classesInSchool = cachedClasses.filter(c => String(c.schoolId) === school.id).length;
 
+        // Check if school has an assigned School Admin
+        const schoolAdmin = cachedUsers.find(u => u.role === 'school_admin' && String(u.schoolId) === school.id);
+        // Check if an unclaimed SDO invite exists
+        const pendingInvite = cachedSchoolInvites.find(inv => String(inv.schoolId) === school.id && !inv.claimed);
+
+        let adminColumnHtml = '';
+        if (schoolAdmin) {
+          adminColumnHtml = `
+            <div>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                ✓ ${schoolAdmin.firstName || ''} ${schoolAdmin.lastName || 'Admin'}
+              </span>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">${schoolAdmin.email || ''}</div>
+            </div>
+          `;
+        } else if (pendingInvite) {
+          adminColumnHtml = `
+            <div class="flex items-center gap-1.5">
+              <button onclick="showInviteCodeModal('${pendingInvite.inviteCode}', '${school.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold font-mono shadow-xs flex items-center gap-1" title="View Confidential SDO Invite Code">
+                <span>🎫</span> ${pendingInvite.inviteCode}
+              </button>
+            </div>
+          `;
+        } else {
+          adminColumnHtml = `
+            <button onclick="generateSchoolAdminInvite('${school.id}', '${school.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-90 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1 font-display">
+              <span>➕</span> Issue Invite
+            </button>
+          `;
+        }
+
         return `
           <tr class="hover:bg-slate-50/80 transition-colors">
             <td class="p-3.5 font-mono font-bold text-slate-700">${school.id}</td>
@@ -3700,6 +3945,7 @@
               ${pendingCount > 0 ? `<span class="ml-1.5 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">${pendingCount} Pending</span>` : ''}
             </td>
             <td class="p-3.5 font-semibold text-slate-700">${classesInSchool} Sections</td>
+            <td class="p-3.5">${adminColumnHtml}</td>
             <td class="p-3.5">
               <button onclick="inspectSchool('${school.id}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-sm">
                 Filter Campus
@@ -3709,6 +3955,258 @@
         `;
       }).join('');
     }
+
+    // =========================================================================
+    // SDO INVITE ISSUANCE & SCHOOL ADMIN CLAIM LOGIC
+    // =========================================================================
+    window.generateSchoolAdminInvite = async function(schoolId, schoolName) {
+      if (!isSuperAdmin) {
+        alert("Only Division Super Admin (SDO) can issue School Admin invite codes.");
+        return;
+      }
+      const randSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const code = `SDO-${schoolId}-${randSuffix}`;
+
+      try {
+        await setDoc(doc(db, "school_admin_invites", code), {
+          inviteCode: code,
+          schoolId: String(schoolId),
+          schoolName: schoolName,
+          claimed: false,
+          claimedByUid: "",
+          issuedBy: currentAdminUser.uid,
+          issuedByEmail: currentAdminUser.email,
+          issuedAt: Date.now()
+        });
+        showInviteCodeModal(code, schoolName);
+        window.showToast(`Official invite code generated for ${schoolName}`, 'success');
+      } catch (err) {
+        console.error("Error issuing invite:", err);
+        alert("Failed to issue invite: " + err.message);
+      }
+    };
+
+    window.showInviteCodeModal = function(code, schoolName) {
+      document.getElementById('inviteModalSchoolName').textContent = schoolName;
+      document.getElementById('inviteModalCode').textContent = code;
+      document.getElementById('modalInviteCodeDisplay').classList.remove('hidden');
+    };
+
+    window.toggleSchoolAdminClaimModal = function(show) {
+      const m = document.getElementById('modalSchoolAdminClaim');
+      if (!m) return;
+      if (show) {
+        m.classList.remove('hidden');
+        document.getElementById('claimAlertBox')?.classList.add('hidden');
+      } else {
+        m.classList.add('hidden');
+      }
+    };
+
+    window.handleSchoolAdminClaimSubmit = async function(e) {
+      e.preventDefault();
+      const code = document.getElementById('claimInviteCode').value.trim().toUpperCase();
+      const firstName = document.getElementById('claimFirstName').value.trim();
+      const lastName = document.getElementById('claimLastName').value.trim();
+      const position = document.getElementById('claimPosition').value;
+      const email = document.getElementById('claimEmail').value.trim();
+      const password = document.getElementById('claimPassword').value.trim();
+
+      const alertBox = document.getElementById('claimAlertBox');
+      const submitBtn = document.getElementById('btnClaimSubmit');
+      if (alertBox) alertBox.classList.add('hidden');
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Verifying SDO Code...";
+      }
+
+      try {
+        // 1. Verify invite code in Firestore
+        const inviteRef = doc(db, "school_admin_invites", code);
+        const inviteDoc = await getDoc(inviteRef);
+
+        if (!inviteDoc.exists()) {
+          throw new Error("Invalid SDO Invite Code. Please verify with SDO Valenzuela.");
+        }
+
+        const invData = inviteDoc.data();
+        if (invData.claimed === true) {
+          throw new Error("This Invite Code has already been claimed by another administrator.");
+        }
+
+        const schoolId = String(invData.schoolId);
+        const schoolName = invData.schoolName || getSchoolName(schoolId);
+
+        // 2. Create Auth user
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+
+        // 3. Create user document in users/{uid}
+        await setDoc(doc(db, "users", user.uid), {
+          firstName: firstName,
+          lastName: lastName,
+          position: position,
+          email: email,
+          role: "school_admin",
+          schoolId: schoolId,
+          schoolName: schoolName,
+          isApproved: true,
+          emailVerified: true,
+          claimedInviteCode: code,
+          createdAt: Date.now()
+        });
+
+        // 4. Mark invite as claimed
+        await updateDoc(inviteRef, {
+          claimed: true,
+          claimedByUid: user.uid,
+          claimedEmail: email,
+          claimedAt: Date.now()
+        });
+
+        // 5. Update school doc with admin details
+        await setDoc(doc(db, "schools", schoolId), {
+          schoolId: schoolId,
+          schoolName: schoolName,
+          adminUid: user.uid,
+          adminEmail: email,
+          adminName: `${firstName} ${lastName}`,
+          updatedAt: Date.now()
+        }, { merge: true });
+
+        window.showToast(`School Admin account activated for ${schoolName}!`, 'success');
+        toggleSchoolAdminClaimModal(false);
+
+      } catch (err) {
+        console.error("School Admin Claim Error:", err);
+        if (alertBox) {
+          alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
+          alertBox.textContent = err.message;
+          alertBox.classList.remove('hidden');
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Verify & Activate School Admin";
+        }
+      }
+    };
+
+    // =========================================================================
+    // ADMINISTRATIVE REMARKS & PEDAGOGICAL GUIDANCE DRAWER
+    // =========================================================================
+    window.openAdminRemarksModal = async function(targetType, targetId, targetTitle) {
+      activeRemarkTarget = { type: targetType, id: targetId, title: targetTitle };
+      const titleElem = document.getElementById('remarksModalTitle');
+      const subtitleElem = document.getElementById('remarksModalSubtitle');
+      const container = document.getElementById('modalAdminRemarks');
+      const input = document.getElementById('inputRemarkText');
+
+      if (titleElem) titleElem.textContent = `Remarks: ${targetTitle}`;
+      if (subtitleElem) subtitleElem.textContent = `${targetType === 'material' ? 'PDF Material' : 'Weekly Assessment'} • Pedagogical Guidance & Oversight`;
+      if (input) input.value = '';
+      if (container) container.classList.remove('hidden');
+
+      loadRemarksFeed();
+    };
+
+    window.closeAdminRemarksModal = function() {
+      const container = document.getElementById('modalAdminRemarks');
+      if (container) container.classList.add('hidden');
+      activeRemarkTarget = { type: null, id: null, title: null };
+    };
+
+    async function loadRemarksFeed() {
+      const feed = document.getElementById('remarksFeedContainer');
+      if (!feed || !activeRemarkTarget.id) return;
+      feed.innerHTML = `<div class="text-slate-400 text-center text-xs py-6">Loading remarks...</div>`;
+
+      try {
+        const collectionPath = activeRemarkTarget.type === 'material' ? 'library_materials' : 'weekly_assessments';
+        const remarksSnapshot = await getDocs(collection(db, collectionPath, activeRemarkTarget.id, "remarks"));
+        
+        if (remarksSnapshot.empty) {
+          feed.innerHTML = `
+            <div class="p-6 text-center text-slate-400">
+              <span class="text-2xl block mb-1">💬</span>
+              <p class="text-xs font-semibold text-slate-600">No administrative remarks posted yet.</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Submit curriculum notes, pedagogical remarks, or guidance for the educator below.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const remarks = remarksSnapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        feed.innerHTML = remarks.map(r => {
+          const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recorded';
+          const isSdo = r.authorRole === 'super_admin' || r.authorRole === 'admin' || r.authorSchoolId === 'DIVISION_OFFICE';
+          const badgeColor = isSdo ? 'bg-purple-100 text-[#5341CD] border-purple-200' : 'bg-indigo-100 text-indigo-800 border-indigo-200';
+          const roleLabel = isSdo ? 'Super Admin (SDO)' : `School Admin • ${getSchoolName(r.authorSchoolId)}`;
+
+          return `
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5 shadow-xs">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-xs text-slate-900">${r.authorName || 'Administrator'}</span>
+                  <span class="px-2 py-0.5 rounded-full border text-[10px] font-bold ${badgeColor}">${roleLabel}</span>
+                </div>
+                <span class="text-[10px] text-slate-400">${dateStr}</span>
+              </div>
+              <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed">${r.text || ''}</p>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error("Load remarks error:", err);
+        feed.innerHTML = `<div class="p-4 text-center text-red-500 text-xs font-medium">Failed to load remarks: ${err.message}</div>`;
+      }
+    }
+
+    window.handlePostRemarkSubmit = async function(e) {
+      e.preventDefault();
+      if (!currentAdminUser || !activeRemarkTarget.id) return;
+      const text = document.getElementById('inputRemarkText').value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('btnPostRemark');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Posting...";
+      }
+
+      try {
+        const collectionPath = activeRemarkTarget.type === 'material' ? 'library_materials' : 'weekly_assessments';
+        const docRef = collection(db, collectionPath, activeRemarkTarget.id, "remarks");
+        
+        await addDoc(docRef, {
+          authorUid: currentAdminUser.uid,
+          authorName: `${currentAdminUser.firstName || ''} ${currentAdminUser.lastName || ''}`.trim() || 'Administrator',
+          authorEmail: currentAdminUser.email || '',
+          authorRole: currentAdminUser.role || (isSuperAdmin ? 'super_admin' : 'school_admin'),
+          authorSchoolId: currentAdminUser.schoolId || '',
+          authorPosition: currentAdminUser.position || (isSuperAdmin ? 'Division Supervisor' : 'School Administrator'),
+          text: text,
+          createdAt: Date.now()
+        });
+
+        document.getElementById('inputRemarkText').value = '';
+        window.showToast("Administrative remark submitted.", "success");
+        await loadRemarksFeed();
+
+      } catch (err) {
+        console.error("Post remark error:", err);
+        window.showToast("Failed to post remark: " + err.message, "error");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Submit Remark";
+        }
+      }
+    };
 
     window.inspectSchool = function(id) {
       document.getElementById('jurisdictionSelect').value = id;

@@ -30,19 +30,6 @@
       "source_location": "L12"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity",
-      "label": "QuestDetailsActivity",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "questdetailsactivity",
-      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
-      "source_location": "L15"
-    },
-    {
       "id": "app_src_main_java_com_example_gabai_splashactivity_splashactivity",
       "label": "SplashActivity",
       "_callable": true,
@@ -54,6 +41,19 @@
       "norm_label": "splashactivity",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
       "source_location": "L10"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager",
+      "label": "XPManager",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "xpmanager",
+      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
+      "source_location": "L5"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity",
@@ -80,6 +80,19 @@
       "norm_label": "leaderboardactivity",
       "source_file": "app/src/main/java/com/example/gabai/LeaderboardActivity.kt",
       "source_location": "L16"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity",
+      "label": "ProgressDashboardActivity",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "FirebaseAuth",
+      "file_type": "code",
+      "norm_label": "progressdashboardactivity",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L12"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizactivity_quizactivity",
@@ -140,7 +153,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": "cameraactivity",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
@@ -153,11 +166,63 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": "onimagesavedcallback",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
       "source_location": "L68"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper",
+      "label": "GitHubUpdateHelper",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "githubupdatehelper",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L35"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78",
+      "label": "Callback",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "callback",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L78"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237",
+      "label": "Callback",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "callback",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L237"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_versioninfo",
+      "label": "VersionInfo",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "versioninfo",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L51"
     },
     {
       "id": "app_src_main_java_com_example_gabai_textoverlayview_textoverlayview",
@@ -368,17 +433,30 @@
       "source_location": "L10"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_favoritesactivity_favoritesactivity",
-      "label": "FavoritesActivity",
+      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity",
+      "label": "QuestDetailsActivity",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "FavoritesActivity",
+      "community_name": "QuestDetailsActivity.kt",
       "file_type": "code",
-      "norm_label": "favoritesactivity",
-      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
-      "source_location": "L10"
+      "norm_label": "questdetailsactivity",
+      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
+      "source_location": "L15"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_historyactivity_historyactivity",
+      "label": "HistoryActivity",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "HistoryActivity",
+      "file_type": "code",
+      "norm_label": "historyactivity",
+      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
+      "source_location": "L9"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizhistoryactivity_quizhistoryactivity",
@@ -459,19 +537,6 @@
       "source_location": "L12"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity",
-      "label": "ProgressDashboardActivity",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "ProgressDashboardActivity",
-      "file_type": "code",
-      "norm_label": "progressdashboardactivity",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L12"
-    },
-    {
       "id": "admin_portal_serve_dualstackhandler",
       "label": "DualStackHandler",
       "_callable": true,
@@ -482,19 +547,6 @@
       "file_type": "code",
       "norm_label": "dualstackhandler",
       "source_file": "admin-portal/serve.py",
-      "source_location": "L5"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager",
-      "label": "XPManager",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": "xpmanager",
-      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
       "source_location": "L5"
     },
     {
@@ -628,17 +680,30 @@
       "source_location": "L20"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_historyactivity_historyactivity",
-      "label": "HistoryActivity",
+      "id": "app_src_main_java_com_example_gabai_favoritesactivity_favoritesactivity",
+      "label": "FavoritesActivity",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 8,
       "community_name": ".showSnackbar",
       "file_type": "code",
-      "norm_label": "historyactivity",
-      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
-      "source_location": "L9"
+      "norm_label": "favoritesactivity",
+      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
+      "source_location": "L10"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
+      "label": "GabAIUtils",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": ".showSnackbar",
+      "file_type": "code",
+      "norm_label": "gabaiutils",
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L16"
     },
     {
       "id": "app_src_main_java_com_example_gabai_overviewactivity_overviewactivity",
@@ -667,56 +732,43 @@
       "source_location": "L128"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
-      "label": "GabAIUtils",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_school",
+      "label": "School",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": "gabaiutils",
-      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L16"
+      "norm_label": "school",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L6"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper",
-      "label": "GitHubUpdateHelper",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_schooladmininvite",
+      "label": "SchoolAdminInvite",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": "githubupdatehelper",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L26"
+      "norm_label": "schooladmininvite",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L20"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67",
-      "label": "Callback",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "label": "SchoolRepository",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": "callback",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L67"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_versioninfo",
-      "label": "VersionInfo",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": "versioninfo",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L40"
+      "norm_label": "schoolrepository",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L29"
     },
     {
       "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_joinclasswithcode",
@@ -887,42 +939,6 @@
       "source_location": "L97"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity_oncreate",
-      "label": ".onCreate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".oncreate()",
-      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
-      "source_location": "L17"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity_showcompanionrequireddialog",
-      "label": ".showCompanionRequiredDialog()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".showcompanionrequireddialog()",
-      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
-      "source_location": "L78"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity_updatequestcardstate",
-      "label": ".updateQuestCardState()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".updatequestcardstate()",
-      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
-      "source_location": "L90"
-    },
-    {
       "id": "app_src_main_java_com_example_gabai_splashactivity_splashactivity_oncreate",
       "label": ".onCreate()",
       "_callable": true,
@@ -933,6 +949,66 @@
       "norm_label": ".oncreate()",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
       "source_location": "L11"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_addxp",
+      "label": ".addXP()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".addxp()",
+      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
+      "source_location": "L21"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_canearnxp",
+      "label": ".canEarnXP()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".canearnxp()",
+      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
+      "source_location": "L11"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_getlevel",
+      "label": ".getLevel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".getlevel()",
+      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
+      "source_location": "L54"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_getmaxxpforlevel",
+      "label": ".getMaxXPForLevel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".getmaxxpforlevel()",
+      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
+      "source_location": "L17"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_getxp",
+      "label": ".getXP()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".getxp()",
+      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
+      "source_location": "L53"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_deletefilefromdriveanddatabase",
@@ -1113,6 +1189,42 @@
       "norm_label": ".oncreate()",
       "source_file": "app/src/main/java/com/example/gabai/LeaderboardActivity.kt",
       "source_location": "L18"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_calculateanalytics",
+      "label": ".calculateAnalytics()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "FirebaseAuth",
+      "file_type": "code",
+      "norm_label": ".calculateanalytics()",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L48"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_loadxpdata",
+      "label": ".loadXPData()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "FirebaseAuth",
+      "file_type": "code",
+      "norm_label": ".loadxpdata()",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L32"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_oncreate",
+      "label": ".onCreate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "FirebaseAuth",
+      "file_type": "code",
+      "norm_label": ".oncreate()",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L14"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizactivity_quizactivity_checkanswer",
@@ -1504,7 +1616,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": ".oncreate()",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
@@ -1516,7 +1628,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": ".startcamera()",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
@@ -1528,7 +1640,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": ".takephoto()",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
@@ -1540,7 +1652,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": ".onerror()",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
@@ -1552,11 +1664,107 @@
       "_callable": true,
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": ".onimagesaved()",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
       "source_location": "L69"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate",
+      "label": ".checkUpdate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".checkupdate()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L68"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onfailure",
+      "label": ".onFailure()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".onfailure()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L79"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onresponse",
+      "label": ".onResponse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".onresponse()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L84"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp",
+      "label": ".downloadApkInApp()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".downloadapkinapp()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L226"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onfailure",
+      "label": ".onFailure()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".onfailure()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L238"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onresponse",
+      "label": ".onResponse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".onresponse()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L245"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_installapk",
+      "label": ".installApk()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".installapk()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L315"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_showforceupdatedialog",
+      "label": ".showForceUpdateDialog()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": ".showforceupdatedialog()",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L129"
     },
     {
       "id": "app_src_main_java_com_example_gabai_textoverlayview_textoverlayview_buildselectedstring",
@@ -2423,28 +2631,64 @@
       "source_location": "L12"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_favoritesactivity_favoritesactivity_oncreate",
+      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity_oncreate",
       "label": ".onCreate()",
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "FavoritesActivity",
+      "community_name": "QuestDetailsActivity.kt",
       "file_type": "code",
       "norm_label": ".oncreate()",
-      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
-      "source_location": "L11"
+      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
+      "source_location": "L17"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_favoritesactivity_favoritesactivity_refreshfavoriteslist",
-      "label": ".refreshFavoritesList()",
+      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity_showcompanionrequireddialog",
+      "label": ".showCompanionRequiredDialog()",
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "FavoritesActivity",
+      "community_name": "QuestDetailsActivity.kt",
       "file_type": "code",
-      "norm_label": ".refreshfavoriteslist()",
-      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
-      "source_location": "L29"
+      "norm_label": ".showcompanionrequireddialog()",
+      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
+      "source_location": "L78"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity_updatequestcardstate",
+      "label": ".updateQuestCardState()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "QuestDetailsActivity.kt",
+      "file_type": "code",
+      "norm_label": ".updatequestcardstate()",
+      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
+      "source_location": "L90"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_historyactivity_historyactivity_oncreate",
+      "label": ".onCreate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "HistoryActivity",
+      "file_type": "code",
+      "norm_label": ".oncreate()",
+      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
+      "source_location": "L10"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_historyactivity_historyactivity_refreshhistorylist",
+      "label": ".refreshHistoryList()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "HistoryActivity",
+      "file_type": "code",
+      "norm_label": ".refreshhistorylist()",
+      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
+      "source_location": "L30"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizhistoryactivity_quizhistoryactivity_loadquizhistory",
@@ -2651,42 +2895,6 @@
       "source_location": "L13"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_calculateanalytics",
-      "label": ".calculateAnalytics()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "ProgressDashboardActivity",
-      "file_type": "code",
-      "norm_label": ".calculateanalytics()",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L48"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_loadxpdata",
-      "label": ".loadXPData()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "ProgressDashboardActivity",
-      "file_type": "code",
-      "norm_label": ".loadxpdata()",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L32"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_oncreate",
-      "label": ".onCreate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "ProgressDashboardActivity",
-      "file_type": "code",
-      "norm_label": ".oncreate()",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L14"
-    },
-    {
       "id": "admin_portal_serve_dualstackhandler_end_headers",
       "label": ".end_headers()",
       "_callable": true,
@@ -2709,66 +2917,6 @@
       "norm_label": "run()",
       "source_file": "admin-portal/serve.py",
       "source_location": "L12"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_addxp",
-      "label": ".addXP()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": ".addxp()",
-      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
-      "source_location": "L21"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_canearnxp",
-      "label": ".canEarnXP()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": ".canearnxp()",
-      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
-      "source_location": "L11"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_getlevel",
-      "label": ".getLevel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": ".getlevel()",
-      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
-      "source_location": "L54"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_getmaxxpforlevel",
-      "label": ".getMaxXPForLevel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": ".getmaxxpforlevel()",
-      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
-      "source_location": "L17"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_getxp",
-      "label": ".getXP()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": ".getxp()",
-      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
-      "source_location": "L53"
     },
     {
       "id": "app_src_main_java_com_example_gabai_achievementsactivity_achievementsactivity_loadbadges",
@@ -3287,6 +3435,54 @@
       "source_location": "L40"
     },
     {
+      "id": "app_src_main_java_com_example_gabai_favoritesactivity_favoritesactivity_oncreate",
+      "label": ".onCreate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": ".showSnackbar",
+      "file_type": "code",
+      "norm_label": ".oncreate()",
+      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
+      "source_location": "L11"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_favoritesactivity_favoritesactivity_refreshfavoriteslist",
+      "label": ".refreshFavoritesList()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": ".showSnackbar",
+      "file_type": "code",
+      "norm_label": ".refreshfavoriteslist()",
+      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
+      "source_location": "L29"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_hidegloballoading",
+      "label": ".hideGlobalLoading()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": ".showSnackbar",
+      "file_type": "code",
+      "norm_label": ".hidegloballoading()",
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L101"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_showgloballoading",
+      "label": ".showGlobalLoading()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": ".showSnackbar",
+      "file_type": "code",
+      "norm_label": ".showgloballoading()",
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L40"
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_showsnackbar",
       "label": ".showSnackbar()",
       "_callable": true,
@@ -3297,30 +3493,6 @@
       "norm_label": ".showsnackbar()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
       "source_location": "L19"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_historyactivity_historyactivity_oncreate",
-      "label": ".onCreate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": ".showSnackbar",
-      "file_type": "code",
-      "norm_label": ".oncreate()",
-      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
-      "source_location": "L10"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_historyactivity_historyactivity_refreshhistorylist",
-      "label": ".refreshHistoryList()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": ".showSnackbar",
-      "file_type": "code",
-      "norm_label": ".refreshhistorylist()",
-      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
-      "source_location": "L30"
     },
     {
       "id": "app_src_main_java_com_example_gabai_overviewactivity_overviewactivity_generateaioverview",
@@ -3467,76 +3639,64 @@
       "source_location": "L332"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_hidegloballoading",
-      "label": ".hideGlobalLoading()",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_addschool",
+      "label": ".addSchool()",
       "_callable": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": ".hidegloballoading()",
-      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L101"
+      "norm_label": ".addschool()",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L97"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_showgloballoading",
-      "label": ".showGlobalLoading()",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_claiminvite",
+      "label": ".claimInvite()",
       "_callable": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": ".showgloballoading()",
-      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L40"
+      "norm_label": ".claiminvite()",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L126"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate",
-      "label": ".checkUpdate()",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_fetchschools",
+      "label": ".fetchSchools()",
       "_callable": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": ".checkupdate()",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L57"
+      "norm_label": ".fetchschools()",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L65"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onfailure",
-      "label": ".onFailure()",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_generateschooladmininvite",
+      "label": ".generateSchoolAdminInvite()",
       "_callable": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": ".onfailure()",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L68"
+      "norm_label": ".generateschooladmininvite()",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L107"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onresponse",
-      "label": ".onResponse()",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_seeddefaultschools",
+      "label": ".seedDefaultSchools()",
       "_callable": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": ".onresponse()",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L74"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_showforceupdatedialog",
-      "label": ".showForceUpdateDialog()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": ".showforceupdatedialog()",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L118"
+      "norm_label": ".seeddefaultschools()",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L88"
     },
     {
       "id": "activitymainbinding",
@@ -3660,39 +3820,6 @@
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_questdetailsactivity",
-      "label": "QuestDetailsActivity.kt",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "questdetailsactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_kt_appcompatactivity",
-      "label": "AppCompatActivity",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "appcompatactivity",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_kt_bundle",
-      "label": "Bundle",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "bundle",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "app_src_main_java_com_example_gabai_splashactivity",
       "label": "SplashActivity.kt",
       "_origin": "ast",
@@ -3722,6 +3849,28 @@
       "community_name": "Intent",
       "file_type": "code",
       "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager",
+      "label": "XPManager.kt",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "xpmanager.kt",
+      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_xpmanager_kt_context",
+      "label": "Context",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "context",
       "source_file": "",
       "source_location": ""
     },
@@ -3870,6 +4019,39 @@
     },
     {
       "id": "app_src_main_java_com_example_gabai_leaderboardactivity_kt_bundle",
+      "label": "Bundle",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "FirebaseAuth",
+      "file_type": "code",
+      "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity",
+      "label": "ProgressDashboardActivity.kt",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "FirebaseAuth",
+      "file_type": "code",
+      "norm_label": "progressdashboardactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_appcompatactivity",
+      "label": "AppCompatActivity",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "FirebaseAuth",
+      "file_type": "code",
+      "norm_label": "appcompatactivity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_bundle",
       "label": "Bundle",
       "_origin": "ast",
       "community": 10,
@@ -4034,11 +4216,22 @@
       "source_location": ""
     },
     {
+      "id": "activity",
+      "label": "Activity",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "activity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_cameraactivity",
       "label": "CameraActivity.kt",
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": "cameraactivity.kt",
       "source_file": "app/src/main/java/com/example/gabai/CameraActivity.kt",
@@ -4049,7 +4242,7 @@
       "label": "AppCompatActivity",
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": "appcompatactivity",
       "source_file": "",
@@ -4060,9 +4253,42 @@
       "label": "Bundle",
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper",
+      "label": "GitHubUpdateHelper.kt",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "githubupdatehelper.kt",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_kt_callback",
+      "label": "Callback",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "callback",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "call",
+      "label": "Call",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "call",
       "source_file": "",
       "source_location": ""
     },
@@ -4071,7 +4297,7 @@
       "label": "ImageCapture",
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": "imagecapture",
       "source_file": "",
@@ -4082,9 +4308,20 @@
       "label": "ImageCaptureException",
       "_origin": "ast",
       "community": 13,
-      "community_name": "CameraActivity.kt",
+      "community_name": "Activity",
       "file_type": "code",
       "norm_label": "imagecaptureexception",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "response",
+      "label": "Response",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "Activity",
+      "file_type": "code",
+      "norm_label": "response",
       "source_file": "",
       "source_location": ""
     },
@@ -4584,33 +4821,66 @@
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_favoritesactivity",
-      "label": "FavoritesActivity.kt",
+      "id": "app_src_main_java_com_example_gabai_questdetailsactivity",
+      "label": "QuestDetailsActivity.kt",
       "_origin": "ast",
       "community": 22,
-      "community_name": "FavoritesActivity",
+      "community_name": "QuestDetailsActivity.kt",
       "file_type": "code",
-      "norm_label": "favoritesactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
+      "norm_label": "questdetailsactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt",
       "source_location": "L1"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_favoritesactivity_kt_appcompatactivity",
+      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_kt_appcompatactivity",
       "label": "AppCompatActivity",
       "_origin": "ast",
       "community": 22,
-      "community_name": "FavoritesActivity",
+      "community_name": "QuestDetailsActivity.kt",
       "file_type": "code",
       "norm_label": "appcompatactivity",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_favoritesactivity_kt_bundle",
+      "id": "app_src_main_java_com_example_gabai_questdetailsactivity_kt_bundle",
       "label": "Bundle",
       "_origin": "ast",
       "community": 22,
-      "community_name": "FavoritesActivity",
+      "community_name": "QuestDetailsActivity.kt",
+      "file_type": "code",
+      "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_historyactivity",
+      "label": "HistoryActivity.kt",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "HistoryActivity",
+      "file_type": "code",
+      "norm_label": "historyactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_historyactivity_kt_appcompatactivity",
+      "label": "AppCompatActivity",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "HistoryActivity",
+      "file_type": "code",
+      "norm_label": "appcompatactivity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_historyactivity_kt_bundle",
+      "label": "Bundle",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "HistoryActivity",
       "file_type": "code",
       "norm_label": "bundle",
       "source_file": "",
@@ -4820,39 +5090,6 @@
       "source_location": "L1"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity",
-      "label": "ProgressDashboardActivity.kt",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "ProgressDashboardActivity",
-      "file_type": "code",
-      "norm_label": "progressdashboardactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_appcompatactivity",
-      "label": "AppCompatActivity",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "ProgressDashboardActivity",
-      "file_type": "code",
-      "norm_label": "appcompatactivity",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_bundle",
-      "label": "Bundle",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "ProgressDashboardActivity",
-      "file_type": "code",
-      "norm_label": "bundle",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "app_build_gradle",
       "label": "app/build.gradle.kts",
       "_origin": "ast",
@@ -4882,28 +5119,6 @@
       "community_name": "DualStackHandler",
       "file_type": "code",
       "norm_label": "simplehttprequesthandler",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager",
-      "label": "XPManager.kt",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": "xpmanager.kt",
-      "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_xpmanager_kt_context",
-      "label": "Context",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "XPManager",
-      "file_type": "code",
-      "norm_label": "context",
       "source_file": "",
       "source_location": ""
     },
@@ -5348,18 +5563,18 @@
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_historyactivity",
-      "label": "HistoryActivity.kt",
+      "id": "app_src_main_java_com_example_gabai_favoritesactivity",
+      "label": "FavoritesActivity.kt",
       "_origin": "ast",
       "community": 8,
       "community_name": ".showSnackbar",
       "file_type": "code",
-      "norm_label": "historyactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/HistoryActivity.kt",
+      "norm_label": "favoritesactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/FavoritesActivity.kt",
       "source_location": "L1"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_historyactivity_kt_appcompatactivity",
+      "id": "app_src_main_java_com_example_gabai_favoritesactivity_kt_appcompatactivity",
       "label": "AppCompatActivity",
       "_origin": "ast",
       "community": 8,
@@ -5370,13 +5585,35 @@
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_historyactivity_kt_bundle",
+      "id": "app_src_main_java_com_example_gabai_favoritesactivity_kt_bundle",
       "label": "Bundle",
       "_origin": "ast",
       "community": 8,
       "community_name": ".showSnackbar",
       "file_type": "code",
       "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_gabaiutils",
+      "label": "GabAIUtils.kt",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": ".showSnackbar",
+      "file_type": "code",
+      "norm_label": "gabaiutils.kt",
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_gabaiutils_kt_context",
+      "label": "Context",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": ".showSnackbar",
+      "file_type": "code",
+      "norm_label": "context",
       "source_file": "",
       "source_location": ""
     },
@@ -5436,81 +5673,15 @@
       "source_location": ""
     },
     {
-      "id": "activity",
-      "label": "Activity",
+      "id": "app_src_main_java_com_example_gabai_schoolrepository",
+      "label": "SchoolRepository.kt",
       "_origin": "ast",
       "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
+      "community_name": "SchoolRepository",
       "file_type": "code",
-      "norm_label": "activity",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_gabaiutils",
-      "label": "GabAIUtils.kt",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": "gabaiutils.kt",
-      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "norm_label": "schoolrepository.kt",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
       "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_gabaiutils_kt_context",
-      "label": "Context",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": "context",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper",
-      "label": "GitHubUpdateHelper.kt",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": "githubupdatehelper.kt",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_kt_callback",
-      "label": "Callback",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": "callback",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "call",
-      "label": "Call",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": "call",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "response",
-      "label": "Response",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "GitHubUpdateHelper.kt",
-      "file_type": "code",
-      "norm_label": "response",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "app_src_main_assets_material1_earthquake_reading",
@@ -6358,7 +6529,7 @@
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onresponse",
       "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_showforceupdatedialog",
       "relation": "calls",
       "_origin": "ast",
@@ -6366,11 +6537,11 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L101",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onresponse",
       "target": "app_src_main_java_com_example_gabai_githubupdatehelper_versioninfo",
       "relation": "calls",
       "_origin": "ast",
@@ -6378,11 +6549,11 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L84",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_showforceupdatedialog",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_installapk",
       "target": "intent",
       "relation": "calls",
       "_origin": "ast",
@@ -6390,7 +6561,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L157",
+      "source_location": "L325",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_showforceupdatedialog",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_installapk",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L170",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_showforceupdatedialog",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L188",
       "weight": 1.0
     },
     {
@@ -7999,6 +8194,42 @@
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ScanResultActivity.kt",
       "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_school",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_fetchschools",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_seeddefaultschools",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_generateschooladmininvite",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schooladmininvite",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L114",
       "weight": 1.0
     },
     {
@@ -11382,7 +11613,7 @@
         "target_fqn": "okhttp3.Call"
       },
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L17",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -11397,7 +11628,7 @@
         "target_fqn": "okhttp3.Callback"
       },
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L18",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11412,7 +11643,7 @@
         "target_fqn": "okhttp3.Response"
       },
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L21",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -11712,23 +11943,11 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L57",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onfailure",
-      "target": "call",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "parameter_type",
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
       "source_location": "L68",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onfailure",
       "target": "call",
       "relation": "references",
       "_origin": "ast",
@@ -11736,11 +11955,23 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L74",
+      "source_location": "L79",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onresponse",
+      "target": "call",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onresponse",
       "target": "response",
       "relation": "references",
       "_origin": "ast",
@@ -11748,7 +11979,67 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L74",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp",
+      "target": "activity",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onfailure",
+      "target": "call",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L238",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onresponse",
+      "target": "call",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L245",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onresponse",
+      "target": "response",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L245",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_installapk",
+      "target": "activity",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -11760,7 +12051,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L118",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -11772,7 +12063,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L118",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -12241,6 +12532,18 @@
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ScanResultActivity.kt",
       "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_addschool",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_school",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -12750,7 +13053,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L26",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -12761,18 +13064,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L40",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
       "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate",
-      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L67",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -13029,6 +13343,39 @@
       "weight": 1.0
     },
     {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schooladmininvite",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_school",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
       "source": "app_src_main_java_com_example_gabai_splashactivity",
       "target": "app_src_main_java_com_example_gabai_splashactivity_splashactivity",
       "relation": "contains",
@@ -13227,14 +13574,25 @@
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78",
       "target": "app_src_main_java_com_example_gabai_githubupdatehelper_kt_callback",
       "relation": "implements",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L67",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_kt_callback",
+      "relation": "implements",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -14290,7 +14648,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L118",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_installapk",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -14301,29 +14681,51 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L57",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67",
-      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onfailure",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
       "source_location": "L68",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67",
-      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l67_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onfailure",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L74",
+      "source_location": "L79",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate_object_callback_l78_onresponse",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onfailure",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L238",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onresponse",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -15647,6 +16049,61 @@
       "weight": 1.0
     },
     {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_generateschooladmininvite",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_claiminvite",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L126",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_fetchschools",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_seeddefaultschools",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository",
+      "target": "app_src_main_java_com_example_gabai_schoolrepository_schoolrepository_addschool",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/SchoolRepository.kt",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
       "source": "app_src_main_java_com_example_gabai_splashactivity_splashactivity",
       "target": "app_src_main_java_com_example_gabai_splashactivity_splashactivity_oncreate",
       "relation": "method",
@@ -16197,6 +16654,30 @@
       "weight": 1.0
     },
     {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onfailure",
+      "target": "app_src_main_java_com_example_gabai_cameraactivity_cameraactivity_takephoto_object_onimagesavedcallback_l68_onerror",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L241",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l237_onresponse",
+      "target": "app_src_main_java_com_example_gabai_cameraactivity_cameraactivity_takephoto_object_onimagesavedcallback_l68_onerror",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
+      "source_location": "L248",
+      "weight": 1.0
+    },
+    {
       "source": "app_src_main_java_com_example_gabai_mainactivity_mainactivity_loaddashboard",
       "target": "app_src_main_java_com_example_gabai_teacherhomefragment_teacherhomefragment",
       "relation": "calls",
@@ -16291,5 +16772,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c3f5a87c0d1b0f578218ff8a54dc92cff04786b5"
+  "built_at_commit": "40a77a47303ef111fb34595fc37c324ecd57253f"
 }
