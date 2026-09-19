@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1789586380.418208,
-    "seen": 1789586495.7847915,
-    "ast_hash": "ae3bd239997b2db430891811abafd0f0",
+    "mtime": 1789790636.1750507,
+    "seen": 1789790745.3406265,
+    "ast_hash": "e6d61daed49fd8c3c989bb556fcf772c",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "admin-portal/index.html": {
-    "mtime": 1789585996.120642,
-    "seen": 1789586171.0069752,
-    "ast_hash": "31b25891818b14da14de6afec0f3b99e",
+    "mtime": 1789753164.347004,
+    "seen": 1789753217.9197674,
+    "ast_hash": "26dd727d5ee0195ca059357aa5ae2e31",
     "semantic_hash": ""
   },
   "app/src/main/res/drawable/ic_gabai_logo.png": {
@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1789586351.2142186,
-    "seen": 1789586495.784789,
-    "ast_hash": "4521f24cc43be3d0897030b16c7ceabb",
+    "mtime": 1789790629.761879,
+    "seen": 1789790745.3406236,
+    "ast_hash": "ec730492fbd40a15de9950a81bf59cf4",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {

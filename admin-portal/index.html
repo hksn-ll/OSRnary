@@ -79,6 +79,131 @@
       border-radius: 9999px;
       font-weight: 600;
     }
+    /* ========================================================================= */
+    /* WEBSITE-WIDE FLUID ANIMATION SYSTEM */
+    /* ========================================================================= */
+
+    /* 1. Tab & View Transitions */
+    .tab-content:not(.hidden) {
+      animation: tabFadeSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes tabFadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 2. Interactive Card Elevations & Micro-Hover */
+    .kpi-card, .dashboard-card, .hover-lift {
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease !important;
+    }
+    .kpi-card:hover, .dashboard-card:hover, .hover-lift:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -4px rgba(108, 92, 231, 0.12), 0 6px 12px -4px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    /* 3. Table Row Micro-Transitions */
+    tbody tr {
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+    tbody tr:hover {
+      background-color: rgba(241, 245, 249, 0.75) !important;
+    }
+
+    /* 4. Modal Dialogue Pop-In & Smooth Backdrop */
+    #modalHelpHub:not(.hidden),
+    #modalPdfViewer:not(.hidden),
+    #modalCreateTeacher:not(.hidden),
+    #modalEditTeacher:not(.hidden),
+    #modalBatchStudents:not(.hidden),
+    #modalRemarksDrawer:not(.hidden),
+    #modalCreateSubject:not(.hidden),
+    #modalCreateMaterial:not(.hidden),
+    #modalCreateSection:not(.hidden),
+    #modalViewRoster:not(.hidden),
+    #modalGenerateInvite:not(.hidden),
+    #modalAdminSelfReg:not(.hidden) {
+      animation: modalBackdropFade 0.22s ease-out forwards;
+    }
+
+    #modalHelpHub:not(.hidden) > div,
+    #modalPdfViewer:not(.hidden) > div,
+    #modalCreateTeacher:not(.hidden) > div,
+    #modalEditTeacher:not(.hidden) > div,
+    #modalBatchStudents:not(.hidden) > div,
+    #modalRemarksDrawer:not(.hidden) > div,
+    #modalCreateSubject:not(.hidden) > div,
+    #modalCreateMaterial:not(.hidden) > div,
+    #modalCreateSection:not(.hidden) > div,
+    #modalViewRoster:not(.hidden) > div,
+    #modalGenerateInvite:not(.hidden) > div,
+    #modalAdminSelfReg:not(.hidden) > div {
+      animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalBackdropFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalPopIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* 5. Button Press Feedback */
+    button:not(:disabled):active {
+      transform: scale(0.97);
+    }
+
+    /* 6. Toast Slide-In Animation */
+    .animate-toast-in {
+      animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes toastSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(60px) scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    /* 7. Guided Tour Morphing Spotlight & Floating Card */
+    #tourSpotlight {
+      transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.25s ease;
+      box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.68), 0 0 25px rgba(108, 92, 231, 0.75);
+      outline: 3px solid #6C5CE7;
+      outline-offset: 4px;
+      animation: spotlightPulse 2.5s infinite;
+    }
+    @keyframes spotlightPulse {
+      0%, 100% { outline-color: #6C5CE7; outline-offset: 4px; }
+      50% { outline-color: #a29bfe; outline-offset: 7px; }
+    }
+
+    #tourCard {
+      transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.25s ease,
+                  opacity 0.25s ease;
+    }
     #toastContainer {
       position: fixed;
       bottom: 24px;
@@ -389,6 +514,146 @@
 
 
   <!-- ========================================================================= -->
+  <!-- 2E. ADMINISTRATIVE HELP & DOCUMENTATION HUB MODAL -->
+  <!-- ========================================================================= -->
+  <div id="modalHelpHub" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 flex flex-col max-h-[90vh] space-y-4">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#6C5CE7] to-[#5341CD] text-white flex items-center justify-center text-xl shadow-md">
+            ❓
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-slate-900 font-display">Administrative Help &amp; Knowledge Hub</h3>
+            <p id="helpHubRoleSubtitle" class="text-xs text-slate-500">Platform Guidance &bull; DepEd Valenzuela Institutional Governance</p>
+          </div>
+        </div>
+        <button onclick="closeHelpHubModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-1">&times;</button>
+      </div>
+
+      <!-- Interactive Tour Hero Card -->
+      <div class="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 border border-indigo-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div>
+          <span class="inline-block px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold text-[10px] mb-1">Interactive Feature</span>
+          <h4 class="font-bold text-sm text-slate-900 font-display">Take the 1-Minute Guided Tour</h4>
+          <p class="text-[11px] text-slate-600 mt-0.5">Let GabAI guide you step-by-step through every tool, queue, and feature tailored to your administrative role.</p>
+        </div>
+        <button onclick="startInteractiveTour()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-md font-display shrink-0 flex items-center justify-center gap-1.5 transition-all">
+          <span>🚀</span> Start Tour
+        </button>
+      </div>
+
+      <!-- Scrollable Help Content -->
+      <div class="flex-1 overflow-y-auto space-y-4 pr-1 text-xs text-slate-700">
+        <!-- Role Responsibilities -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 flex items-center gap-1.5 text-xs font-display">
+            <span>🛡️</span> Your Administrative Role &amp; Responsibilities
+          </h4>
+          <div id="helpHubRoleDetails" class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 text-[11px]">
+            <!-- Injected dynamically via JS based on isSuperAdmin vs isSchoolAdmin -->
+          </div>
+        </div>
+
+        <!-- FAQs & Key DepEd Workflows -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-900 flex items-center gap-1.5 text-xs font-display">
+            <span>💡</span> Frequently Asked Questions &amp; Governance Rules
+          </h4>
+          <div class="space-y-2 text-[11px]">
+            <details class="bg-slate-50 border border-slate-200 rounded-xl p-3 cursor-pointer">
+              <summary class="font-bold text-slate-800 select-none">Why can't Super Admins or School Admins use the mobile app?</summary>
+              <p class="text-slate-600 mt-2 leading-relaxed">
+                By DepEd policy and GabAI architecture, administrative governance (school jurisdiction, teacher verification, student credentials, and division-wide analytics) requires high-security desktop oversight via this Web Portal. The Android mobile app is strictly reserved for Teachers (classroom instruction) and Students (reading assistant, gamified quests, and OCR scanner).
+              </p>
+            </details>
+
+            <details class="bg-slate-50 border border-slate-200 rounded-xl p-3 cursor-pointer">
+              <summary class="font-bold text-slate-800 select-none">How do SDO Invite Codes work?</summary>
+              <p class="text-slate-600 mt-2 leading-relaxed">
+                The Schools Division Office (SDO) issues a single confidential invite code (<code class="bg-slate-200 px-1 py-0.5 rounded font-mono text-[10px]">SDO-XXXX-YYYY</code>) per secondary school campus. The School Principal or designated IT Coordinator uses this code to claim and activate their school's administrative workspace. Each code is one-time use and irreversibly binds the admin account to their DepEd School ID.
+              </p>
+            </details>
+
+            <details class="bg-slate-50 border border-slate-200 rounded-xl p-3 cursor-pointer">
+              <summary class="font-bold text-slate-800 select-none">How do Teacher Approvals work?</summary>
+              <p class="text-slate-600 mt-2 leading-relaxed">
+                When an educator signs up via the mobile app, their account is flagged as <span class="badge-pending px-1.5 py-0.5 rounded text-[10px] font-bold">Pending Review</span>. They cannot log into the mobile app until their assigned School Admin or Division Admin clicks <span class="font-bold text-emerald-700">Approve</span> in the <strong>Faculty Registry &amp; Queue</strong> tab.
+              </p>
+            </details>
+
+            <details class="bg-slate-50 border border-slate-200 rounded-xl p-3 cursor-pointer">
+              <summary class="font-bold text-slate-800 select-none">How do Administrative Remarks work?</summary>
+              <p class="text-slate-600 mt-2 leading-relaxed">
+                Admins have read-only oversight over instructional materials. To provide pedagogical notes, curriculum alignments, or academic intervention recommendations, click the <strong>💬 Remarks</strong> button next to any PDF material or weekly assessment. Your remarks are logged with your official administrative designation.
+              </p>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between shrink-0 text-[11px] text-slate-500">
+        <span>Schools Division Office of Valenzuela City &bull; DepEd</span>
+        <button onclick="closeHelpHubModal()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2F. INTERACTIVE STEP-BY-STEP GUIDED TOUR OVERLAY (Spotlight Architecture) -->
+  <!-- ========================================================================= -->
+  <div id="tutorialTourOverlay" class="fixed inset-0 z-[9990] hidden pointer-events-auto">
+    <!-- Click backdrop for outside click to skip/exit -->
+    <div class="fixed inset-0 z-[9990]" onclick="skipTour()"></div>
+
+    <!-- Morphing Spotlight Cutout Frame (never modifies DOM target styles) -->
+    <div id="tourSpotlight" class="fixed pointer-events-none rounded-2xl z-[9991]" style="display:none;"></div>
+
+    <!-- Floating Tour Card (Guaranteed Viewport Clamped, Z-[9999]) -->
+    <div id="tourCard" class="fixed z-[9999] bg-white rounded-3xl shadow-2xl border-2 border-indigo-200 p-5 w-full max-w-md space-y-3 pointer-events-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span id="tourStepBadge" class="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] text-white text-[10px] font-extrabold uppercase tracking-wider font-display shadow-xs">
+            Step 1 of 6
+          </span>
+          <span id="tourRoleTag" class="text-[10px] text-slate-500 font-bold">Super Admin Tour</span>
+        </div>
+        <button onclick="skipTour()" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 text-base font-bold transition-all" title="Exit Tour">&times;</button>
+      </div>
+
+      <div class="space-y-1.5">
+        <h4 id="tourStepTitle" class="text-sm font-extrabold text-slate-900 font-display flex items-center gap-2">
+          <span>🏛️</span> Executive Overview
+        </h4>
+        <p id="tourStepDescription" class="text-xs text-slate-600 leading-relaxed"></p>
+      </div>
+
+      <div id="tourStepTipBox" class="p-2.5 bg-amber-50/90 border border-amber-200 rounded-xl text-[11px] text-amber-900 flex items-start gap-1.5 shadow-xs">
+        <span class="text-xs">💡</span>
+        <span id="tourStepTipText" class="leading-tight font-medium">Pro-tip for this feature</span>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 text-xs">
+        <button onclick="skipTour()" class="text-slate-400 hover:text-slate-700 text-[11px] font-semibold transition-colors">
+          Exit Tour
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="btnTourPrev" onclick="prevTourStep()" class="px-3.5 py-1.5 border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition-all shadow-xs">
+            &larr; Back
+          </button>
+          <button id="btnTourNext" onclick="nextTourStep()" class="px-4 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display transition-all hover:scale-105 active:scale-95">
+            Next &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- 3. INTERACTIVE PDF VIEWER MODAL (Full Browser Preview) -->
   <!-- ========================================================================= -->
   <div id="modalPdfViewer" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4">
@@ -923,7 +1188,7 @@
 
       <!-- Scope Switcher, User Status & Logout -->
       <div class="flex items-center gap-2.5 sm:gap-4 text-xs">
-        <div class="hidden md:flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+        <div id="tourTargetJurisdiction" class="hidden md:flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
           <span class="text-slate-400 font-medium">Jurisdiction:</span>
           <select id="jurisdictionSelect" onchange="handleJurisdictionChange(this.value)" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs">
             <option value="ALL">All Secondary Schools (29 Campuses)</option>
@@ -934,6 +1199,11 @@
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
           <span class="hidden sm:inline">Live Sync</span>
         </div>
+
+        <button type="button" onclick="openHelpHubModal()" id="btnHeaderHelp" class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-[#5341CD] border border-indigo-200 rounded-xl font-bold text-xs shadow-xs transition-all hover:scale-105 active:scale-95" title="Help & Interactive Guided Tour">
+          <span>❓</span>
+          <span class="font-display hidden sm:inline">Help &amp; Tour</span>
+        </button>
 
         <div class="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-slate-200">
           <div class="text-right hidden sm:block">
@@ -1045,9 +1315,14 @@
           </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-200/80 text-[11px]">
-          <p class="font-bold text-slate-700">Institutional Governance</p>
-          <p class="text-[10px] text-slate-500 font-medium">DepEd Valenzuela &bull; GabAI v2.0</p>
+        <div class="pt-4 border-t border-slate-200/80 text-[11px] space-y-2">
+          <button type="button" onclick="openHelpHubModal()" class="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 text-xs font-bold transition-all shadow-xs">
+            <span>❓</span> Portal Guide &amp; Tour
+          </button>
+          <div>
+            <p class="font-bold text-slate-700">Institutional Governance</p>
+            <p class="text-[10px] text-slate-500 font-medium">DepEd Valenzuela &bull; GabAI v2.0</p>
+          </div>
         </div>
       </aside>
 
@@ -1070,7 +1345,7 @@
         <!-- VIEW 1: EXECUTIVE DASHBOARD -->
         <div id="tab-division-dashboard" class="tab-content space-y-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-faculty-verification')">
+            <div class="kpi-card hover-lift bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-faculty-verification')">
               <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span>Accredited Faculty</span>
                 <span class="p-2 rounded-lg bg-emerald-50 text-emerald-600">👨‍🏫</span>
@@ -1079,7 +1354,7 @@
               <p class="text-[11px] text-emerald-600 font-medium mt-1">Authorized for classroom instruction</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-amber-200 bg-amber-50/20 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-faculty-verification')">
+            <div class="kpi-card hover-lift bg-white p-5 rounded-2xl border border-amber-200 bg-amber-50/20 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-faculty-verification')">
               <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span class="text-amber-800">Pending Approvals</span>
                 <span class="p-2 rounded-lg bg-amber-100 text-amber-700">⏳</span>
@@ -1088,7 +1363,7 @@
               <p class="text-[11px] text-amber-700 font-medium mt-1">Action needed to grant app access</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-classroom-sections')">
+            <div class="kpi-card hover-lift bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-classroom-sections')">
               <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span>Class Sections</span>
                 <span class="p-2 rounded-lg bg-indigo-50 text-indigo-600">🏷️</span>
@@ -1097,7 +1372,7 @@
               <p class="text-[11px] text-slate-500 font-medium mt-1">Active sections across Grades 7-10</p>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-learner-performance')">
+            <div class="kpi-card hover-lift bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-learner-performance')">
               <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span>Enrolled Learners</span>
                 <span class="p-2 rounded-lg bg-blue-50 text-blue-600">🎒</span>
@@ -1108,7 +1383,7 @@
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div id="tourTargetImmediateActions" class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4 hover-lift">
               <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
                   <span>⚡</span> Immediate Division Actions
@@ -1185,7 +1460,7 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div id="tourTargetTeachersTable" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs min-w-[700px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
@@ -1223,7 +1498,7 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div id="tourTargetSectionsTable" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs min-w-[700px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
@@ -1256,7 +1531,7 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div id="tourTargetPerformanceTable" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs min-w-[700px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
@@ -1294,7 +1569,7 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div id="tourTargetBatchVault" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs min-w-[700px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
@@ -1325,7 +1600,7 @@
             <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all 29 secondary high schools.</p>
           </div>
 
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div id="tourTargetSchoolMatrix" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs min-w-[700px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
@@ -1362,7 +1637,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="subjectFoldersContainer"></div>
           </div>
 
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div id="tourTargetMaterialsTable" class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -1635,7 +1910,7 @@
       if (type === 'error') bg = 'bg-red-600 text-white';
       if (type === 'warning') bg = 'bg-amber-500 text-white';
 
-      toast.className = `${bg} px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 pointer-events-auto border border-white/20`;
+      toast.className = `${bg} px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 pointer-events-auto border border-white/20 animate-toast-in`;
       toast.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> <span>${message}</span>`;
       
       container.appendChild(toast);
@@ -2135,6 +2410,7 @@
       }
 
       renderSchoolsMatrix();
+      checkFirstTimeTourPrompt();
     }
 
     function showLoginError(msg) {
@@ -4261,6 +4537,383 @@
       });
     };
 
+    // =========================================================================
+    // ROLE-AWARE ADMINISTRATIVE HELP & GUIDED TOUR SYSTEM
+    // =========================================================================
+    const SUPER_ADMIN_TOUR_STEPS = [
+      {
+        tabId: 'tab-division-dashboard',
+        targetId: 'tourTargetJurisdiction',
+        title: 'Division Scope & Jurisdiction',
+        icon: '🏛️',
+        description: 'You have division-wide administrative oversight across all 29 secondary institutions in Valenzuela City. Use this Jurisdiction dropdown at any time to focus the entire portal on a single school campus.',
+        tip: 'Filtering by a specific campus instantly scopes faculty, sections, and learner diagnostics to that school.'
+      },
+      {
+        tabId: 'tab-school-matrix',
+        targetId: 'tourTargetSchoolMatrix',
+        title: '29-School Campus Matrix & SDO Invites',
+        icon: '🏢',
+        description: 'This master matrix rosters all 29 public secondary high schools with their official DepEd IDs. As Super Admin, click "➕ Issue Invite" to generate confidential invite codes for School Principals and IT Coordinators.',
+        tip: 'Each SDO code (e.g. SDO-305445-XXXX) is single-use and irreversibly binds the claiming administrator to their campus.'
+      },
+      {
+        tabId: 'tab-faculty-verification',
+        targetId: 'tourTargetTeachersTable',
+        title: 'Faculty Registry & Accreditation Oversight',
+        icon: '🛡️',
+        description: 'Every educator registered on the GabAI mobile app requires institutional accreditation before gaining classroom tools. Super Admins monitor division-wide teacher statuses and can verify or audit accounts.',
+        tip: 'Use the "Pending Review" filter to monitor newly registered educators awaiting accreditation.'
+      },
+      {
+        tabId: 'tab-classroom-sections',
+        targetId: 'tourTargetSectionsTable',
+        title: 'Classroom Sections & Join Codes',
+        icon: '🏷️',
+        description: 'Inspect active classroom sections created across the division. Each section features an automated Join Code and tracks student initiation reading assessments.',
+        tip: 'Click on any section to inspect the full student roster, join codes, and initiation metrics.'
+      },
+      {
+        tabId: 'tab-learner-performance',
+        targetId: 'tourTargetPerformanceTable',
+        title: 'Learner Academic Performance',
+        icon: '📈',
+        description: 'Monitor real-time literacy diagnostics, quiz completion rates, and reading accuracy scores across Grade 7 through 12.',
+        tip: 'Quickly spot institutions and grade cohorts requiring academic reading interventions.'
+      },
+      {
+        tabId: 'tab-library-management',
+        targetId: 'tourTargetMaterialsTable',
+        title: 'Curriculum Review & Remarks Drawer',
+        icon: '📚',
+        description: 'Review teacher-uploaded PDF reading materials and weekly assessments. Click the "💬 Remarks" button to provide pedagogical feedback and academic intervention guidance without altering the teacher’s lesson files.',
+        tip: 'Remarks submitted here are logged in the official audit trail and visible to school administrators.'
+      }
+    ];
+
+    const SCHOOL_ADMIN_TOUR_STEPS = [
+      {
+        tabId: 'tab-division-dashboard',
+        targetId: 'adminRoleBadge',
+        title: 'Assigned Campus Boundary',
+        icon: '🏫',
+        description: 'Welcome to your school’s administrative portal. Your account is strictly bound to your DepEd School ID, giving you focused governance over your faculty, classrooms, and learners.',
+        tip: 'Notice your school badge in the top header. Your portal metrics are pre-filtered exclusively for your campus.'
+      },
+      {
+        tabId: 'tab-division-dashboard',
+        targetId: 'tourTargetImmediateActions',
+        title: 'Faculty Accreditation Queue (Action Item)',
+        icon: '🛡️',
+        description: 'This is your primary administrative queue: when teachers from your school register on the mobile app, they appear here. Click "Approve" to accredit them for immediate mobile app classroom access.',
+        tip: 'Teachers cannot log into the mobile app until an administrator accredits their profile.'
+      },
+      {
+        tabId: 'tab-classroom-sections',
+        targetId: 'tourTargetSectionsTable',
+        title: 'Classroom Sections & Join Codes',
+        icon: '🏷️',
+        description: 'Review all active classrooms created by your faculty. Monitor class join codes, student counts, and initiation assessment results.',
+        tip: 'Click any section to inspect the full student roster and diagnostic reading baselines.'
+      },
+      {
+        tabId: 'tab-batch-credentials',
+        targetId: 'tourTargetBatchVault',
+        title: 'Student Credential Vault',
+        icon: '🔑',
+        description: 'Manage student onboarding accounts. Students claim these credentials on the mobile app to access the AI reading tutor, gamified quests, and diagnostic assessments.',
+        tip: 'Monitor claimed accounts and provide student login assistance directly from this vault.'
+      },
+      {
+        tabId: 'tab-learner-performance',
+        targetId: 'tourTargetPerformanceTable',
+        title: 'School Diagnostic Literacy Metrics',
+        icon: '📈',
+        description: 'Track real-time student quiz history, average accuracy percentages, and reading mastery trends specifically for your school campus.',
+        tip: 'Use these indicators to support teachers whose classes show reading comprehension gaps.'
+      },
+      {
+        tabId: 'tab-library-management',
+        targetId: 'tourTargetMaterialsTable',
+        title: 'Curriculum Review & Remarks Drawer',
+        icon: '💬',
+        description: 'Inspect instructional PDF documents and weekly reading assessments. Click "💬 Remarks" to submit administrative notes, curriculum alignments, and commendations directly to your educators.',
+        tip: 'Your remarks provide constructive oversight while preserving the educator’s original content.'
+      }
+    ];
+
+    let currentTourStep = 0;
+    let activeTourSteps = [];
+    let tourRepositionTimer = null;
+
+    window.openHelpHubModal = function() {
+      const modal = document.getElementById('modalHelpHub');
+      if (!modal) return;
+
+      const subTitle = document.getElementById('helpHubRoleSubtitle');
+      const detailsContainer = document.getElementById('helpHubRoleDetails');
+
+      if (isSchoolAdmin) {
+        const schoolName = getSchoolName(currentAdminUser?.schoolId);
+        if (subTitle) subTitle.textContent = `School Admin Portal • ${schoolName} (${currentAdminUser?.schoolId || ''})`;
+        if (detailsContainer) {
+          detailsContainer.innerHTML = `
+            <div class="flex items-center gap-2 font-bold text-slate-800">
+              <span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px]">Campus Administrator</span>
+              <span>School Principal / IT Coordinator</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 mt-1">
+              <li><strong>Campus Authority:</strong> Governance scoped strictly to DepEd School ID <code>${currentAdminUser?.schoolId || 'Assigned Campus'}</code>.</li>
+              <li><strong>Faculty Accreditation:</strong> Evaluate and grant 1-click approval for newly registered teachers at your campus.</li>
+              <li><strong>Student Credential Vault:</strong> Manage batch-generated student accounts and onboarding claims.</li>
+              <li><strong>Pedagogical Oversight:</strong> Review teacher modules and post constructive feedback via the <em>💬 Remarks</em> drawer.</li>
+            </ul>
+          `;
+        }
+      } else {
+        if (subTitle) subTitle.textContent = `Division Super Admin • Schools Division Office of Valenzuela City`;
+        if (detailsContainer) {
+          detailsContainer.innerHTML = `
+            <div class="flex items-center gap-2 font-bold text-slate-800">
+              <span class="px-2 py-0.5 rounded bg-purple-50 text-[#5341CD] border border-purple-200 text-[10px]">Division Level</span>
+              <span>Schools Division Office (SDO) Super Admin</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 mt-1">
+              <li><strong>Division Oversight:</strong> View-only monitoring across all 29 public secondary schools in Valenzuela City.</li>
+              <li><strong>SDO School Manager:</strong> Generate and issue confidential invite codes (<code>SDO-XXXX-YYYY</code>) for School Principals and IT Coordinators.</li>
+              <li><strong>Faculty Oversight:</strong> Audit accreditation status and educator registries across campuses.</li>
+              <li><strong>Curriculum & Intervention Guidance:</strong> Monitor weekly diagnostic assessments and submit administrative remarks to educators.</li>
+            </ul>
+          `;
+        }
+      }
+
+      modal.classList.remove('hidden');
+    };
+
+    window.closeHelpHubModal = function() {
+      const modal = document.getElementById('modalHelpHub');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.startInteractiveTour = function() {
+      closeHelpHubModal();
+      activeTourSteps = isSchoolAdmin ? SCHOOL_ADMIN_TOUR_STEPS : SUPER_ADMIN_TOUR_STEPS;
+      currentTourStep = 0;
+
+      const overlay = document.getElementById('tutorialTourOverlay');
+      if (overlay) overlay.classList.remove('hidden');
+
+      // Attach resize and scroll listeners during active tour
+      window.removeEventListener('resize', updateActiveTourSpotlight);
+      window.removeEventListener('scroll', updateActiveTourSpotlight, true);
+      window.addEventListener('resize', updateActiveTourSpotlight);
+      window.addEventListener('scroll', updateActiveTourSpotlight, true);
+
+      renderTourStep(0);
+    };
+
+    function updateActiveTourSpotlight() {
+      if (!activeTourSteps || activeTourSteps.length === 0) return;
+      const step = activeTourSteps[currentTourStep];
+      if (!step) return;
+      positionTourElements(step.targetId);
+    }
+
+    function positionTourElements(targetId) {
+      const spotlight = document.getElementById('tourSpotlight');
+      const tourCard = document.getElementById('tourCard');
+      if (!tourCard) return;
+
+      const targetElem = document.getElementById(targetId);
+
+      if (targetElem) {
+        const rect = targetElem.getBoundingClientRect();
+        const pad = 10;
+
+        // Morph spotlight frame over target
+        if (spotlight) {
+          spotlight.style.display = 'block';
+          spotlight.style.top = `${Math.max(4, rect.top - pad)}px`;
+          spotlight.style.left = `${Math.max(4, rect.left - pad)}px`;
+          spotlight.style.width = `${Math.min(window.innerWidth - 8, rect.width + (pad * 2))}px`;
+          spotlight.style.height = `${Math.min(window.innerHeight - 8, rect.height + (pad * 2))}px`;
+        }
+
+        // Card Dimensions
+        const cardWidth = Math.min(440, window.innerWidth - 32);
+        const cardHeight = tourCard.offsetHeight || 240;
+
+        let topPos;
+        let leftPos;
+
+        // Position logic: avoid obscuring small targets, dock neatly for large targets
+        const isLargeTarget = rect.height > 240 || rect.width > 600;
+
+        if (isLargeTarget) {
+          // For master tables/cards, anchor card at upper-right or lower-right
+          // so it never clips past the bottom taskbar
+          if (window.innerWidth > 960) {
+            topPos = Math.max(90, Math.min(window.innerHeight - cardHeight - 32, rect.top + 28));
+            leftPos = Math.max(20, Math.min(window.innerWidth - cardWidth - 28, rect.right - cardWidth - 24));
+          } else {
+            topPos = window.innerHeight - cardHeight - 24;
+            leftPos = Math.max(16, (window.innerWidth - cardWidth) / 2);
+          }
+        } else {
+          // Standard / small target (e.g. dropdown, badge, action button)
+          topPos = rect.bottom + 16;
+          leftPos = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, rect.left));
+
+          // If too low, place above target
+          if (topPos + cardHeight > window.innerHeight - 20) {
+            topPos = rect.top - cardHeight - 16;
+          }
+        }
+
+        // Strict Clamping - NEVER overflow viewport, NEVER clip into taskbar
+        topPos = Math.max(20, Math.min(window.innerHeight - cardHeight - 24, topPos));
+        leftPos = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, leftPos));
+
+        tourCard.style.top = `${topPos}px`;
+        tourCard.style.left = `${leftPos}px`;
+        tourCard.style.transform = 'none';
+      } else {
+        // Fallback: center on screen
+        if (spotlight) spotlight.style.display = 'none';
+        tourCard.style.top = '50%';
+        tourCard.style.left = '50%';
+        tourCard.style.transform = 'translate(-50%, -50%)';
+      }
+    }
+
+    function renderTourStep(index) {
+      if (index < 0 || index >= activeTourSteps.length) return;
+
+      const step = activeTourSteps[index];
+
+      // Update Card Content
+      const badge = document.getElementById('tourStepBadge');
+      const roleTag = document.getElementById('tourRoleTag');
+      const title = document.getElementById('tourStepTitle');
+      const desc = document.getElementById('tourStepDescription');
+      const tip = document.getElementById('tourStepTipText');
+
+      if (badge) badge.textContent = `Step ${index + 1} of ${activeTourSteps.length}`;
+      if (roleTag) roleTag.textContent = isSchoolAdmin ? 'School Admin Tour' : 'Super Admin Tour';
+      if (title) title.innerHTML = `<span>${step.icon}</span> ${step.title}`;
+      if (desc) desc.textContent = step.description;
+      if (tip) tip.textContent = step.tip;
+
+      // Button states
+      const btnPrev = document.getElementById('btnTourPrev');
+      const btnNext = document.getElementById('btnTourNext');
+
+      if (btnPrev) {
+        btnPrev.disabled = index === 0;
+        btnPrev.style.opacity = index === 0 ? '0.4' : '1';
+        btnPrev.style.cursor = index === 0 ? 'not-allowed' : 'pointer';
+      }
+
+      if (btnNext) {
+        if (index === activeTourSteps.length - 1) {
+          btnNext.innerHTML = `✓ Complete Tour`;
+          btnNext.className = "px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display transition-all hover:scale-105 active:scale-95";
+        } else {
+          btnNext.innerHTML = `Next &rarr;`;
+          btnNext.className = "px-4 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display transition-all hover:scale-105 active:scale-95";
+        }
+      }
+
+      // Switch Tab if needed
+      if (step.tabId) {
+        switchTab(step.tabId);
+      }
+
+      // Smooth scroll target into view and position spotlight & card
+      clearTimeout(tourRepositionTimer);
+      tourRepositionTimer = setTimeout(() => {
+        const targetElem = document.getElementById(step.targetId);
+        if (targetElem) {
+          targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        positionTourElements(step.targetId);
+        setTimeout(() => positionTourElements(step.targetId), 220);
+      }, 120);
+    }
+
+    window.nextTourStep = function() {
+      if (currentTourStep < activeTourSteps.length - 1) {
+        currentTourStep++;
+        renderTourStep(currentTourStep);
+      } else {
+        finishTour();
+      }
+    };
+
+    window.prevTourStep = function() {
+      if (currentTourStep > 0) {
+        currentTourStep--;
+        renderTourStep(currentTourStep);
+      }
+    };
+
+    function cleanupTour() {
+      clearTimeout(tourRepositionTimer);
+      window.removeEventListener('resize', updateActiveTourSpotlight);
+      window.removeEventListener('scroll', updateActiveTourSpotlight, true);
+
+      const spotlight = document.getElementById('tourSpotlight');
+      if (spotlight) spotlight.style.display = 'none';
+
+      const overlay = document.getElementById('tutorialTourOverlay');
+      if (overlay) overlay.classList.add('hidden');
+    }
+
+    window.finishTour = function() {
+      cleanupTour();
+      if (currentAdminUser?.uid) {
+        localStorage.setItem(`gabai_admin_tour_seen_${currentAdminUser.uid}`, 'true');
+      }
+      window.showToast("Interactive tour completed! Click 'Help & Tour' anytime to revisit.", "success");
+    };
+
+    window.skipTour = function() {
+      cleanupTour();
+      if (currentAdminUser?.uid) {
+        localStorage.setItem(`gabai_admin_tour_seen_${currentAdminUser.uid}`, 'true');
+      }
+    };
+
+    function checkFirstTimeTourPrompt() {
+      if (!currentAdminUser?.uid) return;
+      const seen = localStorage.getItem(`gabai_admin_tour_seen_${currentAdminUser.uid}`);
+      if (!seen) {
+        setTimeout(() => {
+          window.showToast(`Welcome! Click "❓ Help & Tour" in the top bar for a 1-minute guided tour.`, "info");
+        }, 1200);
+      }
+    }
+
+    // Keyboard shortcut listeners for Tour & Help Hub
+    document.addEventListener('keydown', (e) => {
+      const tourOverlay = document.getElementById('tutorialTourOverlay');
+      const isTourOpen = tourOverlay && !tourOverlay.classList.contains('hidden');
+
+      if (e.key === 'Escape') {
+        if (isTourOpen) {
+          skipTour();
+        } else {
+          closeHelpHubModal();
+        }
+      } else if (isTourOpen) {
+        if (e.key === 'ArrowRight') {
+          nextTourStep();
+        } else if (e.key === 'ArrowLeft') {
+          prevTourStep();
+        }
+      }
+    });
   </script>
 </body>
 </html>
