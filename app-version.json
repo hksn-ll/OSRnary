@@ -1,11 +1,11 @@
 {
-  "versionCode": 9,
-  "versionName": "0.3.5-nightly",
-  "minRequiredVersionCode": 9,
+  "versionCode": 10,
+  "versionName": "0.3.6-nightly",
+  "minRequiredVersionCode": 10,
   "forceUpdate": true,
-  "title": "Universal Visual Context & Fast Build",
-  "message": "GabAI v0.3.5 brings universal multi-subject visual context for all literature, history, science, math, and reading terms with Overview, Real-World, and Diagrams & Charts filters.",
+  "title": "Autofill Integration & Credential Connection",
+  "message": "GabAI v0.3.6 fixes login credential autofill, automatically connecting username and password fields with full support for Android Autofill and Google Password Manager.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Universal Visual Context: Works across ALL academic disciplines (Literature, History, Science, Math, Social Studies)\n• Universal Perspective Chips: [Overview], [Real-World], and [Diagrams & Charts]\n• Dynamic Query Engine: No longer restricts or hardcodes science/diagram search terms\n• Fullscreen Lightbox Dialog: Tap any visual for high-res fullscreen inspection with dark backdrop\n• Strictly Enforced Updates: Guaranteed up-to-date client builds without bypass"
+  "changelog": "• Dual Credential Autofill: Perfectly links username and password fields in system Autofill and password managers\n• Fixed InputType Bitmask: Cleaned keyboard type transitions between student and educator modes\n• Autofill Session Management: Automatically triggers Save Password on successful login/registration\n• Universal Visual Context: Works across all academic disciplines with Overview, Real-World, and Diagrams & Charts chips"
 }

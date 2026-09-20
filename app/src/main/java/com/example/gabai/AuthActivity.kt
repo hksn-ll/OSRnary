@@ -3,11 +3,13 @@ package com.example.gabai
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.transition.AutoTransition
 import android.transition.TransitionManager
 import android.view.View
+import android.view.autofill.AutofillManager
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -69,9 +71,32 @@ class AuthActivity : AppCompatActivity() {
         setupSchoolDropdown()
         setupGradeDropdown()
         setupListeners()
+        setupAutofill()
 
         // Initialize with Student Role
         selectRole("student", animate = false)
+    }
+
+    private fun setupAutofill() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Explicitly connect username and password fields for system Autofill / Password Managers
+            binding.etLoginEmail.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS)
+            binding.etLoginPassword.setAutofillHints(View.AUTOFILL_HINT_PASSWORD)
+            binding.etLoginEmail.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+            binding.etLoginPassword.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+
+            // Registration Form Autofill Mapping
+            binding.etRegFirstname.setAutofillHints(View.AUTOFILL_HINT_NAME, "personGivenName")
+            binding.etRegLastname.setAutofillHints(View.AUTOFILL_HINT_NAME, "personFamilyName")
+            binding.etRegEmail.setAutofillHints(View.AUTOFILL_HINT_EMAIL_ADDRESS)
+            binding.etRegPassword.setAutofillHints(View.AUTOFILL_HINT_PASSWORD, "newPassword")
+            binding.etRegConfirmPassword.setAutofillHints(View.AUTOFILL_HINT_PASSWORD, "newPassword")
+            binding.etRegFirstname.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+            binding.etRegLastname.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+            binding.etRegEmail.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+            binding.etRegPassword.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+            binding.etRegConfirmPassword.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_YES
+        }
     }
 
     private fun setupListeners() {
@@ -173,7 +198,10 @@ class AuthActivity : AppCompatActivity() {
             binding.tilLoginEmail.hint = "Email or Username"
             binding.etLoginEmail.hint = "Email or Username"
             binding.tilLoginEmail.setStartIconDrawable(R.drawable.ic_mail)
-            binding.etLoginEmail.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            binding.etLoginEmail.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                binding.etLoginEmail.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS)
+            }
 
             binding.tvForgotPassword.visibility = View.VISIBLE
             binding.containerStudentNote.visibility = View.GONE
@@ -197,7 +225,10 @@ class AuthActivity : AppCompatActivity() {
             binding.tilLoginEmail.hint = "Username"
             binding.etLoginEmail.hint = "Username"
             binding.tilLoginEmail.setStartIconDrawable(R.drawable.ic_person)
-            binding.etLoginEmail.inputType = InputType.TYPE_CLASS_TEXT
+            binding.etLoginEmail.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                binding.etLoginEmail.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS)
+            }
 
             binding.tvForgotPassword.visibility = View.GONE
             binding.containerStudentNote.visibility = View.VISIBLE
@@ -460,6 +491,9 @@ class AuthActivity : AppCompatActivity() {
 
                 user?.uid?.let { uid ->
                     db.collection("users").document(uid).set(userProfile).addOnSuccessListener {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            getSystemService(AutofillManager::class.java)?.commit()
+                        }
                         auth.signOut()
                         toggleLoading(false)
                         binding.btnRegisterSubmit.isEnabled = true
@@ -516,6 +550,9 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun showErrorDialog(title: String, message: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getSystemService(AutofillManager::class.java)?.cancel()
+        }
         MaterialAlertDialogBuilder(this)
             .setTitle(title)
             .setMessage(message)
@@ -524,6 +561,10 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun navigateToMain(role: String?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val afm = getSystemService(AutofillManager::class.java)
+            afm?.commit()
+        }
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("USER_ROLE", role)
         startActivity(intent)

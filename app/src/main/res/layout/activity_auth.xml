@@ -200,7 +200,9 @@
                             android:paddingStart="4dp"
                             android:paddingEnd="16dp"
                             android:gravity="center_vertical"
-                            android:inputType="text"
+                            android:inputType="textEmailAddress"
+                            android:autofillHints="username,emailAddress"
+                            android:importantForAutofill="yes"
                             android:imeOptions="actionNext"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -239,6 +241,8 @@
                             android:paddingEnd="16dp"
                             android:gravity="center_vertical"
                             android:inputType="textPassword"
+                            android:autofillHints="password"
+                            android:importantForAutofill="yes"
                             android:imeOptions="actionDone"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -455,6 +459,8 @@
                                 android:paddingEnd="12dp"
                                 android:gravity="center_vertical"
                                 android:inputType="textPersonName|textCapWords"
+                                android:autofillHints="personGivenName"
+                                android:importantForAutofill="yes"
                                 android:maxLines="1" />
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -488,6 +494,8 @@
                                 android:paddingEnd="12dp"
                                 android:gravity="center_vertical"
                                 android:inputType="textPersonName|textCapWords"
+                                android:autofillHints="personFamilyName"
+                                android:importantForAutofill="yes"
                                 android:maxLines="1" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
@@ -559,6 +567,8 @@
                             android:paddingEnd="12dp"
                             android:gravity="center_vertical"
                             android:inputType="textEmailAddress"
+                            android:autofillHints="emailAddress"
+                            android:importantForAutofill="yes"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -596,6 +606,8 @@
                             android:paddingEnd="12dp"
                             android:gravity="center_vertical"
                             android:inputType="textPassword"
+                            android:autofillHints="newPassword"
+                            android:importantForAutofill="yes"
                             android:imeOptions="actionNext"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -635,6 +647,8 @@
                             android:paddingEnd="12dp"
                             android:gravity="center_vertical"
                             android:inputType="textPassword"
+                            android:autofillHints="newPassword"
+                            android:importantForAutofill="yes"
                             android:imeOptions="actionDone"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>

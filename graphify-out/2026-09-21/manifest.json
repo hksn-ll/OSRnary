@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1789926657.4297411,
-    "seen": 1789926823.196543,
-    "ast_hash": "b98511a4eefcb50821cd9a2440b3cf5c",
+    "mtime": 1789927331.0853689,
+    "seen": 1789927343.6848068,
+    "ast_hash": "4cb7d69b62b91261bbfc92f7aa2b0a63",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -126,9 +126,9 @@
     "semantic_hash": "290527ded60d53dca1ceca5fe6e3c98a"
   },
   "app/src/main/java/com/example/gabai/OverviewActivity.kt": {
-    "mtime": 1789926650.1088774,
-    "seen": 1789926823.196584,
-    "ast_hash": "7042fb1045e8aa306df242abf3498671",
+    "mtime": 1789927324.2312038,
+    "seen": 1789927343.6848967,
+    "ast_hash": "14df322bd4ccbe63bf76f2e8cb3373fd",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/PdfViewerActivity.kt": {
@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1789926663.3968718,
-    "seen": 1789926823.1965396,
-    "ast_hash": "95e929b85a35b2a9c2c780baf394f541",
+    "mtime": 1789927334.5633602,
+    "seen": 1789927343.684801,
+    "ast_hash": "96968fb4422ac48f5b0abb52377dda12",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
