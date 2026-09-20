@@ -1,11 +1,11 @@
 {
-  "versionCode": 6,
-  "versionName": "0.3.2",
+  "versionCode": 7,
+  "versionName": "0.3.3-nightly",
   "minRequiredVersionCode": 4,
   "forceUpdate": false,
-  "title": "Sentence-Aware AI Overview & 40% Smaller APK",
-  "message": "GabAI v0.3.2 introduces full Sentence-Aware reading context, interactive vertical related questions, zero-AI visual context, and a 40% reduced APK size.",
+  "title": "Nightly Build Update Available",
+  "message": "A new GabAI nightly build is ready with live in-app background update detection, on-demand scanning, and real-time scanner overview enhancements.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Sentence-Aware Context: Highlights target words within enclosing OCR sentences\n• Vertical Related Questions: Accordion questions with on-demand answers\n• Zero-AI Visual Context: 100% deterministic diagram search with zero token latency\n• 40% Smaller APK: Stripped unused architectures and crypto tables (32 MB vs 55 MB)"
+  "changelog": "• Continuous Updates: Scans on resume & 'Check for Updates' in Profile\n• Sentence-Aware Context: Highlights target words within enclosing OCR sentences\n• Vertical Related Questions: Accordion questions with on-demand answers\n• Zero-AI Visual Context: 100% deterministic diagram search\n• 40% Smaller APK: Stripped unused architectures (33 MB vs 55 MB)"
 }

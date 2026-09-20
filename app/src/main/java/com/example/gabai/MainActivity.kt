@@ -132,6 +132,12 @@ class MainActivity : AppCompatActivity() {
         else loadFragment(HomeFragment())
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Automatically check for updates on foreground resume (debounced)
+        GitHubUpdateHelper.checkUpdate(this, isBackground = true) {}
+    }
+
     private fun loadFragment(fragment: Fragment) {
         // Safety check to ensure the Activity is still active
         if (isFinishing || isDestroyed) return

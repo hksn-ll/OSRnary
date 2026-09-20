@@ -2,6 +2,7 @@ package com.example.gabai
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -10,7 +11,6 @@ import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +18,7 @@ import android.view.Window
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.google.android.material.button.MaterialButton
 import okhttp3.Call
@@ -38,6 +39,8 @@ object GitHubUpdateHelper {
 
     // Primary endpoint: raw GitHub configuration
     private const val VERSION_URL = "https://raw.githubusercontent.com/hksn-ll/OSRnary/main/app-version.json"
+
+    private var lastBackgroundCheckTime = 0L
 
     private val httpClient by lazy {
         OkHttpClient.Builder()
@@ -63,13 +66,31 @@ object GitHubUpdateHelper {
     /**
      * Checks GitHub for updates asynchronously.
      * @param activity current active activity
+     * @param isBackground true if called during lifecycle transitions (debounced every 30s)
+     * @param forceShow true if explicitly requested by user (shows feedback toast if up-to-date)
      * @param onProceed callback invoked if no update is required or if offline (allow app use)
      */
-    fun checkUpdate(activity: Activity, onProceed: () -> Unit) {
+    fun checkUpdate(
+        activity: Activity,
+        isBackground: Boolean = false,
+        forceShow: Boolean = false,
+        onProceed: () -> Unit = {}
+    ) {
+        val now = System.currentTimeMillis()
+        if (isBackground && (now - lastBackgroundCheckTime < 30_000)) {
+            onProceed()
+            return
+        }
+        lastBackgroundCheckTime = now
+
         val currentVersionCode = BuildConfig.VERSION_CODE
         val currentVersionName = BuildConfig.VERSION_NAME
 
-        val requestUrl = "$VERSION_URL?t=${System.currentTimeMillis()}"
+        if (forceShow) {
+            Toast.makeText(activity, "Checking for latest build...", Toast.LENGTH_SHORT).show()
+        }
+
+        val requestUrl = "$VERSION_URL?t=$now"
         val request = Request.Builder()
             .url(requestUrl)
             .header("Cache-Control", "no-cache")
@@ -78,14 +99,24 @@ object GitHubUpdateHelper {
         httpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.w(TAG, "Failed to check update from GitHub: ${e.message}")
-                Handler(Looper.getMainLooper()).post { onProceed() }
+                Handler(Looper.getMainLooper()).post {
+                    if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
+                        Toast.makeText(activity, "Update check failed: Check connection", Toast.LENGTH_SHORT).show()
+                    }
+                    onProceed()
+                }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val bodyString = response.body?.string()
                 if (!response.isSuccessful || bodyString.isNullOrBlank()) {
                     Log.w(TAG, "Update check returned unsuccessful response: ${response.code}")
-                    Handler(Looper.getMainLooper()).post { onProceed() }
+                    Handler(Looper.getMainLooper()).post {
+                        if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
+                            Toast.makeText(activity, "Server returned no update info", Toast.LENGTH_SHORT).show()
+                        }
+                        onProceed()
+                    }
                     return
                 }
 
@@ -96,41 +127,57 @@ object GitHubUpdateHelper {
                         versionName = json.optString("versionName", "1.0.0"),
                         minRequiredVersionCode = json.optInt("minRequiredVersionCode", 1),
                         forceUpdate = json.optBoolean("forceUpdate", false),
-                        title = json.optString("title", "Update Required"),
-                        message = json.optString("message", "A new version of GabAI is available. Please update to continue."),
+                        title = json.optString("title", "New Build Available"),
+                        message = json.optString("message", "A new build of GabAI is available. Update to get the latest features!"),
                         downloadUrl = json.optString("downloadUrl", "https://github.com/hksn-ll/OSRnary/releases/latest"),
                         apkUrl = json.optString("apkUrl", "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk"),
                         changelog = json.optString("changelog", "")
                     )
 
-                    val isUpdateRequired = (currentVersionCode < info.minRequiredVersionCode) ||
-                            (info.forceUpdate && currentVersionCode < info.versionCode)
+                    // Nightly build update detection:
+                    // Trigger if versionCode is greater, OR if versionName differs and code >= current
+                    val isNewerVersion = (info.versionCode > currentVersionCode) ||
+                            (info.versionName.isNotBlank() && !info.versionName.equals(currentVersionName, ignoreCase = true) && info.versionCode >= currentVersionCode)
+
+                    val isForce = (currentVersionCode < info.minRequiredVersionCode) || info.forceUpdate
 
                     Handler(Looper.getMainLooper()).post {
-                        if (isUpdateRequired && !activity.isFinishing && !activity.isDestroyed) {
-                            showForceUpdateDialog(activity, info, currentVersionName)
+                        if (isNewerVersion && !activity.isFinishing && !activity.isDestroyed) {
+                            showUpdateDialog(activity, info, currentVersionName, isForce)
                         } else {
+                            if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
+                                Toast.makeText(activity, "You are on the latest build (v$currentVersionName)!", Toast.LENGTH_SHORT).show()
+                            }
                             onProceed()
                         }
                     }
 
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing update json: ${e.message}", e)
-                    Handler(Looper.getMainLooper()).post { onProceed() }
+                    Handler(Looper.getMainLooper()).post {
+                        if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
+                            Toast.makeText(activity, "Error parsing update data", Toast.LENGTH_SHORT).show()
+                        }
+                        onProceed()
+                    }
                 }
             }
         })
     }
 
     /**
-     * Displays an un-dismissible, full-fidelity modal dialog requiring the user to update.
-     * Supports in-app downloading and triggering the system package installer.
+     * Displays a modern update dialog with real-time download and package installation.
      */
-    private fun showForceUpdateDialog(activity: Activity, info: VersionInfo, currentVersionName: String) {
+    private fun showUpdateDialog(
+        activity: Activity,
+        info: VersionInfo,
+        currentVersionName: String,
+        isForce: Boolean
+    ) {
         val dialog = Dialog(activity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(false)
-        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(!isForce)
+        dialog.setCanceledOnTouchOutside(!isForce)
 
         val view = LayoutInflater.from(activity).inflate(R.layout.dialog_force_update, null)
         dialog.setContentView(view)
@@ -213,8 +260,16 @@ object GitHubUpdateHelper {
             )
         }
 
-        btnExitApp.setOnClickListener {
-            activity.finishAffinity()
+        if (isForce) {
+            btnExitApp.text = "Exit Application"
+            btnExitApp.setOnClickListener {
+                activity.finishAffinity()
+            }
+        } else {
+            btnExitApp.text = "Maybe Later"
+            btnExitApp.setOnClickListener {
+                dialog.dismiss()
+            }
         }
 
         dialog.show()
@@ -282,11 +337,13 @@ object GitHubUpdateHelper {
                         outputStream.write(buffer, 0, bytesRead)
                         downloadedBytes += bytesRead
 
-                        val percent = if (totalBytes > 0) ((downloadedBytes * 100) / totalBytes).toInt() else 0
-                        if (percent != lastReportedPercent) {
-                            lastReportedPercent = percent
-                            Handler(Looper.getMainLooper()).post {
-                                onProgress(percent, downloadedBytes, totalBytes)
+                        if (totalBytes > 0) {
+                            val percent = ((downloadedBytes * 100) / totalBytes).toInt()
+                            if (percent != lastReportedPercent) {
+                                lastReportedPercent = percent
+                                Handler(Looper.getMainLooper()).post {
+                                    onProgress(percent, downloadedBytes, totalBytes)
+                                }
                             }
                         }
                     }
@@ -300,9 +357,9 @@ object GitHubUpdateHelper {
                     }
 
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error saving APK: ${e.message}", e)
+                    Log.e(TAG, "File write error during APK download: ${e.message}", e)
                     Handler(Looper.getMainLooper()).post {
-                        onError(e.localizedMessage ?: "Failed to save file")
+                        onError(e.localizedMessage ?: "Storage write error")
                     }
                 }
             }
@@ -310,29 +367,30 @@ object GitHubUpdateHelper {
     }
 
     /**
-     * Triggers the Android Package Installer via FileProvider.
+     * Triggers the Android package installer Intent using a secure FileProvider URI.
      */
-    fun installApk(activity: Activity, apkFile: File) {
-        if (!apkFile.exists()) {
-            Log.e(TAG, "APK file does not exist at: ${apkFile.absolutePath}")
-            return
-        }
-
+    private fun installApk(context: Context, apkFile: File) {
         try {
-            // Android 8.0+ Unknown sources check
+            if (!apkFile.exists()) {
+                Log.e(TAG, "Cannot install: APK file does not exist at ${apkFile.absolutePath}")
+                return
+            }
+
+            // Android 8.0+ (Oreo): Check if permission to install unknown apps is granted
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!activity.packageManager.canRequestPackageInstalls()) {
-                    val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                        data = Uri.parse("package:${activity.packageName}")
+                if (!context.packageManager.canRequestPackageInstalls()) {
+                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:${context.packageName}")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
-                    activity.startActivity(intent)
+                    context.startActivity(intent)
                     return
                 }
             }
 
-            val apkUri: Uri = FileProvider.getUriForFile(
-                activity,
-                "${activity.packageName}.fileprovider",
+            val apkUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
                 apkFile
             )
 
@@ -342,7 +400,7 @@ object GitHubUpdateHelper {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-            activity.startActivity(installIntent)
+            context.startActivity(installIntent)
 
         } catch (e: Exception) {
             Log.e(TAG, "Failed to launch package installer: ${e.message}", e)

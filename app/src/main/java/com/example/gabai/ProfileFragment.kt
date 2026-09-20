@@ -26,6 +26,12 @@ class ProfileFragment : Fragment() {
 
         loadUserData()
 
+        binding.tvAppVersionLabel.text = "v${BuildConfig.VERSION_NAME}"
+        binding.rowCheckUpdate.setOnClickListener {
+            val act = activity ?: return@setOnClickListener
+            GitHubUpdateHelper.checkUpdate(act, forceShow = true) {}
+        }
+
         binding.btnLogout.setOnClickListener {
             // 🟢 NEW: Stop the bubble service and reset the toggle state 🟢
             requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))

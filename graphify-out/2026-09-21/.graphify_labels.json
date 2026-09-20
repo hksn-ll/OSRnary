@@ -1,6 +1,6 @@
 {
   "0": "Intent",
-  "1": ".showSnackbar",
+  "1": "SubjectDetailActivity",
   "2": "InitiationActivity",
   "3": "ManageClassesActivity",
   "4": "ScanResultActivity",
@@ -18,7 +18,7 @@
   "16": "launch.ps1",
   "17": "QuestManager",
   "18": "LibraryActivity",
-  "19": "ClassDetailActivity",
+  "19": ".showSnackbar",
   "20": "WeeklyAssessmentActivity",
   "21": "DailyQuestsActivity.kt",
   "22": "QuestDetailsActivity.kt",
@@ -35,6 +35,7 @@
   "33": "ic_launcher-playstore (main)",
   "34": "ic_search_bubble (drawable)",
   "35": "DualStackHandler",
+  "36": "XPManager",
   "50": "build.gradle.kts",
   "51": "settings.gradle.kts"
 }
