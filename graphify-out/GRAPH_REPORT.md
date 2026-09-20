@@ -1,7 +1,7 @@
 # Graph Report - OSRnary  (2026-09-21)
 
 ## Corpus Check
-- 50 files · ~105,177 words
+- 50 files · ~105,184 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b62f6d7e`
+- Built from commit: `c791e4d1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -107,7 +107,7 @@ Nodes (7): Bundle, Fragment, LayoutInflater, View, ViewGroup, TeacherHomeFragmen
 
 ### Community 8 - "OverviewActivity"
 Cohesion: 0.11
-Nodes (13): AppCompatActivity, Bitmap, Bundle, TextView, OverviewActivity, WebViewClient, VisualMode, DIAGRAM (+5 more)
+Nodes (13): AppCompatActivity, Bitmap, Bundle, TextView, OverviewActivity, WebViewClient, VisualMode, DIAGRAMS (+5 more)
 
 ### Community 9 - "SchoolRepository"
 Cohesion: 0.33
@@ -186,14 +186,14 @@ Cohesion: 0.53
 Nodes (3): FavoritesActivity, AppCompatActivity, Bundle
 
 ## Knowledge Gaps
-- **5 isolated node(s):** `DIAGRAM`, `MICROSCOPIC`, `PROCESS`, `ic_launcher-playstore (main)`, `ic_search_bubble (drawable)`
+- **5 isolated node(s):** `OVERVIEW`, `REAL_WORLD`, `DIAGRAMS`, `ic_launcher-playstore (main)`, `ic_search_bubble (drawable)`
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 43 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **What connects `DIAGRAM`, `MICROSCOPIC`, `PROCESS` to the rest of the system?**
+- **What connects `OVERVIEW`, `REAL_WORLD`, `DIAGRAMS` to the rest of the system?**
   _5 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Intent` be split into smaller, more focused modules?**
   _Cohesion score 0.08879492600422834 - nodes in this community are weakly interconnected._

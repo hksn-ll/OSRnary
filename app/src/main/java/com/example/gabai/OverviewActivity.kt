@@ -59,10 +59,10 @@ class OverviewActivity : AppCompatActivity() {
     private var curatedCaption: String = ""
     private var currentVisualTerm: String = ""
     private var defaultVisualQuery: String = ""
-    private var activeVisualMode: VisualMode = VisualMode.DIAGRAM
+    private var activeVisualMode: VisualMode = VisualMode.OVERVIEW
 
     private enum class VisualMode {
-        DIAGRAM, MICROSCOPIC, PROCESS
+        OVERVIEW, REAL_WORLD, DIAGRAMS
     }
 
     private val httpClient by lazy {
@@ -304,9 +304,9 @@ class OverviewActivity : AppCompatActivity() {
 
             val contextNoun = sentenceWords.firstOrNull() ?: ""
             return if (contextNoun.isNotEmpty()) {
-                "$targetClean $contextNoun diagram"
+                "$targetClean $contextNoun"
             } else {
-                "$targetClean diagram"
+                targetClean
             }
         } else {
             // For a full sentence: extract top 2-3 longest keywords
@@ -319,7 +319,7 @@ class OverviewActivity : AppCompatActivity() {
                 .take(2)
                 .joinToString(" ")
 
-            return if (keywords.isNotEmpty()) "$keywords diagram" else "$targetText diagram"
+            return if (keywords.isNotEmpty()) keywords else targetText
         }
     }
 
@@ -356,17 +356,17 @@ class OverviewActivity : AppCompatActivity() {
 
         // Chip Clicks
         chipDiagram?.setOnClickListener {
-            activeVisualMode = VisualMode.DIAGRAM
+            activeVisualMode = VisualMode.OVERVIEW
             if (chipMicroscopic != null && chipProcess != null) {
                 updateChipStyle(chipDiagram, listOf(chipMicroscopic, chipProcess))
             }
             if (curatedBitmap != null) {
-                tvBadge?.text = "EDUCATIONAL DIAGRAM"
+                tvBadge?.text = "ENCYCLOPEDIA"
                 curatedContainer?.visibility = View.VISIBLE
                 imageWebView?.visibility = View.GONE
                 progressVisual?.visibility = View.GONE
             } else {
-                tvBadge?.text = "WEB SEARCH"
+                tvBadge?.text = "WEB VISUALS"
                 curatedContainer?.visibility = View.GONE
                 imageWebView?.visibility = View.VISIBLE
                 progressVisual?.visibility = View.GONE
@@ -375,29 +375,29 @@ class OverviewActivity : AppCompatActivity() {
         }
 
         chipMicroscopic?.setOnClickListener {
-            activeVisualMode = VisualMode.MICROSCOPIC
+            activeVisualMode = VisualMode.REAL_WORLD
             if (chipDiagram != null && chipProcess != null) {
                 updateChipStyle(chipMicroscopic, listOf(chipDiagram, chipProcess))
             }
-            tvBadge?.text = "MICROSCOPIC VIEW"
+            tvBadge?.text = "REAL-WORLD"
             curatedContainer?.visibility = View.GONE
             imageWebView?.visibility = View.VISIBLE
             progressVisual?.visibility = View.GONE
-            val microQuery = "$term microscopic high magnification histology"
-            if (imageWebView != null) loadGoogleImages(imageWebView, microQuery)
+            val realWorldQuery = "$term real world photo example"
+            if (imageWebView != null) loadGoogleImages(imageWebView, realWorldQuery)
         }
 
         chipProcess?.setOnClickListener {
-            activeVisualMode = VisualMode.PROCESS
+            activeVisualMode = VisualMode.DIAGRAMS
             if (chipDiagram != null && chipMicroscopic != null) {
                 updateChipStyle(chipProcess, listOf(chipDiagram, chipMicroscopic))
             }
-            tvBadge?.text = "PROCESS FLOW"
+            tvBadge?.text = "DIAGRAMS & CHARTS"
             curatedContainer?.visibility = View.GONE
             imageWebView?.visibility = View.VISIBLE
             progressVisual?.visibility = View.GONE
-            val processQuery = "$term step by step process pathway diagram"
-            if (imageWebView != null) loadGoogleImages(imageWebView, processQuery)
+            val diagramQuery = "$term diagram chart infographic"
+            if (imageWebView != null) loadGoogleImages(imageWebView, diagramQuery)
         }
 
         // Fetch curated diagram asynchronously
@@ -492,8 +492,8 @@ class OverviewActivity : AppCompatActivity() {
                                     ivDiagram?.setImageBitmap(bitmap)
                                     tvCaption?.text = curatedCaption
 
-                                    if (activeVisualMode == VisualMode.DIAGRAM) {
-                                        tvBadge?.text = "EDUCATIONAL DIAGRAM"
+                                    if (activeVisualMode == VisualMode.OVERVIEW) {
+                                        tvBadge?.text = "ENCYCLOPEDIA"
                                         curatedContainer?.visibility = View.VISIBLE
                                         imageWebView?.visibility = View.GONE
                                     }
@@ -524,7 +524,7 @@ class OverviewActivity : AppCompatActivity() {
         progressVisual?.visibility = View.GONE
         curatedContainer?.visibility = View.GONE
         imageWebView?.visibility = View.VISIBLE
-        tvBadge?.text = "WEB SEARCH"
+        tvBadge?.text = "WEB VISUALS"
 
         if (imageWebView != null) {
             loadGoogleImages(imageWebView, query)

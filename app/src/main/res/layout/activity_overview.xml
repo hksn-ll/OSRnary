@@ -487,7 +487,7 @@
                             android:background="@drawable/bg_role_tab_container"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
-                            android:text="EDUCATIONAL DIAGRAM"
+                            android:text="VISUAL CONTEXT"
                             android:textColor="#5341CD"
                             android:textSize="10sp"
                             android:fontFamily="@font/font_plus_jakarta_sans"
@@ -503,13 +503,13 @@
                             android:layout_width="36dp"
                             android:layout_height="36dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Fullscreen diagram"
+                            android:contentDescription="Fullscreen visual"
                             android:padding="6dp"
                             android:src="@drawable/ic_fullscreen"
                             app:tint="#64748B" />
                     </LinearLayout>
 
-                    <!-- Perspective Filter Chips -->
+                    <!-- Perspective Filter Chips (Universal for Literature, History, Science, Math, etc.) -->
                     <LinearLayout
                         android:id="@+id/ll_visual_chips"
                         android:layout_width="match_parent"
@@ -524,7 +524,7 @@
                             android:background="@drawable/bg_chip_selected"
                             android:gravity="center"
                             android:paddingHorizontal="14dp"
-                            android:text="Diagram"
+                            android:text="Overview"
                             android:textColor="#FFFFFF"
                             android:textSize="12sp"
                             android:fontFamily="@font/font_plus_jakarta_sans"
@@ -540,7 +540,7 @@
                             android:background="@drawable/bg_chip_unselected"
                             android:gravity="center"
                             android:paddingHorizontal="14dp"
-                            android:text="Microscopic"
+                            android:text="Real-World"
                             android:textColor="#475569"
                             android:textSize="12sp"
                             android:fontFamily="@font/font_plus_jakarta_sans"
@@ -556,7 +556,7 @@
                             android:background="@drawable/bg_chip_unselected"
                             android:gravity="center"
                             android:paddingHorizontal="14dp"
-                            android:text="Process"
+                            android:text="Diagrams &amp; Charts"
                             android:textColor="#475569"
                             android:textSize="12sp"
                             android:fontFamily="@font/font_plus_jakarta_sans"
@@ -626,7 +626,7 @@
                                         android:ellipsize="end"
                                         android:textColor="#334155"
                                         android:textSize="12sp"
-                                        tools:text="Plant organelle that conducts photosynthesis" />
+                                        tools:text="Visual context overview" />
 
                                     <TextView
                                         android:layout_width="wrap_content"

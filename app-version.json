@@ -1,11 +1,11 @@
 {
-  "versionCode": 8,
-  "versionName": "0.3.4-nightly",
-  "minRequiredVersionCode": 8,
+  "versionCode": 9,
+  "versionName": "0.3.5-nightly",
+  "minRequiredVersionCode": 9,
   "forceUpdate": true,
-  "title": "Nightly Build Update Available",
-  "message": "A new GabAI build is ready with curated educational diagrams, perspective visual chips, fullscreen lightbox, and strictly enforced mandatory updates.",
+  "title": "Universal Visual Context & Fast Build",
+  "message": "GabAI v0.3.5 brings universal multi-subject visual context for all literature, history, science, math, and reading terms with Overview, Real-World, and Diagrams & Charts filters.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Curated Educational Diagrams: Direct Wikimedia Commons SVG/PNG diagrams (zero AI tokens, ad-free)\n• Perspective Filter Chips: Instant toggle between Diagram, Microscopic, and Process views\n• Fullscreen Lightbox: Tap diagram or expand icon for immersive view\n• Strictly Enforced Updates: Removed 'Maybe Later' to guarantee all devices run latest build"
+  "changelog": "• Universal Visual Context: Works across ALL academic disciplines (Literature, History, Science, Math, Social Studies)\n• Universal Perspective Chips: [Overview], [Real-World], and [Diagrams & Charts]\n• Dynamic Query Engine: No longer restricts or hardcodes science/diagram search terms\n• Fullscreen Lightbox Dialog: Tap any visual for high-res fullscreen inspection with dark backdrop\n• Strictly Enforced Updates: Guaranteed up-to-date client builds without bypass"
 }

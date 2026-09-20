@@ -5863,35 +5863,35 @@
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_diagram",
-      "label": "DIAGRAM",
+      "id": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_diagrams",
+      "label": "DIAGRAMS",
       "_origin": "ast",
       "community": 8,
       "community_name": "OverviewActivity",
       "file_type": "code",
-      "norm_label": "diagram",
+      "norm_label": "diagrams",
       "source_file": "app/src/main/java/com/example/gabai/OverviewActivity.kt",
       "source_location": "L65"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_microscopic",
-      "label": "MICROSCOPIC",
+      "id": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_overview",
+      "label": "OVERVIEW",
       "_origin": "ast",
       "community": 8,
       "community_name": "OverviewActivity",
       "file_type": "code",
-      "norm_label": "microscopic",
+      "norm_label": "overview",
       "source_file": "app/src/main/java/com/example/gabai/OverviewActivity.kt",
       "source_location": "L65"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_process",
-      "label": "PROCESS",
+      "id": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_real_world",
+      "label": "REAL_WORLD",
       "_origin": "ast",
       "community": 8,
       "community_name": "OverviewActivity",
       "file_type": "code",
-      "norm_label": "process",
+      "norm_label": "real_world",
       "source_file": "app/src/main/java/com/example/gabai/OverviewActivity.kt",
       "source_location": "L65"
     },
@@ -13437,7 +13437,7 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_overviewactivity_visualmode",
-      "target": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_diagram",
+      "target": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_diagrams",
       "relation": "case_of",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13448,7 +13448,7 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_overviewactivity_visualmode",
-      "target": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_microscopic",
+      "target": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_overview",
       "relation": "case_of",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13459,7 +13459,7 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_overviewactivity_visualmode",
-      "target": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_process",
+      "target": "app_src_main_java_com_example_gabai_overviewactivity_visualmode_real_world",
       "relation": "case_of",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -17525,5 +17525,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b62f6d7e6c83125e8026820065690dfbcb79b103"
+  "built_at_commit": "c791e4d12d1c4d5f5a9a10d10b38fd861ce47a8a"
 }
