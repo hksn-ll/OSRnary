@@ -139,11 +139,9 @@ object GitHubUpdateHelper {
                     val isNewerVersion = (info.versionCode > currentVersionCode) ||
                             (info.versionName.isNotBlank() && !info.versionName.equals(currentVersionName, ignoreCase = true) && info.versionCode >= currentVersionCode)
 
-                    val isForce = (currentVersionCode < info.minRequiredVersionCode) || info.forceUpdate
-
                     Handler(Looper.getMainLooper()).post {
                         if (isNewerVersion && !activity.isFinishing && !activity.isDestroyed) {
-                            showUpdateDialog(activity, info, currentVersionName, isForce)
+                            showUpdateDialog(activity, info, currentVersionName)
                         } else {
                             if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
                                 Toast.makeText(activity, "You are on the latest build (v$currentVersionName)!", Toast.LENGTH_SHORT).show()
@@ -166,18 +164,17 @@ object GitHubUpdateHelper {
     }
 
     /**
-     * Displays a modern update dialog with real-time download and package installation.
+     * Displays a strictly mandatory, un-dismissible update dialog with in-app download.
      */
     private fun showUpdateDialog(
         activity: Activity,
         info: VersionInfo,
-        currentVersionName: String,
-        isForce: Boolean
+        currentVersionName: String
     ) {
         val dialog = Dialog(activity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(!isForce)
-        dialog.setCanceledOnTouchOutside(!isForce)
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
 
         val view = LayoutInflater.from(activity).inflate(R.layout.dialog_force_update, null)
         dialog.setContentView(view)
@@ -260,16 +257,9 @@ object GitHubUpdateHelper {
             )
         }
 
-        if (isForce) {
-            btnExitApp.text = "Exit Application"
-            btnExitApp.setOnClickListener {
-                activity.finishAffinity()
-            }
-        } else {
-            btnExitApp.text = "Maybe Later"
-            btnExitApp.setOnClickListener {
-                dialog.dismiss()
-            }
+        btnExitApp.text = "Exit Application"
+        btnExitApp.setOnClickListener {
+            activity.finishAffinity()
         }
 
         dialog.show()

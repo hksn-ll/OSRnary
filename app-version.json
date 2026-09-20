@@ -1,11 +1,11 @@
 {
-  "versionCode": 7,
-  "versionName": "0.3.3-nightly",
-  "minRequiredVersionCode": 4,
-  "forceUpdate": false,
+  "versionCode": 8,
+  "versionName": "0.3.4-nightly",
+  "minRequiredVersionCode": 8,
+  "forceUpdate": true,
   "title": "Nightly Build Update Available",
-  "message": "A new GabAI nightly build is ready with live in-app background update detection, on-demand scanning, and real-time scanner overview enhancements.",
+  "message": "A new GabAI build is ready with curated educational diagrams, perspective visual chips, fullscreen lightbox, and strictly enforced mandatory updates.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Continuous Updates: Scans on resume & 'Check for Updates' in Profile\n• Sentence-Aware Context: Highlights target words within enclosing OCR sentences\n• Vertical Related Questions: Accordion questions with on-demand answers\n• Zero-AI Visual Context: 100% deterministic diagram search\n• 40% Smaller APK: Stripped unused architectures (33 MB vs 55 MB)"
+  "changelog": "• Curated Educational Diagrams: Direct Wikimedia Commons SVG/PNG diagrams (zero AI tokens, ad-free)\n• Perspective Filter Chips: Instant toggle between Diagram, Microscopic, and Process views\n• Fullscreen Lightbox: Tap diagram or expand icon for immersive view\n• Strictly Enforced Updates: Removed 'Maybe Later' to guarantee all devices run latest build"
 }

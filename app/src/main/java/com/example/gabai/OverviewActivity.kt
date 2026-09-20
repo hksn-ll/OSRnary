@@ -1,7 +1,11 @@
 package com.example.gabai
 
+import android.app.Dialog
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.Spannable
@@ -9,11 +13,15 @@ import android.text.SpannableStringBuilder
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -26,10 +34,14 @@ import androidx.lifecycle.lifecycleScope
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.mlkit.nl.languageid.LanguageIdentification
 import io.noties.markwon.Markwon
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
 import java.net.URLEncoder
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class OverviewActivity : AppCompatActivity() {
 
@@ -40,6 +52,27 @@ class OverviewActivity : AppCompatActivity() {
 
     // In-memory cache for on-demand related question answers (pay-per-need token optimization)
     private val questionAnswers = mutableMapOf<String, String>()
+
+    // Visual Context State
+    private var curatedBitmap: Bitmap? = null
+    private var curatedTitle: String = ""
+    private var curatedCaption: String = ""
+    private var currentVisualTerm: String = ""
+    private var defaultVisualQuery: String = ""
+    private var activeVisualMode: VisualMode = VisualMode.DIAGRAM
+
+    private enum class VisualMode {
+        DIAGRAM, MICROSCOPIC, PROCESS
+    }
+
+    private val httpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .followRedirects(true)
+            .followSslRedirects(true)
+            .build()
+    }
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-2.5-flash-lite",
@@ -112,10 +145,15 @@ class OverviewActivity : AppCompatActivity() {
             // Generate AI Overview and Question Prompts
             generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
 
-            // Deterministic, Zero-AI Context-Aware Visual Query
+            // Zero-AI Curated Wikimedia Diagram & Deterministic Visual Context
             val visualQuery = buildDeterministicVisualQuery(scannedText, surroundingSentence, isSentence)
-            val imageWebView = findViewById<WebView>(R.id.image_webview)
-            loadGoogleImages(imageWebView, visualQuery)
+            defaultVisualQuery = visualQuery
+            currentVisualTerm = if (isSingleWord || isPhrase) {
+                scannedText.trim()
+            } else {
+                extractCoreSubject(surroundingSentence)
+            }
+            setupVisualContainer(currentVisualTerm, defaultVisualQuery)
         } else {
             GabAIUtils.showSnackbar(this, "No text provided")
         }
@@ -219,8 +257,27 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     // =========================================================================
-    // 2. ZERO-AI DETERMINISTIC VISUAL CONTEXT SEARCH
+    // 2. ZERO-AI DETERMINISTIC VISUAL CONTEXT SEARCH & CURATED DIAGRAM
     // =========================================================================
+    private fun extractCoreSubject(sentence: String): String {
+        val stopWords = setOf(
+            "the", "a", "an", "is", "are", "was", "were", "in", "on", "at", "by", "for", "with",
+            "about", "against", "between", "into", "through", "during", "before", "after", "above",
+            "below", "to", "from", "up", "down", "off", "over", "under", "again", "further", "then",
+            "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each",
+            "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own",
+            "same", "so", "than", "too", "very", "can", "will", "just", "should", "now", "and",
+            "or", "but", "if", "because", "as", "until", "while", "of", "that", "this", "these",
+            "those", "their", "they", "its", "it", "which", "what", "who", "whom"
+        )
+        val words = sentence
+            .replace(Regex("[^a-zA-Z0-9\\s]"), " ")
+            .split(Regex("\\s+"))
+            .filter { it.length > 3 && it.lowercase() !in stopWords }
+
+        return words.maxByOrNull { it.length } ?: sentence.take(20)
+    }
+
     private fun buildDeterministicVisualQuery(
         targetText: String,
         surroundingSentence: String,
@@ -266,9 +323,306 @@ class OverviewActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupVisualContainer(term: String, fallbackQuery: String) {
+        val visualsContainer = findViewById<View>(R.id.visuals_container)
+        visualsContainer?.visibility = View.VISIBLE
+
+        val chipDiagram = findViewById<TextView>(R.id.chip_diagram)
+        val chipMicroscopic = findViewById<TextView>(R.id.chip_microscopic)
+        val chipProcess = findViewById<TextView>(R.id.chip_process)
+        val btnFullscreen = findViewById<ImageButton>(R.id.btn_fullscreen_visual)
+        val ivDiagram = findViewById<ImageView>(R.id.iv_curated_diagram)
+        val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
+        val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
+        val imageWebView = findViewById<WebView>(R.id.image_webview)
+        val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
+
+        // Show progress spinner initially
+        progressVisual?.visibility = View.VISIBLE
+        curatedContainer?.visibility = View.GONE
+        imageWebView?.visibility = View.GONE
+
+        // Lightbox trigger
+        btnFullscreen?.setOnClickListener {
+            if (curatedBitmap != null) {
+                showFullscreenLightbox(curatedBitmap, curatedTitle, curatedCaption)
+            }
+        }
+        ivDiagram?.setOnClickListener {
+            if (curatedBitmap != null) {
+                showFullscreenLightbox(curatedBitmap, curatedTitle, curatedCaption)
+            }
+        }
+
+        // Chip Clicks
+        chipDiagram?.setOnClickListener {
+            activeVisualMode = VisualMode.DIAGRAM
+            if (chipMicroscopic != null && chipProcess != null) {
+                updateChipStyle(chipDiagram, listOf(chipMicroscopic, chipProcess))
+            }
+            if (curatedBitmap != null) {
+                tvBadge?.text = "EDUCATIONAL DIAGRAM"
+                curatedContainer?.visibility = View.VISIBLE
+                imageWebView?.visibility = View.GONE
+                progressVisual?.visibility = View.GONE
+            } else {
+                tvBadge?.text = "WEB SEARCH"
+                curatedContainer?.visibility = View.GONE
+                imageWebView?.visibility = View.VISIBLE
+                progressVisual?.visibility = View.GONE
+                if (imageWebView != null) loadGoogleImages(imageWebView, fallbackQuery)
+            }
+        }
+
+        chipMicroscopic?.setOnClickListener {
+            activeVisualMode = VisualMode.MICROSCOPIC
+            if (chipDiagram != null && chipProcess != null) {
+                updateChipStyle(chipMicroscopic, listOf(chipDiagram, chipProcess))
+            }
+            tvBadge?.text = "MICROSCOPIC VIEW"
+            curatedContainer?.visibility = View.GONE
+            imageWebView?.visibility = View.VISIBLE
+            progressVisual?.visibility = View.GONE
+            val microQuery = "$term microscopic high magnification histology"
+            if (imageWebView != null) loadGoogleImages(imageWebView, microQuery)
+        }
+
+        chipProcess?.setOnClickListener {
+            activeVisualMode = VisualMode.PROCESS
+            if (chipDiagram != null && chipMicroscopic != null) {
+                updateChipStyle(chipProcess, listOf(chipDiagram, chipMicroscopic))
+            }
+            tvBadge?.text = "PROCESS FLOW"
+            curatedContainer?.visibility = View.GONE
+            imageWebView?.visibility = View.VISIBLE
+            progressVisual?.visibility = View.GONE
+            val processQuery = "$term step by step process pathway diagram"
+            if (imageWebView != null) loadGoogleImages(imageWebView, processQuery)
+        }
+
+        // Fetch curated diagram asynchronously
+        fetchCuratedDiagram(term, fallbackQuery)
+    }
+
+    private fun updateChipStyle(selected: TextView, others: List<TextView>) {
+        selected.setBackgroundResource(R.drawable.bg_chip_selected)
+        selected.setTextColor(Color.WHITE)
+        for (other in others) {
+            other.setBackgroundResource(R.drawable.bg_chip_unselected)
+            other.setTextColor(Color.parseColor("#475569"))
+        }
+    }
+
+    private fun fetchCuratedDiagram(term: String, fallbackQuery: String) {
+        val cleanTerm = term.replace(Regex("[^a-zA-Z0-9\\s-]"), "").trim()
+        if (cleanTerm.isEmpty()) {
+            fallbackToWebSearch(fallbackQuery)
+            return
+        }
+
+        val encodedTerm = URLEncoder.encode(cleanTerm.replace(" ", "_"), "UTF-8")
+        val summaryUrl = "https://en.wikipedia.org/api/rest_v1/page/summary/$encodedTerm"
+
+        val request = Request.Builder()
+            .url(summaryUrl)
+            .header("User-Agent", "GabAI-Android-App/1.0 (educational-reading-assistant)")
+            .build()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val response = httpClient.newCall(request).execute()
+                val body = response.body?.string()
+                if (response.isSuccessful && !body.isNullOrBlank()) {
+                    val json = JSONObject(body)
+                    val title = json.optString("title", cleanTerm)
+                    val description = json.optString("description", "")
+                    val thumbnailObj = json.optJSONObject("thumbnail")
+                    val originalObj = json.optJSONObject("originalimage")
+
+                    var imageUrl = thumbnailObj?.optString("source") ?: ""
+                    if (imageUrl.isEmpty()) {
+                        val orig = originalObj?.optString("source") ?: ""
+                        if (!orig.endsWith(".svg", ignoreCase = true)) {
+                            imageUrl = orig
+                        }
+                    }
+
+                    if (imageUrl.isNotEmpty()) {
+                        if (imageUrl.startsWith("//")) {
+                            imageUrl = "https:$imageUrl"
+                        }
+                        // Sharpen thumbnail if available by requesting 640px preview
+                        val hiresUrl = if (imageUrl.contains("/320px-")) {
+                            imageUrl.replace("/320px-", "/640px-")
+                        } else {
+                            imageUrl
+                        }
+
+                        var imgReq = Request.Builder()
+                            .url(hiresUrl)
+                            .header("User-Agent", "GabAI-Android-App/1.0 (educational-reading-assistant)")
+                            .build()
+                        var imgResp = httpClient.newCall(imgReq).execute()
+
+                        if (!imgResp.isSuccessful && hiresUrl != imageUrl) {
+                            imgReq = Request.Builder()
+                                .url(imageUrl)
+                                .header("User-Agent", "GabAI-Android-App/1.0 (educational-reading-assistant)")
+                                .build()
+                            imgResp = httpClient.newCall(imgReq).execute()
+                        }
+
+                        if (imgResp.isSuccessful) {
+                            val inputStream = imgResp.body?.byteStream()
+                            val bitmap = BitmapFactory.decodeStream(inputStream)
+                            if (bitmap != null) {
+                                curatedBitmap = bitmap
+                                curatedTitle = title
+                                curatedCaption = if (description.isNotBlank()) description else title
+
+                                launch(Dispatchers.Main) {
+                                    val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
+                                    val ivDiagram = findViewById<ImageView>(R.id.iv_curated_diagram)
+                                    val tvCaption = findViewById<TextView>(R.id.tv_diagram_caption)
+                                    val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
+                                    val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
+                                    val imageWebView = findViewById<WebView>(R.id.image_webview)
+
+                                    progressVisual?.visibility = View.GONE
+                                    ivDiagram?.setImageBitmap(bitmap)
+                                    tvCaption?.text = curatedCaption
+
+                                    if (activeVisualMode == VisualMode.DIAGRAM) {
+                                        tvBadge?.text = "EDUCATIONAL DIAGRAM"
+                                        curatedContainer?.visibility = View.VISIBLE
+                                        imageWebView?.visibility = View.GONE
+                                    }
+                                }
+                                return@launch
+                            }
+                        }
+                    }
+                }
+                // Fallback to web search
+                launch(Dispatchers.Main) {
+                    fallbackToWebSearch(fallbackQuery)
+                }
+            } catch (_: Exception) {
+                launch(Dispatchers.Main) {
+                    fallbackToWebSearch(fallbackQuery)
+                }
+            }
+        }
+    }
+
+    private fun fallbackToWebSearch(query: String) {
+        val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
+        val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
+        val imageWebView = findViewById<WebView>(R.id.image_webview)
+        val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
+
+        progressVisual?.visibility = View.GONE
+        curatedContainer?.visibility = View.GONE
+        imageWebView?.visibility = View.VISIBLE
+        tvBadge?.text = "WEB SEARCH"
+
+        if (imageWebView != null) {
+            loadGoogleImages(imageWebView, query)
+        }
+    }
+
+    private fun showFullscreenLightbox(bitmap: Bitmap?, title: String?, caption: String?) {
+        if (bitmap == null) return
+        val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#EE0F172A")))
+
+        val root = FrameLayout(this).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+
+        val imageView = ImageView(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            ).apply {
+                gravity = Gravity.CENTER
+                setMargins(24, 140, 24, 160)
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setImageBitmap(bitmap)
+        }
+        root.addView(imageView)
+
+        // Top Bar
+        val header = LinearLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.TOP
+                setMargins(40, 60, 40, 0)
+            }
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        val tvHeader = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            text = title ?: "Educational Diagram"
+            setTextColor(Color.WHITE)
+            textSize = 18f
+            typeface = Typeface.DEFAULT_BOLD
+        }
+        header.addView(tvHeader)
+
+        val btnClose = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            text = "✕"
+            setTextColor(Color.WHITE)
+            textSize = 24f
+            setPadding(20, 20, 20, 20)
+            setOnClickListener { dialog.dismiss() }
+        }
+        header.addView(btnClose)
+        root.addView(header)
+
+        // Bottom Caption
+        if (!caption.isNullOrBlank()) {
+            val tvCaption = TextView(this).apply {
+                layoutParams = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.BOTTOM
+                    setMargins(32, 0, 32, 60)
+                }
+                text = caption
+                setTextColor(Color.parseColor("#CBD5E1"))
+                textSize = 13f
+                gravity = Gravity.CENTER
+            }
+            root.addView(tvCaption)
+        }
+
+        root.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.setContentView(root)
+        dialog.show()
+    }
+
     private fun loadGoogleImages(webView: WebView, query: String) {
         val visualsContainer = findViewById<View>(R.id.visuals_container)
         visualsContainer?.visibility = View.VISIBLE
+        webView.visibility = View.VISIBLE
 
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true

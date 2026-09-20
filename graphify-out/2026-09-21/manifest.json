@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1789923017.3525507,
-    "seen": 1789923694.343862,
-    "ast_hash": "5074a51699ad304c9bdf740bfb25836d",
+    "mtime": 1789925452.158096,
+    "seen": 1789925622.770069,
+    "ast_hash": "06b421f54811aa40225e95dd00ae1b24",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -108,9 +108,9 @@
     "semantic_hash": "ce55d73809c8fc69375697cfc576475c"
   },
   "app/src/main/java/com/example/gabai/MainActivity.kt": {
-    "mtime": 1789584411.9760053,
-    "seen": 1789586171.0069306,
-    "ast_hash": "f6285b41002b3543a725ed0c72604be1",
+    "mtime": 1789925425.0426054,
+    "seen": 1789925622.770103,
+    "ast_hash": "64be7e499c2f028dd3b738bf83b38bc2",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ManageClassesActivity.kt": {
@@ -138,10 +138,10 @@
     "semantic_hash": "a50978c88f66b297438291ad745ddaca"
   },
   "app/src/main/java/com/example/gabai/ProfileFragment.kt": {
-    "mtime": 1788443407.1245742,
-    "seen": 1788701745.6429572,
-    "ast_hash": "501f6f61e7522e4840df9fc9416e9bde",
-    "semantic_hash": "501f6f61e7522e4840df9fc9416e9bde"
+    "mtime": 1789925440.3540368,
+    "seen": 1789925622.770111,
+    "ast_hash": "fe277ea2fe5108521d8de3b1d7e17d10",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt": {
     "mtime": 1788443407.1245742,
@@ -414,15 +414,15 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1789790629.761879,
-    "seen": 1789790745.3406236,
-    "ast_hash": "ec730492fbd40a15de9950a81bf59cf4",
+    "mtime": 1789925445.408312,
+    "seen": 1789925622.770066,
+    "ast_hash": "0a9b9d83a0be28b0391511b86e33c77c",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
-    "mtime": 1789581286.274956,
-    "seen": 1789581658.509721,
-    "ast_hash": "cacad39262f94ec9b2a08c9d8cb92844",
+    "mtime": 1789925413.1720393,
+    "seen": 1789925622.7700932,
+    "ast_hash": "6b3bb00e6fa6f60facd5db43d8176224",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/WeeklyAssessmentActivity.kt": {
@@ -438,9 +438,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/release-apk.yml": {
-    "mtime": 1789582484.498752,
-    "seen": 1789582512.935958,
-    "ast_hash": "ab9cd3691d4b34e9e47da5a8408e0a4e",
+    "mtime": 1789925210.8682785,
+    "seen": 1789925622.770151,
+    "ast_hash": "90f039df8f6aeca3dd3306b7a8e17a30",
     "semantic_hash": ""
   }
 }

@@ -461,18 +461,113 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Header Row with badge and fullscreen expand button -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:letterSpacing="0.08"
-                        android:text="VISUAL CONTEXT"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:letterSpacing="0.08"
+                            android:text="VISUAL CONTEXT"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_visual_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_role_tab_container"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="EDUCATIONAL DIAGRAM"
+                            android:textColor="#5341CD"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <ImageButton
+                            android:id="@+id/btn_fullscreen_visual"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Fullscreen diagram"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_fullscreen"
+                            app:tint="#64748B" />
+                    </LinearLayout>
+
+                    <!-- Perspective Filter Chips -->
+                    <LinearLayout
+                        android:id="@+id/ll_visual_chips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:id="@+id/chip_diagram"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_chip_selected"
+                            android:gravity="center"
+                            android:paddingHorizontal="14dp"
+                            android:text="Diagram"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                        <TextView
+                            android:id="@+id/chip_microscopic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_chip_unselected"
+                            android:gravity="center"
+                            android:paddingHorizontal="14dp"
+                            android:text="Microscopic"
+                            android:textColor="#475569"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                        <TextView
+                            android:id="@+id/chip_process"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_chip_unselected"
+                            android:gravity="center"
+                            android:paddingHorizontal="14dp"
+                            android:text="Process"
+                            android:textColor="#475569"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </LinearLayout>
+
+                    <!-- Card Frame with Curated Diagram ImageView and fallback WebView -->
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_visual_frame"
                         android:layout_width="match_parent"
                         android:layout_height="320dp"
                         app:cardBackgroundColor="#FFFFFF"
@@ -482,10 +577,77 @@
                         app:strokeColor="#EDF2F7"
                         app:strokeWidth="1dp">
 
-                        <WebView
-                            android:id="@+id/image_webview"
+                        <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:layout_height="match_parent">
+
+                            <!-- Web search view (used when in search mode or fallback) -->
+                            <WebView
+                                android:id="@+id/image_webview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:visibility="gone" />
+
+                            <!-- Native Curated Diagram Layout -->
+                            <LinearLayout
+                                android:id="@+id/container_curated_diagram"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:background="#FAFCFF">
+
+                                <ImageView
+                                    android:id="@+id/iv_curated_diagram"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="1"
+                                    android:scaleType="fitCenter"
+                                    android:padding="8dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:contentDescription="Curated Educational Diagram" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:background="#FFFFFF"
+                                    android:orientation="horizontal"
+                                    android:paddingHorizontal="14dp"
+                                    android:paddingVertical="8dp"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/tv_diagram_caption"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:fontFamily="@font/font_nunito_sans"
+                                        android:maxLines="1"
+                                        android:ellipsize="end"
+                                        android:textColor="#334155"
+                                        android:textSize="12sp"
+                                        tools:text="Plant organelle that conducts photosynthesis" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textColor="#94A3B8"
+                                        android:textSize="11sp"
+                                        android:text="Wikimedia Commons" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <ProgressBar
+                                android:id="@+id/progress_visual"
+                                style="?android:attr/progressBarStyleSmall"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_gravity="center"
+                                android:indeterminateTint="#6C5CE7"
+                                android:visibility="gone" />
+                        </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
