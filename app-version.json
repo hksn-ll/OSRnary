@@ -1,11 +1,11 @@
 {
-  "versionCode": 5,
-  "versionName": "0.3.1",
+  "versionCode": 6,
+  "versionName": "0.3.2",
   "minRequiredVersionCode": 4,
   "forceUpdate": false,
-  "title": "Interactive Tutorial & Fluid Portal Animations",
-  "message": "GabAI v0.3.1 introduces an interactive guided tour system and fluid animations to the Administrative Web Portal.",
+  "title": "Sentence-Aware AI Overview & 40% Smaller APK",
+  "message": "GabAI v0.3.2 introduces full Sentence-Aware reading context, interactive vertical related questions, zero-AI visual context, and a 40% reduced APK size.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Web Administrative Portal: Interactive guided tour system for Super Admin (SDO) and School Admin\n• Spotlight Tour Engine: Viewport-clamped floating guide with morphing spotlight frame\n• Fluid Animation Suite: Tab slide transitions, card hover lifts, modal pop-ins, and toast animations\n• Multi-Tier Governance: School Matrix, SDO invite generator, and administrative remarks drawer"
+  "changelog": "• Sentence-Aware Context: Highlights target words within enclosing OCR sentences\n• Vertical Related Questions: Accordion questions with on-demand answers\n• Zero-AI Visual Context: 100% deterministic diagram search with zero token latency\n• 40% Smaller APK: Stripped unused architectures and crypto tables (32 MB vs 55 MB)"
 }

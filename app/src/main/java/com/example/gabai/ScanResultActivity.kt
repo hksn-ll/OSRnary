@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class ScanResultActivity : AppCompatActivity() {
 
     private var currentSelectedText: String = "" // Add this line
+    private var currentSurroundingSentence: String = ""
 
     override fun onResume() {
         super.onResume()
@@ -95,9 +96,9 @@ class ScanResultActivity : AppCompatActivity() {
 
 
                 // 4. Handle clicks
-                overlay.setOnSelectionListener { selectedText ->
+                overlay.setOnSelectionListener { selectedText, surroundingSentence ->
                     // Instead of showBottomSheet, we call our new non-blocking function
-                    updateBottomCard(selectedText)
+                    updateBottomCard(selectedText, surroundingSentence)
 
                 }
             }
@@ -106,7 +107,7 @@ class ScanResultActivity : AppCompatActivity() {
 
     }
 
-    private fun updateBottomCard(text: String) {
+    private fun updateBottomCard(text: String, sentence: String) {
         // 1. NUCLEAR OPTION: Find the text and hide it unconditionally
         val instructionText = findViewById<android.widget.TextView>(R.id.instruction_text)
 
@@ -124,6 +125,7 @@ class ScanResultActivity : AppCompatActivity() {
 
         // 2. Standard Card Update Logic
         currentSelectedText = text
+        currentSurroundingSentence = sentence
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.result_card)
         val title = findViewById<android.widget.TextView>(R.id.card_title)
         val body = findViewById<android.widget.TextView>(R.id.card_body)
@@ -131,7 +133,7 @@ class ScanResultActivity : AppCompatActivity() {
         // Show the result card
         card.visibility = android.view.View.VISIBLE
         title.text = text
-        body.text = "Tap for AI Explanation..."
+        body.text = if (sentence.isNotEmpty() && sentence != text) sentence else "Tap for AI Explanation..."
     }
     // This function makes any view follow your finger
     private fun makeDraggable(view: android.view.View) {
@@ -175,6 +177,7 @@ class ScanResultActivity : AppCompatActivity() {
         if (currentSelectedText.isNotEmpty()) {
             val intent = android.content.Intent(this, OverviewActivity::class.java)
             intent.putExtra("SELECTED_TEXT", currentSelectedText)
+            intent.putExtra("SURROUNDING_SENTENCE", currentSurroundingSentence)
             startActivity(intent)
         }
     }

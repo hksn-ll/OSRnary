@@ -161,10 +161,16 @@ class QuizActivity : AppCompatActivity() {
 
         db.collection("users").document(userId).collection("history")
             .whereLessThanOrEqualTo("nextReview", currentTime)
-            .limit(maxItemsPerSession.toLong())
+            .limit(50)
             .get()
             .addOnSuccessListener { documents ->
-                val readyCount = documents.size()
+                // Filter out full sentences (> 4 words) from cloze testing to ensure valid question blanks
+                val eligibleDocs = documents.documents.filter { doc ->
+                    val w = doc.getString("word")?.trim() ?: ""
+                    val wordCount = w.split(Regex("\\s+")).filter { it.isNotBlank() }.size
+                    wordCount in 1..4
+                }
+                val readyCount = eligibleDocs.size
 
                 // STRICT MODE: Student MUST have enough words to meet the teacher's exact requirement
                 if (readyCount < maxItemsPerSession) {
@@ -185,7 +191,7 @@ class QuizActivity : AppCompatActivity() {
                     btnRestart.text = "Return to Dashboard"
                 } else {
                     // They hit the exact requirement! Let them play.
-                    sessionWords.addAll(documents.documents)
+                    sessionWords.addAll(eligibleDocs.take(maxItemsPerSession))
                     startNewQuestion()
                 }
             }

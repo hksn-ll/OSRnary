@@ -25,14 +25,19 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
     }
 
     // 2. Data Holders
-    private data class WordBox(val text: String, val rect: RectF)
+    private data class WordBox(
+        val text: String,
+        val rect: RectF,
+        val blockText: String = "",
+        val lineText: String = ""
+    )
     private val allWords = mutableListOf<WordBox>() // We flatten the ML result into a simple list of words
 
     // Selection State
     private var startIndex = -1
     private var endIndex = -1
     private var onTouchStarted: (() -> Unit)? = null // Add this line
-    private var onSelectionFinished: ((String) -> Unit)? = null
+    private var onSelectionFinished: ((selectedText: String, surroundingSentence: String) -> Unit)? = null
 
     // Scaling
     private var scaleX = 1f
@@ -55,7 +60,9 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
 
         // Flatten the complex ML Kit data into a simple list of words
         for (block in text.textBlocks) {
+            val rawBlockText = block.text
             for (line in block.lines) {
+                val rawLineText = line.text
                 for (element in line.elements) {
                     element.boundingBox?.let { box ->
                         // Convert image rect to screen rect
@@ -65,7 +72,7 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                             (box.right * scale) + offsetX,
                             (box.bottom * scale) + offsetY
                         )
-                        allWords.add(WordBox(element.text, screenRect))
+                        allWords.add(WordBox(element.text, screenRect, rawBlockText, rawLineText))
                     }
                 }
             }
@@ -73,7 +80,7 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         invalidate()
     }
 
-    fun setOnSelectionListener(action: (String) -> Unit) {
+    fun setOnSelectionListener(action: (selectedText: String, surroundingSentence: String) -> Unit) {
         onSelectionFinished = action
     }
     fun setOnTouchStartListener(action: () -> Unit) {
@@ -112,15 +119,47 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                 return true
             }
             MotionEvent.ACTION_UP -> {
-                // User let go. Send the selected text.
+                // User let go. Send the selected text and its surrounding sentence.
                 if (startIndex != -1 && endIndex != -1) {
+                    val first = min(startIndex, endIndex)
+                    val last = max(startIndex, endIndex)
                     val selectedText = buildSelectedString()
-                    onSelectionFinished?.invoke(selectedText)
+                    val sentence = extractSurroundingSentence(first, selectedText)
+                    onSelectionFinished?.invoke(selectedText, sentence)
                 }
                 return true
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    // Helper: Extract enclosing sentence bounded by . ? !
+    private fun extractSurroundingSentence(wordIndex: Int, selectedText: String): String {
+        if (wordIndex !in allWords.indices) return selectedText
+        val block = allWords[wordIndex].blockText
+        if (block.isBlank()) return selectedText
+
+        // Split into sentences using punctuation lookbehind
+        val sentences = block.split(Regex("(?<=[.?!\\n])\\s+"))
+        for (candidate in sentences) {
+            val clean = candidate.trim().replace("\n", " ")
+            if (clean.contains(selectedText, ignoreCase = true)) {
+                // Cap word count to prevent runaway input tokens
+                val words = clean.split(Regex("\\s+"))
+                return if (words.size > 35) {
+                    words.take(35).joinToString(" ") + "..."
+                } else {
+                    clean
+                }
+            }
+        }
+
+        val line = allWords[wordIndex].lineText.trim().replace("\n", " ")
+        if (line.contains(selectedText, ignoreCase = true)) {
+            return line
+        }
+
+        return selectedText
     }
 
     // 5. Drawing (The Visuals)

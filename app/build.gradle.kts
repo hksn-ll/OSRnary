@@ -18,10 +18,18 @@ android {
         applicationId = "com.example.gabai"
         minSdk = 24
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.3.1"
+        versionCode = 6
+        versionName = "0.3.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Restrict native ABIs to physical Android mobile architectures (arm64-v8a & armeabi-v7a)
+        ndk {
+            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
+        }
+
+        // Discard unused language assets from foreign locales, keeping only English and Filipino
+        resourceConfigurations += listOf("en", "fil")
     }
 
     signingConfigs {
@@ -38,6 +46,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
+            signingConfig = signingConfigs.getByName("debug")
             // Enable R8 code shrinking/obfuscation and resource shrinking for smaller,
             // harder-to-reverse-engineer release builds.
             isMinifyEnabled = true
@@ -65,6 +74,13 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = false
+        }
+        resources {
+            // Exclude unused post-quantum crypto parameters and metadata to shrink APK
+            excludes.add("org/bouncycastle/pqc/**")
+            excludes.add("META-INF/*.version")
+            excludes.add("META-INF/DEPENDENCIES")
+            excludes.add("META-INF/INDEX.LIST")
         }
     }
 }

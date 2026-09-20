@@ -42,3 +42,11 @@
 # --- Guava (pulled in by CameraX) ---
 -dontwarn com.google.common.**
 -dontwarn java.lang.SafeVarargs
+
+# --- Markwon ---
+-keep class io.noties.markwon.** { *; }
+-dontwarn io.noties.markwon.**
+
+# --- Material Components ---
+-keep class com.google.android.material.** { *; }
+-dontwarn com.google.android.material.**
