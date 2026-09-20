@@ -321,6 +321,23 @@
                                         android:textSize="11sp"
                                         android:textStyle="bold"
                                         tools:text="NOUN" />
+
+                                    <TextView
+                                        android:id="@+id/tv_language_badge"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="6dp"
+                                        android:background="@drawable/bg_role_tab_container"
+                                        android:foreground="?attr/selectableItemBackground"
+                                        android:clickable="true"
+                                        android:focusable="true"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:paddingHorizontal="8dp"
+                                        android:paddingVertical="3dp"
+                                        android:textColor="#059669"
+                                        android:textSize="11sp"
+                                        android:textStyle="bold"
+                                        tools:text="🌐 English ▾" />
                                 </LinearLayout>
 
                                 <TextView

@@ -1,16 +1,16 @@
 # Graph Report - OSRnary  (2026-09-21)
 
 ## Corpus Check
-- 50 files · ~105,184 words
+- 50 files · ~105,473 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 509 nodes · 947 edges · 39 communities (28 shown, 8 thin omitted)
+- 513 nodes · 956 edges · 39 communities (28 shown, 8 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c791e4d1`
+- Built from commit: `1baa7dfe`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,7 +31,7 @@
 - GitHubUpdateHelper.kt
 - TextOverlayView
 - ProfileFragment.kt
-- launch.ps1
+- TeacherLibraryActivity
 - QuestManager
 - LeaderboardActivity.kt
 - .showSnackbar
@@ -54,7 +54,7 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `OverviewActivity` - 24 edges
-2. `AuthActivity` - 19 edges
+2. `AuthActivity` - 20 edges
 3. `ClassDetailActivity` - 19 edges
 4. `WeeklyAssessmentActivity` - 19 edges
 5. `FloatingControlService` - 18 edges
@@ -98,7 +98,7 @@ Cohesion: 0.13
 Nodes (15): FloatingControlService, Callback, OnTouchListener, Bitmap, Callback, MotionEvent, OnTouchListener, View (+7 more)
 
 ### Community 6 - "AuthActivity"
-Cohesion: 0.24
+Cohesion: 0.23
 Nodes (5): ActivityAuthBinding, AuthActivity, AppCompatActivity, Bundle, FirebaseFirestore
 
 ### Community 7 - "TeacherHomeFragment.kt"
@@ -114,8 +114,8 @@ Cohesion: 0.33
 Nodes (3): School, SchoolAdminInvite, SchoolRepository
 
 ### Community 10 - "QuizActivity"
-Cohesion: 0.25
-Nodes (4): AppCompatActivity, Bundle, QuizActivity, com
+Cohesion: 0.15
+Nodes (8): AppCompatActivity, Bundle, QuizActivity, AppCompatActivity, Bundle, StudentStats, TeacherPerformanceActivity, com
 
 ### Community 11 - "QuizEditorActivity"
 Cohesion: 0.22
@@ -126,8 +126,8 @@ Cohesion: 0.29
 Nodes (4): AppCompatActivity, Bundle, TextView, PdfViewerActivity
 
 ### Community 13 - "GitHubUpdateHelper.kt"
-Cohesion: 0.13
-Nodes (15): Activity, CameraActivity, OnImageSavedCallback, AppCompatActivity, Bundle, GitHubUpdateHelper, Callback, Callback (+7 more)
+Cohesion: 0.12
+Nodes (16): Activity, CameraActivity, OnImageSavedCallback, AppCompatActivity, Bundle, GitHubUpdateHelper, Callback, Callback (+8 more)
 
 ### Community 14 - "TextOverlayView"
 Cohesion: 0.20
@@ -137,9 +137,9 @@ Nodes (7): MotionEvent, View, TextOverlayView, WordBox, selectedText, surroundin
 Cohesion: 0.31
 Nodes (7): Bundle, Fragment, LayoutInflater, View, ViewGroup, ProfileFragment, FragmentProfileBinding
 
-### Community 16 - "launch.ps1"
-Cohesion: 0.20
-Nodes (7): AppCompatActivity, Bundle, TeacherLibraryActivity, AppCompatActivity, Bundle, StudentStats, TeacherPerformanceActivity
+### Community 16 - "TeacherLibraryActivity"
+Cohesion: 0.42
+Nodes (3): AppCompatActivity, Bundle, TeacherLibraryActivity
 
 ### Community 18 - "LeaderboardActivity.kt"
 Cohesion: 0.53
@@ -206,4 +206,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `OverviewActivity` be split into smaller, more focused modules?**
   _Cohesion score 0.10756302521008404 - nodes in this community are weakly interconnected._
 - **Should `GitHubUpdateHelper.kt` be split into smaller, more focused modules?**
-  _Cohesion score 0.12643678160919541 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11742424242424243 - nodes in this community are weakly interconnected._

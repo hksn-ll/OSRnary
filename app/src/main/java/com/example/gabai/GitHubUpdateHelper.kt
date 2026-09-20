@@ -139,16 +139,59 @@ object GitHubUpdateHelper {
                     val isNewerVersion = (info.versionCode > currentVersionCode) ||
                             (info.versionName.isNotBlank() && !info.versionName.equals(currentVersionName, ignoreCase = true) && info.versionCode >= currentVersionCode)
 
-                    Handler(Looper.getMainLooper()).post {
-                        if (isNewerVersion && !activity.isFinishing && !activity.isDestroyed) {
-                            showUpdateDialog(activity, info, currentVersionName)
-                        } else {
+                    if (!isNewerVersion) {
+                        Handler(Looper.getMainLooper()).post {
                             if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
                                 Toast.makeText(activity, "You are on the latest build (v$currentVersionName)!", Toast.LENGTH_SHORT).show()
                             }
                             onProceed()
                         }
+                        return
                     }
+
+                    // 🟢 CRITICAL: Verify that the APK release asset is ACTUALLY published on GitHub
+                    // Avoids locking out the user or triggering an update loop while GitHub Actions is compiling in the cloud!
+                    val expectedApkUrl = if (info.versionName.isNotBlank()) {
+                        "https://github.com/hksn-ll/OSRnary/releases/download/${info.versionName}/app-debug.apk"
+                    } else {
+                        info.apkUrl.ifBlank { "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk" }
+                    }
+
+                    val headRequest = Request.Builder()
+                        .url(expectedApkUrl)
+                        .head()
+                        .build()
+
+                    httpClient.newCall(headRequest).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            Log.w(TAG, "Failed to verify release asset: ${e.message}. Allowing user to proceed.")
+                            Handler(Looper.getMainLooper()).post { onProceed() }
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            // GitHub returns 302 Found redirecting to release-assets on success, or 200 OK.
+                            val isAssetLive = response.isSuccessful || response.code in 300..399
+                            response.close()
+
+                            Handler(Looper.getMainLooper()).post {
+                                if (isAssetLive && !activity.isFinishing && !activity.isDestroyed) {
+                                    val verifiedInfo = info.copy(apkUrl = expectedApkUrl)
+                                    showUpdateDialog(activity, verifiedInfo, currentVersionName)
+                                } else {
+                                    // New version exists in code but GitHub Actions has not finished uploading APK yet!
+                                    Log.i(TAG, "Release asset for v${info.versionName} is not yet available (HTTP ${response.code}). Build is in progress.")
+                                    if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
+                                        Toast.makeText(
+                                            activity,
+                                            "v${info.versionName} is currently compiling on GitHub Actions. Please check back in a minute.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                    onProceed()
+                                }
+                            }
+                        }
+                    })
 
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing update json: ${e.message}", e)

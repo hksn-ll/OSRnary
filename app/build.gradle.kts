@@ -18,8 +18,8 @@ android {
         applicationId = "com.example.gabai"
         minSdk = 24
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.3.6-nightly"
+        versionCode = 11
+        versionName = "0.3.7-nightly"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -44,6 +44,7 @@ android {
     buildTypes {
         debug {
             signingConfig = signingConfigs.getByName("debug")
+            isCrunchPngs = false
         }
         release {
             signingConfig = signingConfigs.getByName("debug")

@@ -50,6 +50,13 @@ class OverviewActivity : AppCompatActivity() {
     private lateinit var tts: TextToSpeech
     private var isTtsReady = false
 
+    // Target content retention for dynamic language switching
+    private var currentInputText: String = ""
+    private var currentSurroundingSentence: String = ""
+    private var currentIsSingleWord: Boolean = false
+    private var currentIsPhrase: Boolean = false
+    private var currentIsSentence: Boolean = false
+
     // In-memory cache for on-demand related question answers (pay-per-need token optimization)
     private val questionAnswers = mutableMapOf<String, String>()
 
@@ -141,6 +148,14 @@ class OverviewActivity : AppCompatActivity() {
             }
         }
 
+        currentInputText = scannedText
+        currentSurroundingSentence = surroundingSentence
+        currentIsSingleWord = isSingleWord
+        currentIsPhrase = isPhrase
+        currentIsSentence = isSentence
+
+        setupLanguageBadge()
+
         if (scannedText.isNotEmpty()) {
             // Generate AI Overview and Question Prompts
             generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
@@ -156,6 +171,43 @@ class OverviewActivity : AppCompatActivity() {
             setupVisualContainer(currentVisualTerm, defaultVisualQuery)
         } else {
             GabAIUtils.showSnackbar(this, "No text provided")
+        }
+    }
+
+    private fun setupLanguageBadge() {
+        val tvLanguageBadge = findViewById<TextView>(R.id.tv_language_badge) ?: return
+        val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+        val currentLang = prefs.getString("ai_language_pref", "English") ?: "English"
+        tvLanguageBadge.text = "🌐 $currentLang ▾"
+
+        tvLanguageBadge.setOnClickListener {
+            val languages = arrayOf("English", "Taglish", "Tagalog")
+            val activeLang = prefs.getString("ai_language_pref", "English") ?: "English"
+            val selectedIndex = languages.indexOf(activeLang).let { if (it >= 0) it else 0 }
+
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("AI Explanation Language")
+                .setSingleChoiceItems(languages, selectedIndex) { dialog, which ->
+                    val chosen = languages[which]
+                    if (chosen != activeLang) {
+                        prefs.edit().putString("ai_language_pref", chosen).apply()
+                        tvLanguageBadge.text = "🌐 $chosen ▾"
+                        GabAIUtils.showSnackbar(this, "AI explanation switched to $chosen")
+                        questionAnswers.clear()
+                        if (currentInputText.isNotEmpty()) {
+                            generateAIOverview(
+                                currentInputText,
+                                currentSurroundingSentence,
+                                currentIsSingleWord,
+                                currentIsPhrase,
+                                currentIsSentence
+                            )
+                        }
+                    }
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
@@ -692,6 +744,9 @@ class OverviewActivity : AppCompatActivity() {
         val inSentenceTextView = findViewById<TextView>(R.id.tv_in_sentence)
         val inSentenceContainer = findViewById<View>(R.id.ll_in_sentence_container)
 
+        loadingContainer?.visibility = View.VISIBLE
+        resultContainer?.visibility = View.GONE
+
         val markwon = Markwon.create(this)
 
         lifecycleScope.launch {
@@ -702,17 +757,27 @@ class OverviewActivity : AppCompatActivity() {
                     else -> "full sentence"
                 }
 
+                val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+                val aiLanguage = prefs.getString("ai_language_pref", "English") ?: "English"
+
+                val languageDirective = when (aiLanguage) {
+                    "Tagalog" -> "CRITICAL LANGUAGE DIRECTIVE: The user requested explanations in Filipino / Tagalog. You MUST write the 'definition', 'inSentenceRole', and all 'relatedQuestions' in clear, fluent, natural Tagalog/Filipino. Technical, medical, scientific, or loan words may retain standard terminology or common Filipino equivalents."
+                    "Taglish" -> "CRITICAL LANGUAGE DIRECTIVE: The user requested explanations in Taglish (Filipino mixed with English). You MUST write the 'definition', 'inSentenceRole', and all 'relatedQuestions' in conversational Taglish as used by Filipino students. Keep scientific, medical, and academic terms in English while explaining concepts and sentence roles in conversational Filipino/Taglish."
+                    else -> "CRITICAL LANGUAGE DIRECTIVE: Write the 'definition', 'inSentenceRole', and all 'relatedQuestions' in clear, concise educational English suitable for high school students."
+                }
+
                 val prompt = """
                     You are an educational tutor helping a high school student understand this reading material.
                     Target Selection: "$inputText"
                     Enclosing Sentence: "$surroundingSentence"
                     Selection Type: $selectionType
+                    $languageDirective
 
                     Analyze the selection in context and return ONLY a valid JSON object matching this schema without markdown fences:
                     {
                       "phonetics": "/.../ (IPA pronunciation, or empty string if phrase/sentence)",
                       "partOfSpeech": "noun / verb / adjective / phrase / clause / statement",
-                      "definition": "Clear, concise definition or core meaning in 1-2 sentences. Use clean educational language. Avoid storytelling framing, avoid filler.",
+                      "definition": "Clear, concise definition or core meaning in 1-2 sentences. Avoid storytelling framing, avoid filler.",
                       "inSentenceRole": "1-2 sentences explaining specifically how this selection operates or functions within the enclosing sentence.",
                       "relatedQuestions": [
                         "Direct cause, effect, or function question about this concept",
@@ -758,9 +823,24 @@ class OverviewActivity : AppCompatActivity() {
                 } catch (_: Exception) {
                     // Fallback in case raw text wasn't strict JSON
                     definition = rawText
-                    relatedQuestions.add("How does this concept function in this context?")
-                    relatedQuestions.add("Why is this essential to the topic?")
-                    relatedQuestions.add("What happens if this process is altered?")
+                    val fallbackQuestions = when (aiLanguage) {
+                        "Tagalog" -> listOf(
+                            "Paano gumagana ang konseptong ito sa kontekstong ito?",
+                            "Bakit mahalaga ito sa paksang binabasa?",
+                            "Ano ang mangyayari kung babaguhin ang prosesong ito?"
+                        )
+                        "Taglish" -> listOf(
+                            "Paano nagfa-function ang concept na ito sa context?",
+                            "Bakit essential ito sa topic na binabasa?",
+                            "Ano ang mangyayari kung ma-alter ang process na ito?"
+                        )
+                        else -> listOf(
+                            "How does this concept function in this context?",
+                            "Why is this essential to the topic?",
+                            "What happens if this process is altered?"
+                        )
+                    }
+                    relatedQuestions.addAll(fallbackQuestions)
                 }
 
                 lastAiResult = definition
@@ -855,11 +935,20 @@ class OverviewActivity : AppCompatActivity() {
 
                         lifecycleScope.launch {
                             try {
+                                val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+                                val aiLanguage = prefs.getString("ai_language_pref", "English") ?: "English"
+                                val langDirective = when (aiLanguage) {
+                                    "Tagalog" -> "Answer directly in natural Filipino / Tagalog."
+                                    "Taglish" -> "Answer directly in conversational Taglish (Filipino mixed with English)."
+                                    else -> "Answer directly in clear educational English."
+                                }
+
                                 val answerPrompt = """
                                     You are an educational tutor for high school students.
                                     Target Selection: "$targetText"
                                     Context: "$surroundingSentence"
                                     Question: "$questionText"
+                                    $langDirective
 
                                     Provide a concise, direct 2-sentence answer directly addressing the question. Avoid introductory fluff.
                                 """.trimIndent()
@@ -985,8 +1074,17 @@ class OverviewActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
         val selectedLang = prefs.getString("ai_language_pref", "English") ?: "English"
 
+        val filLocale = Locale("fil", "PH")
+        val tlLocale = Locale("tl", "PH")
+
         val locale = if (selectedLang == "Tagalog" || selectedLang == "Taglish") {
-            Locale("fil", "PH")
+            if (tts.isLanguageAvailable(filLocale) >= TextToSpeech.LANG_AVAILABLE) {
+                filLocale
+            } else if (tts.isLanguageAvailable(tlLocale) >= TextToSpeech.LANG_AVAILABLE) {
+                tlLocale
+            } else {
+                Locale.US
+            }
         } else {
             Locale.US
         }
