@@ -24,7 +24,9 @@ jobs:
 
       - name: Create local.properties
         run: |
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > local.properties
+          if [ -n "${{ secrets.GEMINI_API_KEY }}" ]; then
+            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > local.properties
+          fi
 
       - name: Make Gradle executable
         run: chmod +x gradlew
