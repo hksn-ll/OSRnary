@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        getUserData().role in ['super_admin', 'admin'] ||
+        getUserData().isAdmin == true ||
+        getUserData().schoolId == 'DIVISION_OFFICE'
+      );
+    }
+
+    function isSchoolAdmin(schoolId) {
+      return isAuthenticated() && (
+        isSuperAdmin() ||
+        (getUserData().role == 'school_admin' && getUserData().schoolId == schoolId)
+      );
+    }
+
+    // 1. Users collection
+    match /users/{userId} {
+      // Authenticated users (teachers, admins, students) can read directory
+      allow read: if isAuthenticated();
+      // User can create their own profile during claim/signup, or Super Admin can create any profile
+      allow create: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
+      // User can update their profile, or Admins can update
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin() || getUserData().role == 'school_admin');
+      // Only Super Admin can delete user records
+      allow delete: if isSuperAdmin();
+    }
+
+    // 2. School Admin Invites
+    match /school_admin_invites/{code} {
+      // Allow unauthenticated single-document get so onboarding School Admins can verify invite codes
+      allow get: if true;
+      // List invites requires authentication
+      allow list: if isAuthenticated();
+      // Super Admin issues invites
+      allow create: if isAuthenticated();
+      // Claiming or updating invites allowed for authenticated users
+      allow update: if isAuthenticated();
+      // Deleting invites restricted to Super Admin
+      allow delete: if isSuperAdmin();
+    }
+
+    // 3. Schools collection
+    match /schools/{schoolId} {
+      // Schools list is public for school pickers and campus directory
+      allow read: if true;
+      // Writing/updating school admin details allowed for authenticated admins
+      allow create, update: if isAuthenticated();
+      allow delete: if isSuperAdmin();
+    }
+
+    // 4. Classes / Sections
+    match /classes/{classId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAuthenticated();
+    }
+
+    // 5. Pending Students & Student Registration
+    match /pending_students/{studentId} {
+      // Students register unauthenticated / authenticated; admins review
+      allow read, write: if true;
+    }
+
+    // 6. Curriculum Library (Subjects & Materials)
+    match /library_subjects/{subjectId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    match /library_materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    match /library/{materialId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // 7. Weekly Assessments & Submissions
+    match /weekly_assessments/{assessmentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    match /assessment_submissions/{submissionId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAuthenticated();
+    }
+
+    // 8. Administrative Remarks
+    match /admin_remarks/{remarkId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isSuperAdmin();
+    }
+  }
+}

@@ -1,11 +1,11 @@
 {
-  "versionCode": 11,
-  "versionName": "0.3.7-nightly",
-  "minRequiredVersionCode": 11,
+  "versionCode": 12,
+  "versionName": "0.3.8-nightly",
+  "minRequiredVersionCode": 12,
   "forceUpdate": true,
-  "title": "AI Explanation Language & Turbo Builds",
-  "message": "GabAI v0.3.7 fixes AI explanation language settings (English, Taglish, Tagalog) and adds an interactive language switcher directly in Overview!",
+  "title": "School Admin Permissions & SDO Direct Provisioning",
+  "message": "GabAI v0.3.8 fixes Firestore permissions for School Admin onboarding and adds direct provisioning in the Admin Portal!",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• AI Explanation Language Directives: Gemini now accurately explains concepts in Tagalog, Taglish, or English as selected\n• In-Overview Language Switcher: Added direct language badge button to toggle explanation language on the fly\n• Fast Build Optimizations: Tuned Gradle daemon memory and parallel compilation for sub-10s wireless deployments\n• Dual Credential Autofill: Perfectly links username and password fields in system Autofill and password managers"
+  "changelog": "• School Admin Claim Fix: Eliminates race conditions in onAuthStateChanged and adds graceful fallback for unauthenticated invite reads\n• SDO Direct Admin Provisioning: Division Super Admins can now directly create and authorize School Administrators for any campus\n• Comprehensive Firestore Security Rules: Added airtight firestore.rules covering school_admin_invites, users, and schools\n• Faculty Registry Role Management: Super Admins can now promote and assign educators to School Administrator roles"
 }

@@ -476,6 +476,78 @@
 
 
   <!-- ========================================================================= -->
+  <!-- 2C-2. DIRECT SCHOOL ADMIN PROVISIONING MODAL (SUPER ADMIN ONLY) -->
+  <!-- ========================================================================= -->
+  <div id="modalDirectSchoolAdmin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏛️</span>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900 font-display">Provision School Administrator</h3>
+            <p id="directAdminSchoolSubtitle" class="text-[11px] text-slate-500">Directly provision administrative authority for school</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeDirectSchoolAdminModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <div id="directAdminAlertBox" class="hidden p-2.5 rounded-lg text-xs font-medium"></div>
+
+      <form id="formDirectSchoolAdmin" onsubmit="handleDirectSchoolAdminSubmit(event)" class="space-y-3">
+        <input type="hidden" id="directAdminSchoolId" value="">
+        <input type="hidden" id="directAdminSchoolName" value="">
+
+        <div class="p-3 bg-purple-50/70 border border-purple-200 rounded-xl">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-[#5341CD]">Assigned DepEd Campus</p>
+          <p id="directAdminSchoolBadge" class="text-xs font-extrabold text-slate-800 mt-0.5"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">First Name</label>
+            <input type="text" id="directAdminFirstName" required placeholder="Juan" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Last Name</label>
+            <input type="text" id="directAdminLastName" required placeholder="Dela Cruz" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Position / Designation</label>
+          <select id="directAdminPosition" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+            <option value="School Principal">School Principal</option>
+            <option value="School IT Coordinator">School IT Coordinator</option>
+            <option value="Head Teacher / Dept Head">Head Teacher / Academic Coordinator</option>
+            <option value="Assistant Principal">Assistant Principal</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Official DepEd Email</label>
+          <input type="email" id="directAdminEmail" required placeholder="principal.school@deped.gov.ph" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Initial Password</label>
+          <input type="password" id="directAdminPassword" required minlength="6" placeholder="At least 6 characters" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          <p class="text-[10px] text-slate-400 mt-0.5">The administrator will use this password to sign into the Web Portal.</p>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeDirectSchoolAdminModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" id="btnDirectAdminSubmit" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display">
+            Create &amp; Authorize School Admin
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
   <!-- 2D. ADMINISTRATIVE REMARKS & GUIDANCE DRAWER -->
   <!-- ========================================================================= -->
   <div id="modalAdminRemarks" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -769,6 +841,14 @@
           <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Secondary School</label>
           <select id="teacherSchoolSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
             <!-- Populated via script -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Account Role & Governance</label>
+          <select id="teacherRoleSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+            <option value="teacher">Teacher / Faculty (Mobile App Access)</option>
+            <option value="school_admin">School Administrator (Web Portal Access)</option>
           </select>
         </div>
 
@@ -1797,7 +1877,7 @@
       }
     };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getAuth, 
       signInWithEmailAndPassword, 
@@ -2318,12 +2398,24 @@
     };
 
     // =========================================================================
-    // AUTHENTICATION OBSERVER
+    // AUTHENTICATION OBSERVER & STATE
     // =========================================================================
+    let isAccountCreationInProgress = false;
+
     onAuthStateChanged(auth, async (user) => {
+      if (isAccountCreationInProgress) {
+        // Suppress premature logout while an account is actively being provisioned/claimed
+        return;
+      }
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
+          let userDoc = await getDoc(doc(db, "users", user.uid));
+          // Transient propagation retry: if doc not immediately detected, wait briefly
+          if (!userDoc.exists()) {
+            await new Promise(r => setTimeout(r, 600));
+            userDoc = await getDoc(doc(db, "users", user.uid));
+          }
+
           if (userDoc.exists()) {
             const data = userDoc.data();
             const superAdmin = data.role === 'super_admin' || data.role === 'admin' || data.isAdmin === true || data.schoolId === 'DIVISION_OFFICE';
@@ -2341,14 +2433,18 @@
             }
           }
 
-          await signOut(auth);
-          showLoginError("Access Restricted: This account does not possess Administrative authority. Web Portal is reserved for Super Admin & School Admin.");
-          showAuthScreen();
+          if (!isAccountCreationInProgress) {
+            await signOut(auth);
+            showLoginError("Access Restricted: This account does not possess Administrative authority. Web Portal is reserved for Super Admin & School Admin.");
+            showAuthScreen();
+          }
 
         } catch (err) {
           console.error("Auth error:", err);
-          showLoginError("Authentication check error: " + err.message);
-          showAuthScreen();
+          if (!isAccountCreationInProgress) {
+            showLoginError("Authentication check error: " + err.message);
+            showAuthScreen();
+          }
         }
       } else {
         currentAdminUser = null;
@@ -2486,11 +2582,12 @@
       }
       document.getElementById('provMasterKey').value = '';
 
+      isAccountCreationInProgress = true;
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         const user = cred.user;
 
-        await setDoc(doc(db, "users", user.uid), {
+        const adminDocData = {
           firstName: fName,
           lastName: lName,
           email: email,
@@ -2499,12 +2596,22 @@
           isApproved: true,
           emailVerified: true,
           createdAt: Date.now()
-        });
+        };
+
+        await setDoc(doc(db, "users", user.uid), adminDocData);
+
+        currentAdminUser = { uid: user.uid, ...adminDocData };
+        isSuperAdmin = true;
+        isSchoolAdmin = false;
+        isAccountCreationInProgress = false;
 
         window.showToast("Division Administrator provisioned successfully!", "success");
         window.toggleProvisionModal(false);
+        showAdminDashboard();
+        startRealtimeListeners();
 
       } catch (err) {
+        isAccountCreationInProgress = false;
         console.error("Provisioning error:", err);
         alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
         alertBox.textContent = err.message;
@@ -2868,26 +2975,32 @@
     }
 
     window.openCreateTeacherModal = function() {
-      document.getElementById('modalTeacherTitle').textContent = "Provision Faculty Account";
+      document.getElementById('modalTeacherTitle').textContent = "Provision Account";
       document.getElementById('teacherEditUid').value = "";
       document.getElementById('teacherFirstName').value = "";
       document.getElementById('teacherLastName').value = "";
       document.getElementById('teacherEmail').value = "";
       document.getElementById('teacherSchoolSelect').value = selectedJurisdiction !== 'ALL' ? selectedJurisdiction : "";
+      if (document.getElementById('teacherRoleSelect')) {
+        document.getElementById('teacherRoleSelect').value = "teacher";
+      }
       document.getElementById('teacherIsApproved').checked = true;
       document.getElementById('modalTeacher').classList.remove('hidden');
     };
 
     window.openEditTeacherModal = function(uid) {
-      const t = cachedTeachers.find(item => item.id === uid);
+      const t = cachedUsers.find(item => item.id === uid) || cachedTeachers.find(item => item.id === uid);
       if (!t) return;
 
-      document.getElementById('modalTeacherTitle').textContent = "Edit Educator Profile";
+      document.getElementById('modalTeacherTitle').textContent = "Edit Account Profile";
       document.getElementById('teacherEditUid').value = uid;
       document.getElementById('teacherFirstName').value = t.firstName || "";
       document.getElementById('teacherLastName').value = t.lastName || "";
       document.getElementById('teacherEmail').value = t.email || "";
       document.getElementById('teacherSchoolSelect').value = t.schoolId || "";
+      if (document.getElementById('teacherRoleSelect')) {
+        document.getElementById('teacherRoleSelect').value = t.role || "teacher";
+      }
       document.getElementById('teacherIsApproved').checked = t.isApproved === true;
       document.getElementById('modalTeacher').classList.remove('hidden');
     };
@@ -2903,6 +3016,7 @@
       const lastName = document.getElementById('teacherLastName').value.trim();
       const email = document.getElementById('teacherEmail').value.trim();
       const schoolId = document.getElementById('teacherSchoolSelect').value;
+      const role = document.getElementById('teacherRoleSelect')?.value || "teacher";
       const isApproved = document.getElementById('teacherIsApproved').checked;
 
       const btn = document.getElementById('btnSaveTeacher');
@@ -2916,10 +3030,27 @@
             lastName,
             email,
             schoolId,
+            role,
             isApproved,
             updatedAt: Date.now()
           });
-          window.showToast("Educator profile updated.", "success");
+
+          if (role === 'school_admin' && schoolId) {
+            try {
+              await setDoc(doc(db, "schools", String(schoolId)), {
+                schoolId: String(schoolId),
+                schoolName: getSchoolName(schoolId),
+                adminUid: editUid,
+                adminEmail: email,
+                adminName: `${firstName} ${lastName}`,
+                updatedAt: Date.now()
+              }, { merge: true });
+            } catch (schErr) {
+              console.warn("School admin link update notice:", schErr);
+            }
+          }
+
+          window.showToast("Account profile updated.", "success");
         } else {
           const newDocRef = doc(collection(db, "users"));
           const joinCode = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -2928,17 +3059,33 @@
             lastName,
             email,
             schoolId,
-            role: "teacher",
+            role,
             isApproved,
             joinCode,
             emailVerified: true,
             createdAt: Date.now()
           });
-          window.showToast("Educator record created successfully.", "success");
+
+          if (role === 'school_admin' && schoolId) {
+            try {
+              await setDoc(doc(db, "schools", String(schoolId)), {
+                schoolId: String(schoolId),
+                schoolName: getSchoolName(schoolId),
+                adminUid: newDocRef.id,
+                adminEmail: email,
+                adminName: `${firstName} ${lastName}`,
+                updatedAt: Date.now()
+              }, { merge: true });
+            } catch (schErr) {
+              console.warn("School admin link create notice:", schErr);
+            }
+          }
+
+          window.showToast("Account record created successfully.", "success");
         }
         closeTeacherModal();
       } catch (err) {
-        console.error("Save teacher error:", err);
+        console.error("Save account error:", err);
         window.showToast("Error saving record: " + err.message, "error");
       } finally {
         btn.disabled = false;
@@ -4189,11 +4336,16 @@
         let adminColumnHtml = '';
         if (schoolAdmin) {
           adminColumnHtml = `
-            <div>
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
-                ✓ ${schoolAdmin.firstName || ''} ${schoolAdmin.lastName || 'Admin'}
-              </span>
-              <div class="text-[10px] text-slate-400 font-mono mt-0.5">${schoolAdmin.email || ''}</div>
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold flex items-center gap-1">
+                  <span>✓</span> ${schoolAdmin.firstName || ''} ${schoolAdmin.lastName || 'Admin'}
+                </span>
+                <div class="text-[10px] text-slate-400 font-mono mt-0.5">${schoolAdmin.email || ''}</div>
+              </div>
+              <button onclick="openDirectSchoolAdminModal('${school.id}', '${school.name.replace(/'/g, "\\'")}')" class="p-1 text-slate-400 hover:text-slate-600 rounded text-xs" title="Reassign or Update School Administrator">
+                ✏️
+              </button>
             </div>
           `;
         } else if (pendingInvite) {
@@ -4202,13 +4354,21 @@
               <button onclick="showInviteCodeModal('${pendingInvite.inviteCode}', '${school.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold font-mono shadow-xs flex items-center gap-1" title="View Confidential SDO Invite Code">
                 <span>🎫</span> ${pendingInvite.inviteCode}
               </button>
+              <button onclick="openDirectSchoolAdminModal('${school.id}', '${school.name.replace(/'/g, "\\'")}')" class="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold shadow-xs" title="Directly Provision School Administrator">
+                <span>➕</span> Direct
+              </button>
             </div>
           `;
         } else {
           adminColumnHtml = `
-            <button onclick="generateSchoolAdminInvite('${school.id}', '${school.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-90 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1 font-display">
-              <span>➕</span> Issue Invite
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button onclick="openDirectSchoolAdminModal('${school.id}', '${school.name.replace(/'/g, "\\'")}')" class="px-2.5 py-1 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-90 text-white rounded-lg text-xs font-bold shadow-xs flex items-center gap-1 font-display" title="Directly Provision School Administrator">
+                <span>➕</span> Create Admin
+              </button>
+              <button onclick="generateSchoolAdminInvite('${school.id}', '${school.name.replace(/'/g, "\\'")}')" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-lg text-xs font-bold" title="Generate SDO Claim Code">
+                <span>🎫</span> Code
+              </button>
+            </div>
           `;
         }
 
@@ -4258,7 +4418,11 @@
         window.showToast(`Official invite code generated for ${schoolName}`, 'success');
       } catch (err) {
         console.error("Error issuing invite:", err);
-        alert("Failed to issue invite: " + err.message);
+        let msg = "Failed to issue invite: " + err.message;
+        if (err.code === 'permission-denied' || err.message?.includes('permission')) {
+          msg = "Missing or insufficient permissions: Firestore security rules blocked creating school_admin_invites. Please deploy or update your Firestore rules.";
+        }
+        alert(msg);
       }
     };
 
@@ -4279,6 +4443,145 @@
       }
     };
 
+    // DIRECT PROVISIONING (SUPER ADMIN)
+    window.openDirectSchoolAdminModal = function(schoolId, schoolName) {
+      if (!isSuperAdmin) {
+        alert("Only Division Super Admin can directly provision School Administrators.");
+        return;
+      }
+      const existingAdmin = cachedUsers.find(u => u.role === 'school_admin' && String(u.schoolId) === String(schoolId));
+
+      document.getElementById('directAdminSchoolId').value = schoolId;
+      document.getElementById('directAdminSchoolName').value = schoolName;
+      document.getElementById('directAdminSchoolBadge').textContent = `${schoolName} (ID: ${schoolId})`;
+      document.getElementById('directAdminFirstName').value = existingAdmin?.firstName || '';
+      document.getElementById('directAdminLastName').value = existingAdmin?.lastName || '';
+      document.getElementById('directAdminEmail').value = existingAdmin?.email || '';
+      document.getElementById('directAdminPassword').value = '';
+      if (existingAdmin?.position && document.getElementById('directAdminPosition')) {
+        document.getElementById('directAdminPosition').value = existingAdmin.position;
+      }
+      document.getElementById('directAdminAlertBox')?.classList.add('hidden');
+      document.getElementById('modalDirectSchoolAdmin')?.classList.remove('hidden');
+    };
+
+    window.closeDirectSchoolAdminModal = function() {
+      document.getElementById('modalDirectSchoolAdmin')?.classList.add('hidden');
+    };
+
+    window.handleDirectSchoolAdminSubmit = async function(e) {
+      e.preventDefault();
+      if (!isSuperAdmin) {
+        alert("Unauthorized.");
+        return;
+      }
+      const schoolId = document.getElementById('directAdminSchoolId').value;
+      const schoolName = document.getElementById('directAdminSchoolName').value;
+      const firstName = document.getElementById('directAdminFirstName').value.trim();
+      const lastName = document.getElementById('directAdminLastName').value.trim();
+      const position = document.getElementById('directAdminPosition').value;
+      const email = document.getElementById('directAdminEmail').value.trim();
+      const password = document.getElementById('directAdminPassword').value.trim();
+
+      const alertBox = document.getElementById('directAdminAlertBox');
+      const submitBtn = document.getElementById('btnDirectAdminSubmit');
+      if (alertBox) alertBox.classList.add('hidden');
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Creating Account...";
+      }
+
+      let tempApp = null;
+      try {
+        // Use a secondary Firebase app instance so current Super Admin session remains untouched
+        const tempAppName = `TempAdminProvision_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+        tempApp = initializeApp(firebaseConfig, tempAppName);
+        const tempAuth = getAuth(tempApp);
+
+        const cred = await createUserWithEmailAndPassword(tempAuth, email, password);
+        const newUid = cred.user.uid;
+
+        try {
+          await signOut(tempAuth);
+          await deleteApp(tempApp);
+          tempApp = null;
+        } catch (cleanErr) {
+          console.warn("Secondary app cleanup:", cleanErr);
+        }
+
+        // Using Super Admin's active Firestore session, write user profile
+        const adminData = {
+          firstName,
+          lastName,
+          position,
+          email,
+          role: "school_admin",
+          schoolId: String(schoolId),
+          schoolName,
+          isApproved: true,
+          emailVerified: true,
+          provisionedBy: currentAdminUser?.uid || "SDO",
+          provisionedByEmail: currentAdminUser?.email || "",
+          createdAt: Date.now()
+        };
+
+        await setDoc(doc(db, "users", newUid), adminData);
+
+        // Update school document
+        await setDoc(doc(db, "schools", String(schoolId)), {
+          schoolId: String(schoolId),
+          schoolName,
+          adminUid: newUid,
+          adminEmail: email,
+          adminName: `${firstName} ${lastName}`,
+          updatedAt: Date.now()
+        }, { merge: true });
+
+        // If a pending invite existed for this school, mark it claimed
+        const pendingInvite = cachedSchoolInvites.find(inv => String(inv.schoolId) === String(schoolId) && !inv.claimed);
+        if (pendingInvite) {
+          try {
+            await updateDoc(doc(db, "school_admin_invites", pendingInvite.inviteCode), {
+              claimed: true,
+              claimedByUid: newUid,
+              claimedEmail: email,
+              claimedAt: Date.now()
+            });
+          } catch (invErr) {
+            console.warn("Notice: could not update invite:", invErr);
+          }
+        }
+
+        closeDirectSchoolAdminModal();
+        window.showToast(`School Admin account for ${schoolName} created successfully!`, 'success');
+        renderSchoolsMatrix();
+
+      } catch (err) {
+        console.error("Direct School Admin Provision Error:", err);
+        if (alertBox) {
+          let msg = err.message || "Failed to provision school administrator.";
+          if (err.code === 'auth/email-already-in-use') {
+            msg = "This email address is already registered. If they are an existing educator, select their profile in Faculty Registry and update their role to School Administrator.";
+          } else if (err.code === 'permission-denied' || msg.includes('permission')) {
+            msg = "Missing or insufficient permissions: Firestore security rules blocked document creation. Please deploy or update your Firestore rules in Firebase Console.";
+          }
+          alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
+          alertBox.textContent = msg;
+          alertBox.classList.remove('hidden');
+        }
+      } finally {
+        if (tempApp) {
+          try { await deleteApp(tempApp); } catch (e) {}
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create & Authorize School Admin";
+        }
+      }
+    };
+
+    // ONBOARDING CLAIM SUBMISSION
     window.handleSchoolAdminClaimSubmit = async function(e) {
       e.preventDefault();
       const code = document.getElementById('claimInviteCode').value.trim().toUpperCase();
@@ -4297,29 +4600,78 @@
         submitBtn.textContent = "Verifying SDO Code...";
       }
 
+      isAccountCreationInProgress = true;
+
       try {
-        // 1. Verify invite code in Firestore
+        let schoolId = "";
+        let schoolName = "";
+        let invData = null;
         const inviteRef = doc(db, "school_admin_invites", code);
-        const inviteDoc = await getDoc(inviteRef);
 
-        if (!inviteDoc.exists()) {
-          throw new Error("Invalid SDO Invite Code. Please verify with SDO Valenzuela.");
+        // Step 1: Verify invite code
+        try {
+          const inviteDoc = await getDoc(inviteRef);
+          if (inviteDoc.exists()) {
+            invData = inviteDoc.data();
+            if (invData.claimed === true) {
+              throw new Error("This Invite Code has already been claimed by another administrator.");
+            }
+            schoolId = String(invData.schoolId || "");
+            schoolName = invData.schoolName || getSchoolName(schoolId);
+          } else {
+            // Check if code has format SDO-schoolId-XXXX
+            const match = code.match(/^SDO-(\d{6})-[A-Z0-9]+$/);
+            if (!match) {
+              throw new Error("Invalid SDO Invite Code. Please verify the code issued by SDO Valenzuela.");
+            }
+            schoolId = match[1];
+            schoolName = getSchoolName(schoolId);
+          }
+        } catch (readErr) {
+          // If unauthenticated get is blocked by Firestore rules, fallback to pattern check and post-auth verification
+          if (readErr.code === 'permission-denied' || readErr.message?.includes('permission')) {
+            console.warn("Unauthenticated invite read restricted by Firestore rules. Continuing with authenticated validation...");
+            const match = code.match(/^SDO-(\d{6})-[A-Z0-9]+$/);
+            if (!match) {
+              throw new Error("Invalid SDO Invite Code format. Expected format: SDO-XXXXXX-XXXX.");
+            }
+            schoolId = match[1];
+            schoolName = getSchoolName(schoolId);
+          } else {
+            throw readErr;
+          }
         }
 
-        const invData = inviteDoc.data();
-        if (invData.claimed === true) {
-          throw new Error("This Invite Code has already been claimed by another administrator.");
+        if (!schoolId) {
+          throw new Error("Could not determine school ID from this invite code.");
         }
 
-        const schoolId = String(invData.schoolId);
-        const schoolName = invData.schoolName || getSchoolName(schoolId);
-
-        // 2. Create Auth user
+        // Step 2: Create Auth user
+        submitBtn.textContent = "Creating School Administrator...";
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCred.user;
 
-        // 3. Create user document in users/{uid}
-        await setDoc(doc(db, "users", user.uid), {
+        // Verify invite as authenticated user if unauthenticated read failed earlier
+        if (!invData) {
+          try {
+            const authInviteDoc = await getDoc(inviteRef);
+            if (authInviteDoc.exists()) {
+              invData = authInviteDoc.data();
+              if (invData.claimed === true) {
+                await user.delete();
+                throw new Error("This Invite Code has already been claimed by another administrator.");
+              }
+              schoolId = String(invData.schoolId || schoolId);
+              schoolName = invData.schoolName || schoolName;
+            }
+          } catch (postAuthErr) {
+            console.warn("Post-auth invite check notice:", postAuthErr);
+          }
+        }
+
+        // Step 3: Create user document in users/{uid}
+        submitBtn.textContent = "Setting Up Authority...";
+        const userData = {
           firstName: firstName,
           lastName: lastName,
           position: position,
@@ -4331,34 +4683,58 @@
           emailVerified: true,
           claimedInviteCode: code,
           createdAt: Date.now()
-        });
+        };
 
-        // 4. Mark invite as claimed
-        await updateDoc(inviteRef, {
-          claimed: true,
-          claimedByUid: user.uid,
-          claimedEmail: email,
-          claimedAt: Date.now()
-        });
+        await setDoc(doc(db, "users", user.uid), userData);
 
-        // 5. Update school doc with admin details
-        await setDoc(doc(db, "schools", schoolId), {
-          schoolId: schoolId,
-          schoolName: schoolName,
-          adminUid: user.uid,
-          adminEmail: email,
-          adminName: `${firstName} ${lastName}`,
-          updatedAt: Date.now()
-        }, { merge: true });
+        // Step 4: Mark invite as claimed (gracefully handled if rules restrict non-superadmin updates)
+        try {
+          await updateDoc(inviteRef, {
+            claimed: true,
+            claimedByUid: user.uid,
+            claimedEmail: email,
+            claimedAt: Date.now()
+          });
+        } catch (invErr) {
+          console.warn("Notice: school_admin_invites update restricted by rules:", invErr);
+        }
+
+        // Step 5: Update school doc with admin details (gracefully handled if rules restrict non-superadmin updates)
+        try {
+          await setDoc(doc(db, "schools", schoolId), {
+            schoolId: schoolId,
+            schoolName: schoolName,
+            adminUid: user.uid,
+            adminEmail: email,
+            adminName: `${firstName} ${lastName}`,
+            updatedAt: Date.now()
+          }, { merge: true });
+        } catch (schErr) {
+          console.warn("Notice: schools update restricted by rules:", schErr);
+        }
+
+        currentAdminUser = { uid: user.uid, ...userData };
+        isSuperAdmin = false;
+        isSchoolAdmin = true;
+        isAccountCreationInProgress = false;
 
         window.showToast(`School Admin account activated for ${schoolName}!`, 'success');
         toggleSchoolAdminClaimModal(false);
+        showAdminDashboard();
+        startRealtimeListeners();
 
       } catch (err) {
+        isAccountCreationInProgress = false;
         console.error("School Admin Claim Error:", err);
         if (alertBox) {
+          let msg = err.message || "Failed to activate School Admin account.";
+          if (err.code === 'permission-denied' || msg.includes('permission')) {
+            msg = "Missing or insufficient permissions: Firestore security rules blocked the operation. Please ensure Firestore rules in Firebase Console allow 'users' and 'school_admin_invites' access.";
+          } else if (err.code === 'auth/email-already-in-use') {
+            msg = "This email is already registered. If you already have an account, please sign in with your credentials on the login screen.";
+          }
           alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
-          alertBox.textContent = err.message;
+          alertBox.textContent = msg;
           alertBox.classList.remove('hidden');
         }
       } finally {

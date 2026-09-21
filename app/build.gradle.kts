@@ -18,8 +18,8 @@ android {
         applicationId = "com.example.gabai"
         minSdk = 24
         targetSdk = 35
-        versionCode = 11
-        versionName = "0.3.7-nightly"
+        versionCode = 12
+        versionName = "0.3.8-nightly"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
