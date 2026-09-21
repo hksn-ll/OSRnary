@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer Glow / Subtle Rim -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#336C5CE7" />
+        </shape>
+    </item>
+
+    <!-- Main Gradient Orb -->
+    <item
+        android:bottom="2dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="oval">
+            <gradient
+                android:angle="135"
+                android:endColor="#4338CA"
+                android:startColor="#6C5CE7"
+                android:type="linear" />
+            <stroke
+                android:width="2dp"
+                android:color="#80FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

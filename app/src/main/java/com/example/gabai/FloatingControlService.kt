@@ -280,19 +280,24 @@ class FloatingControlService : Service() {
                         initialTouchY = event.rawY
                         isClick = true
 
-                        // Visual Feedback: Scale UP when touched
-                        v.animate().scaleX(1.1f).scaleY(1.1f).setDuration(100).start()
+                        // Visual Feedback: Gentle tactile compression
+                        v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(120).start()
                         return true
                     }
 
                     MotionEvent.ACTION_UP -> {
-                        // Visual Feedback: Scale DOWN when released
-                        v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(100).start()
+                        // Visual Feedback: Spring back to normal size
+                        v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start()
 
                         // If the user barely moved their finger, treat it as a CLICK
                         if (isClick) {
-                            v.performClick() // Notify accessibility services of the click
-                            captureAndScan()
+                            v.performClick()
+                            // Smooth pulse before capture
+                            v.animate().scaleX(1.15f).scaleY(1.15f).setDuration(90).withEndAction {
+                                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(90).withEndAction {
+                                    captureAndScan()
+                                }.start()
+                            }.start()
                         }
                         return true
                     }

@@ -1,0 +1,38 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+
+    <!-- Viewfinder Top-Left Corner -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M5,11 L5,7 C5,5.89 5.89,5 7,5 L11,5 L11,7.5 L7.5,7.5 L7.5,11 Z" />
+
+    <!-- Viewfinder Top-Right Corner -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M27,11 L27,7 C27,5.89 26.11,5 25,5 L21,5 L21,7.5 L24.5,7.5 L24.5,11 Z" />
+
+    <!-- Viewfinder Bottom-Left Corner -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M5,21 L5,25 C5,26.11 5.89,27 7,27 L11,27 L11,24.5 L7.5,24.5 L7.5,21 Z" />
+
+    <!-- Viewfinder Bottom-Right Corner -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M27,21 L27,25 C27,26.11 26.11,27 25,27 L21,27 L21,24.5 L24.5,24.5 L24.5,21 Z" />
+
+    <!-- Center Intelligent Lens / Sparkle -->
+    <!-- Lens Ring -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M16,9 C12.13,9 9,12.13 9,16 C9,19.87 12.13,23 16,23 C19.87,23 23,19.87 23,16 C23,12.13 19.87,9 16,9 Z M16,20.5 C13.51,20.5 11.5,18.49 11.5,16 C11.5,13.51 13.51,11.5 16,11.5 C18.49,11.5 20.5,13.51 20.5,16 C20.5,18.49 18.49,20.5 16,20.5 Z" />
+
+    <!-- AI Sparkle in Center of Lens -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M16,13.2 L16.8,15.2 L18.8,16 L16.8,16.8 L16,18.8 L15.2,16.8 L13.2,16 L15.2,15.2 Z" />
+
+</vector>

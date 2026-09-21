@@ -24,6 +24,7 @@ class ProfileFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
+        setupLanguageDropdown()
         loadUserData()
 
         binding.tvAppVersionLabel.text = "v${BuildConfig.VERSION_NAME}"
@@ -67,26 +68,6 @@ class ProfileFragment : Fragment() {
 
                     val sId = doc.getString("schoolId")
                     binding.tvProfileSchool.text = "School: ${schoolLookup[sId] ?: sId}"
-                    // --- BEAUTIFUL DROPDOWN LOGIC ---
-                    val prefs = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-                    val languageOptions = arrayOf("English", "Taglish", "Tagalog")
-
-// Explicitly tell the adapter it is for Strings
-                    val adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, languageOptions)
-
-                    val autoText = binding.root.findViewById<AutoCompleteTextView>(R.id.actv_language)
-                    autoText.setAdapter(adapter)
-
-// Load the current saved preference (Default to English)
-                    val currentLang = prefs.getString("ai_language_pref", "English") ?: "English"
-                    autoText.setText(currentLang, false)
-
-// Fix: Use explicit names (parent, view, position, id) instead of 'it' or '_'
-                    autoText.setOnItemClickListener { parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long ->
-                        val selected = languageOptions[position]
-                        prefs.edit().putString("ai_language_pref", selected).apply()
-                        com.example.gabai.GabAIUtils.showSnackbar(context, "AI will now explain in $selected")
-                    }
 
                     if (role == "teacher") {
                         // FOR TEACHERS: Hide section/grade, show Join Code
@@ -112,6 +93,23 @@ class ProfileFragment : Fragment() {
                     GabAIUtils.showSnackbar(safeContext, "Failed to load profile data.")
                 }
             }
+    }
+
+    private fun setupLanguageDropdown() {
+        val prefs = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+        val languageOptions = arrayOf("English", "Taglish", "Tagalog")
+        val adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, languageOptions)
+        val autoText = binding.root.findViewById<AutoCompleteTextView>(R.id.actv_language)
+        autoText.setAdapter(adapter)
+
+        val currentLang = prefs.getString("ai_language_pref", "English") ?: "English"
+        autoText.setText(currentLang, false)
+
+        autoText.setOnItemClickListener { parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long ->
+            val selected = languageOptions[position]
+            prefs.edit().putString("ai_language_pref", selected).apply()
+            GabAIUtils.showSnackbar(context, "AI will now explain in $selected")
+        }
     }
 
     override fun onDestroyView() {

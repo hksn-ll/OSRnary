@@ -12,16 +12,37 @@ import kotlin.math.min
 class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     // 1. Setup Paints (Colors)
-    // 1. Setup Paints (Colors)
     private val boxPaint = Paint().apply {
-        color = Color.argb(80, 0, 150, 255) // Light Blue highlight (Transparent)
+        color = Color.argb(95, 108, 92, 231) // GabAI Purple (#6C5CE7) transparent
         style = Paint.Style.FILL
-        // REMOVED: cornerRadius = 10f (This caused the error)
+        isAntiAlias = true
+    }
+
+    private val boxStrokePaint = Paint().apply {
+        color = Color.rgb(108, 92, 231) // Solid GabAI Purple border
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+        isAntiAlias = true
     }
 
     private val handlePaint = Paint().apply {
-        color = Color.rgb(0, 150, 255) // Solid Blue for handles
+        color = Color.rgb(83, 65, 205) // Deep GabAI Indigo (#5341CD) for handles
         style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+
+    // Idle State Paints (Soft Glowing Target Indicators)
+    private val idleBoxPaint = Paint().apply {
+        color = Color.argb(25, 129, 140, 248)
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+
+    private val idleStrokePaint = Paint().apply {
+        color = Color.argb(70, 165, 180, 252)
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+        isAntiAlias = true
     }
 
     // 2. Data Holders
@@ -36,8 +57,12 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
     // Selection State
     private var startIndex = -1
     private var endIndex = -1
-    private var onTouchStarted: (() -> Unit)? = null // Add this line
+    private var onTouchStarted: (() -> Unit)? = null
     private var onSelectionFinished: ((selectedText: String, surroundingSentence: String) -> Unit)? = null
+
+    // Idle Animation State
+    private var idlePulseProgress = 0.35f
+    private var idleAnimator: android.animation.ValueAnimator? = null
 
     // Scaling
     private var scaleX = 1f
@@ -77,7 +102,35 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                 }
             }
         }
+        startIdleAnimation()
         invalidate()
+    }
+
+    fun startIdleAnimation() {
+        if (idleAnimator?.isRunning == true) return
+        idleAnimator = android.animation.ValueAnimator.ofFloat(0.2f, 0.7f).apply {
+            duration = 1400
+            repeatMode = android.animation.ValueAnimator.REVERSE
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+            addUpdateListener { anim ->
+                idlePulseProgress = anim.animatedValue as Float
+                if (startIndex == -1) {
+                    invalidate()
+                }
+            }
+            start()
+        }
+    }
+
+    fun stopIdleAnimation() {
+        idleAnimator?.cancel()
+        idleAnimator = null
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        stopIdleAnimation()
     }
 
     fun setOnSelectionListener(action: (selectedText: String, surroundingSentence: String) -> Unit) {
@@ -174,7 +227,8 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
             // Draw highlight for every word in the range
             for (i in first..last) {
                 val box = allWords[i].rect
-                canvas.drawRoundRect(box, 12f, 12f, boxPaint) // Draw Blue Box
+                canvas.drawRoundRect(box, 12f, 12f, boxPaint) // Draw Filled Purple Box
+                canvas.drawRoundRect(box, 12f, 12f, boxStrokePaint) // Draw Crisp Purple Border
             }
 
             // Draw "Teardrop" handles (Circles) at start and end
@@ -185,6 +239,18 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
             canvas.drawCircle(startBox.left, startBox.bottom + 10, 15f, handlePaint)
             // End Handle (Right side)
             canvas.drawCircle(endBox.right, endBox.bottom + 10, 15f, handlePaint)
+        } else if (allWords.isNotEmpty()) {
+            // Idle State: Draw subtle pulsating detected-word pills across the screen!
+            val fillAlpha = (22 * (idlePulseProgress / 0.7f)).toInt().coerceIn(10, 42)
+            val strokeAlpha = (70 * (idlePulseProgress / 0.7f)).toInt().coerceIn(25, 90)
+
+            idleBoxPaint.color = Color.argb(fillAlpha, 129, 140, 248)
+            idleStrokePaint.color = Color.argb(strokeAlpha, 165, 180, 252)
+
+            for (w in allWords) {
+                canvas.drawRoundRect(w.rect, 8f, 8f, idleBoxPaint)
+                canvas.drawRoundRect(w.rect, 8f, 8f, idleStrokePaint)
+            }
         }
     }
 

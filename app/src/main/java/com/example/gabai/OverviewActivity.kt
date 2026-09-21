@@ -50,13 +50,6 @@ class OverviewActivity : AppCompatActivity() {
     private lateinit var tts: TextToSpeech
     private var isTtsReady = false
 
-    // Target content retention for dynamic language switching
-    private var currentInputText: String = ""
-    private var currentSurroundingSentence: String = ""
-    private var currentIsSingleWord: Boolean = false
-    private var currentIsPhrase: Boolean = false
-    private var currentIsSentence: Boolean = false
-
     // In-memory cache for on-demand related question answers (pay-per-need token optimization)
     private val questionAnswers = mutableMapOf<String, String>()
 
@@ -148,14 +141,6 @@ class OverviewActivity : AppCompatActivity() {
             }
         }
 
-        currentInputText = scannedText
-        currentSurroundingSentence = surroundingSentence
-        currentIsSingleWord = isSingleWord
-        currentIsPhrase = isPhrase
-        currentIsSentence = isSentence
-
-        setupLanguageBadge()
-
         if (scannedText.isNotEmpty()) {
             // Generate AI Overview and Question Prompts
             generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
@@ -171,43 +156,6 @@ class OverviewActivity : AppCompatActivity() {
             setupVisualContainer(currentVisualTerm, defaultVisualQuery)
         } else {
             GabAIUtils.showSnackbar(this, "No text provided")
-        }
-    }
-
-    private fun setupLanguageBadge() {
-        val tvLanguageBadge = findViewById<TextView>(R.id.tv_language_badge) ?: return
-        val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
-        val currentLang = prefs.getString("ai_language_pref", "English") ?: "English"
-        tvLanguageBadge.text = "🌐 $currentLang ▾"
-
-        tvLanguageBadge.setOnClickListener {
-            val languages = arrayOf("English", "Taglish", "Tagalog")
-            val activeLang = prefs.getString("ai_language_pref", "English") ?: "English"
-            val selectedIndex = languages.indexOf(activeLang).let { if (it >= 0) it else 0 }
-
-            androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("AI Explanation Language")
-                .setSingleChoiceItems(languages, selectedIndex) { dialog, which ->
-                    val chosen = languages[which]
-                    if (chosen != activeLang) {
-                        prefs.edit().putString("ai_language_pref", chosen).apply()
-                        tvLanguageBadge.text = "🌐 $chosen ▾"
-                        GabAIUtils.showSnackbar(this, "AI explanation switched to $chosen")
-                        questionAnswers.clear()
-                        if (currentInputText.isNotEmpty()) {
-                            generateAIOverview(
-                                currentInputText,
-                                currentSurroundingSentence,
-                                currentIsSingleWord,
-                                currentIsPhrase,
-                                currentIsSentence
-                            )
-                        }
-                    }
-                    dialog.dismiss()
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
         }
     }
 
@@ -768,6 +716,7 @@ class OverviewActivity : AppCompatActivity() {
 
                 val prompt = """
                     You are an educational tutor helping a high school student understand this reading material.
+                    Context Note: If the text refers to "GabAI" or "gabai", it refers to this application — an intelligent AI reading assistant and tutor designed for Filipino students (derived from the Filipino/Tagalog word "gabay", meaning guide or mentor). Do not confuse it with GABA neurochemistry, Gabapentin, or other medications unless the surrounding text explicitly discusses medicine.
                     Target Selection: "$inputText"
                     Enclosing Sentence: "$surroundingSentence"
                     Selection Type: $selectionType
@@ -945,6 +894,7 @@ class OverviewActivity : AppCompatActivity() {
 
                                 val answerPrompt = """
                                     You are an educational tutor for high school students.
+                                    Context Note: If referring to "GabAI" or "gabai", it refers to the GabAI educational reading tutor app (from Tagalog "gabay" meaning guide), not medicine.
                                     Target Selection: "$targetText"
                                     Context: "$surroundingSentence"
                                     Question: "$questionText"

@@ -60,10 +60,10 @@
     "semantic_hash": "3af6c9289a84f6fe44dbc4a5d269ec5a"
   },
   "app/src/main/java/com/example/gabai/FloatingControlService.kt": {
-    "mtime": 1788443407.118577,
-    "seen": 1788701745.6429398,
-    "ast_hash": "c7b0e380927e4d2a2ae982e01e19b6e7",
-    "semantic_hash": "c7b0e380927e4d2a2ae982e01e19b6e7"
+    "mtime": 1789930208.5493343,
+    "seen": 1789930551.6011827,
+    "ast_hash": "0cb11679aa1ddf9b0dd1ebb524917eb9",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GabAIApp.kt": {
     "mtime": 1788443407.118577,
@@ -126,9 +126,9 @@
     "semantic_hash": "290527ded60d53dca1ceca5fe6e3c98a"
   },
   "app/src/main/java/com/example/gabai/OverviewActivity.kt": {
-    "mtime": 1789928918.8232205,
-    "seen": 1789929079.5854533,
-    "ast_hash": "6318c39c6337e70c4923010a19e1c7ec",
+    "mtime": 1789931431.5300157,
+    "seen": 1789931491.9461987,
+    "ast_hash": "e8a8fd6d1caca6a95464e83bfe373d3f",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/PdfViewerActivity.kt": {
@@ -138,9 +138,9 @@
     "semantic_hash": "a50978c88f66b297438291ad745ddaca"
   },
   "app/src/main/java/com/example/gabai/ProfileFragment.kt": {
-    "mtime": 1789925440.3540368,
-    "seen": 1789925622.770111,
-    "ast_hash": "fe277ea2fe5108521d8de3b1d7e17d10",
+    "mtime": 1789929281.6699288,
+    "seen": 1789929597.518566,
+    "ast_hash": "a695fc9fbe90183096e4454b4f50e212",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt": {
@@ -180,9 +180,9 @@
     "semantic_hash": "c9e8923f35082fb69b927593ceff4b96"
   },
   "app/src/main/java/com/example/gabai/ScanResultActivity.kt": {
-    "mtime": 1789920035.4503405,
-    "seen": 1789920429.3718808,
-    "ast_hash": "5261a8c887814348852912c07f8f5e98",
+    "mtime": 1789930863.313319,
+    "seen": 1789931097.9613101,
+    "ast_hash": "f8297f53c7b04c1923e355df8f56615f",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/SplashActivity.kt": {
@@ -222,9 +222,9 @@
     "semantic_hash": "0ef13464e9a1977102a8f8c90067c636"
   },
   "app/src/main/java/com/example/gabai/TextOverlayView.kt": {
-    "mtime": 1789920017.5430343,
-    "seen": 1789920429.3719025,
-    "ast_hash": "97f545c5cadc926829c0e65f1aa38fb6",
+    "mtime": 1789930839.052282,
+    "seen": 1789931097.9613328,
+    "ast_hash": "c35778a71e2c8a059232f6af87bc3b08",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/XPManager.kt": {

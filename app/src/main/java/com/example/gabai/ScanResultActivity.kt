@@ -68,11 +68,98 @@ class ScanResultActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.close_button).setOnClickListener {
             finishAndRemoveTask()
         }
+
+        startHudAnimations()
+        startLaserSweep()
+
         // --- QUEST TRIGGER: SCAN ---
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             FirebaseFirestore.getInstance().collection("users").document(uid)
                 .update("quests_completed", FieldValue.arrayUnion("scan"))
+        }
+    }
+
+    private var laserAnimator: android.animation.ValueAnimator? = null
+
+    private fun startLaserSweep() {
+        val laser = findViewById<android.view.View>(R.id.scanner_laser_sweep) ?: return
+        val container = findViewById<android.view.View>(R.id.scanner_laser_container) ?: return
+
+        container.post {
+            val totalHeight = container.height.toFloat()
+            if (totalHeight <= 0f) return@post
+
+            laser.visibility = android.view.View.VISIBLE
+            laser.alpha = 0.9f
+
+            laserAnimator?.cancel()
+            val startY = -60f * resources.displayMetrics.density
+            val endY = totalHeight
+
+            laserAnimator = android.animation.ValueAnimator.ofFloat(startY, endY).apply {
+                duration = 2600
+                repeatMode = android.animation.ValueAnimator.RESTART
+                repeatCount = android.animation.ValueAnimator.INFINITE
+                interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+                addUpdateListener { anim ->
+                    laser.translationY = anim.animatedValue as Float
+                }
+                start()
+            }
+        }
+    }
+
+    private fun stopOrFadeLaserSweep() {
+        val laser = findViewById<android.view.View>(R.id.scanner_laser_sweep) ?: return
+        laser.animate().alpha(0f).setDuration(240).withEndAction {
+            laserAnimator?.cancel()
+            laser.visibility = android.view.View.GONE
+        }.start()
+    }
+
+    private fun startHudAnimations() {
+        val hudCard = findViewById<android.view.View>(R.id.ll_instruction_hud)
+        val bounceArrow = findViewById<android.view.View>(R.id.iv_hud_bounce_arrow)
+
+        hudCard?.let { view ->
+            val scaleX = android.animation.ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.03f).apply {
+                duration = 1100
+                repeatMode = android.animation.ValueAnimator.REVERSE
+                repeatCount = android.animation.ValueAnimator.INFINITE
+            }
+            val scaleY = android.animation.ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.03f).apply {
+                duration = 1100
+                repeatMode = android.animation.ValueAnimator.REVERSE
+                repeatCount = android.animation.ValueAnimator.INFINITE
+            }
+            android.animation.AnimatorSet().apply {
+                playTogether(scaleX, scaleY)
+                start()
+            }
+        }
+
+        bounceArrow?.let { view ->
+            android.animation.ObjectAnimator.ofFloat(view, "translationY", 0f, 10f).apply {
+                duration = 750
+                repeatMode = android.animation.ValueAnimator.REVERSE
+                repeatCount = android.animation.ValueAnimator.INFINITE
+                start()
+            }
+        }
+    }
+
+    private fun hideInstructionHud() {
+        val hud = findViewById<android.view.View>(R.id.instruction_overlay) ?: return
+        if (hud.visibility == android.view.View.VISIBLE) {
+            hud.animate()
+                .alpha(0f)
+                .translationY(-40f)
+                .setDuration(220)
+                .withEndAction {
+                    hud.visibility = android.view.View.GONE
+                }
+                .start()
         }
     }
 
@@ -82,59 +169,80 @@ class ScanResultActivity : AppCompatActivity() {
 
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
-                // 3. Pass the results to the Overlay to draw boxes
-                // We wait for the ImageView to be laid out to get exact size
                 imageView.post {
                     overlay.setTextResult(visionText, bitmap.width, bitmap.height, imageView.width, imageView.height)
-// In ScanResultActivity.kt, inside imageView.post { ... }
-
-// NEW CODE: Hide overlay when user touches text
-
-
                 }
 
+                // Hide instruction HUD and stop laser sweep as soon as user touches the screen
+                overlay.setOnTouchStartListener {
+                    hideInstructionHud()
+                    stopOrFadeLaserSweep()
+                }
 
-
-                // 4. Handle clicks
+                // Handle word/phrase selection
                 overlay.setOnSelectionListener { selectedText, surroundingSentence ->
-                    // Instead of showBottomSheet, we call our new non-blocking function
+                    stopOrFadeLaserSweep()
                     updateBottomCard(selectedText, surroundingSentence)
-
                 }
             }
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.result_card)
         makeDraggable(card)
-
     }
 
     private fun updateBottomCard(text: String, sentence: String) {
-        // 1. NUCLEAR OPTION: Find the text and hide it unconditionally
-        val instructionText = findViewById<android.widget.TextView>(R.id.instruction_text)
+        hideInstructionHud()
+        stopOrFadeLaserSweep()
 
-        // Only run if we actually found the view
-        if (instructionText != null) {
-            instructionText.clearAnimation() // Stop any fighting animations
-            instructionText.animate()
-                .alpha(0f)
-                .setDuration(200)
-                .withEndAction {
-                    instructionText.visibility = android.view.View.GONE
-                }
-                .start()
-        }
-
-        // 2. Standard Card Update Logic
         currentSelectedText = text
         currentSurroundingSentence = sentence
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.result_card)
         val title = findViewById<android.widget.TextView>(R.id.card_title)
         val body = findViewById<android.widget.TextView>(R.id.card_body)
+        val badge = findViewById<android.widget.TextView>(R.id.tv_selection_badge)
+        val btnAnalyze = findViewById<android.view.View>(R.id.btn_analyze_action)
 
-        // Show the result card
-        card.visibility = android.view.View.VISIBLE
+        // Classify selection mode
+        val words = text.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        if (words.size > 1) {
+            badge?.text = "PHRASE SELECTED (${words.size} WORDS)"
+        } else {
+            badge?.text = "TARGET WORD"
+        }
+
         title.text = text
-        body.text = if (sentence.isNotEmpty() && sentence != text) sentence else "Tap for AI Explanation..."
+        body.text = if (sentence.isNotBlank() && sentence != text) {
+            "\"$sentence\""
+        } else {
+            "Tap below for AI Explanation..."
+        }
+
+        btnAnalyze?.setOnClickListener {
+            openOverviewScreen()
+        }
+
+        // Animated reveal for result card
+        if (card.visibility != android.view.View.VISIBLE) {
+            card.visibility = android.view.View.VISIBLE
+            card.alpha = 0f
+            card.translationY = 160f
+            card.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setInterpolator(android.view.animation.OvershootInterpolator(0.7f))
+                .setDuration(280)
+                .start()
+        } else {
+            card.animate()
+                .scaleX(1.02f)
+                .scaleY(1.02f)
+                .setDuration(80)
+                .withEndAction {
+                    card.animate().scaleX(1f).scaleY(1f).setDuration(80).start()
+                }
+                .start()
+        }
     }
+
     // This function makes any view follow your finger
     private fun makeDraggable(view: android.view.View) {
         view.setOnTouchListener(object : android.view.View.OnTouchListener {
@@ -199,5 +307,11 @@ class ScanResultActivity : AppCompatActivity() {
         val rotatedImg = Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
         img.recycle() // Clean up memory from the old sideways image
         return rotatedImg
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        laserAnimator?.cancel()
+        laserAnimator = null
     }
 }
