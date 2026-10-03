@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Skeleton Card 1 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:strokeColor="#EDF2F7"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Header Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="140dp"
+                    android:layout_height="22dp"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#E2E8F0" />
+
+                <View
+                    android:layout_width="54dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_pos_pill" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <ProgressBar
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:indeterminateTint="#5341CD" />
+            </LinearLayout>
+
+            <!-- Snippet Lines -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#F1F5F9" />
+
+            <View
+                android:layout_width="220dp"
+                android:layout_height="14dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#F1F5F9" />
+
+            <!-- Footer Action Link -->
+            <View
+                android:layout_width="120dp"
+                android:layout_height="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#EEF2FF" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Skeleton Card 2 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:strokeColor="#EDF2F7"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Header Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="110dp"
+                    android:layout_height="22dp"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#E2E8F0" />
+
+                <View
+                    android:layout_width="50dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_pos_pill" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_btn_frosted_circle" />
+            </LinearLayout>
+
+            <!-- Snippet Lines -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#F1F5F9" />
+
+            <View
+                android:layout_width="180dp"
+                android:layout_height="14dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#F1F5F9" />
+
+            <!-- Footer Action Link -->
+            <View
+                android:layout_width="120dp"
+                android:layout_height="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#EEF2FF" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

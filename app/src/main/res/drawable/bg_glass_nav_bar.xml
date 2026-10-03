@@ -1,15 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Rounded Top Frosted Glass Acrylic Base -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#F2FFFFFF" />
+            <corners
+                android:topLeftRadius="24dp"
+                android:topRightRadius="24dp" />
+            <gradient
+                android:angle="90"
+                android:startColor="#E6FFFFFF"
+                android:centerColor="#D4F8FAFC"
+                android:endColor="#C4F1F5F9"
+                android:type="linear" />
         </shape>
     </item>
+    <!-- Top Refractive Border Highlight -->
     <item android:top="0dp">
         <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="24dp"
+                android:topRightRadius="24dp" />
             <stroke
-                android:width="0.75dp"
-                android:color="#E2E8F0" />
+                android:width="1.2dp"
+                android:color="#4DFFFFFF" />
         </shape>
     </item>
 </layer-list>

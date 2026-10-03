@@ -1,0 +1,60 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- 1. Background Squircle with 3-stop purple gradient -->
+    <path
+        android:pathData="M 146,36 L 366,36 C 427,36 476,85 476,146 L 476,366 C 476,427 427,476 366,476 L 146,476 C 85,476 36,427 36,366 L 36,146 C 36,85 85,36 146,36 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="36"
+                android:startY="36"
+                android:endX="476"
+                android:endY="476">
+                <item android:color="#FF705CF6" android:offset="0.0" />
+                <item android:color="#FF5341CD" android:offset="0.5" />
+                <item android:color="#FF3B28B5" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 2. Glass Gloss Stroke Highlight -->
+    <path
+        android:pathData="M 146,38 L 366,38 C 426,38 474,86 474,146 L 474,366 C 474,426 426,474 366,474 L 146,474 C 86,474 38,426 38,366 L 38,146 C 38,86 86,38 146,38 Z"
+        android:strokeWidth="4">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="38"
+                android:startY="38"
+                android:endX="474"
+                android:endY="386">
+                <item android:color="#73FFFFFF" android:offset="0.0" />
+                <item android:color="#1AFFFFFF" android:offset="0.4" />
+                <item android:color="#00FFFFFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 3. Top Glass Sheen -->
+    <path
+        android:pathData="M 36,146 C 36,85 85,36 146,36 L 366,36 C 427,36 476,85 476,146 C 476,190 420,220 256,220 C 92,220 36,190 36,146 Z"
+        android:fillAlpha="0.5">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="256"
+                android:startY="36"
+                android:endX="256"
+                android:endY="220">
+                <item android:color="#73FFFFFF" android:offset="0.0" />
+                <item android:color="#1AFFFFFF" android:offset="0.5" />
+                <item android:color="#00FFFFFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

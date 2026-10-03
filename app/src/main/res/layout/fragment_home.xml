@@ -7,17 +7,16 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-    <!-- ================================================================= -->
-    <!-- MAIN SCROLLABLE DASHBOARD (Slides underneath top and bottom bars) -->
-    <!-- ================================================================= -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="76dp"
-        android:paddingBottom="96dp"
-        android:scrollbars="none">
+
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="76dp"
+            android:paddingBottom="96dp"
+            android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -65,6 +64,7 @@
             <!-- 2. XP / LEVEL HERO CARD (Single Card, No Double Frame)   -->
             <!-- ========================================================= -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_hero_xp"
                 style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -1563,120 +1563,5 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!-- ================================================================= -->
-    <!-- PINNED FROSTED GABAI ASSISTANT HEADER (The True App Header)      -->
-    <!-- ================================================================= -->
-    <LinearLayout
-        android:id="@+id/header_assistant_bar"
-        android:layout_width="match_parent"
-        android:layout_height="66dp"
-        android:background="@drawable/bg_glass_top_bar"
-        android:elevation="0dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp">
-
-        <!-- Left: GabAI App Logo Squircle with Ready Tag -->
-        <FrameLayout
-            android:id="@+id/profile_ring"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="12dp">
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/profile_image"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_gabai_logo"
-                android:scaleType="fitCenter"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium" />
-
-            <!-- Ready status badge -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:background="@drawable/bg_tag_ready"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:paddingHorizontal="4dp"
-                android:paddingVertical="1dp">
-
-                <ImageView
-                    android:layout_width="7dp"
-                    android:layout_height="7dp"
-                    android:src="@drawable/ic_check_bold"
-                    app:tint="#FFFFFF"
-                    android:contentDescription="@null" />
-            </LinearLayout>
-        </FrameLayout>
-
-        <!-- Middle: Brand Title and Instant Reader subtitle -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="GabAI"
-                android:textColor="#5341CD"
-                android:textSize="20sp"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Instant On-Screen Reader"
-                android:textColor="#64748B"
-                android:textSize="12sp"
-                android:fontFamily="@font/font_nunito_sans" />
-        </LinearLayout>
-
-        <!-- Right: Bubble Toggle Switch -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:layout_marginEnd="4dp"
-                    android:background="@drawable/bg_badge_mint" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bubble"
-                    android:textColor="#64748B"
-                    android:textSize="11sp"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/bubble_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="28dp"
-                android:layout_marginTop="2dp"
-                android:track="@drawable/switch_track_stitch"
-                android:thumb="@drawable/switch_thumb_stitch"
-                app:thumbTint="@null"
-                app:trackTint="@null"
-                android:contentDescription="Toggle Floating Reader Bubble" />
-        </LinearLayout>
-    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

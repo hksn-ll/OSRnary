@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -15,34 +16,37 @@ class ProgressDashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_progress_dashboard)
 
-        // Fix Status Bar
         val header = findViewById<View>(R.id.progress_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        GabAIUtils.applyFrostedGlass(header, 28f)
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
+        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
+
+        val cardQuizHistory = findViewById<View>(R.id.card_quiz_history)
+        GabAIUtils.addSpringPressEffect(cardQuizHistory) {
+            startActivity(Intent(this, QuizHistoryActivity::class.java))
+        }
 
         loadXPData()
         calculateAnalytics()
+
+        // Cascade entrance animation
+        val cardRank = findViewById<View>(R.id.card_rank)
+        val statsGrid = findViewById<View>(R.id.layout_stats_grid)
+        GabAIUtils.animateCascade(listOf(cardRank, statsGrid, cardQuizHistory), 40L)
     }
 
     private fun loadXPData() {
         val level = XPManager.getLevel(this)
         val xp = XPManager.getXP(this)
-
-        // 🟢 FETCH THE NEW MAX
         val maxXP = XPManager.getMaxXPForLevel(level)
 
         findViewById<TextView>(R.id.tv_level).text = "Level $level"
         findViewById<TextView>(R.id.tv_xp).text = "$xp / $maxXP XP to next level"
 
-        // 🟢 SET THE PROGRESS BAR MAX
         val progressBar = findViewById<ProgressBar>(R.id.progress_xp)
         progressBar.max = maxXP
-        progressBar.progress = xp
+        GabAIUtils.animateProgress(progressBar, xp)
     }
 
     private fun calculateAnalytics() {
@@ -51,7 +55,7 @@ class ProgressDashboardActivity : AppCompatActivity() {
 
         GabAIUtils.showGlobalLoading(this)
 
-        // 1. Calculate Words Mastered (Interval >= 4 means they got it right multiple times)
+        // 1. Calculate Words Mastered (Interval >= 4 means repeated mastery)
         db.collection("users").document(uid).collection("history")
             .whereGreaterThanOrEqualTo("interval", 4)
             .get()
@@ -78,7 +82,6 @@ class ProgressDashboardActivity : AppCompatActivity() {
                         }
 
                         findViewById<TextView>(R.id.tv_accuracy).text = "$accuracy%"
-
                         GabAIUtils.hideGlobalLoading(this)
                     }
                     .addOnFailureListener {

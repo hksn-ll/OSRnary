@@ -224,30 +224,151 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ========================================================= -->
-            <!-- 2. LOADING STATE INDICATOR                                -->
+            <!-- 2. LOADING STATE SKELETON INDICATOR                       -->
             <!-- ========================================================= -->
             <LinearLayout
                 android:id="@+id/loading_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="36dp"
-                android:gravity="center"
+                android:layout_marginVertical="16dp"
                 android:orientation="vertical">
 
-                <ProgressBar
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:indeterminateTint="#6C5CE7" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:text="Synthesizing context..."
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:strokeColor="#EDF2F7"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:id="@+id/ll_skeleton_shimmer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="140dp"
+                                android:layout_height="24dp"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#E2E8F0" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <ProgressBar
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:indeterminateTint="#5341CD" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="90dp"
+                            android:layout_height="14dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#F1F5F9" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="14dp"
+                            android:background="#EDF2F7" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="16dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#E2E8F0" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="16dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#E2E8F0" />
+
+                        <View
+                            android:layout_width="180dp"
+                            android:layout_height="16dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#E2E8F0" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Synthesizing context with Gemini..."
+                            android:textColor="#64748B"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- 2.5 ERROR STATE CONTAINER WITH RETRY BUTTON               -->
+            <!-- ========================================================= -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/error_container"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="24dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FFF1F2"
+                app:cardCornerRadius="18dp"
+                app:strokeColor="#FFE4E6"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_close_bold"
+                        app:tint="#E11D48" />
+
+                    <TextView
+                        android:id="@+id/tv_error_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:gravity="center"
+                        android:text="Unable to connect to AI service. Tap retry to try again."
+                        android:textColor="#9F1239"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_retry_definition"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:backgroundTint="#E11D48"
+                        android:text="Retry Connection"
+                        android:textColor="#FFFFFF"
+                        app:cornerRadius="12dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ========================================================= -->
             <!-- 3. RESULT CONTAINER (Primary Definition, Qs, Visuals)     -->
@@ -338,10 +459,12 @@
                             <ProgressBar
                                 android:id="@+id/progress_tts_explanation"
                                 style="?android:attr/progressBarStyleSmall"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_margin="8dp"
                                 android:indeterminateTint="#6C5CE7"
                                 android:visibility="gone" />
+
 
                             <ImageButton
                                 android:id="@+id/btn_speak_explanation"

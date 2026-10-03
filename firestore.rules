@@ -1,53 +1,390 @@
 rules_version = '2';
+
+// ===============================================================
+// Cloud Firestore Security Rules - GabAI Educational Platform
+// SDO Valenzuela City
+// ===============================================================
+//
+// Assumed Data Models:
+//
+// Collection: users
+// Document ID: {userId} (Firebase Auth UID)
+// Fields:
+//   - uid: string (optional, matches document id)
+//   - email: string (required/optional, format: email, max 200 chars)
+//   - firstName: string (optional, max 100 chars)
+//   - lastName: string (optional, max 100 chars)
+//   - fullName: string (optional, max 150 chars)
+//   - role: string (required, enum: 'student', 'teacher', 'school_admin', 'super_admin', 'admin')
+//   - schoolId: string (required for school staff/students, max 50 chars)
+//   - schoolName: string (optional, max 150 chars)
+//   - isApproved: bool (optional)
+//   - emailVerified: bool (optional)
+//   - current_xp: number (optional, >= 0)
+//   - level: number (optional, >= 1)
+//   - current_streak: number (optional, >= 0)
+//   - is_onboarded: bool (optional)
+//   - quests_completed: list (optional, max 100 items)
+//   - createdAt: number | timestamp (optional)
+//
+// Subcollection: users/{userId}/favorites
+// Document ID: {word}
+//
+// Subcollection: users/{userId}/history
+// Document ID: {historyId}
+//
+// Subcollection: users/{userId}/quiz_history
+// Document ID: {quizId}
+//
+// Collection: school_admin_invites
+// Document ID: {code} (e.g. SDO-123456-ABCD)
+// Fields:
+//   - inviteCode: string (required, max 50 chars)
+//   - schoolId: string (required, max 50 chars)
+//   - schoolName: string (required, max 150 chars)
+//   - claimed: bool (required)
+//   - claimedByUid: string (optional, max 100 chars)
+//   - issuedBy: string (required, UID of super admin)
+//   - issuedByEmail: string (optional, email)
+//   - issuedAt: number | timestamp (required)
+//
+// Collection: schools
+// Document ID: {schoolId} (e.g. 6-digit DepEd school ID)
+// Fields:
+//   - schoolId: string (required, max 50 chars)
+//   - schoolName: string (required, max 150 chars)
+//   - adminUid: string (optional, max 100 chars)
+//   - adminEmail: string (optional, max 200 chars)
+//   - adminName: string (optional, max 150 chars)
+//
+// Collection: classes
+// Document ID: {classId}
+// Fields:
+//   - name: string (optional, max 100 chars)
+//   - section: string (optional, max 100 chars)
+//   - grade: string (optional, max 50 chars)
+//   - schoolId: string (required, max 50 chars)
+//   - teacherIds: list (optional, max 20 items)
+//   - initiation_items: number (optional, >= 0)
+//
+// Collection: pending_students
+// Document ID: {studentId} (e.g. temporary username)
+// Fields:
+//   - username: string (required/optional, max 100 chars)
+//   - password: string (optional, max 100 chars)
+//   - fullName: string (optional, max 150 chars)
+//   - schoolId: string (required/optional, max 50 chars)
+//   - classId: string (optional, max 100 chars)
+//   - section: string (optional, max 100 chars)
+//   - grade: string (optional, max 50 chars)
+//
+// Collection: library_subjects
+// Document ID: {subjectId}
+// Fields:
+//   - name: string (optional, max 100 chars)
+//   - schoolId: string (optional, max 50 chars)
+//
+// Collection: library_materials & library (legacy)
+// Document ID: {materialId}
+// Fields:
+//   - title: string (required/optional, max 250 chars)
+//   - subjectId: string (optional, max 100 chars)
+//   - schoolId: string (optional, max 50 chars)
+//   - pdfUrl: string (optional, max 1000 chars)
+//
+// Subcollection: library_materials/{materialId}/remarks
+// Document ID: {remarkId}
+//
+// Collection: weekly_assessments
+// Document ID: {assessmentId}
+// Fields:
+//   - title: string (optional, max 250 chars)
+//   - classId: string (optional, max 100 chars)
+//   - schoolId: string (required/optional, max 50 chars)
+//
+// Subcollection: weekly_assessments/{assessmentId}/remarks
+// Document ID: {remarkId}
+//
+// Collection: assessment_submissions
+// Document ID: {submissionId}
+// Fields:
+//   - studentId: string (required, UID of student, max 100 chars)
+//   - assessmentId: string (optional, max 100 chars)
+//   - schoolId: string (optional, max 50 chars)
+//   - score: number (optional, >= 0)
+//
+// Collection: admin_remarks
+// Document ID: {remarkId}
+// Fields:
+//   - authorUid: string (required, max 100 chars)
+//   - text: string (required, 1 to 2500 chars)
+//
+// ===============================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
+    // ===============================================================
+    // Core Defensive Helper Functions
+    // ===============================================================
+
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null && request.auth.uid != null;
     }
 
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Safely retrieve caller's user record without throwing if unauthenticated or non-existent
     function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data
+        : {};
     }
 
+    function getUserRole() {
+      return getUserData().get('role', '');
+    }
+
+    function getUserSchoolId() {
+      return getUserData().get('schoolId', '');
+    }
+
+    // Safely retrieve the schoolId of an arbitrary student document without throwing
+    function getStudentSchoolId(studentUid) {
+      return exists(/databases/$(database)/documents/users/$(studentUid))
+        ? get(/databases/$(database)/documents/users/$(studentUid)).data.get('schoolId', '')
+        : '';
+    }
+
+    // Super Admin evaluation: custom claims (role/admin) or verified Firestore division office profile
     function isSuperAdmin() {
       return isAuthenticated() && (
-        getUserData().role in ['super_admin', 'admin'] ||
-        getUserData().isAdmin == true ||
-        getUserData().schoolId == 'DIVISION_OFFICE'
+        request.auth.token.get('role', '') in ['super_admin', 'admin'] ||
+        request.auth.token.get('admin', false) == true ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+            getUserData().get('role', '') in ['super_admin', 'admin'] ||
+            getUserData().get('isAdmin', false) == true ||
+            getUserData().get('schoolId', '') == 'DIVISION_OFFICE'
+          )
+        )
       );
     }
 
     function isSchoolAdmin(schoolId) {
       return isAuthenticated() && (
         isSuperAdmin() ||
-        (getUserData().role == 'school_admin' && getUserData().schoolId == schoolId)
+        (getUserRole() == 'school_admin' && getUserSchoolId() == schoolId && schoolId != '')
       );
     }
+
+    // ===============================================================
+    // General Domain & Resource Exhaustion (DoS) Validators
+    // ===============================================================
+
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) ||
+        (data[field] is string && data[field].size() >= minLen && data[field].size() <= maxLen);
+    }
+
+    function isValidOptionalNumber(data, field, minVal, maxVal) {
+      return !(field in data) ||
+        (data[field] is number && data[field] >= minVal && data[field] <= maxVal);
+    }
+
+    function isValidOptionalBool(data, field) {
+      return !(field in data) || (data[field] is bool);
+    }
+
+    function isValidOptionalList(data, field, maxSize) {
+      return !(field in data) || (data[field] is list && data[field].size() <= maxSize);
+    }
+
+    function isValidUserDoc(data) {
+      return isValidOptionalString(data, 'email', 3, 200) &&
+        isValidOptionalString(data, 'firstName', 0, 100) &&
+        isValidOptionalString(data, 'lastName', 0, 100) &&
+        isValidOptionalString(data, 'fullName', 0, 150) &&
+        isValidOptionalString(data, 'role', 1, 50) &&
+        isValidOptionalString(data, 'schoolId', 0, 50) &&
+        isValidOptionalString(data, 'schoolName', 0, 150) &&
+        isValidOptionalNumber(data, 'current_xp', 0, 10000000) &&
+        isValidOptionalNumber(data, 'level', 1, 10000) &&
+        isValidOptionalNumber(data, 'current_streak', 0, 10000) &&
+        isValidOptionalBool(data, 'isApproved') &&
+        isValidOptionalBool(data, 'emailVerified') &&
+        isValidOptionalBool(data, 'is_onboarded') &&
+        isValidOptionalList(data, 'quests_completed', 100);
+    }
+
+    function isValidSchoolAdminInvite(data) {
+      return (!('inviteCode' in data) || (data.inviteCode is string && data.inviteCode.size() <= 50)) &&
+        (!('schoolId' in data) || (data.schoolId is string && data.schoolId.size() <= 50)) &&
+        (!('schoolName' in data) || (data.schoolName is string && data.schoolName.size() <= 150)) &&
+        (!('claimed' in data) || (data.claimed is bool)) &&
+        isValidOptionalString(data, 'claimedByUid', 0, 100) &&
+        isValidOptionalString(data, 'issuedBy', 0, 100);
+    }
+
+    function isValidSchoolDoc(data) {
+      return isValidOptionalString(data, 'schoolId', 1, 50) &&
+        isValidOptionalString(data, 'schoolName', 1, 150) &&
+        isValidOptionalString(data, 'adminUid', 0, 100) &&
+        isValidOptionalString(data, 'adminEmail', 0, 200) &&
+        isValidOptionalString(data, 'adminName', 0, 150);
+    }
+
+    function isValidClassDoc(data) {
+      return isValidOptionalString(data, 'name', 0, 100) &&
+        isValidOptionalString(data, 'section', 0, 100) &&
+        isValidOptionalString(data, 'grade', 0, 50) &&
+        isValidOptionalString(data, 'schoolId', 1, 50) &&
+        isValidOptionalList(data, 'teacherIds', 20) &&
+        isValidOptionalNumber(data, 'initiation_items', 0, 100);
+    }
+
+    function isValidPendingStudentDoc(data) {
+      return isValidOptionalString(data, 'username', 1, 100) &&
+        isValidOptionalString(data, 'password', 0, 100) &&
+        isValidOptionalString(data, 'fullName', 0, 150) &&
+        isValidOptionalString(data, 'firstName', 0, 100) &&
+        isValidOptionalString(data, 'lastName', 0, 100) &&
+        isValidOptionalString(data, 'schoolId', 0, 50) &&
+        isValidOptionalString(data, 'section', 0, 100) &&
+        isValidOptionalString(data, 'grade', 0, 50);
+    }
+
+    function isValidLibraryMaterialDoc(data) {
+      return isValidOptionalString(data, 'title', 1, 250) &&
+        isValidOptionalString(data, 'subjectId', 0, 100) &&
+        isValidOptionalString(data, 'schoolId', 0, 50) &&
+        isValidOptionalString(data, 'pdfUrl', 0, 1000);
+    }
+
+    function isValidWeeklyAssessmentDoc(data) {
+      return isValidOptionalString(data, 'title', 1, 250) &&
+        isValidOptionalString(data, 'classId', 0, 100) &&
+        isValidOptionalString(data, 'schoolId', 0, 50);
+    }
+
+    function isValidSubmissionDoc(data) {
+      return (!('studentId' in data) || (data.studentId is string && data.studentId.size() <= 100)) &&
+        isValidOptionalString(data, 'assessmentId', 0, 100) &&
+        isValidOptionalString(data, 'schoolId', 0, 50) &&
+        isValidOptionalNumber(data, 'score', 0, 1000);
+    }
+
+    function isValidRemarkDoc(data) {
+      return ('text' in data) &&
+        data.text is string &&
+        data.text.size() >= 1 &&
+        data.text.size() <= 2500 &&
+        isValidOptionalString(data, 'authorUid', 0, 100);
+    }
+
+    function isValidInitiationQuizDoc(data) {
+      return isValidOptionalString(data, 'quiz_json', 0, 500000);
+    }
+
+    // ===============================================================
+    // Collection Security Rules
+    // ===============================================================
 
     // 1. Users collection
     match /users/{userId} {
       // Authenticated users (teachers, admins, students) can read directory
       allow read: if isAuthenticated();
+
       // User can create their own profile during claim/signup, or Super Admin can create any profile
-      allow create: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
-      // User can update their profile, or Admins can update
-      allow update: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin() || getUserData().role == 'school_admin');
+      allow create: if isAuthenticated() &&
+        (request.auth.uid == userId || isSuperAdmin()) &&
+        isValidUserDoc(request.resource.data) &&
+        (isSuperAdmin() || (
+          // Prevent regular users from self-assigning super_admin privileges
+          request.resource.data.get('role', '') in ['student', 'teacher', 'school_admin'] &&
+          request.resource.data.get('isAdmin', false) != true &&
+          request.resource.data.get('schoolId', '') != 'DIVISION_OFFICE'
+        ));
+
+      // User can update their profile, or Super Admin can update, or School Admin of the same school can update
+      allow update: if isAuthenticated() &&
+        (
+          request.auth.uid == userId ||
+          isSuperAdmin() ||
+          (
+            getUserRole() == 'school_admin' &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        ) &&
+        isValidUserDoc(request.resource.data) &&
+        (isSuperAdmin() || (
+          // Non-superadmins cannot escalate to super_admin or assign DIVISION_OFFICE
+          request.resource.data.get('role', '') != 'super_admin' &&
+          request.resource.data.get('isAdmin', false) != true &&
+          request.resource.data.get('schoolId', '') != 'DIVISION_OFFICE' &&
+          (
+            // When regular user updates self, role & schoolId must remain unchanged
+            request.auth.uid != userId || (
+              request.resource.data.get('role', '') == resource.data.get('role', '') &&
+              request.resource.data.get('schoolId', '') == resource.data.get('schoolId', '')
+            )
+          )
+        ));
+
       // Only Super Admin can delete user records
       allow delete: if isSuperAdmin();
+
+      // Subcollections:
+      match /favorites/{word} {
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      }
+
+      match /history/{historyId} {
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      }
+
+      match /quiz_history/{quizId} {
+        allow read: if isAuthenticated() && (
+          request.auth.uid == userId ||
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() != '' &&
+            getUserSchoolId() == getStudentSchoolId(userId)
+          )
+        );
+        allow write: if isAuthenticated() && request.auth.uid == userId;
+      }
     }
 
     // 2. School Admin Invites
     match /school_admin_invites/{code} {
       // Allow unauthenticated single-document get so onboarding School Admins can verify invite codes
       allow get: if true;
+
       // List invites requires authentication
       allow list: if isAuthenticated();
+
       // Super Admin issues invites
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() && isSuperAdmin() && isValidSchoolAdminInvite(request.resource.data);
+
       // Claiming or updating invites allowed for authenticated users
-      allow update: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        isValidSchoolAdminInvite(request.resource.data) &&
+        (
+          isSuperAdmin() || (
+            // Non-superadmin claim flow: cannot re-claim already claimed code, schoolId unchanged
+            resource.data.get('claimed', false) == false &&
+            request.resource.data.get('claimed', false) == true &&
+            request.resource.data.get('claimedByUid', '') == request.auth.uid &&
+            request.resource.data.get('schoolId', '') == resource.data.get('schoolId', '') &&
+            request.resource.data.get('inviteCode', code) == resource.data.get('inviteCode', code)
+          )
+        );
+
       // Deleting invites restricted to Super Admin
       allow delete: if isSuperAdmin();
     }
@@ -56,52 +393,240 @@ service cloud.firestore {
     match /schools/{schoolId} {
       // Schools list is public for school pickers and campus directory
       allow read: if true;
+
       // Writing/updating school admin details allowed for authenticated admins
-      allow create, update: if isAuthenticated();
+      allow create, update: if isAuthenticated() &&
+        (isSuperAdmin() || isSchoolAdmin(schoolId)) &&
+        isValidSchoolDoc(request.resource.data);
+
       allow delete: if isSuperAdmin();
     }
 
     // 4. Classes / Sections
     match /classes/{classId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+        (isSuperAdmin() || getUserRole() in ['teacher', 'school_admin']) &&
+        isValidClassDoc(request.resource.data) &&
+        (isSuperAdmin() || request.resource.data.get('schoolId', '') == getUserSchoolId());
+
+      allow update: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        ) &&
+        isValidClassDoc(request.resource.data) &&
+        (isSuperAdmin() || request.resource.data.get('schoolId', '') == resource.data.get('schoolId', ''));
+
+      allow delete: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
     }
 
     // 5. Pending Students & Student Registration
     match /pending_students/{studentId} {
-      // Students register unauthenticated / authenticated; admins review
-      allow read, write: if true;
+      // Allow unauthenticated student registration (or authenticated)
+      allow create: if isValidPendingStudentDoc(request.resource.data);
+
+      allow read: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
+
+      allow update: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        ) && isValidPendingStudentDoc(request.resource.data);
+
+      allow delete: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
     }
 
     // 6. Curriculum Library (Subjects & Materials)
     match /library_subjects/{subjectId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+        (isSuperAdmin() || getUserRole() in ['teacher', 'school_admin']) &&
+        (isSuperAdmin() || request.resource.data.get('schoolId', '') == getUserSchoolId());
+
+      allow update, delete: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
     }
+
     match /library_materials/{materialId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+        (isSuperAdmin() || getUserRole() in ['teacher', 'school_admin']) &&
+        isValidLibraryMaterialDoc(request.resource.data) &&
+        (isSuperAdmin() || request.resource.data.get('schoolId', '') == getUserSchoolId());
+
+      allow update: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        ) && isValidLibraryMaterialDoc(request.resource.data);
+
+      allow delete: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
+
+      // Pedagogical remarks drawer attached to materials
+      match /remarks/{remarkId} {
+        allow read, create: if isAuthenticated() && (request.method != 'create' || isValidRemarkDoc(request.resource.data));
+        allow update, delete: if isSuperAdmin();
+      }
     }
+
     match /library/{materialId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+        (isSuperAdmin() || getUserRole() in ['teacher', 'school_admin']) &&
+        (isSuperAdmin() || request.resource.data.get('schoolId', '') == getUserSchoolId());
+
+      allow update, delete: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
     }
 
-    // 7. Weekly Assessments & Submissions
+    // 7. Weekly Assessments
     match /weekly_assessments/{assessmentId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-    match /assessment_submissions/{submissionId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == request.resource.data.get('schoolId', '') &&
+            request.resource.data.get('schoolId', '') != ''
+          )
+        ) && isValidWeeklyAssessmentDoc(request.resource.data);
+
+      allow update: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        ) && isValidWeeklyAssessmentDoc(request.resource.data);
+
+      allow delete: if isAuthenticated() &&
+        (
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
+
+      // Pedagogical remarks drawer attached to assessments
+      match /remarks/{remarkId} {
+        allow read, create: if isAuthenticated() && (request.method != 'create' || isValidRemarkDoc(request.resource.data));
+        allow update, delete: if isSuperAdmin();
+      }
     }
 
-    // 8. Administrative Remarks
+    // 8. Assessment Submissions
+    match /assessment_submissions/{submissionId} {
+      allow read: if isAuthenticated() &&
+        (
+          resource.data.get('studentId', '') == request.auth.uid ||
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        );
+
+      allow create: if isAuthenticated() &&
+        request.resource.data.get('studentId', '') == request.auth.uid &&
+        isValidSubmissionDoc(request.resource.data);
+
+      allow update: if isAuthenticated() &&
+        (
+          resource.data.get('studentId', '') == request.auth.uid ||
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '') &&
+            resource.data.get('schoolId', '') != ''
+          )
+        ) &&
+        isValidSubmissionDoc(request.resource.data) &&
+        request.resource.data.get('studentId', '') == resource.data.get('studentId', '');
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // 9. Administrative Remarks
     match /admin_remarks/{remarkId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidRemarkDoc(request.resource.data);
       allow update, delete: if isSuperAdmin();
+    }
+
+    // 10. Initiation Diagnostic Quizzes (Cached generated quiz payloads)
+    match /initiation_quizzes/{quizId} {
+      allow read, write: if isAuthenticated() &&
+        (request.method != 'create' && request.method != 'update' || isValidInitiationQuizDoc(request.resource.data));
     }
   }
 }

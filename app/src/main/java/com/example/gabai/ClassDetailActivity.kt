@@ -66,6 +66,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_class_detail)
 
         // Initialize PDFBox for in-memory PDF parsing and text extraction
@@ -177,7 +178,16 @@ class ClassDetailActivity : AppCompatActivity() {
 
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, pendingContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
-                                view.findViewById<TextView>(R.id.tv_student_details).text = "User: $username | Pass: $password"
+                                val detailsView = view.findViewById<TextView>(R.id.tv_student_details)
+                                val maskedPass = "•".repeat(password.length.coerceIn(6, 10))
+                                detailsView.text = "User: $username | Pass: $maskedPass  📋 Tap to copy"
+                                detailsView.setOnClickListener {
+                                    val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                    val clip = android.content.ClipData.newPlainText("Student Credentials", "Username: $username\nPassword: $password")
+                                    clipboard.setPrimaryClip(clip)
+                                    GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                                    GabAIUtils.showSnackbar(this, "Copied credentials for $fullName! 📋")
+                                }
 
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password) }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }

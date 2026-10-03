@@ -81,15 +81,36 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:id="@+id/tv_progress_counter"
+                <LinearLayout
+                    android:id="@+id/btn_open_palette"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:text="Question 1 of 10"
-                    android:textColor="#5341CD"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#F1F5F9"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:id="@+id/tv_progress_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="Question 1 of 10"
+                        android:textColor="#5341CD"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@drawable/ic_task_alt"
+                        app:tint="#5341CD" />
+                </LinearLayout>
 
                 <View
                     android:layout_width="0dp"

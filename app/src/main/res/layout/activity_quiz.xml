@@ -19,6 +19,24 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
+    <TextView
+        android:id="@+id/tv_combo_streak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_pill_translucent"
+        android:backgroundTint="#FEF3C7"
+        android:textColor="#D97706"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:text="🔥 2x Combo"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/quiz_header"
+        app:layout_constraintBottom_toBottomOf="@id/quiz_header"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/question_card"
         android:layout_width="match_parent"

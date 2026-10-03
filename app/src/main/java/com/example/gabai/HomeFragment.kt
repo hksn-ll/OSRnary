@@ -1,12 +1,11 @@
 package com.example.gabai
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.net.Uri
 import android.widget.Toast
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -17,8 +16,6 @@ import android.Manifest
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.os.Build
-import android.media.projection.MediaProjectionConfig
-
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -37,36 +34,25 @@ class HomeFragment : Fragment() {
         }
     }
 
-
-    // This handles the result of the screen capture permission
-    private val screenCaptureLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
-            val intent = Intent(requireContext(), FloatingControlService::class.java).apply {
-                putExtra("RESULT_CODE", result.resultCode)
-                putExtra("DATA", result.data)
-            }
-            requireContext().startService(intent)
-
-            // Save state as "ON"
-            requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-                .edit().putBoolean("bubble_enabled", true).apply()
-
-            com.example.gabai.GabAIUtils.showSnackbar(context, "Bubble Active!")
-            val triggerUid = FirebaseAuth.getInstance().currentUser?.uid
-            if (triggerUid != null) {
-                FirebaseFirestore.getInstance().collection("users").document(triggerUid)
-                    .update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("bubble"))
-            }
-        } else {
-            binding.bubbleSwitch.isChecked = false
-            com.example.gabai.GabAIUtils.showSnackbar(context, "Permission denied")
-        }
-    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+
         setupDashboard()
+
+        // Sleek staggered entrance cascade
+        GabAIUtils.animateCascade(
+            listOfNotNull(
+                binding.tvGreetingTitle,
+                binding.cardHeroXp,
+                binding.questBoardContainer,
+                binding.btnOpenCamera,
+                binding.btnOpenLibrary,
+                binding.btnLeaderboard,
+                binding.btnDailyQuests
+            ),
+            30L
+        )
+
         return binding.root
     }
 
@@ -76,14 +62,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupDashboard() {
-        val mediaProjectionManager = requireContext().getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as android.media.projection.MediaProjectionManager
-        val prefs = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-
-        if (!FloatingControlService.isRunning) {
-            prefs.edit().putBoolean("bubble_enabled", false).apply()
+        val cachedName = requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            .getString("cached_first_name", null)
+        if (!cachedName.isNullOrEmpty()) {
+            binding.tvGreetingTitle.text = "Hello, $cachedName!"
         }
-        // 1. Get the saved state
-        val isEnabled = prefs.getBoolean("bubble_enabled", false)
+
         // Check lock status for the Leaderboard and Daily Quests UI
         if (!com.example.gabai.XPManager.canEarnXP(requireContext())) {
             binding.tvLeaderboardTitle.text = "Leaderboard (Locked)"
@@ -99,84 +83,49 @@ class HomeFragment : Fragment() {
             binding.ivDailyQuestsIcon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
         }
 
-        // 2. CLEAR the listener before setting the state to prevent a loop
-        binding.bubbleSwitch.setOnCheckedChangeListener(null)
-        binding.bubbleSwitch.isChecked = isEnabled
         loadActiveWeeklyAssessments()
-        binding.btnLearningProgress.setOnClickListener {
+
+        GabAIUtils.addSpringPressEffect(binding.btnLearningProgress) {
             startActivity(Intent(requireContext(), ProgressDashboardActivity::class.java))
         }
-        binding.btnAchievements.setOnClickListener {
+        GabAIUtils.addSpringPressEffect(binding.btnAchievements) {
             startActivity(Intent(requireContext(), AchievementsActivity::class.java))
         }
-        binding.btnDailyQuests.setOnClickListener {
+        GabAIUtils.addSpringPressEffect(binding.btnDailyQuests) {
             if (com.example.gabai.XPManager.canEarnXP(requireContext())) {
                 startActivity(Intent(requireContext(), DailyQuestsActivity::class.java))
             } else {
                 com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Quests Locked! 🔒 Complete your Apprentice Initiation first.")
             }
         }
-        // Inside your onCreateView in HomeFragment.kt
-        binding.btnLeaderboard.setOnClickListener {
-            // GATEKEEPER: Check if they have unlocked their rank yet!
+        GabAIUtils.addSpringPressEffect(binding.btnLeaderboard) {
             if (com.example.gabai.XPManager.canEarnXP(requireContext())) {
                 startActivity(Intent(requireContext(), LeaderboardActivity::class.java))
             } else {
-                // Locked state!
                 com.example.gabai.GabAIUtils.showSnackbar(
                     requireContext(),
                     "Leaderboard Locked! 🔒 Complete your Apprentice Quests to unlock the Ranking System."
                 )
             }
         }
-        // --- ADD THIS LINE INSIDE setupDashboard() ---
-        binding.btnOpenLibrary.setOnClickListener {
-            // Check if the bubble is actually turned on
-            val isBubbleActive = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-                .getBoolean("bubble_enabled", false)
-
-            if (isBubbleActive) {
+        GabAIUtils.addSpringPressEffect(binding.btnOpenLibrary) {
+            val mainAct = activity as? MainActivity
+            if (mainAct?.isBubbleActive() == true) {
                 startActivity(Intent(requireContext(), LibraryActivity::class.java))
             } else {
-                // Block them and show a message!
                 com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Companion Required 🧚‍♂️")
-                    .setMessage("You must turn on the GabAI Floating Bubble before entering the Digital Library so I can assist you with your reading!")
-                    .setPositiveButton("Understood", null)
+                    .setMessage("Activate the GabAI Floating Bubble to assist your reading inside the Digital Library.")
+                    .setPositiveButton("Turn On & Open") { _, _ ->
+                        mainAct?.toggleBubble(enable = true) {
+                            startActivity(Intent(requireContext(), LibraryActivity::class.java))
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
                     .show()
             }
         }
-        // 3. NOW set the listener for actual user clicks
-        binding.bubbleSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                if (!Settings.canDrawOverlays(requireContext())) {
-                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${requireContext().packageName}"))
-                    startActivity(intent)
-                    binding.bubbleSwitch.isChecked = false
-                } else {
-                    // Only launch permission if the user manually turned it on
-
-                    // --- REPLACE THE OLD LAUNCH LINE WITH THIS BLOCK ---
-                    // Force "Entire Screen" capture and skip the app selection dialog on Android 14+
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        val config = MediaProjectionConfig.createConfigForDefaultDisplay()
-                        screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent(config))
-                    } else {
-                        // For older versions, use the standard intent
-                        screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
-                    }
-                    // ---------------------------------------------------
-
-                }
-            } else {
-                // STOP the service and save state as OFF
-                requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))
-                prefs.edit().putBoolean("bubble_enabled", false).apply()
-            }
-        }
-
-        // Rest of your buttons (Camera, Quiz, etc.)
-        binding.btnOpenCamera.setOnClickListener {
+        GabAIUtils.addSpringPressEffect(binding.btnOpenCamera) {
             val permission = Manifest.permission.CAMERA
             if (ContextCompat.checkSelfPermission(requireContext(), permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 startActivity(Intent(requireContext(), CameraActivity::class.java))
@@ -184,49 +133,40 @@ class HomeFragment : Fragment() {
                 requestPermissionLauncher.launch(permission)
             }
         }
-        binding.btnStartQuiz.setOnClickListener { startActivity(Intent(requireContext(), QuizActivity::class.java)) }
-        binding.btnFavs.setOnClickListener { startActivity(Intent(requireContext(), FavoritesActivity::class.java)) }
-        binding.btnHistory.setOnClickListener { startActivity(Intent(requireContext(), HistoryActivity::class.java)) }
-        // Dynamically look for the button so the app compiles even if the XML isn't updated yet!
+        GabAIUtils.addSpringPressEffect(binding.btnStartQuiz) { startActivity(Intent(requireContext(), QuizActivity::class.java)) }
+        GabAIUtils.addSpringPressEffect(binding.btnFavs) { startActivity(Intent(requireContext(), FavoritesActivity::class.java)) }
+        GabAIUtils.addSpringPressEffect(binding.btnHistory) { startActivity(Intent(requireContext(), HistoryActivity::class.java)) }
+
         val joinBtnId = resources.getIdentifier("btn_join_class", "id", requireContext().packageName)
         if (joinBtnId != 0) {
-            binding.root.findViewById<android.widget.Button>(joinBtnId)?.setOnClickListener {
-                showJoinClassDialog()
+            binding.root.findViewById<android.widget.Button>(joinBtnId)?.let { btn ->
+                GabAIUtils.addSpringPressEffect(btn) { showJoinClassDialog() }
             }
         }
-        // --- ADD THIS TO LAUNCH THE READER ---
-        binding.root.findViewById<android.widget.Button>(R.id.btn_quest_details)?.setOnClickListener {
-            showQuestDetailsDialog()
+        binding.root.findViewById<android.widget.Button>(R.id.btn_quest_details)?.let { btn ->
+            GabAIUtils.addSpringPressEffect(btn) { showQuestDetailsDialog() }
         }
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
-        // Real-time listener for user progress (Requirement 7.3)
-        // TURN ON SPINNER FOR INITIAL LOAD
-        GabAIUtils.showGlobalLoading(context, "Syncing...")
-
-        // Real-time listener for user progress & onboarding
+        // Real-time listener for user progress & onboarding (non-blocking, cached data renders immediately)
         db.collection("users").document(uid).addSnapshotListener { snapshot, e ->
-            // SAFELY TURN OFF SPINNER
-            val safeContext = context
-            if (safeContext != null) {
-                GabAIUtils.hideGlobalLoading(safeContext)
-            }
 
-            if (e != null || snapshot == null || !snapshot.exists()) return@addSnapshotListener
+            if (e != null || snapshot == null || !snapshot.exists() || _binding == null || !isAdded) return@addSnapshotListener
             val firstName = snapshot.getString("firstName") ?: snapshot.getString("first_name") ?: ""
             if (firstName.isNotEmpty()) {
                 binding.tvGreetingTitle.text = "Hello, $firstName!"
             }
             val currentLevel = snapshot.getLong("level")?.toInt() ?: 1
             val currentXP = snapshot.getLong("current_xp")?.toInt() ?: 0
+            val currentStreak = snapshot.getLong("current_streak")?.toInt() ?: 0
             val maxXP = com.example.gabai.XPManager.getMaxXPForLevel(currentLevel)
 
             // Onboarding gamification checks
             val isOnboarded = snapshot.getBoolean("is_onboarded") ?: false
             val completedQuests = snapshot.get("quests_completed") as? List<String> ?: listOf()
-            requireContext().getSharedPreferences("OSRnary_XP", android.content.Context.MODE_PRIVATE)
-                .edit().putBoolean("is_onboarded", isOnboarded).apply()
+            XPManager.syncFromFirestore(requireContext(), currentXP, currentLevel, isOnboarded)
+            QuestManager.syncStreakFromFirestore(requireContext(), currentStreak)
             currentCompletedQuests = completedQuests // Save for the dialog
 
             // --- THE GRAND UNLOCK LOGIC ---
@@ -271,7 +211,6 @@ class HomeFragment : Fragment() {
                 setQuestRowState(R.id.row_quest_detail, R.id.indicator_quest_detail, R.id.quest_detail, R.id.badge_quest_detail, "View Saved Content", completedQuests.contains("detail"))
                 setQuestRowState(R.id.row_quest_library, R.id.indicator_quest_library, R.id.quest_library, R.id.badge_quest_library, "Open the Digital Library", completedQuests.contains("library"))
             }
-            GabAIUtils.hideGlobalLoading(safeContext)
         }
     }
 

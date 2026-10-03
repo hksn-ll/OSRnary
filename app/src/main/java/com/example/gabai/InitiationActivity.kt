@@ -51,10 +51,7 @@ class InitiationActivity : AppCompatActivity() {
     private val downloadedCustomFiles = mutableMapOf<Int, File>()
 
     private var materials = mutableListOf(
-        InitiationMaterial(false, "material1.pdf", "Material 1"),
-        InitiationMaterial(false, "material2.pdf", "Material 2"),
-        InitiationMaterial(false, "material3.pdf", "Material 3"),
-        InitiationMaterial(false, "material4.pdf", "Material 4")
+        InitiationMaterial(false, "material1.pdf", "Material 1")
     )
 
     // Setup Gemini
@@ -119,14 +116,12 @@ class InitiationActivity : AppCompatActivity() {
                         // 2. Override the PDFs with Custom Ones
                         val customPdfs = classDoc.get("initiation_pdfs") as? Map<String, Map<String, String>>
                         if (customPdfs != null) {
-                            for (i in 1..4) {
-                                val slot = customPdfs[i.toString()]
-                                if (slot != null) {
-                                    val url = slot["url"] ?: ""
-                                    val title = slot["title"] ?: "Custom Material $i"
-                                    if (url.isNotEmpty()) {
-                                        materials[i-1] = InitiationMaterial(true, url, title)
-                                    }
+                            val slot = customPdfs["1"]
+                            if (slot != null) {
+                                val url = slot["url"] ?: ""
+                                val title = slot["title"] ?: "Custom Material 1"
+                                if (url.isNotEmpty()) {
+                                    materials[0] = InitiationMaterial(true, url, title)
                                 }
                             }
                         }
@@ -151,8 +146,8 @@ class InitiationActivity : AppCompatActivity() {
             return
         }
 
-        findViewById<TextView>(R.id.tv_progress_tracker).text = "Apprentice Material ${stepIndex + 1} of 4"
-        findViewById<ProgressBar>(R.id.progress_bar).progress = ((stepIndex + 1) * 25)
+        findViewById<TextView>(R.id.tv_progress_tracker).text = "Apprentice Material ${stepIndex + 1} of ${materials.size}"
+        findViewById<ProgressBar>(R.id.progress_bar).progress = ((stepIndex + 1) * (100 / materials.size))
 
         findViewById<LinearLayout>(R.id.reading_container).visibility = View.VISIBLE
         findViewById<LinearLayout>(R.id.quiz_container).visibility = View.GONE

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Clean White Canvas matching screen.png -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Top-Right Ambient Rose/Pink Bubble matching screen.png -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:startColor="#59FF6EC7"
+                android:endColor="#00FF6EC7"
+                android:centerX="0.95"
+                android:centerY="0.18"
+                android:gradientRadius="420dp" />
+        </shape>
+    </item>
+
+    <!-- Bottom-Left Deep Indigo / Royal Blue Bubble -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:startColor="#4D4F46E5"
+                android:endColor="#004F46E5"
+                android:centerX="0.18"
+                android:centerY="0.76"
+                android:gradientRadius="360dp" />
+        </shape>
+    </item>
+
+    <!-- Bottom-Left Overlapping Mint / Teal Bubble -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:startColor="#5200E5BE"
+                android:endColor="#0000E5BE"
+                android:centerX="0.02"
+                android:centerY="0.84"
+                android:gradientRadius="380dp" />
+        </shape>
+    </item>
+
+    <!-- Instant Centered Squircle Base in Starting Window (Zero Cold-Start Blank Delay) -->
+    <item
+        android:drawable="@drawable/ic_gabai_logo_base"
+        android:gravity="center"
+        android:width="164dp"
+        android:height="164dp" />
+</layer-list>

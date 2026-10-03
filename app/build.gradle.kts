@@ -18,8 +18,8 @@ android {
         applicationId = "com.example.gabai"
         minSdk = 24
         targetSdk = 35
-        versionCode = 12
-        versionName = "0.3.8-nightly"
+        versionCode = 14
+        versionName = "0.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -130,4 +130,7 @@ dependencies {
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
     implementation("com.google.firebase:firebase-config-ktx")
+
+    // Hardware-Accelerated Dynamic Frosted Glass Blur
+    implementation("com.github.Dimezis:BlurView:version-3.2.0")
 }

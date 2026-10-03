@@ -1,6 +1,6 @@
 <resources>
-    <style name="Base.Theme.GabAI" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Brand color system (dark) -->
+    <style name="Base.Theme.GabAI" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Brand color system (enforce pure light palette) -->
         <item name="colorPrimary">@color/brand_primary</item>
         <item name="colorOnPrimary">@color/on_primary</item>
         <item name="colorPrimaryContainer">@color/brand_primary_variant</item>
@@ -20,13 +20,19 @@
         <!-- Modern aurora backdrop applied app-wide -->
         <item name="android:windowBackground">@drawable/bg_app_aurora</item>
 
-        <!-- System bars blend into the aurora canvas -->
+        <!-- System bars blend into the aurora canvas with dark icons -->
         <item name="android:statusBarColor">@color/aurora_bg_base</item>
         <item name="android:navigationBarColor">@color/aurora_bg_base</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
 
         <!-- Default component styles -->
         <item name="materialButtonStyle">@style/Widget.GabAI.Button.Primary</item>
         <item name="materialCardViewStyle">@style/Widget.GabAI.CardView</item>
+    </style>
+
+    <style name="Theme.GabAI" parent="Base.Theme.GabAI">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowAnimationStyle">@style/SleekActivityAnimation</item>
     </style>
 </resources>

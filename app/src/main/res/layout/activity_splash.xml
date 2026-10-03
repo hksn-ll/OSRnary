@@ -1,56 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app_aurora">
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:background="@drawable/bg_splash_aurora">
 
-    <LinearLayout
+    <!-- Perfectly centered logo with ample canvas bounds for uncropped glass orbs -->
+    <com.example.gabai.GabAiAnimatedLogoView
+        android:id="@+id/animated_logo"
+        android:layout_width="196dp"
+        android:layout_height="196dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- App Brand Typography (Starts alpha 0, glides up below centered logo) -->
+    <TextView
+        android:id="@+id/tv_app_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:text="GabAI"
+        android:textColor="#1E1B4B"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        android:letterSpacing="-0.03"
+        android:alpha="0"
+        android:translationY="20dp"
+        app:layout_constraintTop_toBottomOf="@id/animated_logo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- App logo badge -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="140dp"
-            android:layout_height="140dp"
-            app:cardCornerRadius="36dp"
-            app:cardElevation="10dp"
-            app:strokeWidth="0dp"
-            app:cardBackgroundColor="@android:color/transparent">
+    <TextView
+        android:id="@+id/tv_app_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/font_nunito_sans"
+        android:text="Instant On-Screen Reader"
+        android:textColor="#636E72"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        android:alpha="0"
+        android:translationY="14dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_app_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_gabai_logo"
-                android:contentDescription="@string/app_name" />
-        </com.google.android.material.card.MaterialCardView>
+    <!-- Elegant Spinner Loader -->
+    <ProgressBar
+        android:id="@+id/splash_progress"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="28dp"
+        android:indeterminateTint="#5341CD"
+        android:alpha="0"
+        app:layout_constraintTop_toBottomOf="@id/tv_app_subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_lg"
-            android:text="GabAI"
-            android:textColor="@color/brand_primary"
-            android:textSize="34sp"
-            android:textStyle="bold"
-            android:letterSpacing="-0.02" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:text="Instant On-Screen Reader"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
-
-        <ProgressBar
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="@dimen/space_xl"
-            android:indeterminateTint="@color/brand_primary" />
-    </LinearLayout>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

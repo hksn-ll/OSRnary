@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Notification
@@ -20,18 +21,22 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.Settings
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import android.provider.Settings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FloatingControlService : Service() {
     companion object {
@@ -40,10 +45,15 @@ class FloatingControlService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var floatingView: View
-    private lateinit var serviceNotification: Notification // ADD THIS
+    private lateinit var serviceNotification: Notification
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
+
+    // Bottom dismiss dock
+    private var dismissView: View? = null
+    private var dismissParams: WindowManager.LayoutParams? = null
+    private var isOverDismiss = false
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -52,11 +62,16 @@ class FloatingControlService : Service() {
     override fun onCreate() {
         super.onCreate()
         isRunning = true
+        getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            .edit().putBoolean("bubble_enabled", true).apply()
         startMyOwnForeground()
+        sendBroadcast(Intent("com.example.gabai.ACTION_BUBBLE_STATE_CHANGED").apply {
+            setPackage(packageName)
+            putExtra("is_enabled", true)
+        })
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
-        // Save params as a class variable so we can update them later
         params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -65,28 +80,34 @@ class FloatingControlService : Service() {
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.TOP or Gravity.START
-        params.x = 0
-        params.y = 100
+        params.x = (12 * resources.displayMetrics.density).toInt()
+        params.y = 120
 
         floatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget, null)
 
-        // CHECK PERMISSION FIRST BEFORE ADDING TO SCREEN
         if (Settings.canDrawOverlays(this)) {
             windowManager.addView(floatingView, params)
             val button = floatingView.findViewById<ImageView>(R.id.widget_button)
-
-            // ADD DRAG LISTENER
             setupDragBehavior(button)
+
+            button.scaleX = 0f
+            button.scaleY = 0f
+            button.alpha = 0f
+            button.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .alpha(1f)
+                .setDuration(350)
+                .setInterpolator(android.view.animation.OvershootInterpolator(1.4f))
+                .start()
         }
     }
 
     private fun captureAndScan() {
         try {
-            // 1. Grab the latest image from the screen recorder
             val image = imageReader?.acquireLatestImage()
 
             if (image != null) {
-                // 2. Convert to Bitmap
                 val planes = image.planes
                 val buffer = planes[0].buffer
                 val pixelStride = planes[0].pixelStride
@@ -101,13 +122,9 @@ class FloatingControlService : Service() {
                 bitmap.copyPixelsFromBuffer(buffer)
                 image.close()
 
-                // NEW CODE: Save to file and open Activity
-                saveBitmapAndOpenResult(bitmap)// Important: Release the image buffer!
-
-                // 3. Send to Google ML Kit
-
+                saveBitmapAndOpenResult(bitmap)
             } else {
-                com.example.gabai.GabAIUtils.showSnackbar(this, "Screen not ready yet, try again...")
+                GabAIUtils.showSnackbar(this, "Screen not ready yet, try again...")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -120,31 +137,27 @@ class FloatingControlService : Service() {
 
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
-                // 4. SHOW RESULT DIALOG
                 showResultDialog(visionText.text)
             }
             .addOnFailureListener { e ->
-                com.example.gabai.GabAIUtils.showSnackbar(this, "Scan Failed: ${e.message}")
+                GabAIUtils.showSnackbar(this, "Scan Failed: ${e.message}")
             }
     }
 
     private fun showResultDialog(text: String) {
-        // We need to run this on the main UI thread
         Handler(Looper.getMainLooper()).post {
-            val dialog = AlertDialog.Builder(applicationContext) // Use application context for system alerts
+            val dialog = AlertDialog.Builder(applicationContext)
                 .setTitle("Scanned Text")
                 .setMessage(text.ifEmpty { "No text found on screen." })
                 .setPositiveButton("Copy") { _, _ ->
-                    // Copy to clipboard
                     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                     val clip = android.content.ClipData.newPlainText("Scanned Text", text)
                     clipboard.setPrimaryClip(clip)
-                    com.example.gabai.GabAIUtils.showSnackbar(this, "Copied!")
+                    GabAIUtils.showSnackbar(this, "Copied!")
                 }
                 .setNegativeButton("Close", null)
                 .create()
 
-            // Essential for showing dialogs from a Service
             dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
             dialog.show()
         }
@@ -155,12 +168,9 @@ class FloatingControlService : Service() {
         val data = intent?.getParcelableExtra<Intent>("DATA")
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 val serviceTypes = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
                         ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
-
-                // Use the class property here:
                 startForeground(2, serviceNotification, serviceTypes)
             }
             val metrics = resources.displayMetrics
@@ -168,7 +178,6 @@ class FloatingControlService : Service() {
 
             val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
             mediaProjection = projectionManager.getMediaProjection(resultCode, data)
-
             mediaProjection?.registerCallback(object : MediaProjection.Callback() {}, null)
 
             virtualDisplay = mediaProjection?.createVirtualDisplay(
@@ -186,16 +195,11 @@ class FloatingControlService : Service() {
                 "ACTION_HIDE" -> {
                     floatingView.visibility = View.GONE
                 }
-
                 "ACTION_SHOW" -> {
                     floatingView.visibility = View.VISIBLE
                 }
-
                 else -> {
-                    // Standard startup logic
-                    val resultCode = intent.getIntExtra("RESULT_CODE", Activity.RESULT_CANCELED)
-                    val data = intent.getParcelableExtra<Intent>("DATA")
-                    // ... (keep your existing media projection setup code here if you have any)
+                    // Default start
                 }
             }
         }
@@ -206,27 +210,23 @@ class FloatingControlService : Service() {
         val channelId = "com.example.osrnary.floating"
         val channelName = "Floating Service"
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE)
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
 
-        // Inside startMyOwnForeground()
         val notification = NotificationCompat.Builder(this, channelId)
             .setOngoing(true)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(getString(R.string.notification_title)) // Updated
-            .setContentText(getString(R.string.notification_text))   // Updated
+            .setContentTitle(getString(R.string.notification_title))
+            .setContentText(getString(R.string.notification_text))
             .setPriority(NotificationManager.IMPORTANCE_MIN)
             .setCategory(Notification.CATEGORY_SERVICE)
             .build()
-        serviceNotification = notification // ADD THIS LINE
-// Find the 'if (Build.VERSION.SDK_INT >= ...)' block at the end of the function
-        // Find this block at the end of startMyOwnForeground()
+        serviceNotification = notification
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // START WITH ONLY SPECIAL_USE (This prevents the crash)
             startForeground(2, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
             startForeground(2, notification)
@@ -236,33 +236,91 @@ class FloatingControlService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
-        // Only remove if it was actually attached to the screen
+        getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            .edit().putBoolean("bubble_enabled", false).apply()
+        sendBroadcast(Intent("com.example.gabai.ACTION_BUBBLE_STATE_CHANGED").apply {
+            setPackage(packageName)
+            putExtra("is_enabled", false)
+        })
         if (::floatingView.isInitialized && floatingView.isAttachedToWindow) {
             windowManager.removeView(floatingView)
         }
+        try {
+            if (dismissView?.isAttachedToWindow == true) {
+                windowManager.removeView(dismissView)
+            }
+        } catch (_: Exception) {}
+        dismissView = null
+
         virtualDisplay?.release()
         mediaProjection?.stop()
     }
+
     private fun saveBitmapAndOpenResult(bitmap: Bitmap) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val filename = "screenshot_temp.jpg"
+                val file = java.io.File(cacheDir, filename)
+                java.io.FileOutputStream(file).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
+                    out.flush()
+                }
+
+                withContext(Dispatchers.Main) {
+                    val intent = Intent(this@FloatingControlService, ScanResultActivity::class.java).apply {
+                        putExtra("IMG_PATH", file.absolutePath)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun showDismissDock() {
+        if (dismissView != null) return
+        val inflater = LayoutInflater.from(this)
+        val dView = inflater.inflate(R.layout.floating_dismiss_dock, null)
+        val dParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            y = (56 * resources.displayMetrics.density).toInt()
+        }
+        dView.alpha = 0f
+        dView.scaleX = 0.8f
+        dView.scaleY = 0.8f
         try {
-            // 1. Save bitmap to cache directory
-            val filename = "screenshot_temp.png"
-            val file = java.io.File(cacheDir, filename)
-            val out = java.io.FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-            out.flush()
-            out.close()
-
-            // 2. Start the ResultActivity
-            val intent = Intent(this, ScanResultActivity::class.java)
-            intent.putExtra("IMG_PATH", file.absolutePath)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // Required when starting activity from Service
-            startActivity(intent)
-
+            windowManager.addView(dView, dParams)
+            dismissView = dView
+            dismissParams = dParams
+            dView.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(180).start()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+
+    private fun hideDismissDock() {
+        val dView = dismissView ?: return
+        dView.animate().alpha(0f).scaleX(0.8f).scaleY(0.8f).setDuration(150).withEndAction {
+            try {
+                if (dView.isAttachedToWindow) {
+                    windowManager.removeView(dView)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            dismissView = null
+            dismissParams = null
+        }.start()
+    }
+
     private fun setupDragBehavior(view: View) {
         view.setOnTouchListener(object : View.OnTouchListener {
             private var initialX = 0
@@ -279,43 +337,84 @@ class FloatingControlService : Service() {
                         initialTouchX = event.rawX
                         initialTouchY = event.rawY
                         isClick = true
+                        isOverDismiss = false
 
-                        // Visual Feedback: Gentle tactile compression
                         v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(120).start()
                         return true
                     }
 
-                    MotionEvent.ACTION_UP -> {
-                        // Visual Feedback: Spring back to normal size
-                        v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start()
-
-                        // If the user barely moved their finger, treat it as a CLICK
-                        if (isClick) {
-                            v.performClick()
-                            // Smooth pulse before capture
-                            v.animate().scaleX(1.15f).scaleY(1.15f).setDuration(90).withEndAction {
-                                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(90).withEndAction {
-                                    captureAndScan()
-                                }.start()
-                            }.start()
-                        }
-                        return true
-                    }
-
                     MotionEvent.ACTION_MOVE -> {
-                        // Calculate new position
                         val dX = (event.rawX - initialTouchX).toInt()
                         val dY = (event.rawY - initialTouchY).toInt()
 
                         params.x = initialX + dX
                         params.y = initialY + dY
 
-                        // Update the window position immediately
-                        windowManager.updateViewLayout(floatingView, params)
-
-                        // If moved more than 10 pixels, it is a DRAG, not a CLICK
                         if (Math.abs(dX) > 10 || Math.abs(dY) > 10) {
-                            isClick = false
+                            if (isClick) {
+                                isClick = false
+                                showDismissDock()
+                            }
+                        }
+
+                        // Proximity detection for bottom dismiss dock
+                        val metrics = resources.displayMetrics
+                        val screenHeight = metrics.heightPixels
+                        val screenWidth = metrics.widthPixels
+                        val density = metrics.density
+                        val dismissZoneTop = screenHeight - (160 * density)
+                        val dismissZoneLeft = (screenWidth / 2) - (110 * density)
+                        val dismissZoneRight = (screenWidth / 2) + (110 * density)
+
+                        val inDismissZone = !isClick && (event.rawY >= dismissZoneTop) &&
+                                           (event.rawX in dismissZoneLeft..dismissZoneRight)
+
+                        if (inDismissZone && !isOverDismiss) {
+                            isOverDismiss = true
+                            dismissView?.animate()?.scaleX(1.15f)?.scaleY(1.15f)?.setDuration(120)?.start()
+                            v.animate().scaleX(0.75f).scaleY(0.75f).alpha(0.6f).setDuration(120).start()
+                            GabAIUtils.performHaptic(v, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                        } else if (!inDismissZone && isOverDismiss) {
+                            isOverDismiss = false
+                            dismissView?.animate()?.scaleX(1.0f)?.scaleY(1.0f)?.setDuration(120)?.start()
+                            v.animate().scaleX(0.92f).scaleY(0.92f).alpha(1.0f).setDuration(120).start()
+                        }
+
+                        if (::floatingView.isInitialized && floatingView.isAttachedToWindow) {
+                            windowManager.updateViewLayout(floatingView, params)
+                        }
+                        return true
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        hideDismissDock()
+
+                        if (isOverDismiss) {
+                            GabAIUtils.performHaptic(v, android.view.HapticFeedbackConstants.CONFIRM)
+                            isRunning = false
+                            getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+                                .edit().putBoolean("bubble_enabled", false).apply()
+                            sendBroadcast(Intent("com.example.gabai.ACTION_BUBBLE_STATE_CHANGED").apply {
+                                setPackage(packageName)
+                                putExtra("is_enabled", false)
+                            })
+                            v.animate().scaleX(0f).scaleY(0f).alpha(0f).setDuration(160).withEndAction {
+                                stopSelf()
+                            }.start()
+                            return true
+                        }
+
+                        v.animate().scaleX(1.0f).scaleY(1.0f).alpha(1.0f).setDuration(120).start()
+
+                        if (isClick) {
+                            v.performClick()
+                            v.animate().scaleX(1.15f).scaleY(1.15f).setDuration(90).withEndAction {
+                                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(90).withEndAction {
+                                    captureAndScan()
+                                }.start()
+                            }.start()
+                        } else {
+                            snapToNearestEdge()
                         }
                         return true
                     }
@@ -323,5 +422,30 @@ class FloatingControlService : Service() {
                 return false
             }
         })
+    }
+
+    private fun snapToNearestEdge() {
+        val metrics = resources.displayMetrics
+        val screenWidth = metrics.widthPixels
+        val margin = (12 * metrics.density).toInt()
+        val bubbleWidth = if (floatingView.width > 0) floatingView.width else (58 * metrics.density).toInt()
+        val bubbleCenterX = params.x + bubbleWidth / 2
+
+        val targetX = if (bubbleCenterX < screenWidth / 2) {
+            margin
+        } else {
+            screenWidth - bubbleWidth - margin
+        }
+
+        val animator = ValueAnimator.ofInt(params.x, targetX)
+        animator.duration = 200
+        animator.interpolator = DecelerateInterpolator()
+        animator.addUpdateListener { anim ->
+            if (::floatingView.isInitialized && floatingView.isAttachedToWindow) {
+                params.x = anim.animatedValue as Int
+                windowManager.updateViewLayout(floatingView, params)
+            }
+        }
+        animator.start()
     }
 }

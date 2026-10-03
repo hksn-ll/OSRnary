@@ -39,14 +39,16 @@ class PdfViewerActivity : AppCompatActivity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        QuestManager.addProgress(this, QuestManager.QUEST_READ)
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
+        QuestManager.addProgress(this, QuestManager.QUEST_READ)
         PDFBoxResourceLoader.init(applicationContext) // Required for local AI Text Extraction
         setContentView(R.layout.activity_pdf_viewer)
 
         val pdfUrl = intent.getStringExtra("PDF_URL") ?: return finish()
         var title = intent.getStringExtra("PDF_TITLE") ?: "Document"
         val isTeacher = intent.getBooleanExtra("IS_TEACHER", false)
+        val materialId = intent.getStringExtra("MATERIAL_ID")
 
         val titleView = findViewById<TextView>(R.id.tv_pdf_title)
         titleView.text = title
@@ -81,7 +83,6 @@ class PdfViewerActivity : AppCompatActivity() {
                     3 -> promptRename(titleView)
                     4 -> confirmDelete()
                     5 -> {
-                        val materialId = intent.getStringExtra("MATERIAL_ID")
                         val quizIntent = Intent(this, MaterialQuizActivity::class.java)
                         quizIntent.putExtra("MATERIAL_ID", materialId)
                         quizIntent.putExtra("MATERIAL_TITLE", titleView.text.toString())
@@ -95,6 +96,36 @@ class PdfViewerActivity : AppCompatActivity() {
 
         val progressBar = findViewById<ProgressBar>(R.id.pdf_loading_bar)
         val pdfView = findViewById<PDFView>(R.id.online_pdf_viewer)
+        val pageIndicator = findViewById<TextView>(R.id.tv_page_indicator)
+
+        val pdfPrefKey = "pdf_last_page_" + (materialId ?: pdfUrl.hashCode().toString())
+        val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+        val savedPage = prefs.getInt(pdfPrefKey, 0)
+        var totalPdfPages = 1
+        var currentPdfPage = savedPage
+
+        pageIndicator.setOnClickListener {
+            val input = EditText(this).apply {
+                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                hint = "1 - $totalPdfPages"
+                setPadding(48, 32, 48, 32)
+            }
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Jump to Page")
+                .setMessage("Enter a page number between 1 and $totalPdfPages:")
+                .setView(input)
+                .setPositiveButton("Jump") { _, _ ->
+                    val pageNum = input.text.toString().trim().toIntOrNull()
+                    if (pageNum != null && pageNum in 1..totalPdfPages) {
+                        pdfView.jumpTo(pageNum - 1)
+                        GabAIUtils.performHaptic(pageIndicator, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    } else {
+                        GabAIUtils.showSnackbar(this, "Please enter a valid page number")
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
 
         // Download the PDF in the background
         thread {
@@ -109,9 +140,22 @@ class PdfViewerActivity : AppCompatActivity() {
                     progressBar.visibility = View.GONE
                     pdfView.visibility = View.VISIBLE
                     pdfView.fromFile(tempFile)
+                        .defaultPage(savedPage)
                         .enableSwipe(true)
                         .swipeHorizontal(false)
                         .enableDoubletap(true)
+                        .onPageChange { page, pageCount ->
+                            currentPdfPage = page
+                            totalPdfPages = pageCount
+                            prefs.edit().putInt(pdfPrefKey, page).apply()
+                            pageIndicator.text = "${page + 1} / $pageCount"
+                            pageIndicator.visibility = View.VISIBLE
+                        }
+                        .onLoad { nbPages ->
+                            totalPdfPages = nbPages
+                            pageIndicator.text = "${currentPdfPage + 1} / $nbPages"
+                            pageIndicator.visibility = View.VISIBLE
+                        }
                         .load()
                 }
             } catch (e: Exception) {

@@ -5,12 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.gabai.databinding.FragmentTeacherHomeBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -24,120 +18,126 @@ class TeacherHomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTeacherHomeBinding.inflate(inflater, container, false)
 
-        // 1. OPEN NEW CLASS MANAGEMENT SCREEN
-        binding.btnManageClasses.setOnClickListener {
-            startActivity(Intent(requireContext(), ManageClassesActivity::class.java))
-        }
+        setupButtons()
+        loadEducatorMetrics()
 
-        // 2. OPEN NEW LIBRARY UPLOAD SCREEN
-        binding.btnAssignMaterials.setOnClickListener {
-            startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
-        }
+        // Cascade entrance animation
+        GabAIUtils.animateCascade(
+            listOf(
+                binding.headerEducator,
+                binding.llEducatorMetrics,
+                binding.btnManageClasses,
+                binding.btnAssignMaterials,
+                binding.btnViewPerformance
+            ),
+            35L
+        )
 
         return binding.root
     }
 
-    private fun showAssignMaterialDialog() {
+    private fun loadEducatorMetrics() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+
+        // 1. Classes & Total Enrolled Learners
+        db.collection("classes")
+            .whereEqualTo("teacherId", uid)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                if (_binding != null && isAdded) {
+                    val classCount = snapshots.size()
+                    binding.tvMetricClasses.text = classCount.toString()
+
+                    var totalStudents = 0
+                    for (doc in snapshots.documents) {
+                        val joined = doc.get("joinedStudents") as? List<*>
+                        totalStudents += joined?.size ?: 0
+                    }
+                    binding.tvMetricStudents.text = totalStudents.toString()
+                }
+            }
+
+        // 2. Materials Uploaded/Assigned
+        db.collection("library_materials")
+            .whereEqualTo("uploadedBy", uid)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                if (_binding != null && isAdded) {
+                    binding.tvMetricMaterials.text = snapshots.size().toString()
+                }
+            }
+    }
+
+    private fun setupButtons() {
+        // 1. OPEN CLASS MANAGEMENT
+        GabAIUtils.addSpringPressEffect(binding.btnManageClasses) {
+            startActivity(Intent(requireContext(), ManageClassesActivity::class.java))
+        }
+
+        // 2. OPEN TEACHER LIBRARY
+        GabAIUtils.addSpringPressEffect(binding.btnAssignMaterials) {
+            startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
+        }
+
+        // 3. DIRECT LEARNER ANALYTICS & PERFORMANCE
+        GabAIUtils.addSpringPressEffect(binding.btnViewPerformance) {
+            openClassPerformance()
+        }
+    }
+
+    private fun openClassPerformance() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        GabAIUtils.showGlobalLoading(requireActivity())
 
         db.collection("classes")
             .whereEqualTo("teacherId", uid)
             .get()
-            .addOnSuccessListener { classSnapshots ->
-                if (classSnapshots.isEmpty) {
-                    com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Please create a class section first!")
+            .addOnSuccessListener { snapshots ->
+                GabAIUtils.hideGlobalLoading(requireActivity())
+
+                if (snapshots.isEmpty) {
+                    GabAIUtils.showSnackbar(requireContext(), "Please create a class section first!")
                     return@addOnSuccessListener
                 }
 
-                // 🟢 FIX: Force the grade to show in the dropdown list too!
-                val classNames = classSnapshots.map {
-                    val cName = it.getString("className") ?: ""
-                    val cGrade = it.getString("grade") ?: ""
-                    if (cGrade.isNotEmpty() && !cName.contains(cGrade)) "$cGrade - $cName" else cName
-                }.toTypedArray()
+                if (snapshots.size() == 1) {
+                    val doc = snapshots.documents[0]
+                    launchPerformanceForClass(doc.id, doc.getString("className") ?: "", doc.getString("sectionName") ?: "", doc.getString("schoolId") ?: "", doc.getString("grade") ?: "")
+                } else {
+                    val classNames = snapshots.documents.map {
+                        val cName = it.getString("className") ?: "Class"
+                        val grade = it.getString("grade") ?: ""
+                        if (grade.isNotEmpty()) "$grade - $cName" else cName
+                    }.toTypedArray()
 
-                val classIds = classSnapshots.map { it.id }.toTypedArray()
-
-                val layout = LinearLayout(requireContext()).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(60, 40, 60, 40)
-                }
-
-                val titleInput = EditText(requireContext()).apply { hint = "Reading Title (e.g., The Digital Age)" }
-                val linkInput = EditText(requireContext()).apply {
-                    hint = "Google Drive Link"
-                    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
-                }
-                val summaryInput = EditText(requireContext()).apply {
-                    hint = "Short Summary of the Material"
-                    minLines = 3
-                    gravity = android.view.Gravity.TOP
-                }
-
-                val classLabel = TextView(requireContext()).apply {
-                    text = "Assign to Class:"
-                    setPadding(0, 30, 0, 10)
-                }
-                val classSpinner = Spinner(requireContext()).apply {
-                    adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, classNames)
-                }
-
-                layout.addView(titleInput)
-                layout.addView(linkInput)
-                layout.addView(summaryInput)
-                layout.addView(classLabel)
-                layout.addView(classSpinner)
-
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Assign New Reading Material")
-                    .setView(layout)
-                    .setPositiveButton("Assign") { _, _ ->
-                        val title = titleInput.text.toString().trim()
-                        val summary = summaryInput.text.toString().trim()
-                        val driveUrl = linkInput.text.toString().trim()
-                        val selectedClassId = classIds[classSpinner.selectedItemPosition]
-                        val selectedClassName = classNames[classSpinner.selectedItemPosition]
-
-                        if (title.isEmpty() || summary.isEmpty() || driveUrl.isEmpty()) {
-                            com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Title, Summary, and Link are all required")
-                        } else if (!driveUrl.contains("drive.google.com")) {
-                            com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Please provide a valid Google Drive link")
-                        } else {
-                            saveAssignmentToFirestore(title, summary, driveUrl, selectedClassId, selectedClassName)
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Select Class to View Performance")
+                        .setItems(classNames) { _, which ->
+                            val doc = snapshots.documents[which]
+                            launchPerformanceForClass(doc.id, doc.getString("className") ?: "", doc.getString("sectionName") ?: "", doc.getString("schoolId") ?: "", doc.getString("grade") ?: "")
                         }
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                }
+            }
+            .addOnFailureListener { e ->
+                GabAIUtils.hideGlobalLoading(requireActivity())
+                GabAIUtils.showSnackbar(requireContext(), "Failed to load classes: ${e.message}")
             }
     }
 
-    private fun saveAssignmentToFirestore(title: String, summary: String, pdfUrl: String, classId: String, className: String) {
-        val db = FirebaseFirestore.getInstance()
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
-            val schoolId = userDoc.getString("schoolId") ?: ""
-
-            val assignmentData = hashMapOf(
-                "title" to title,
-                "content" to summary,
-                "pdfUrl" to pdfUrl,
-                "teacherId" to uid,
-                "schoolId" to schoolId,
-                "targetClassId" to classId,
-                "targetClassName" to className,
-                "timestamp" to System.currentTimeMillis()
-            )
-
-            db.collection("library").add(assignmentData)
-                .addOnSuccessListener {
-                    com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Material assigned to $className!")
-                }
-                .addOnFailureListener { e ->
-                    com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Error: ${e.message}")
-                }
+    private fun launchPerformanceForClass(classId: String, className: String, sectionName: String, schoolId: String, grade: String) {
+        val perfIntent = Intent(requireContext(), TeacherPerformanceActivity::class.java).apply {
+            putExtra("CLASS_ID", classId)
+            putExtra("CLASS_NAME", className)
+            putExtra("SECTION_NAME", sectionName)
+            putExtra("SCHOOL_ID", schoolId)
+            putExtra("GRADE", grade)
         }
+        startActivity(perfIntent)
     }
 
     override fun onDestroyView() {

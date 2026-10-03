@@ -2,63 +2,144 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/Widget.GabAI.CardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/space_md"
-    app:contentPadding="@dimen/space_md">
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:strokeColor="#EDF2F7"
+    app:strokeWidth="1dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
+        android:id="@+id/item_click_area"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
+        <!-- Header Row: Word Title Pill & Trash Button -->
         <LinearLayout
-            android:id="@+id/item_click_area"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginEnd="@dimen/space_sm"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_remove_fav">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/fav_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:textAppearance="@style/TextAppearance.GabAI.Title" />
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Vocabulary Word"
+                android:textColor="#1E1B4B"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
-                android:id="@+id/fav_content"
-                android:layout_width="match_parent"
+                android:id="@+id/fav_pos_badge"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_xs"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:textAppearance="@style/TextAppearance.GabAI.Body" />
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_pos_pill"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:paddingHorizontal="7dp"
+                android:paddingVertical="2dp"
+                android:text="NOUN"
+                android:textColor="#5341CD"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/fav_preview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:textAppearance="@style/TextAppearance.GabAI.Caption" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btn_remove_fav"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_btn_frosted_circle"
+                android:contentDescription="@string/cd_delete"
+                android:padding="8dp"
+                android:src="@drawable/ic_trash"
+                app:tint="#94A3B8" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btn_remove_fav"
-            style="@style/Widget.GabAI.IconButton"
-            android:src="@android:drawable/ic_menu_delete"
-            app:tint="@color/text_secondary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:contentDescription="@string/cd_delete" />
+        <!-- Markdown Definition Body -->
+        <TextView
+            android:id="@+id/fav_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/font_nunito_sans"
+            android:textColor="#475569"
+            android:textSize="13sp"
+            android:lineSpacingExtra="2dp"
+            android:maxLines="3"
+            android:ellipsize="end" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- In-Sentence Role Container -->
+        <LinearLayout
+            android:id="@+id/fav_role_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#F8FAFC"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/fav_in_sentence_role"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_nunito_sans"
+                android:textColor="#475569"
+                android:textSize="12sp"
+                android:lineSpacingExtra="1dp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/fav_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <!-- Footer Action Link -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Tap to explore AI overview"
+                android:textColor="#5341CD"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_arrow_back"
+                android:rotation="180"
+                app:tint="#5341CD" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

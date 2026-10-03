@@ -111,4 +111,147 @@ object GabAIUtils {
             rootLayout.removeView(loader)
         }
     }
+
+    // =========================================================================
+    // 🟢 SLEEK FROSTED GLASS & MOTION HELPERS
+    // =========================================================================
+
+    /**
+     * Connects BlurView overlay with a BlurTarget scrolling content container
+     * for real-time hardware-accelerated backdrop blur.
+     */
+    fun setupBlurView(
+        blurView: eightbitlab.com.blurview.BlurView?,
+        blurTarget: eightbitlab.com.blurview.BlurTarget?,
+        radius: Float = 16f,
+        overlayColor: Int = Color.parseColor("#73FFFFFF"),
+        clearDrawable: android.graphics.drawable.Drawable? = null
+    ) {
+        if (blurView == null || blurTarget == null) return
+        try {
+            val facade = blurView.setupWith(blurTarget)
+                .setBlurRadius(radius)
+                .setOverlayColor(overlayColor)
+            if (clearDrawable != null) {
+                facade.setFrameClearDrawable(clearDrawable)
+            }
+        } catch (_: Exception) {}
+    }
+
+    /**
+     * Preserves sharp foreground text and icons (avoids destructive RenderEffect blur on text).
+     */
+    fun applyFrostedGlass(view: View?, blurRadius: Float = 28f) {
+        // RenderEffect on a container blurs all child text and icons into smudges.
+        // True backdrop glass is handled by BlurView or specular glass drawables.
+    }
+
+
+    /**
+     * Bouncy tactile touch feedback (Spring compression & overshoot rebound).
+     */
+    fun addSpringPressEffect(view: View?, onClick: (() -> Unit)? = null) {
+        if (view == null) return
+        view.setOnTouchListener { v, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    v.animate()
+                        .scaleX(0.96f)
+                        .scaleY(0.96f)
+                        .alpha(0.92f)
+                        .setDuration(100)
+                        .setInterpolator(android.view.animation.DecelerateInterpolator())
+                        .start()
+                }
+                android.view.MotionEvent.ACTION_UP -> {
+                    v.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .alpha(1.0f)
+                        .setDuration(180)
+                        .setInterpolator(android.view.animation.OvershootInterpolator(1.4f))
+                        .withEndAction {
+                            onClick?.invoke() ?: v.performClick()
+                        }
+                        .start()
+                }
+                android.view.MotionEvent.ACTION_CANCEL -> {
+                    v.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .alpha(1.0f)
+                        .setDuration(140)
+                        .start()
+                }
+            }
+            true
+        }
+    }
+
+    /**
+     * Staggered cascade entrance animation for cards/items.
+     */
+    fun animateCascade(views: List<View>, baseDelay: Long = 45L) {
+        views.forEachIndexed { index, view ->
+            view.alpha = 0f
+            view.translationY = 50f
+            view.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setStartDelay(index * baseDelay)
+                .setDuration(280)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .start()
+        }
+    }
+
+    /**
+     * Smoothly interpolates progress bar fill without snapping.
+     */
+    fun animateProgress(progressBar: ProgressBar?, targetProgress: Int, duration: Long = 750L) {
+        if (progressBar == null) return
+        val anim = android.animation.ObjectAnimator.ofInt(
+            progressBar,
+            "progress",
+            progressBar.progress,
+            targetProgress
+        )
+        anim.duration = duration
+        anim.interpolator = android.view.animation.DecelerateInterpolator()
+        anim.start()
+    }
+
+    /**
+     * Tactile haptic feedback for user interactions.
+     */
+    fun performHaptic(view: View?, feedbackConstant: Int = android.view.HapticFeedbackConstants.VIRTUAL_KEY) {
+        view?.performHapticFeedback(feedbackConstant, android.view.HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
+    }
+
+    /**
+     * Safe Undo SnackBar with 4-second delay before committing destructive actions.
+     */
+    fun showUndoSnackbar(view: View?, message: String, actionText: String = "Undo", onUndo: () -> Unit) {
+        if (view == null) return
+        val snackbar = Snackbar.make(view, message, 4000)
+            .setAction(actionText) { onUndo() }
+            .setActionTextColor(Color.parseColor("#5341CD"))
+        snackbar.show()
+    }
+
+    /**
+     * Uncaps display refresh rate to hardware maximum (90Hz / 120Hz).
+     */
+    fun applyHardwareMaxRefreshRate(activity: Activity?) {
+        if (activity == null) return
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val disp = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) activity.display else activity.windowManager.defaultDisplay
+            val maxMode = disp?.supportedModes?.maxByOrNull { it.refreshRate }
+            if (maxMode != null) {
+                val params = activity.window.attributes
+                params.preferredDisplayModeId = maxMode.modeId
+                activity.window.attributes = params
+            }
+        }
+    }
 }

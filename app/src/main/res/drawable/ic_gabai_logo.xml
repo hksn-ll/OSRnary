@@ -1,0 +1,192 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="512dp"
+    android:height="512dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- 1. Background Squircle with 3-stop purple gradient -->
+    <path
+        android:pathData="M 146,36 L 366,36 C 427,36 476,85 476,146 L 476,366 C 476,427 427,476 366,476 L 146,476 C 85,476 36,427 36,366 L 36,146 C 36,85 85,36 146,36 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="36"
+                android:startY="36"
+                android:endX="476"
+                android:endY="476">
+                <item android:color="#FF705CF6" android:offset="0.0" />
+                <item android:color="#FF5341CD" android:offset="0.5" />
+                <item android:color="#FF3B28B5" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 2. Ambient Accent Glow inside squircle (top-right & bottom-left) -->
+    <!-- Top-Right Bloom -->
+    <path
+        android:pathData="M 390,110 m -140,0 a 140,140 0 1,1 280,0 a 140,140 0 1,1 -280,0"
+        android:fillAlpha="0.35">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="390"
+                android:centerY="110"
+                android:gradientRadius="140">
+                <item android:color="#FFFF6EC7" android:offset="0.0" />
+                <item android:color="#80A31E79" android:offset="0.6" />
+                <item android:color="#0000F5D4" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Bottom-Left Mint Bloom -->
+    <path
+        android:pathData="M 120,400 m -120,0 a 120,120 0 1,1 240,0 a 120,120 0 1,1 -240,0"
+        android:fillColor="#00B894"
+        android:fillAlpha="0.25" />
+
+    <!-- 3. Glass Gloss Stroke Highlight -->
+    <path
+        android:pathData="M 146,38 L 366,38 C 426,38 474,86 474,146 L 474,366 C 474,426 426,474 366,474 L 146,474 C 86,474 38,426 38,366 L 38,146 C 38,86 86,38 146,38 Z"
+        android:strokeWidth="4">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="38"
+                android:startY="38"
+                android:endX="474"
+                android:endY="386">
+                <item android:color="#73FFFFFF" android:offset="0.0" />
+                <item android:color="#1AFFFFFF" android:offset="0.4" />
+                <item android:color="#00FFFFFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 4. Top Glass Sheen -->
+    <path
+        android:pathData="M 36,146 C 36,85 85,36 146,36 L 366,36 C 427,36 476,85 476,146 C 476,190 420,220 256,220 C 92,220 36,190 36,146 Z"
+        android:fillAlpha="0.5">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="256"
+                android:startY="36"
+                android:endX="256"
+                android:endY="220">
+                <item android:color="#73FFFFFF" android:offset="0.0" />
+                <item android:color="#1AFFFFFF" android:offset="0.5" />
+                <item android:color="#00FFFFFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 5. Open Book Artwork (Offset y+8) -->
+    <group android:translateY="8">
+        <!-- Book Base Shadow -->
+        <path
+            android:pathData="M 256,340 m -140,0 a 140,18 0 1,0 280,0 a 140,18 0 1,0 -280,0"
+            android:fillColor="#1E1463"
+            android:fillAlpha="0.35" />
+
+        <!-- Spine & Cover Base -->
+        <path
+            android:pathData="M 256,314 C 220,300 160,300 108,318 L 108,200 C 160,182 220,182 256,198 C 292,182 352,182 404,200 L 404,318 C 352,300 292,300 256,314 Z"
+            android:fillColor="#2E1C91"
+            android:fillAlpha="0.5" />
+
+        <!-- Left Page Wing -->
+        <path
+            android:pathData="M 250,306 C 215,292 160,292 114,308 C 110,309 106,306 106,302 L 106,186 C 106,182 110,178 114,177 C 160,162 215,162 250,177 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="106"
+                    android:startY="240"
+                    android:endX="250"
+                    android:endY="240">
+                    <item android:color="#FFE8E2FF" android:offset="0.0" />
+                    <item android:color="#FFFFFFFF" android:offset="1.0" />
+                </gradient>
+            </aapt:attr>
+        </path>
+
+        <!-- Right Page Wing -->
+        <path
+            android:pathData="M 262,306 C 297,292 352,292 398,308 C 402,309 406,306 406,302 L 406,186 C 406,182 402,178 398,177 C 352,162 297,162 262,177 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="262"
+                    android:startY="240"
+                    android:endX="406"
+                    android:endY="240">
+                    <item android:color="#FFFFFFFF" android:offset="0.0" />
+                    <item android:color="#FFD9CEFF" android:offset="1.0" />
+                </gradient>
+            </aapt:attr>
+        </path>
+
+        <!-- Book Center Seam -->
+        <path
+            android:pathData="M 256,172 L 256,308"
+            android:strokeColor="#5341CD"
+            android:strokeWidth="4"
+            android:strokeLineCap="round" />
+
+        <!-- Left Page Reading Lines -->
+        <path
+            android:pathData="M 139.5,202 L 208.5,202 A 3.5,3.5 0 0,1 212,205.5 A 3.5,3.5 0 0,1 208.5,209 L 139.5,209 A 3.5,3.5 0 0,1 136,205.5 A 3.5,3.5 0 0,1 139.5,202 Z"
+            android:fillColor="#5341CD"
+            android:fillAlpha="0.22" />
+        <path
+            android:pathData="M 139.5,222 L 216.5,222 A 3.5,3.5 0 0,1 220,225.5 A 3.5,3.5 0 0,1 216.5,229 L 139.5,229 A 3.5,3.5 0 0,1 136,225.5 A 3.5,3.5 0 0,1 139.5,222 Z"
+            android:fillColor="#5341CD"
+            android:fillAlpha="0.22" />
+        <path
+            android:pathData="M 139.5,242 L 192.5,242 A 3.5,3.5 0 0,1 196,245.5 A 3.5,3.5 0 0,1 192.5,249 L 139.5,249 A 3.5,3.5 0 0,1 136,245.5 A 3.5,3.5 0 0,1 139.5,242 Z"
+            android:fillColor="#5341CD"
+            android:fillAlpha="0.22" />
+
+        <!-- Right Page Reading Lines -->
+        <path
+            android:pathData="M 295.5,202 L 372.5,202 A 3.5,3.5 0 0,1 376,205.5 A 3.5,3.5 0 0,1 372.5,209 L 295.5,209 A 3.5,3.5 0 0,1 292,205.5 A 3.5,3.5 0 0,1 295.5,202 Z"
+            android:fillColor="#5341CD"
+            android:fillAlpha="0.22" />
+        <path
+            android:pathData="M 295.5,222 L 360.5,222 A 3.5,3.5 0 0,1 364,225.5 A 3.5,3.5 0 0,1 360.5,229 L 295.5,229 A 3.5,3.5 0 0,1 292,225.5 A 3.5,3.5 0 0,1 295.5,222 Z"
+            android:fillColor="#5341CD"
+            android:fillAlpha="0.22" />
+        <path
+            android:pathData="M 295.5,242 L 368.5,242 A 3.5,3.5 0 0,1 372,245.5 A 3.5,3.5 0 0,1 368.5,249 L 295.5,249 A 3.5,3.5 0 0,1 292,245.5 A 3.5,3.5 0 0,1 295.5,242 Z"
+            android:fillColor="#5341CD"
+            android:fillAlpha="0.22" />
+
+        <!-- 6. AI Sparks -->
+        <!-- Primary 4-Point AI Spark (Teal Glow + White Core) -->
+        <path
+            android:pathData="M 256,94 Q 256,136 298,136 Q 256,136 256,178 Q 256,136 214,136 Q 256,136 256,94 Z"
+            android:fillColor="#00F5D4" />
+        <path
+            android:pathData="M 256,104 Q 256,136 288,136 Q 256,136 256,168 Q 256,136 224,136 Q 256,136 256,104 Z"
+            android:fillColor="#FFFFFF" />
+
+        <!-- Secondary Mini Pink Spark (Pink Glow + White Core) -->
+        <path
+            android:pathData="M 342,120 Q 342,138 360,138 Q 342,138 342,156 Q 342,138 324,138 Q 342,138 342,120 Z"
+            android:fillColor="#FFB4E6"
+            android:fillAlpha="0.9" />
+        <path
+            android:pathData="M 342,126 Q 342,138 354,138 Q 342,138 342,150 Q 342,138 330,138 Q 342,138 342,126 Z"
+            android:fillColor="#FFFFFF" />
+
+        <!-- Tertiary Floating Teal Pip -->
+        <path
+            android:pathData="M 176,144 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0"
+            android:fillColor="#00F5D4" />
+        <path
+            android:pathData="M 176,144 m -3.5,0 a 3.5,3.5 0 1,0 7,0 a 3.5,3.5 0 1,0 -7,0"
+            android:fillColor="#FFFFFF" />
+    </group>
+</vector>

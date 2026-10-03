@@ -1,5 +1,5 @@
 <resources>
-    <style name="Base.Theme.GabAI" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.GabAI" parent="Theme.Material3.Light.NoActionBar">
         <!-- Brand color system -->
         <item name="colorPrimary">@color/brand_primary</item>
         <item name="colorOnPrimary">@color/on_primary</item>
@@ -31,6 +31,14 @@
 
     <style name="Theme.GabAI" parent="Base.Theme.GabAI">
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowAnimationStyle">@style/SleekActivityAnimation</item>
+    </style>
+
+    <style name="SleekActivityAnimation" parent="">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_scale_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_scale_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_scale_pop_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_scale_pop_exit</item>
     </style>
 
     <style name="Theme.GabAI.Fade" parent="Theme.GabAI">
@@ -40,5 +48,12 @@
     <style name="FadeAnimation" parent="">
         <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>
         <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="Theme.GabAI.Splash" parent="Theme.GabAI">
+        <item name="android:windowBackground">@drawable/bg_splash_aurora</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 </resources>

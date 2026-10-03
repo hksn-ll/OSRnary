@@ -1,85 +1,355 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="#F8F9FA">
-
-    <TextView
-        android:id="@+id/tvTeacherWelcome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Educator Dashboard"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Manage your classrooms and distribute materials to your students."
-        android:textSize="14sp"
-        android:textColor="@color/text_secondary"
-        android:layout_marginBottom="32dp"/>
+    android:background="@drawable/bg_app_aurora"
+    android:fillViewport="true">
 
     <LinearLayout
-        android:id="@+id/btnManageClasses"
+        android:id="@+id/teacher_home_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_card_history"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_marginBottom="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="4dp">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="28dp">
 
-        <TextView
-            android:text="Class Sections"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <!-- Educator Hero Header -->
+        <LinearLayout
+            android:id="@+id/header_educator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
 
-        <TextView
-            android:text="Create sections, manage rosters, and generate student accounts."
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="4dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EDUCATOR CONSOLE"
+                android:textColor="#5341CD"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:id="@+id/tvTeacherWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Educator Dashboard"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#161D1F"
+                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Manage your classrooms, assign curriculum readings, and inspect learner performance."
+                android:textSize="14sp"
+                android:textColor="#5A6472"
+                android:fontFamily="@font/font_plus_jakarta_sans" />
+        </LinearLayout>
+
+        <!-- Educator Quick Metrics Bento Row -->
+        <LinearLayout
+            android:id="@+id/ll_educator_metrics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <!-- Metric 1: Classes -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Stitch.Card"
+                android:layout_width="0dp"
+                android:layout_height="88dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_metric_classes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#5341CD"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Classes"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Metric 2: Enrolled Learners -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Stitch.Card"
+                android:layout_width="0dp"
+                android:layout_height="88dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="3dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_metric_students"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#00B894"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Learners"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Metric 3: Materials Assigned -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Stitch.Card"
+                android:layout_width="0dp"
+                android:layout_height="88dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_metric_materials"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#E11D48"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Readings"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Bento Card 1: Class Sections -->
+        <LinearLayout
+            android:id="@+id/btnManageClasses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_card_bento"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="20dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_btn_frosted_circle"
+                android:padding="12dp"
+                android:src="@drawable/ic_school"
+                app:tint="#5341CD" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Class Sections &amp; Rosters"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#161D1F"
+                    android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Manage sections, student rosters, and credentials"
+                    android:textSize="13sp"
+                    android:textColor="#5A6472"
+                    android:fontFamily="@font/font_plus_jakarta_sans" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_chevron_right_white"
+                app:tint="#5341CD" />
+        </LinearLayout>
+
+        <!-- Bento Card 2: Assign Materials -->
+        <LinearLayout
+            android:id="@+id/btnAssignMaterials"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_card_bento"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="20dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_btn_frosted_circle"
+                android:padding="12dp"
+                android:src="@drawable/ic_menu_book"
+                app:tint="#00B894" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Curriculum &amp; Library"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#161D1F"
+                    android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Distribute reading PDFs and assign materials"
+                    android:textSize="13sp"
+                    android:textColor="#5A6472"
+                    android:fontFamily="@font/font_plus_jakarta_sans" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_chevron_right_white"
+                app:tint="#00B894" />
+        </LinearLayout>
+
+        <!-- Bento Card 3: Direct Performance & Analytics -->
+        <LinearLayout
+            android:id="@+id/btnViewPerformance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_card_bento"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="20dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_btn_frosted_circle"
+                android:padding="12dp"
+                android:src="@drawable/ic_insights"
+                app:tint="#0984E3" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Learner Analytics &amp; Mastery"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#161D1F"
+                    android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Track quiz accuracy, active streaks, and rankings"
+                    android:textSize="13sp"
+                    android:textColor="#5A6472"
+                    android:fontFamily="@font/font_plus_jakarta_sans" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_chevron_right_white"
+                app:tint="#0984E3" />
+        </LinearLayout>
+
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/btnAssignMaterials"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_card_quiz"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_marginBottom="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="4dp">
-
-        <TextView
-            android:text="Assign Materials"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:text="Distribute PDFs and external links to specific class sections."
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="4dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

@@ -28,6 +28,10 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var correctWord: String
     private var startTime: Long = 0
 
+    // Combo streak tracking
+    private var comboStreak = 0
+    private var maxComboStreak = 0
+
     private var currentDocId: String? = null
     private var currentInterval: Int = 1
 
@@ -41,6 +45,7 @@ class QuizActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_quiz)
 
         // Fix Status Bar
@@ -297,37 +302,58 @@ private fun parseAndDisplayQuiz(rawResult: String) {
         cleanCorrect = cleanCorrect.replace(Regex("^[A-D][\\)\\.]"), "").trim()
         correctWord = cleanCorrect
 
-        findViewById<TextView>(R.id.question_text).text = question
+        animateCardFlip {
+            findViewById<TextView>(R.id.question_text).text = question
 
-        val buttons = listOf(
-            findViewById<Button>(R.id.btn_choice1),
-            findViewById<Button>(R.id.btn_choice2),
-            findViewById<Button>(R.id.btn_choice3),
-            findViewById<Button>(R.id.btn_choice4)
-        )
+            val buttons = listOf(
+                findViewById<Button>(R.id.btn_choice1),
+                findViewById<Button>(R.id.btn_choice2),
+                findViewById<Button>(R.id.btn_choice3),
+                findViewById<Button>(R.id.btn_choice4)
+            )
 
-        for (i in buttons.indices) {
-            if (i < options.size) {
-                buttons[i].visibility = View.VISIBLE
-                buttons[i].text = options[i]
-                buttons[i].setOnClickListener { checkAnswer(options[i]) }
-            } else {
-                buttons[i].visibility = View.GONE // Hide extra buttons if AI generates fewer than 4
+            for (i in buttons.indices) {
+                if (i < options.size) {
+                    buttons[i].visibility = View.VISIBLE
+                    buttons[i].text = options[i]
+                    buttons[i].setOnClickListener { checkAnswer(options[i]) }
+                } else {
+                    buttons[i].visibility = View.GONE // Hide extra buttons if AI generates fewer than 4
+                }
             }
-        }
 
-        findViewById<View>(R.id.options_container).visibility = View.VISIBLE
-        startTime = System.currentTimeMillis() // Start timing for SRS!
+            findViewById<View>(R.id.options_container).visibility = View.VISIBLE
+            startTime = System.currentTimeMillis() // Start timing for SRS!
+        }
 
     } catch (e: Exception) {
         startNewQuestion() // If AI hallucinated the format heavily, skip to the next word safely
     }
 }
 
+    private fun animateCardFlip(onHalfway: () -> Unit) {
+        val card = findViewById<View>(R.id.question_card)
+        if (card == null) {
+            onHalfway()
+            return
+        }
+        card.cameraDistance = 8000f * resources.displayMetrics.density
+        card.animate()
+            .rotationY(90f)
+            .setDuration(150)
+            .setInterpolator(android.view.animation.AccelerateInterpolator())
+            .withEndAction {
+                onHalfway()
+                card.rotationY = -90f
+                card.animate()
+                    .rotationY(0f)
+                    .setDuration(150)
+                    .setInterpolator(android.view.animation.DecelerateInterpolator())
+                    .start()
+            }
+            .start()
+    }
 
-    // ========================================================================
-    // CHECK ANSWER & HAUNT FAILED WORDS
-    // ========================================================================
     // ========================================================================
     // CHECK ANSWER & HAUNT FAILED WORDS
     // ========================================================================
@@ -349,19 +375,33 @@ private fun parseAndDisplayQuiz(rawResult: String) {
         )
         sessionResults.add(resultItem)
 
-        // 2. SRS & Haunting Logic
+        // 2. SRS & Combo Logic
+        val comboBadge = findViewById<TextView>(R.id.tv_combo_streak)
         if (isCorrect) {
             score++
+            comboStreak++
+            if (comboStreak > maxComboStreak) maxComboStreak = comboStreak
             updateSRSMetadata(true, responseTime)
-            com.example.gabai.GabAIUtils.showSnackbar(this, "Correct! (${responseTime / 1000}s)")
-        } else {
-            updateSRSMetadata(false, responseTime)
-            com.example.gabai.GabAIUtils.showSnackbar(this, "Wrong! Answer: $rightAnswer")
 
-            // --- THE HAUNTING FIXED ---
-            // We NO LONGER add the word back into the current session queue here.
-            // updateSRSMetadata() already penalized this word and set it to reappear in 30 seconds.
-            // It will haunt them in their NEXT quiz session instead of dragging this one out!
+            if (comboStreak >= 2) {
+                comboBadge?.text = "🔥 ${comboStreak}x Combo"
+                comboBadge?.visibility = View.VISIBLE
+                comboBadge?.animate()?.scaleX(1.25f)?.scaleY(1.25f)?.setDuration(100)?.withEndAction {
+                    comboBadge.animate()?.scaleX(1.0f)?.scaleY(1.0f)?.setDuration(100)?.start()
+                }?.start()
+                GabAIUtils.performHaptic(comboBadge, android.view.HapticFeedbackConstants.CONFIRM)
+                GabAIUtils.showSnackbar(this, "🔥 ${comboStreak}x Combo! Correct! (${responseTime / 1000}s)")
+            } else {
+                comboBadge?.visibility = View.GONE
+                GabAIUtils.performHaptic(comboBadge, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                GabAIUtils.showSnackbar(this, "Correct! (${responseTime / 1000}s)")
+            }
+        } else {
+            comboStreak = 0
+            comboBadge?.visibility = View.GONE
+            updateSRSMetadata(false, responseTime)
+            GabAIUtils.performHaptic(comboBadge, android.view.HapticFeedbackConstants.REJECT)
+            GabAIUtils.showSnackbar(this, "Wrong! Answer: $rightAnswer")
         }
 
         // 3. Move to the next word in the queue
@@ -432,7 +472,8 @@ private fun parseAndDisplayQuiz(rawResult: String) {
 
         // --- TURN THE REAL SCORE BACK ON ---
         scoreText.visibility = View.VISIBLE
-        scoreText.text = "Session Complete!\nYou scored $score / $totalAttempts"
+        val streakMsg = if (maxComboStreak >= 2) "\n🔥 Best Streak: ${maxComboStreak}x Combo!" else ""
+        scoreText.text = "Session Complete!\nYou scored $score / $totalAttempts$streakMsg"
 
         val btnRestart = findViewById<Button>(R.id.btn_restart)
         btnRestart.text = "Return to Dashboard"

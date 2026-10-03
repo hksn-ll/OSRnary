@@ -1,11 +1,11 @@
 {
-  "versionCode": 12,
-  "versionName": "0.3.8-nightly",
-  "minRequiredVersionCode": 12,
-  "forceUpdate": true,
-  "title": "School Admin Permissions & SDO Direct Provisioning",
-  "message": "GabAI v0.3.8 fixes Firestore permissions for School Admin onboarding and adds direct provisioning in the Admin Portal!",
+  "versionCode": 14,
+  "versionName": "0.4.0",
+  "minRequiredVersionCode": 14,
+  "forceUpdate": false,
+  "title": "Milestone: Dynamic Brand Splash, Staggered Navigation & Stitch Bento UX Overhaul",
+  "message": "GabAI v0.4.0 is a major milestone: Dynamic vector brand splash screen with frosted glass blooming, glitch-free staggered tab navigation, Google Stitch Profile Bento, Olympic Podium Leaderboard, and Companion ergonomics!",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• School Admin Claim Fix: Eliminates race conditions in onAuthStateChanged and adds graceful fallback for unauthenticated invite reads\n• SDO Direct Admin Provisioning: Division Super Admins can now directly create and authorize School Administrators for any campus\n• Comprehensive Firestore Security Rules: Added airtight firestore.rules covering school_admin_invites, users, and schools\n• Faculty Registry Role Management: Super Admins can now promote and assign educators to School Administrator roles"
+  "changelog": "• Dynamic Brand Splash: Vector logo with expanding book wings, blooming frosted glass orbs, and specular reflection arcs\n• Instant Cold Boot: Aurora ambient window canvas eliminating static startup freeze, paired with parallel Firestore pre-warming\n• Glitch-Free Tab Navigation: Staggered dissolve-and-glide transition between Home and Profile eliminating ghosting overlap and visual snap-backs\n• Permanent Light Mode: Enforced clean, consistent light mode across all system theme settings\n• Profile Bento Revamp: Complete redesign with Google Stitch bento cards, monogram avatar, full 30-school lookup, and lifetime stats\n• Companion Ergonomics: Magnetic screen-edge snapping and bottom drag-to-dismiss dock\n• Overview & Reading: Shimmer skeleton loading state, TTS speech speed selector (0.75x, 1.0x, 1.25x), PDF page memory & jump-to-page dialog\n• Gamification Polish: Top-3 Olympic podium leaderboard with sticky 'You' bar, 2-column Trophy Case, 3D quiz flashcard flip & combo streak multipliers\n• Safe Workflows: 4-second Undo SnackBars on deletes, assessment question palette & back-press exit protection\n• Educator Console: Quick metrics overview and masked student credentials with 1-tap copy"
 }

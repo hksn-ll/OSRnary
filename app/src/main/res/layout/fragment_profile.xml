@@ -1,30 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scroll_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    android:background="@android:color/transparent"
+    android:clipToPadding="false"
+    android:paddingTop="76dp"
+    android:paddingBottom="96dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="My Profile"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp"
-            android:textColor="@color/text_primary"/>
-
-        <androidx.cardview.widget.CardView
+        <!-- ============================================================= -->
+        <!-- HEADER                                                        -->
+        <!-- ============================================================= -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:paddingHorizontal="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Profile"
+                android:textColor="#0F172A"
+                android:textSize="26sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Personal learning identity &amp; account settings"
+                android:textColor="#64748B"
+                android:textSize="13sp"
+                android:fontFamily="@font/font_nunito_sans" />
+        </LinearLayout>
+
+        <!-- ============================================================= -->
+        <!-- 1. USER IDENTITY BENTO CARD                                    -->
+        <!-- ============================================================= -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Stitch.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            app:cardCornerRadius="22dp"
             app:cardElevation="2dp"
-            android:layout_marginBottom="24dp">
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeWidth="1dp"
+            app:strokeColor="#EDF2F7">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -32,39 +65,509 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <TextView android:id="@+id/tv_profile_name" android:text="Loading Name..." android:textSize="20sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <TextView android:id="@+id/tv_profile_email" android:text="email@school.ph" android:textColor="@color/text_secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="16dp"/>
-
-                <TextView android:id="@+id/tv_profile_school" android:text="School: -" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <TextView
-                    android:id="@+id/tv_profile_grade"
-                    android:text="Grade: -"
-                    android:textSize="14sp"
-                    android:layout_width="wrap_content"
+                <!-- Top Profile Identity Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"/>
-                <TextView android:id="@+id/tv_profile_section" android:text="Section: -" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-        <TextView
+                    <!-- Avatar Monogram -->
+                    <FrameLayout
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/bg_bento_purple">
+
+                        <TextView
+                            android:id="@+id/tv_avatar_monogram"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="G"
+                            android:textColor="#5341CD"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
+                    <!-- User Name & Role -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/tv_profile_name"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Loading Name..."
+                                android:textColor="#0F172A"
+                                android:textSize="18sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_profile_role_badge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_tag_k12"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="3dp"
+                                android:text="STUDENT"
+                                android:textColor="#5341CD"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_profile_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="email@school.ph"
+                            android:textColor="#64748B"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/font_nunito_sans" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#EDF2F7"
+                    android:layout_marginVertical="16dp" />
+
+                <!-- School Affiliation -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_school"
+                        app:tint="#5341CD" />
+
+                    <TextView
+                        android:id="@+id/tv_profile_school"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="School: -"
+                        android:textColor="#0F172A"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Grade & Section Pills -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_profile_grade"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#F1F5F9"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:text="Grade: -"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_profile_section"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#F1F5F9"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:text="Section: -"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============================================================= -->
+        <!-- 2. LEARNER LIFETIME STATS BENTO                               -->
+        <!-- ============================================================= -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Settings"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:layout_marginBottom="12dp"
-            android:textColor="@color/text_primary"/>
+            android:paddingHorizontal="4dp">
 
-        <androidx.cardview.widget.CardView
+            <View
+                android:layout_width="3dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="8dp"
+                android:background="#5341CD" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LEARNING STATS"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+        </LinearLayout>
+
+        <!-- Row 1: Words Mastered + Accuracy -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
 
+            <!-- Words Mastered -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Stitch.Card"
+                android:layout_width="0dp"
+                android:layout_height="110dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="5dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@drawable/bg_bento_mint"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_bookmark_outline"
+                            app:tint="#00B894" />
+
+                        <TextView
+                            android:id="@+id/tv_stat_words_mastered"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="0"
+                            android:textColor="#0F172A"
+                            android:textSize="22sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Words Mastered"
+                        android:textColor="#0F172A"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Interval 4+ words"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Accuracy -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Stitch.Card"
+                android:layout_width="0dp"
+                android:layout_height="110dp"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@drawable/bg_bento_purple"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_insights"
+                            app:tint="#5341CD" />
+
+                        <TextView
+                            android:id="@+id/tv_stat_accuracy"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="0%"
+                            android:textColor="#0F172A"
+                            android:textSize="22sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quiz Accuracy"
+                        android:textColor="#0F172A"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Recall sessions"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Row 2: Level & Streak -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <!-- Quizzes Taken -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Stitch.Card"
+                android:layout_width="0dp"
+                android:layout_height="110dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="5dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@drawable/bg_bento_rose"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_psychology"
+                            app:tint="#E11D48" />
+
+                        <TextView
+                            android:id="@+id/tv_stat_quizzes_taken"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="0"
+                            android:textColor="#0F172A"
+                            android:textSize="22sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quizzes Taken"
+                        android:textColor="#0F172A"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Knowledge checks"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Study Streak -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Stitch.Card"
+                android:layout_width="0dp"
+                android:layout_height="110dp"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@drawable/bg_bento_lavender"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_task_alt"
+                            app:tint="#D97706" />
+
+                        <TextView
+                            android:id="@+id/tv_stat_streak"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="0d"
+                            android:textColor="#0F172A"
+                            android:textSize="22sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Study Streak"
+                        android:textColor="#0F172A"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Daily practice"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- ============================================================= -->
+        <!-- 3. PREFERENCES & SETTINGS BENTO CARD                           -->
+        <!-- ============================================================= -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp"
+            android:paddingHorizontal="4dp">
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="8dp"
+                android:background="#5341CD" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PREFERENCES &amp; APP"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Stitch.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#EDF2F7">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -77,15 +580,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    android:hint="AI Explanation Language">
+                    android:hint="AI Explanation Language"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeColor="#5341CD">
 
                     <AutoCompleteTextView
                         android:id="@+id/actv_language"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"
-                        android:padding="16dp" />
-
+                        android:padding="16dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textColor="#0F172A"
+                        android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <View
@@ -93,6 +603,7 @@
                     android:layout_height="1dp"
                     android:background="#EDF2F7" />
 
+                <!-- Check for Updates -->
                 <LinearLayout
                     android:id="@+id/row_check_update"
                     android:layout_width="match_parent"
@@ -118,11 +629,14 @@
                         android:id="@+id/tv_app_version_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_nunito_sans"
+                        android:background="@drawable/bg_tag_k12"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textColor="#5341CD"
-                        android:textSize="13sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
-                        android:text="v0.3.2" />
+                        android:text="v0.3.8" />
                 </LinearLayout>
 
                 <View
@@ -130,18 +644,36 @@
                     android:layout_height="1dp"
                     android:background="#EDF2F7" />
 
-                <Button
+                <!-- Log Out Button -->
+                <LinearLayout
                     android:id="@+id/btn_logout"
-                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="Log Out"
-                    android:textColor="#D63031"
-                    android:gravity="start|center_vertical"
-                    android:paddingStart="20dp"
-                    android:textSize="16sp"/>
+                    android:layout_height="56dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_close_bold"
+                        app:tint="#E11D48" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="Log Out"
+                        android:textColor="#E11D48"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

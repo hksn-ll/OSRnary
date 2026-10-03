@@ -5,142 +5,206 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.GridLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class AchievementsActivity : AppCompatActivity() {
 
-    // Data class to define our Badges
     data class Badge(
         val title: String,
         val description: String,
         val isUnlocked: Boolean,
         val iconResId: Int,
-        val colorHex: String
+        val colorHex: String,
+        val unlockCriteria: String
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_achievements)
 
-        // Fix Status Bar Overlap
         val header = findViewById<View>(R.id.achievements_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        GabAIUtils.applyFrostedGlass(header, 28f)
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
+        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        GabAIUtils.addSpringPressEffect(btnBack) {
+            finish()
+        }
 
         loadBadges()
     }
 
     private fun loadBadges() {
-        val container = findViewById<LinearLayout>(R.id.badges_container)
-        container.removeAllViews()
+        val grid = findViewById<GridLayout>(R.id.trophy_grid_container)
+        grid.removeAllViews()
 
-        // 1. Fetch Student Stats Locally (Lightning Fast!)
         val currentLevel = XPManager.getLevel(this)
         val currentStreak = QuestManager.getStreak(this)
 
-        // 2. Define the Badge Rules
         val badges = listOf(
             Badge(
                 "Apprentice Initiate",
-                "Complete your initiation and reach Level 2.",
+                "Complete your onboarding initiation and reach Level 2.",
                 currentLevel >= 2,
-                android.R.drawable.ic_dialog_info,
-                "#0984E3" // Blue
+                R.drawable.ic_badge_check,
+                "#5341CD",
+                "Requires Level 2"
             ),
             Badge(
                 "Rising Star",
-                "Maintain a 3-Day Learning Streak.",
+                "Maintain a 3-Day active learning streak.",
                 currentStreak >= 3,
-                android.R.drawable.ic_menu_today,
-                "#D35400" // Orange/Fire
+                R.drawable.ic_star_filled,
+                "#F59E0B",
+                "Requires 3-Day Streak"
             ),
             Badge(
                 "The Scholar",
-                "Reach Level 5 by earning XP.",
+                "Ascend to Level 5 through focused study and reading.",
                 currentLevel >= 5,
-                android.R.drawable.btn_star_big_on,
-                "#F1C40F" // Gold
+                R.drawable.ic_school,
+                "#10B981",
+                "Requires Level 5"
             ),
             Badge(
-                "Unstoppable",
-                "Maintain a massive 7-Day Learning Streak.",
+                "Mind Over Matter",
+                "Harness your intellect and reach Level 10.",
+                currentLevel >= 10,
+                R.drawable.ic_psychology,
+                "#6366F1",
+                "Requires Level 10"
+            ),
+            Badge(
+                "Unstoppable Force",
+                "Maintain a legendary 7-Day learning streak.",
                 currentStreak >= 7,
-                android.R.drawable.ic_menu_sort_by_size,
-                "#6C5CE7" // Purple
+                R.drawable.ic_military_tech,
+                "#E11D48",
+                "Requires 7-Day Streak"
+            ),
+            Badge(
+                "Grandmaster",
+                "Achieve true mastery by reaching Level 15.",
+                currentLevel >= 15,
+                R.drawable.ic_insights,
+                "#8B5CF6",
+                "Requires Level 15"
             )
         )
 
-        // 3. Build the UI for each badge
-        for (badge in badges) {
-            val card = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setBackgroundResource(R.drawable.bg_card_quiz)
-                setPadding(40, 40, 40, 40)
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply { setMargins(0, 0, 0, 24) }
+        // Summary Progress
+        val unlockedCount = badges.count { it.isUnlocked }
+        val totalCount = badges.size
+        findViewById<TextView>(R.id.tv_trophy_count).text = "$unlockedCount / $totalCount"
+        val progressPct = if (totalCount > 0) ((unlockedCount.toFloat() / totalCount) * 100).toInt() else 0
+        val progressBar = findViewById<ProgressBar>(R.id.progress_trophy_completion)
+        GabAIUtils.animateProgress(progressBar, progressPct)
 
-                // Slight elevation for unlocked, flat for locked
-                elevation = if (badge.isUnlocked) 6f else 1f
-                alpha = if (badge.isUnlocked) 1.0f else 0.6f // Dim if locked
+        val fontJakarta = try {
+            ResourcesCompat.getFont(this, R.font.font_plus_jakarta_sans)
+        } catch (_: Exception) {
+            null
+        }
+
+        val cardViews = mutableListOf<View>()
+        val density = resources.displayMetrics.density
+
+        for (badge in badges) {
+            val card = MaterialCardView(this).apply {
+                radius = 18 * density
+                cardElevation = 1 * density
+                setStrokeColor(Color.parseColor(if (badge.isUnlocked) "#EDF2F7" else "#F1F5F9"))
+                strokeWidth = (1 * density).toInt()
+                setCardBackgroundColor(Color.WHITE)
+
+                val params = GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = GridLayout.LayoutParams.WRAP_CONTENT
+                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                    setMargins((6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt())
+                }
+                layoutParams = params
+
+                alpha = if (badge.isUnlocked) 1.0f else 0.6f
             }
 
-            // Badge Icon
+            val content = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER_HORIZONTAL
+                setPadding((14 * density).toInt(), (18 * density).toInt(), (14 * density).toInt(), (18 * density).toInt())
+            }
+
+            // Circular Icon Badge
+            val iconFrame = LinearLayout(this).apply {
+                gravity = Gravity.CENTER
+                setBackgroundResource(if (badge.isUnlocked) R.drawable.bg_bento_purple else R.drawable.bg_pill_translucent)
+                val sizePx = (52 * density).toInt()
+                layoutParams = LinearLayout.LayoutParams(sizePx, sizePx)
+            }
+
             val icon = ImageView(this).apply {
                 setImageResource(badge.iconResId)
-                layoutParams = LinearLayout.LayoutParams(100, 100).apply { setMargins(0, 0, 40, 0) }
-                // Color it if unlocked, gray if locked
-                setColorFilter(Color.parseColor(if (badge.isUnlocked) badge.colorHex else "#B2BEC3"))
+                val padPx = (12 * density).toInt()
+                setPadding(padPx, padPx, padPx, padPx)
+                setColorFilter(Color.parseColor(if (badge.isUnlocked) badge.colorHex else "#94A3B8"))
             }
-
-            // Text Container
-            val textLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            }
+            iconFrame.addView(icon)
 
             val tvTitle = TextView(this).apply {
                 text = badge.title
-                textSize = 18f
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor(if (badge.isUnlocked) "#2D3436" else "#636E72"))
+                textSize = 13.5f
+                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                setTextColor(Color.parseColor(if (badge.isUnlocked) "#0F172A" else "#64748B"))
+                gravity = Gravity.CENTER
+                setPadding(0, (10 * density).toInt(), 0, 0)
+                maxLines = 2
             }
 
-            val tvDesc = TextView(this).apply {
-                text = badge.description
-                textSize = 14f
-                setTextColor(Color.parseColor("#636E72"))
-                setPadding(0, 8, 0, 0)
-            }
-
-            // Lock/Unlock Indicator Status
-            val tvStatus = TextView(this).apply {
+            val tvStatusPill = TextView(this).apply {
                 text = if (badge.isUnlocked) "UNLOCKED" else "LOCKED"
-                textSize = 12f
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor(if (badge.isUnlocked) "#00B894" else "#B2BEC3"))
-                setPadding(0, 16, 0, 0)
+                textSize = 10f
+                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                letterSpacing = 0.05f
+                setTextColor(Color.parseColor(if (badge.isUnlocked) "#10B981" else "#94A3B8"))
+                setBackgroundResource(R.drawable.bg_pill_translucent)
+                setPadding((8 * density).toInt(), (3 * density).toInt(), (8 * density).toInt(), (3 * density).toInt())
+                val pillParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(0, (8 * density).toInt(), 0, 0)
+                }
+                layoutParams = pillParams
             }
 
-            textLayout.addView(tvTitle)
-            textLayout.addView(tvDesc)
-            textLayout.addView(tvStatus)
+            content.addView(iconFrame)
+            content.addView(tvTitle)
+            content.addView(tvStatusPill)
+            card.addView(content)
 
-            card.addView(icon)
-            card.addView(textLayout)
+            // Click Dialog
+            card.setOnClickListener {
+                GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(badge.title)
+                    .setMessage("${badge.description}\n\nCriteria: ${badge.unlockCriteria}\nStatus: ${if (badge.isUnlocked) "Completed! 🎉" else "In Progress 🔒"}")
+                    .setPositiveButton("Close", null)
+                    .show()
+            }
 
-            container.addView(card)
+            grid.addView(card)
+            cardViews.add(card)
         }
+
+        GabAIUtils.animateCascade(cardViews, 30L)
     }
 }

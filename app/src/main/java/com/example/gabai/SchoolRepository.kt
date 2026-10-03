@@ -62,6 +62,11 @@ object SchoolRepository {
         School("305444", "Maysan National High School", "Valenzuela City")
     )
 
+    fun getSchoolName(schoolId: String?): String {
+        if (schoolId.isNullOrBlank()) return "School"
+        return defaultSchools.firstOrNull { it.schoolId == schoolId }?.schoolName ?: schoolId
+    }
+
     fun fetchSchools(onResult: (List<School>) -> Unit) {
         db.collection("schools").get()
             .addOnSuccessListener { snapshots ->

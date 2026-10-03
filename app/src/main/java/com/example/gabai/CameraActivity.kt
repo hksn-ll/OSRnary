@@ -26,7 +26,12 @@ class CameraActivity : AppCompatActivity() {
 
         startCamera()
 
-        findViewById<ImageButton>(R.id.btn_capture).setOnClickListener {
+        findViewById<ImageButton>(R.id.btn_close_camera).setOnClickListener {
+            finish()
+        }
+
+        val btnCapture = findViewById<ImageButton>(R.id.btn_capture)
+        GabAIUtils.addSpringPressEffect(btnCapture) {
             takePhoto()
         }
     }

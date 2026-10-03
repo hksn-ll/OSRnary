@@ -20,9 +20,14 @@ class LibraryActivity : AppCompatActivity() {
         val header = findViewById<View>(R.id.library_header)
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
             val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
+            v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
             insets
         }
+
+        GabAIUtils.applyFrostedGlass(header)
+        val btnBack = findViewById<android.widget.ImageButton>(R.id.btn_back)
+        btnBack?.setOnClickListener { finish() }
+        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
 
         loadAssignedMaterials()
         // --- QUEST TRIGGER: LIBRARY ---
@@ -104,13 +109,15 @@ class LibraryActivity : AppCompatActivity() {
         itemView.findViewById<View>(R.id.btn_edit_folder).visibility = View.GONE
         itemView.findViewById<View>(R.id.btn_delete_folder).visibility = View.GONE
 
-        itemView.setOnClickListener {
+        val launchAction = {
             val intent = Intent(this, StudentSubjectActivity::class.java)
             intent.putExtra("SUBJECT_ID", subjectId)
             intent.putExtra("SUBJECT_NAME", subjectName)
             intent.putExtra("STUDENT_SECTION", studentSection)
             startActivity(intent)
         }
+        itemView.setOnClickListener { launchAction() }
+        GabAIUtils.addSpringPressEffect(itemView) { launchAction() }
         container.addView(itemView)
     }
 

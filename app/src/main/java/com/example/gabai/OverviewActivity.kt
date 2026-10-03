@@ -8,6 +8,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.BackgroundColorSpan
@@ -33,9 +34,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.mlkit.nl.languageid.LanguageIdentification
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -47,8 +52,18 @@ class OverviewActivity : AppCompatActivity() {
 
     private var lastAiResult: String = ""
     private var lastExplanationAudioText: String = ""
+    private var lastPartOfSpeech: String = ""
+    private var lastPhonetics: String = ""
+    private var lastInSentenceRole: String = ""
     private lateinit var tts: TextToSpeech
     private var isTtsReady = false
+
+    // TTS Play / Pause / Resume State
+    private enum class TtsPlaybackState { IDLE, LOADING, PLAYING, PAUSED }
+    private var ttsExplanationState = TtsPlaybackState.IDLE
+    private var fullExplanationText: String = ""
+    private var lastCharOffset: Int = 0
+    private var currentUtteranceOffset: Int = 0
 
     // In-memory cache for on-demand related question answers (pay-per-need token optimization)
     private val questionAnswers = mutableMapOf<String, String>()
@@ -76,11 +91,15 @@ class OverviewActivity : AppCompatActivity() {
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-2.5-flash-lite",
-        apiKey = BuildConfig.GEMINI_API_KEY
+        apiKey = BuildConfig.GEMINI_API_KEY,
+        generationConfig = com.google.ai.client.generativeai.type.generationConfig {
+            temperature = 0.2f
+        }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_overview)
         WebView.setWebContentsDebuggingEnabled(true)
 
@@ -114,34 +133,200 @@ class OverviewActivity : AppCompatActivity() {
         tts = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 isTtsReady = true
+                tts.setSpeechRate(1.0f)
+                tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        runOnUiThread {
+                            if (utteranceId == "EXPLANATION_UTTERANCE") {
+                                ttsExplanationState = TtsPlaybackState.PLAYING
+                                updateExplanationAudioUi(TtsPlaybackState.PLAYING)
+                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
+                                findViewById<ProgressBar>(R.id.progress_tts_selected)?.visibility = View.GONE
+                            }
+                        }
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        runOnUiThread {
+                            if (utteranceId == "EXPLANATION_UTTERANCE") {
+                                ttsExplanationState = TtsPlaybackState.IDLE
+                                lastCharOffset = 0
+                                currentUtteranceOffset = 0
+                                updateExplanationAudioUi(TtsPlaybackState.IDLE)
+                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
+                                findViewById<ProgressBar>(R.id.progress_tts_selected)?.visibility = View.GONE
+                            }
+                        }
+                    }
+
+                    @Deprecated("Deprecated in Java")
+                    override fun onError(utteranceId: String?) {
+                        runOnUiThread {
+                            if (utteranceId == "EXPLANATION_UTTERANCE") {
+                                ttsExplanationState = TtsPlaybackState.IDLE
+                                lastCharOffset = 0
+                                currentUtteranceOffset = 0
+                                updateExplanationAudioUi(TtsPlaybackState.IDLE)
+                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
+                                findViewById<ProgressBar>(R.id.progress_tts_selected)?.visibility = View.GONE
+                            }
+                        }
+                    }
+
+                    override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+                        if (utteranceId == "EXPLANATION_UTTERANCE") {
+                            lastCharOffset = currentUtteranceOffset + start
+                        }
+                    }
+                })
             }
         }
 
         // Setup audio buttons
         findViewById<View>(R.id.btn_speak_word)?.setOnClickListener {
-            speakWithDetection(scannedText)
+            stopExplanationAudioIfPlaying()
+            speakWithDetection(scannedText, "WORD_UTTERANCE")
         }
 
         findViewById<View>(R.id.btn_speak_sentence)?.setOnClickListener {
-            speakWithDetection(surroundingSentence)
+            stopExplanationAudioIfPlaying()
+            speakWithDetection(surroundingSentence, "SENTENCE_UTTERANCE")
         }
 
         findViewById<ImageButton>(R.id.btn_speak_explanation)?.setOnClickListener {
             val audioText = if (lastExplanationAudioText.isNotEmpty()) lastExplanationAudioText else lastAiResult
-            speakExplanation(audioText)
+            toggleExplanationPlayback(audioText)
         }
 
         // Favorite button
         val favoriteBtn = findViewById<ImageButton>(R.id.btn_favorite)
-        favoriteBtn?.setOnClickListener {
-            if (lastAiResult.isNotEmpty()) {
-                saveToFavorites(scannedText, lastAiResult)
-                favoriteBtn.setImageResource(R.drawable.ic_star_filled)
-                GabAIUtils.showSnackbar(this, "Saved to Favorites! ⭐")
+        val isFavoriteInit = intent.getBooleanExtra("IS_FAVORITE", false)
+        var isCurrentlyFavorite = isFavoriteInit
+        if (isCurrentlyFavorite) {
+            favoriteBtn?.setImageResource(R.drawable.ic_star_filled)
+        } else {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null && scannedText.isNotEmpty()) {
+                FirebaseFirestore.getInstance().collection("users").document(uid)
+                    .collection("favorites").document(scannedText).get()
+                    .addOnSuccessListener { doc ->
+                        if (doc.exists()) {
+                            isCurrentlyFavorite = true
+                            favoriteBtn?.setImageResource(R.drawable.ic_star_filled)
+                        }
+                    }
             }
         }
 
-        if (scannedText.isNotEmpty()) {
+        favoriteBtn?.setOnClickListener {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+            val db = FirebaseFirestore.getInstance()
+            if (isCurrentlyFavorite) {
+                // Remove from favorites
+                db.collection("users").document(uid).collection("favorites").document(scannedText)
+                    .delete()
+                    .addOnSuccessListener {
+                        isCurrentlyFavorite = false
+                        favoriteBtn?.setImageResource(R.drawable.ic_star_outline)
+                        GabAIUtils.performHaptic(favoriteBtn)
+                        GabAIUtils.showSnackbar(this, "Removed from Favorites")
+                    }
+            } else {
+                if (lastAiResult.isNotEmpty()) {
+                    saveToFavorites(
+                        word = scannedText,
+                        definition = lastAiResult,
+                        originalContext = surroundingSentence,
+                        partOfSpeech = lastPartOfSpeech,
+                        phonetics = lastPhonetics,
+                        inSentenceRole = lastInSentenceRole
+                    )
+                    isCurrentlyFavorite = true
+                    favoriteBtn?.setImageResource(R.drawable.ic_star_filled)
+                    GabAIUtils.performHaptic(favoriteBtn, android.view.HapticFeedbackConstants.CONFIRM)
+                    GabAIUtils.showSnackbar(this, "Saved to Favorites! ⭐")
+                }
+            }
+        }
+
+        val preloadedExplanation = intent.getStringExtra("PRELOADED_EXPLANATION")
+        if (!preloadedExplanation.isNullOrBlank()) {
+            val preloadedPos = intent.getStringExtra("PART_OF_SPEECH") ?: ""
+            val preloadedPhonetics = intent.getStringExtra("PHONETICS") ?: ""
+            val preloadedInSentenceRole = intent.getStringExtra("IN_SENTENCE_ROLE") ?: ""
+
+            lastPartOfSpeech = preloadedPos
+            lastPhonetics = preloadedPhonetics
+            lastInSentenceRole = preloadedInSentenceRole
+            lastAiResult = preloadedExplanation
+            lastExplanationAudioText = if (preloadedInSentenceRole.isNotEmpty()) "$preloadedExplanation. $preloadedInSentenceRole" else preloadedExplanation
+
+            val resultTextView = findViewById<TextView>(R.id.ai_result_text)
+            val resultContainer = findViewById<View>(R.id.result_container)
+            val loadingContainer = findViewById<View>(R.id.loading_container)
+            loadingContainer?.visibility = View.GONE
+            resultContainer?.visibility = View.VISIBLE
+            stopSkeletonPulse()
+
+            val targetWordView = findViewById<TextView>(R.id.tv_target_word)
+            val phoneticsView = findViewById<TextView>(R.id.tv_phonetics)
+            val posView = findViewById<TextView>(R.id.tv_part_of_speech)
+            val inSentenceContainer = findViewById<View>(R.id.ll_in_sentence_container)
+            val inSentenceTextView = findViewById<TextView>(R.id.tv_in_sentence)
+            val inSentenceLabel = findViewById<TextView>(R.id.tv_in_sentence_label)
+            val isAllSelected = isSentence || scannedText.trim().equals(surroundingSentence.trim(), ignoreCase = true)
+
+            if (isSentence) {
+                targetWordView?.text = "Sentence Breakdown"
+                phoneticsView?.visibility = View.GONE
+                posView?.text = if (preloadedPos.isNotEmpty()) preloadedPos else "STATEMENT"
+            } else {
+                targetWordView?.text = scannedText
+                if (preloadedPhonetics.isNotEmpty()) {
+                    phoneticsView?.text = preloadedPhonetics
+                    phoneticsView?.visibility = View.VISIBLE
+                } else {
+                    phoneticsView?.visibility = View.GONE
+                }
+                posView?.text = if (preloadedPos.isNotEmpty()) preloadedPos else if (isPhrase) "PHRASE" else "WORD"
+            }
+
+            if (!isAllSelected && preloadedInSentenceRole.isNotEmpty()) {
+                inSentenceLabel?.text = if (isPhrase) "PHRASE ROLE IN THIS SENTENCE" else "WORD ROLE IN THIS SENTENCE"
+                inSentenceTextView?.text = preloadedInSentenceRole
+                inSentenceContainer?.visibility = View.VISIBLE
+            } else {
+                inSentenceContainer?.visibility = View.GONE
+            }
+
+            val markwon = Markwon.create(this)
+            resultTextView?.let { markwon.setMarkdown(it, preloadedExplanation) }
+
+            // Populate related questions for exploration
+            val preloadedQuestions = listOf(
+                "How do I use \"$scannedText\" in everyday conversation?",
+                "Can you give common synonyms and examples?",
+                "What is an easy memory trick or mnemonic for this?"
+            )
+            populateRelatedQuestions(preloadedQuestions, scannedText, surroundingSentence)
+
+            // Zero-AI Curated Wikimedia Diagram & Deterministic Visual Context
+            val visualQuery = buildDeterministicVisualQuery(scannedText, surroundingSentence, isSentence)
+            defaultVisualQuery = visualQuery
+            currentVisualTerm = if (isSingleWord || isPhrase) {
+                scannedText.trim()
+            } else {
+                extractCoreSubject(surroundingSentence)
+            }
+            setupVisualContainer(currentVisualTerm, defaultVisualQuery)
+
+            // Trigger Detail Quest progress
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                FirebaseFirestore.getInstance().collection("users").document(uid)
+                    .update("quests_completed", FieldValue.arrayUnion("detail"))
+            }
+        } else if (scannedText.isNotEmpty()) {
             // Generate AI Overview and Question Prompts
             generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
 
@@ -684,6 +869,9 @@ class OverviewActivity : AppCompatActivity() {
     ) {
         val loadingContainer = findViewById<View>(R.id.loading_container)
         val resultContainer = findViewById<View>(R.id.result_container)
+        val errorContainer = findViewById<View>(R.id.error_container)
+        val errorMessageView = findViewById<TextView>(R.id.tv_error_message)
+        val retryButton = findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_retry_definition)
         val targetWordView = findViewById<TextView>(R.id.tv_target_word)
         val phoneticsView = findViewById<TextView>(R.id.tv_phonetics)
         val posView = findViewById<TextView>(R.id.tv_part_of_speech)
@@ -693,6 +881,8 @@ class OverviewActivity : AppCompatActivity() {
         val inSentenceContainer = findViewById<View>(R.id.ll_in_sentence_container)
 
         loadingContainer?.visibility = View.VISIBLE
+        startSkeletonPulse()
+        errorContainer?.visibility = View.GONE
         resultContainer?.visibility = View.GONE
 
         val markwon = Markwon.create(this)
@@ -708,30 +898,103 @@ class OverviewActivity : AppCompatActivity() {
                 val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
                 val aiLanguage = prefs.getString("ai_language_pref", "English") ?: "English"
 
-                val languageDirective = when (aiLanguage) {
-                    "Tagalog" -> "CRITICAL LANGUAGE DIRECTIVE: The user requested explanations in Filipino / Tagalog. You MUST write the 'definition', 'inSentenceRole', and all 'relatedQuestions' in clear, fluent, natural Tagalog/Filipino. Technical, medical, scientific, or loan words may retain standard terminology or common Filipino equivalents."
-                    "Taglish" -> "CRITICAL LANGUAGE DIRECTIVE: The user requested explanations in Taglish (Filipino mixed with English). You MUST write the 'definition', 'inSentenceRole', and all 'relatedQuestions' in conversational Taglish as used by Filipino students. Keep scientific, medical, and academic terms in English while explaining concepts and sentence roles in conversational Filipino/Taglish."
-                    else -> "CRITICAL LANGUAGE DIRECTIVE: Write the 'definition', 'inSentenceRole', and all 'relatedQuestions' in clear, concise educational English suitable for high school students."
+                val isAllSelected = isSentence || inputText.trim().equals(surroundingSentence.trim(), ignoreCase = true)
+
+                data class LangConfig(
+                    val directive: String,
+                    val definitionDesc: String,
+                    val roleDesc: String,
+                    val questionDescs: List<String>
+                )
+
+                val langConfig = when (aiLanguage) {
+                    "Taglish" -> LangConfig(
+                        directive = """
+                            CRITICAL LANGUAGE DIRECTIVE (MANDATORY TARGET LANGUAGE: AUTHENTIC STUDENT TAGLISH):
+                            You MUST explain in authentic, casual, and relatable Taglish (conversational Filipino code-switched with English), exactly how modern Filipino high school and college students talk and study together.
+                            - Student Code-Switching: Seamlessly attach Filipino affixes to English technical terms (e.g., "nagfa-function ito", "ma-alter ang process", "ina-absorb", "nako-convert into chemical energy", "nag-e-explain", "na-a-analyze").
+                            - Natural Openers: Use friendly student openers (e.g., "Ito yung process kung saan...", "Sa sentence na 'to, nagfa-function siya as...", "Kaya importante 'to kasi...").
+                            - STRICT PROHIBITION: Do NOT output English for 'definition', 'inSentenceRole', or 'relatedQuestions'. Everything except the IPA phonetics and partOfSpeech must be in natural student Taglish. Do NOT use stiff textbook Tagalog.
+                        """.trimIndent(),
+                        definitionDesc = "1-2 sentences in conversational student Taglish explaining the core meaning clearly.",
+                        roleDesc = if (isAllSelected) {
+                            "Entire sentence was selected. Return empty string \"\"."
+                        } else if (isPhrase) {
+                            "1-2 sentences in conversational student Taglish explaining kung paano nagfa-function itong multi-word phrase sa loob ng enclosing sentence."
+                        } else {
+                            "1-2 sentences in conversational student Taglish explaining kung paano nagfa-function itong salita sa loob ng enclosing sentence."
+                        },
+                        questionDescs = listOf(
+                            "Direct cause, effect, or function question in student Taglish",
+                            "Direct comparative or mechanism question in student Taglish",
+                            "Direct real-world or critical thinking question in student Taglish"
+                        )
+                    )
+                    "Tagalog" -> LangConfig(
+                        directive = """
+                            CRITICAL LANGUAGE DIRECTIVE (MANDATORY TARGET LANGUAGE: MODERN NATURAL FILIPINO):
+                            You MUST explain in clear, natural, contemporary Filipino suitable for students.
+                            - Tone & Style: Natural, conversational Filipino. Avoid archaic words (no "salumpuwit", "sipnayan", "talatinigan"). Common modern loan terms (like oxygen, gravity, DNA) are completely fine to retain.
+                            - Sentence Openers: Natural student-friendly Filipino (e.g., "Ito ang proseso kung saan...", "Sa pangungusap na ito, nagsisilbi itong...").
+                            - STRICT PROHIBITION: Do NOT output English for 'definition', 'inSentenceRole', or 'relatedQuestions'. Everything except the IPA phonetics and partOfSpeech must be in natural modern Filipino.
+                        """.trimIndent(),
+                        definitionDesc = "1-2 pangungusap sa natural at modernong Filipino na nagpapaliwanag ng kahulugan.",
+                        roleDesc = if (isAllSelected) {
+                            "Buong pangungusap ang napili. Ibalik ang walang laman na string \"\"."
+                        } else if (isPhrase) {
+                            "1-2 pangungusap sa natural at modernong Filipino na nagpapaliwanag sa papel ng pariralang ito (phrase) sa loob ng pangungusap."
+                        } else {
+                            "1-2 pangungusap sa natural at modernong Filipino na nagpapaliwanag sa papel ng salita sa loob ng pangungusap."
+                        },
+                        questionDescs = listOf(
+                            "Tanong tungkol sa sanhi o gamit sa natural na Filipino",
+                            "Tanong na naghahambing o tungkol sa proseso sa natural na Filipino",
+                            "Pang-araw-araw o kritikal na tanong sa natural na Filipino"
+                        )
+                    )
+                    else -> LangConfig(
+                        directive = "CRITICAL LANGUAGE DIRECTIVE: Write the 'definition', 'inSentenceRole', and all 'relatedQuestions' in clear, concise educational English suitable for high school students.",
+                        definitionDesc = "Clear, concise definition or core meaning in 1-2 sentences. Avoid storytelling framing, avoid filler.",
+                        roleDesc = if (isAllSelected) {
+                            "Entire sentence was selected. Return empty string \"\"."
+                        } else if (isPhrase) {
+                            "1-2 sentences explaining specifically how this entire multi-word phrase functions within the enclosing sentence."
+                        } else {
+                            "1-2 sentences explaining specifically how this word operates within the enclosing sentence."
+                        },
+                        questionDescs = listOf(
+                            "Direct cause, effect, or function question about this concept",
+                            "Direct comparative or mechanism question",
+                            "Direct real-world or critical thinking question"
+                        )
+                    )
                 }
 
                 val prompt = """
-                    You are an educational tutor helping a high school student understand this reading material.
+                    You are GabAI, an educational tutor helping a high school student understand this reading material.
                     Context Note: If the text refers to "GabAI" or "gabai", it refers to this application — an intelligent AI reading assistant and tutor designed for Filipino students (derived from the Filipino/Tagalog word "gabay", meaning guide or mentor). Do not confuse it with GABA neurochemistry, Gabapentin, or other medications unless the surrounding text explicitly discusses medicine.
                     Target Selection: "$inputText"
                     Enclosing Sentence: "$surroundingSentence"
                     Selection Type: $selectionType
-                    $languageDirective
+                    ${langConfig.directive}
+
+                    CRITICAL SAFETY & TRUTHFULNESS DIRECTIVES:
+                    1. FACTUAL ACCURACY (NO HALLUCINATIONS):
+                       State what the entity actually is with 100% truth. DO NOT hallucinate, assume, or invent that an unknown brand, commercial app, game, company, or website is an "educational platform" or "study hub" just because you are an educational tutor.
+                    2. GAMBLING, CASINO, & ADULT PLATFORM SAFEGUARD:
+                       If the target refers to an online casino, slot machine, betting app, or gambling service (such as ArionPlay, OKBet, e-bingo, slots, etc.), identify it truthfully as an online gambling/casino platform. Explicitly state that it is NOT an educational tool, and warn that gambling is strictly age-restricted (21+) and involves financial risk. NEVER describe gambling platforms as learning materials, modules, or study apps.
+                    3. UNKNOWN ENTITIES: If a term is unknown or ambiguous, explain only what can be factually deduced from context. Do NOT invent fake educational features or study activities.
 
                     Analyze the selection in context and return ONLY a valid JSON object matching this schema without markdown fences:
                     {
                       "phonetics": "/.../ (IPA pronunciation, or empty string if phrase/sentence)",
                       "partOfSpeech": "noun / verb / adjective / phrase / clause / statement",
-                      "definition": "Clear, concise definition or core meaning in 1-2 sentences. Avoid storytelling framing, avoid filler.",
-                      "inSentenceRole": "1-2 sentences explaining specifically how this selection operates or functions within the enclosing sentence.",
+                      "definition": "${langConfig.definitionDesc}",
+                      "inSentenceRole": "${langConfig.roleDesc}",
                       "relatedQuestions": [
-                        "Direct cause, effect, or function question about this concept",
-                        "Direct comparative or mechanism question",
-                        "Direct real-world or critical thinking question"
+                        "${langConfig.questionDescs[0]}",
+                        "${langConfig.questionDescs[1]}",
+                        "${langConfig.questionDescs[2]}"
                       ]
                     }
                 """.trimIndent()
@@ -739,6 +1002,7 @@ class OverviewActivity : AppCompatActivity() {
                 val response = generativeModel.generateContent(prompt)
                 val rawText = response.text?.trim() ?: ""
 
+                stopSkeletonPulse()
                 loadingContainer?.visibility = View.GONE
                 resultContainer?.visibility = View.VISIBLE
 
@@ -774,14 +1038,14 @@ class OverviewActivity : AppCompatActivity() {
                     definition = rawText
                     val fallbackQuestions = when (aiLanguage) {
                         "Tagalog" -> listOf(
-                            "Paano gumagana ang konseptong ito sa kontekstong ito?",
-                            "Bakit mahalaga ito sa paksang binabasa?",
-                            "Ano ang mangyayari kung babaguhin ang prosesong ito?"
+                            "Paano gumagana ang konseptong ito sa binabasa mo?",
+                            "Bakit mahalaga ito sa paksang pinag-aaralan?",
+                            "Ano ang mangyayari kung magbabago ang prosesong ito?"
                         )
                         "Taglish" -> listOf(
-                            "Paano nagfa-function ang concept na ito sa context?",
-                            "Bakit essential ito sa topic na binabasa?",
-                            "Ano ang mangyayari kung ma-alter ang process na ito?"
+                            "Paano nagfa-function ang concept na ito sa kabuuang topic?",
+                            "Bakit important ito sa binabasa mo?",
+                            "Ano ang mangyayari kung ma-alter o magbago ang process na ito?"
                         )
                         else -> listOf(
                             "How does this concept function in this context?",
@@ -793,14 +1057,16 @@ class OverviewActivity : AppCompatActivity() {
                 }
 
                 lastAiResult = definition
-                lastExplanationAudioText = if (inSentenceRole.isNotEmpty()) "$definition. $inSentenceRole" else definition
+                lastPartOfSpeech = partOfSpeech
+                lastPhonetics = phonetics
+                lastInSentenceRole = if (isAllSelected) "" else inSentenceRole
+                lastExplanationAudioText = if (lastInSentenceRole.isNotEmpty()) "$definition. $lastInSentenceRole" else definition
 
                 // Populate UI
                 if (isSentence) {
                     targetWordView?.text = "Sentence Breakdown"
                     phoneticsView?.visibility = View.GONE
                     posView?.text = if (partOfSpeech.isNotEmpty()) partOfSpeech else "STATEMENT"
-                    inSentenceLabel?.text = "CORE PROPOSITION & STRUCTURE"
                 } else {
                     targetWordView?.text = inputText
                     if (phonetics.isNotEmpty()) {
@@ -810,12 +1076,12 @@ class OverviewActivity : AppCompatActivity() {
                         phoneticsView?.visibility = View.GONE
                     }
                     posView?.text = partOfSpeech
-                    inSentenceLabel?.text = "ROLE IN THIS SENTENCE"
                 }
 
                 markwon.setMarkdown(definitionTextView, definition)
 
-                if (inSentenceRole.isNotEmpty()) {
+                if (!isAllSelected && inSentenceRole.isNotEmpty()) {
+                    inSentenceLabel?.text = if (isPhrase) "PHRASE ROLE IN THIS SENTENCE" else "WORD ROLE IN THIS SENTENCE"
                     inSentenceTextView?.text = inSentenceRole
                     inSentenceContainer?.visibility = View.VISIBLE
                 } else {
@@ -825,13 +1091,30 @@ class OverviewActivity : AppCompatActivity() {
                 // Populate Related Questions Vertically
                 populateRelatedQuestions(relatedQuestions, inputText, surroundingSentence)
 
-                // Save to History with actual enclosing sentence as originalContext
-                saveToHistory(inputText, definition, surroundingSentence)
+                // Save to History with actual enclosing sentence as originalContext and grammatical metadata
+                saveToHistory(
+                    text = inputText,
+                    aiResult = definition,
+                    originalContext = surroundingSentence,
+                    partOfSpeech = partOfSpeech,
+                    phonetics = phonetics,
+                    inSentenceRole = if (isAllSelected) "" else inSentenceRole
+                )
 
             } catch (e: Exception) {
+                stopSkeletonPulse()
                 loadingContainer?.visibility = View.GONE
-                definitionTextView.text = "Connection Error: ${e.localizedMessage}"
-                resultContainer?.visibility = View.VISIBLE
+                resultContainer?.visibility = View.GONE
+                val friendlyMessage = if (e is java.net.UnknownHostException || e is java.io.IOException) {
+                    "No internet connection. Please check your network and tap retry."
+                } else {
+                    "Unable to connect to AI tutor (${e.localizedMessage ?: "timeout"})."
+                }
+                errorMessageView?.text = friendlyMessage
+                retryButton?.setOnClickListener {
+                    generateAIOverview(inputText, surroundingSentence, isSingleWord, isPhrase, isSentence)
+                }
+                errorContainer?.visibility = View.VISIBLE
             }
         }
     }
@@ -887,20 +1170,23 @@ class OverviewActivity : AppCompatActivity() {
                                 val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
                                 val aiLanguage = prefs.getString("ai_language_pref", "English") ?: "English"
                                 val langDirective = when (aiLanguage) {
-                                    "Tagalog" -> "Answer directly in natural Filipino / Tagalog."
-                                    "Taglish" -> "Answer directly in conversational Taglish (Filipino mixed with English)."
+                                    "Tagalog" -> "Answer directly in natural, conversational, modern Filipino suitable for students. Avoid archaic phrasing. Do NOT reply in English."
+                                    "Taglish" -> "Answer directly in authentic, friendly, conversational Taglish (the way modern Filipino students talk, using natural student code-switching like 'nagfa-function', 'ma-alter', 'nako-connect', 'ina-absorb'). Do NOT reply in pure English."
                                     else -> "Answer directly in clear educational English."
                                 }
 
                                 val answerPrompt = """
-                                    You are an educational tutor for high school students.
+                                    You are GabAI, an educational reading tutor for high school students.
                                     Context Note: If referring to "GabAI" or "gabai", it refers to the GabAI educational reading tutor app (from Tagalog "gabay" meaning guide), not medicine.
                                     Target Selection: "$targetText"
                                     Context: "$surroundingSentence"
                                     Question: "$questionText"
                                     $langDirective
 
-                                    Provide a concise, direct 2-sentence answer directly addressing the question. Avoid introductory fluff.
+                                    CRITICAL SAFETY & TRUTHFULNESS DIRECTIVES:
+                                    1. FACTUAL TRUTH (NO HALLUCINATIONS): Answer with strict factual accuracy. NEVER hallucinate or invent that commercial websites, games, casinos, or betting platforms are "educational platforms", "interactive modules", or "learning materials".
+                                    2. GAMBLING & CASINO PLATFORMS: If the platform in question is an online casino, slot game, or gambling service (such as ArionPlay, OKBet, etc.), state clearly, honestly, and neutrally that it is an online gambling/casino platform for adults. Explicitly state that it is NOT an educational platform and that gambling is age-restricted (21+) involving financial risk.
+                                    3. CONCISE RESPONSE: Provide a concise, direct 2-sentence answer directly addressing the question. Avoid introductory fluff.
                                 """.trimIndent()
 
                                 val resp = generativeModel.generateContent(answerPrompt)
@@ -930,7 +1216,14 @@ class OverviewActivity : AppCompatActivity() {
     // =========================================================================
     // 5. FIRESTORE PERSISTENCE (FAVORITES & HISTORY)
     // =========================================================================
-    private fun saveToFavorites(word: String, definition: String) {
+    private fun saveToFavorites(
+        word: String,
+        definition: String,
+        originalContext: String = "",
+        partOfSpeech: String = "",
+        phonetics: String = "",
+        inSentenceRole: String = ""
+    ) {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
@@ -948,7 +1241,11 @@ class OverviewActivity : AppCompatActivity() {
         val favEntry = hashMapOf(
             "word" to word,
             "definition" to definition,
-            "timestamp" to System.currentTimeMillis()
+            "timestamp" to System.currentTimeMillis(),
+            "originalContext" to originalContext,
+            "partOfSpeech" to partOfSpeech,
+            "phonetics" to phonetics,
+            "inSentenceRole" to inSentenceRole
         )
 
         db.collection("users").document(uid)
@@ -964,7 +1261,14 @@ class OverviewActivity : AppCompatActivity() {
             }
     }
 
-    private fun saveToHistory(text: String, aiResult: String, originalContext: String) {
+    private fun saveToHistory(
+        text: String,
+        aiResult: String,
+        originalContext: String,
+        partOfSpeech: String = "",
+        phonetics: String = "",
+        inSentenceRole: String = ""
+    ) {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
         val timestamp = System.currentTimeMillis()
@@ -974,6 +1278,9 @@ class OverviewActivity : AppCompatActivity() {
             "explanation" to aiResult,
             "timestamp" to timestamp,
             "originalContext" to originalContext,
+            "partOfSpeech" to partOfSpeech,
+            "phonetics" to phonetics,
+            "inSentenceRole" to inSentenceRole,
             "nextReview" to timestamp,
             "interval" to 1,
             "easeFactor" to 2.5
@@ -990,10 +1297,51 @@ class OverviewActivity : AppCompatActivity() {
             }
     }
 
+    private fun startSkeletonPulse() {
+        val skeleton = findViewById<View>(R.id.ll_skeleton_shimmer) ?: return
+        val pulseAnim = android.view.animation.AlphaAnimation(0.45f, 1.0f).apply {
+            duration = 800
+            repeatMode = android.view.animation.Animation.REVERSE
+            repeatCount = android.view.animation.Animation.INFINITE
+        }
+        skeleton.startAnimation(pulseAnim)
+    }
+
+    private fun stopSkeletonPulse() {
+        val skeleton = findViewById<View>(R.id.ll_skeleton_shimmer) ?: return
+        skeleton.clearAnimation()
+    }
+
     // =========================================================================
     // 6. TEXT-TO-SPEECH (TTS)
     // =========================================================================
-    private fun speakWithDetection(text: String) {
+    private fun updateExplanationAudioUi(state: TtsPlaybackState) {
+        val btn = findViewById<ImageButton>(R.id.btn_speak_explanation)
+        val progress = findViewById<ProgressBar>(R.id.progress_tts_explanation)
+        when (state) {
+            TtsPlaybackState.LOADING -> {
+                progress?.visibility = View.VISIBLE
+                btn?.visibility = View.GONE
+            }
+            TtsPlaybackState.PLAYING -> {
+                progress?.visibility = View.GONE
+                btn?.visibility = View.VISIBLE
+                btn?.setImageResource(R.drawable.ic_pause)
+            }
+            TtsPlaybackState.PAUSED -> {
+                progress?.visibility = View.GONE
+                btn?.visibility = View.VISIBLE
+                btn?.setImageResource(R.drawable.ic_play_arrow)
+            }
+            TtsPlaybackState.IDLE -> {
+                progress?.visibility = View.GONE
+                btn?.visibility = View.VISIBLE
+                btn?.setImageResource(R.drawable.ic_volume_up)
+            }
+        }
+    }
+
+    private fun speakWithDetection(text: String, utteranceId: String) {
         if (!isTtsReady || text.isEmpty()) return
 
         val loader = findViewById<ProgressBar>(R.id.progress_tts_selected)
@@ -1002,25 +1350,101 @@ class OverviewActivity : AppCompatActivity() {
         val languageIdentifier = LanguageIdentification.getClient()
         languageIdentifier.identifyLanguage(text)
             .addOnSuccessListener { languageCode ->
-                loader?.visibility = View.GONE
                 val locale = if (languageCode == "fil" || languageCode == "tl") {
                     Locale("fil", "PH")
                 } else {
                     Locale.US
                 }
                 tts.language = locale
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+                tts.setSpeechRate(1.0f)
+                val params = Bundle().apply {
+                    putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+                }
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
             }
             .addOnFailureListener {
                 loader?.visibility = View.GONE
                 tts.language = Locale.US
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+                tts.setSpeechRate(1.0f)
+                val params = Bundle().apply {
+                    putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+                }
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
             }
     }
 
-    private fun speakExplanation(text: String) {
+    private fun stopExplanationAudioIfPlaying() {
+        if (!isTtsReady) return
+        if (ttsExplanationState != TtsPlaybackState.IDLE) {
+            tts.stop()
+            ttsExplanationState = TtsPlaybackState.IDLE
+            lastCharOffset = 0
+            currentUtteranceOffset = 0
+            updateExplanationAudioUi(TtsPlaybackState.IDLE)
+        }
+    }
+
+    private fun toggleExplanationPlayback(text: String) {
         if (!isTtsReady || text.isEmpty()) return
 
+        when (ttsExplanationState) {
+            TtsPlaybackState.LOADING -> {
+                tts.stop()
+                ttsExplanationState = TtsPlaybackState.IDLE
+                updateExplanationAudioUi(TtsPlaybackState.IDLE)
+            }
+            TtsPlaybackState.PLAYING -> {
+                // Pause playback
+                tts.stop()
+                ttsExplanationState = TtsPlaybackState.PAUSED
+                updateExplanationAudioUi(TtsPlaybackState.PAUSED)
+                val btn = findViewById<ImageButton>(R.id.btn_speak_explanation)
+                GabAIUtils.performHaptic(btn, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                GabAIUtils.showSnackbar(this, "Audio Paused ⏸️")
+            }
+            TtsPlaybackState.PAUSED -> {
+                // Resume from last paused position
+                val targetText = if (lastCharOffset in 1 until fullExplanationText.length) {
+                    fullExplanationText.substring(lastCharOffset).trim()
+                } else {
+                    fullExplanationText
+                }
+                currentUtteranceOffset = lastCharOffset
+                ttsExplanationState = TtsPlaybackState.LOADING
+                updateExplanationAudioUi(TtsPlaybackState.LOADING)
+
+                lifecycleScope.launch(Dispatchers.Default) {
+                    applyTtsLocale()
+                    withContext(Dispatchers.Main) {
+                        val params = Bundle().apply {
+                            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "EXPLANATION_UTTERANCE")
+                        }
+                        tts.speak(targetText, TextToSpeech.QUEUE_FLUSH, params, "EXPLANATION_UTTERANCE")
+                    }
+                }
+            }
+            TtsPlaybackState.IDLE -> {
+                // Start playback from beginning
+                fullExplanationText = text.replace(Regex("[#*<>_]"), "").trim()
+                lastCharOffset = 0
+                currentUtteranceOffset = 0
+                ttsExplanationState = TtsPlaybackState.LOADING
+                updateExplanationAudioUi(TtsPlaybackState.LOADING)
+
+                lifecycleScope.launch(Dispatchers.Default) {
+                    applyTtsLocale()
+                    withContext(Dispatchers.Main) {
+                        val params = Bundle().apply {
+                            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "EXPLANATION_UTTERANCE")
+                        }
+                        tts.speak(fullExplanationText, TextToSpeech.QUEUE_FLUSH, params, "EXPLANATION_UTTERANCE")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyTtsLocale() {
         val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
         val selectedLang = prefs.getString("ai_language_pref", "English") ?: "English"
 
@@ -1040,7 +1464,6 @@ class OverviewActivity : AppCompatActivity() {
         }
 
         tts.language = locale
-        val cleanText = text.replace(Regex("[#*<>_]"), "")
-        tts.speak(cleanText, TextToSpeech.QUEUE_FLUSH, null, null)
+        tts.setSpeechRate(1.0f)
     }
 }

@@ -8,7 +8,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.core.content.res.ResourcesCompat
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,11 +22,10 @@ class TeacherPerformanceActivity : AppCompatActivity() {
     private lateinit var className: String
     private lateinit var sectionName: String
     private lateinit var schoolId: String
-    private lateinit var grade: String // 🟢 NEW
+    private lateinit var grade: String
 
     private val db = FirebaseFirestore.getInstance()
 
-    // Data class to hold compiled student stats
     data class StudentStats(
         val uid: String,
         val name: String,
@@ -44,18 +43,15 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         className = intent.getStringExtra("CLASS_NAME") ?: "Class Performance"
         sectionName = intent.getStringExtra("SECTION_NAME") ?: ""
         schoolId = intent.getStringExtra("SCHOOL_ID") ?: ""
-        grade = intent.getStringExtra("GRADE") ?: "" // 🟢 NEW
+        grade = intent.getStringExtra("GRADE") ?: ""
 
         findViewById<TextView>(R.id.tv_class_name).text = className
 
         val header = findViewById<View>(R.id.perf_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        GabAIUtils.applyFrostedGlass(header, 28f)
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
+        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
 
         loadPerformanceData()
     }
@@ -64,14 +60,18 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         val container = findViewById<LinearLayout>(R.id.student_list_container)
         GabAIUtils.showGlobalLoading(this)
 
+        val fontJakarta = try {
+            ResourcesCompat.getFont(this, R.font.font_plus_jakarta_sans)
+        } catch (_: Exception) {
+            null
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 1. Get the class document to check privileges
                 val classDoc = db.collection("classes").document(classId).get().await()
                 val isAdviser = classDoc.getBoolean("isAdviser") ?: false
                 val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
 
-                // 2. Fetch all students in the school/section
                 val studentSnaps = db.collection("users")
                     .whereEqualTo("role", "student")
                     .whereEqualTo("schoolId", schoolId)
@@ -80,19 +80,20 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     .get()
                     .await()
 
-                // 3. GATEKEEPER: Filter based on Adviser vs Subject Teacher
                 val targetStudents = if (isAdviser) {
-                    studentSnaps.documents // Advisers see everyone in the section
+                    studentSnaps.documents
                 } else {
-                    studentSnaps.documents.filter { joinedStudents.contains(it.id) } // Subject teachers only see joined
+                    studentSnaps.documents.filter { joinedStudents.contains(it.id) }
                 }
 
                 if (targetStudents.isEmpty()) {
                     withContext(Dispatchers.Main) {
                         GabAIUtils.hideGlobalLoading(this@TeacherPerformanceActivity)
                         container.addView(TextView(this@TeacherPerformanceActivity).apply {
-                            text = "No students found for this class."
-                            setPadding(0, 20, 0, 0)
+                            text = "No students enrolled in this section yet."
+                            textSize = 15f
+                            setTextColor(Color.parseColor("#64748B"))
+                            setPadding(0, 40, 0, 0)
                         })
                     }
                     return@launch
@@ -104,7 +105,6 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                 var classTotalStreak = 0
                 var classTotalQuizzes = 0
 
-                // 4. Loop through the filtered students to compile their stats
                 for (userDoc in targetStudents) {
                     val studentId = userDoc.id
                     val fName = userDoc.getString("firstName") ?: ""
@@ -113,7 +113,6 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
                     val stats = StudentStats(studentId, "$fName $lName", level)
 
-                    // Get Quiz History for this student
                     val quizDocs = db.collection("users").document(studentId)
                         .collection("quiz_history").get().await()
 
@@ -133,7 +132,6 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     val streak = userDoc.getLong("current_streak")?.toInt() ?: 0
                     stats.streak = streak
 
-                    // Add to class totals
                     classTotalScore += studentScore
                     classTotalAttempts += studentAttempts
                     classTotalStreak += streak
@@ -142,11 +140,9 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     compiledStats.add(stats)
                 }
 
-                // 5. Calculate Class Averages
                 val avgClassScore = if (classTotalAttempts > 0) ((classTotalScore.toDouble() / classTotalAttempts) * 100).toInt() else 0
                 val avgClassStreak = if (compiledStats.isNotEmpty()) classTotalStreak / compiledStats.size else 0
 
-                // 6. Update UI
                 withContext(Dispatchers.Main) {
                     GabAIUtils.hideGlobalLoading(this@TeacherPerformanceActivity)
 
@@ -154,38 +150,48 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     findViewById<TextView>(R.id.tv_avg_streak).text = "$avgClassStreak"
                     findViewById<TextView>(R.id.tv_total_quizzes).text = "$classTotalQuizzes"
 
-                    // Sort students by Average Score (Descending)
                     compiledStats.sortByDescending { it.averageScore }
+
+                    val rowViews = mutableListOf<View>()
 
                     for (student in compiledStats) {
                         val row = LinearLayout(this@TeacherPerformanceActivity).apply {
                             orientation = LinearLayout.VERTICAL
-                            setBackgroundResource(R.drawable.bg_card_quiz)
-                            setPadding(40, 30, 40, 30)
+                            setBackgroundResource(R.drawable.bg_glass_card_bento)
+                            setPadding(40, 36, 40, 36)
                             layoutParams = LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
-                            ).apply { setMargins(0, 0, 0, 16) }
+                            ).apply { setMargins(0, 0, 0, 20) }
                         }
 
                         val nameText = TextView(this@TeacherPerformanceActivity).apply {
                             text = student.name
                             textSize = 16f
-                            setTypeface(null, Typeface.BOLD)
-                            setTextColor(Color.parseColor("#2D3436"))
+                            setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                            setTextColor(Color.parseColor("#161D1F"))
                         }
 
                         val statsText = TextView(this@TeacherPerformanceActivity).apply {
-                            text = "Score: ${student.averageScore}% | Quizzes: ${student.totalQuizzes} | Streak: ${student.streak} 🔥"
-                            textSize = 14f
-                            setTextColor(Color.parseColor("#636E72"))
-                            setPadding(0, 8, 0, 0)
+                            text = "Avg: ${student.averageScore}% • Quizzes: ${student.totalQuizzes} • Streak: ${student.streak} 🔥"
+                            textSize = 13f
+                            setTypeface(fontJakarta ?: typeface, Typeface.NORMAL)
+                            setTextColor(Color.parseColor("#5A6472"))
+                            setPadding(0, 6, 0, 0)
                         }
 
                         row.addView(nameText)
                         row.addView(statsText)
+
+                        GabAIUtils.addSpringPressEffect(row) {
+                            GabAIUtils.showSnackbar(this@TeacherPerformanceActivity, "${student.name} • Level ${student.level}")
+                        }
+
                         container.addView(row)
+                        rowViews.add(row)
                     }
+
+                    GabAIUtils.animateCascade(rowViews, 30L)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

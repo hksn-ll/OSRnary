@@ -55,13 +55,25 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_weekly_assessment)
 
         assessmentId = intent.getStringExtra("ASSESSMENT_ID") ?: return finish()
 
+        // Exit protection for hardware back button / gesture
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                confirmExit()
+            }
+        })
+
         // Bind header
         findViewById<ImageButton>(R.id.btn_close_assessment).setOnClickListener {
             confirmExit()
+        }
+
+        findViewById<View>(R.id.btn_open_palette)?.setOnClickListener {
+            showQuestionPaletteDialog()
         }
 
         layoutRunner = findViewById(R.id.layout_quiz_runner)
@@ -274,6 +286,72 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
     private fun selectOption(optionIndex: Int) {
         studentAnswers[currentIndex] = optionIndex
         displayCurrentQuestion()
+    }
+
+    private fun showQuestionPaletteDialog() {
+        if (questions.isEmpty()) return
+        val density = resources.displayMetrics.density
+        val grid = GridLayout(this).apply {
+            columnCount = 5
+            alignmentMode = GridLayout.ALIGN_MARGINS
+            setPadding((16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt())
+        }
+
+        var dialog: androidx.appcompat.app.AlertDialog? = null
+
+        for (i in questions.indices) {
+            val isCurrent = (i == currentIndex)
+            val isAnswered = (studentAnswers.getOrElse(i) { -1 } != -1)
+
+            val btn = TextView(this).apply {
+                text = "${i + 1}"
+                textSize = 14f
+                gravity = android.view.Gravity.CENTER
+                setTypeface(null, android.graphics.Typeface.BOLD)
+
+                val sizePx = (46 * density).toInt()
+                val params = GridLayout.LayoutParams().apply {
+                    width = sizePx
+                    height = sizePx
+                    setMargins((6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt())
+                }
+                layoutParams = params
+
+                when {
+                    isCurrent -> {
+                        setBackgroundResource(R.drawable.bg_tag_k12)
+                        setTextColor(Color.parseColor("#5341CD"))
+                    }
+                    isAnswered -> {
+                        setBackgroundColor(Color.parseColor("#5341CD"))
+                        setTextColor(Color.WHITE)
+                    }
+                    else -> {
+                        setBackgroundColor(Color.parseColor("#F1F5F9"))
+                        setTextColor(Color.parseColor("#64748B"))
+                    }
+                }
+
+                setOnClickListener {
+                    GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    currentIndex = i
+                    displayCurrentQuestion()
+                    dialog?.dismiss()
+                }
+            }
+            grid.addView(btn)
+        }
+
+        val scroll = ScrollView(this).apply {
+            addView(grid)
+        }
+
+        dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Question Palette")
+            .setMessage("Purple = Answered • Gray = Unanswered")
+            .setView(scroll)
+            .setNegativeButton("Close", null)
+            .show()
     }
 
     private fun confirmExit() {
