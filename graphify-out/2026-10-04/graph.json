@@ -40,10 +40,10 @@
       "file_type": "code",
       "norm_label": "gabaianimatedlogoview",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L21"
+      "source_location": "L19"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541",
+      "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512",
       "label": "AnimatorListenerAdapter",
       "_callable": true,
       "_callable_class": true,
@@ -53,7 +53,7 @@
       "file_type": "code",
       "norm_label": "animatorlisteneradapter",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L541"
+      "source_location": "L512"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizactivity_quizactivity",
@@ -547,7 +547,7 @@
       "file_type": "code",
       "norm_label": "gabaiapp",
       "source_file": "app/src/main/java/com/example/gabai/GabAIApp.kt",
-      "source_location": "L11"
+      "source_location": "L10"
     },
     {
       "id": "app_src_androidtest_java_com_example_gabai_exampleinstrumentedtest_exampleinstrumentedtest",
@@ -1100,7 +1100,7 @@
       "file_type": "code",
       "norm_label": ".ondetachedfromwindow()",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L572"
+      "source_location": "L543"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_ondraw",
@@ -1112,7 +1112,7 @@
       "file_type": "code",
       "norm_label": ".ondraw()",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L261"
+      "source_location": "L245"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startbreathingloop",
@@ -1124,7 +1124,7 @@
       "file_type": "code",
       "norm_label": ".startbreathingloop()",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L551"
+      "source_location": "L522"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography",
@@ -1136,10 +1136,10 @@
       "file_type": "code",
       "norm_label": ".startchoreography()",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L505"
+      "source_location": "L476"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541_onanimationend",
+      "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512_onanimationend",
       "label": ".onAnimationEnd()",
       "_callable": true,
       "_origin": "ast",
@@ -1148,7 +1148,7 @@
       "file_type": "code",
       "norm_label": ".onanimationend()",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L542"
+      "source_location": "L513"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_stopallanimations",
@@ -1160,7 +1160,7 @@
       "file_type": "code",
       "norm_label": ".stopallanimations()",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L567"
+      "source_location": "L538"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizactivity_quizactivity_animatecardflip",
@@ -3308,7 +3308,7 @@
       "file_type": "code",
       "norm_label": ".oncreate()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIApp.kt",
-      "source_location": "L12"
+      "source_location": "L11"
     },
     {
       "id": "app_src_androidtest_java_com_example_gabai_exampleinstrumentedtest_exampleinstrumentedtest_useappcontext",
@@ -4232,7 +4232,7 @@
       "file_type": "code",
       "norm_label": ".checkreadytoproceed()",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L105"
+      "source_location": "L107"
     },
     {
       "id": "app_src_main_java_com_example_gabai_splashactivity_splashactivity_oncreate",
@@ -4256,7 +4256,7 @@
       "file_type": "code",
       "norm_label": ".proceedtonextscreen()",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L116"
+      "source_location": "L118"
     },
     {
       "id": "app_src_main_java_com_example_gabai_overviewactivity_overviewactivity_applyttslocale",
@@ -7921,7 +7921,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L574",
+      "source_location": "L545",
       "weight": 1.0
     },
     {
@@ -7933,7 +7933,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L506",
+      "source_location": "L477",
       "weight": 1.0
     },
     {
@@ -7945,11 +7945,11 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L539",
+      "source_location": "L510",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541_onanimationend",
+      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512_onanimationend",
       "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startbreathingloop",
       "relation": "calls",
       "_origin": "ast",
@@ -7957,7 +7957,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L543",
+      "source_location": "L514",
       "weight": 1.0
     },
     {
@@ -10237,7 +10237,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L111",
+      "source_location": "L113",
       "weight": 1.0
     },
     {
@@ -10249,7 +10249,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L100",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -10261,7 +10261,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L79",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -10273,7 +10273,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L122",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -11245,7 +11245,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L46",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -11257,7 +11257,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L47",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -14659,11 +14659,11 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L261",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541_onanimationend",
+      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512_onanimationend",
       "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_kt_android",
       "relation": "references",
       "_origin": "ast",
@@ -14671,7 +14671,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L542",
+      "source_location": "L513",
       "weight": 1.0
     },
     {
@@ -16136,18 +16136,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L21",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
       "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography",
-      "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541",
+      "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L541",
+      "source_location": "L512",
       "weight": 1.0
     },
     {
@@ -16158,7 +16158,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIApp.kt",
-      "source_location": "L11",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -16928,18 +16928,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L21",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541",
-      "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541",
+      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512",
+      "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512",
       "relation": "inherits",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L541",
+      "source_location": "L512",
       "weight": 1.0
     },
     {
@@ -16950,7 +16950,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIApp.kt",
-      "source_location": "L11",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -17929,7 +17929,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L261",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -17940,7 +17940,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L505",
+      "source_location": "L476",
       "weight": 1.0
     },
     {
@@ -17951,7 +17951,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L551",
+      "source_location": "L522",
       "weight": 1.0
     },
     {
@@ -17962,7 +17962,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L567",
+      "source_location": "L538",
       "weight": 1.0
     },
     {
@@ -17973,18 +17973,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L572",
+      "source_location": "L543",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541",
-      "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l541_onanimationend",
+      "source": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512",
+      "target": "app_src_main_java_com_example_gabai_gabaianimatedlogoview_gabaianimatedlogoview_startchoreography_object_animatorlisteneradapter_l512_onanimationend",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAiAnimatedLogoView.kt",
-      "source_location": "L542",
+      "source_location": "L513",
       "weight": 1.0
     },
     {
@@ -17995,7 +17995,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIApp.kt",
-      "source_location": "L12",
+      "source_location": "L11",
       "weight": 1.0
     },
     {
@@ -20030,7 +20030,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L105",
+      "source_location": "L107",
       "weight": 1.0
     },
     {
@@ -20041,7 +20041,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SplashActivity.kt",
-      "source_location": "L116",
+      "source_location": "L118",
       "weight": 1.0
     },
     {

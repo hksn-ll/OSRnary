@@ -228,6 +228,7 @@ object GitHubUpdateHelper {
         val tvMessage = view.findViewById<TextView>(R.id.tv_update_message)
         val tvCurrentVersion = view.findViewById<TextView>(R.id.tv_current_version)
         val tvNewVersion = view.findViewById<TextView>(R.id.tv_new_version)
+        val scrollChangelog = view.findViewById<View>(R.id.scroll_changelog)
         val tvChangelog = view.findViewById<TextView>(R.id.tv_changelog)
         val btnUpdateNow = view.findViewById<MaterialButton>(R.id.btn_update_now)
         val btnExitApp = view.findViewById<TextView>(R.id.btn_exit_app)
@@ -244,9 +245,11 @@ object GitHubUpdateHelper {
         tvNewVersion.text = "New: v${info.versionName}"
 
         if (info.changelog.isNotBlank()) {
+            scrollChangelog?.visibility = View.VISIBLE
             tvChangelog.visibility = View.VISIBLE
             tvChangelog.text = info.changelog
         } else {
+            scrollChangelog?.visibility = View.GONE
             tvChangelog.visibility = View.GONE
         }
 
@@ -306,6 +309,11 @@ object GitHubUpdateHelper {
         }
 
         dialog.show()
+        dialog.window?.let { window ->
+            val displayMetrics = activity.resources.displayMetrics
+            val dialogWidth = (displayMetrics.widthPixels * 0.90).toInt()
+            window.setLayout(dialogWidth, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
     }
 
     /**

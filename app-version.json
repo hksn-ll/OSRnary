@@ -1,11 +1,11 @@
 {
-  "versionCode": 14,
-  "versionName": "0.4.0",
-  "minRequiredVersionCode": 14,
+  "versionCode": 15,
+  "versionName": "0.4.1",
+  "minRequiredVersionCode": 15,
   "forceUpdate": false,
-  "title": "Milestone: Dynamic Brand Splash, Staggered Navigation & Stitch Bento UX Overhaul",
-  "message": "GabAI v0.4.0 is a major milestone: Dynamic vector brand splash screen with frosted glass blooming, glitch-free staggered tab navigation, Google Stitch Profile Bento, Olympic Podium Leaderboard, and Companion ergonomics!",
+  "title": "Milestone v0.4.1 Update",
+  "message": "New milestone release with dynamic brand splash, smooth navigation, and Stitch bento overhaul.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
   "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Dynamic Brand Splash: Vector logo with expanding book wings, blooming frosted glass orbs, and specular reflection arcs\n• Instant Cold Boot: Aurora ambient window canvas eliminating static startup freeze, paired with parallel Firestore pre-warming\n• Glitch-Free Tab Navigation: Staggered dissolve-and-glide transition between Home and Profile eliminating ghosting overlap and visual snap-backs\n• Permanent Light Mode: Enforced clean, consistent light mode across all system theme settings\n• Profile Bento Revamp: Complete redesign with Google Stitch bento cards, monogram avatar, full 30-school lookup, and lifetime stats\n• Companion Ergonomics: Magnetic screen-edge snapping and bottom drag-to-dismiss dock\n• Overview & Reading: Shimmer skeleton loading state, TTS speech speed selector (0.75x, 1.0x, 1.25x), PDF page memory & jump-to-page dialog\n• Gamification Polish: Top-3 Olympic podium leaderboard with sticky 'You' bar, 2-column Trophy Case, 3D quiz flashcard flip & combo streak multipliers\n• Safe Workflows: 4-second Undo SnackBars on deletes, assessment question palette & back-press exit protection\n• Educator Console: Quick metrics overview and masked student credentials with 1-tap copy"
+  "changelog": "• Compact Update Dialog: Scrollable changelog view with optimized typography ensuring 1-tap download access on all screen sizes\n• Dynamic Brand Splash: Vector logo with expanding book wings, blooming frosted glass orbs, and specular reflection arcs\n• Instant Cold Boot: Aurora ambient window canvas eliminating static startup freeze, paired with parallel Firestore pre-warming\n• Glitch-Free Tab Navigation: Staggered dissolve-and-glide transition between Home and Profile eliminating ghosting overlap and visual snap-backs\n• Permanent Light Mode: Enforced clean, consistent light mode across all system theme settings\n• Profile Bento Revamp: Complete redesign with Google Stitch bento cards, monogram avatar, full 30-school lookup, and lifetime stats\n• Companion Ergonomics: Magnetic screen-edge snapping and bottom drag-to-dismiss dock\n• Overview & Reading: Shimmer skeleton loading state, TTS speech speed selector (0.75x, 1.0x, 1.25x), PDF page memory & jump-to-page dialog\n• Gamification Polish: Top-3 Olympic podium leaderboard with sticky 'You' bar, 2-column Trophy Case, 3D quiz flashcard flip & combo streak multipliers\n• Safe Workflows: 4-second Undo SnackBars on deletes, assessment question palette & back-press exit protection\n• Educator Console: Quick metrics overview and masked student credentials with 1-tap copy"
 }

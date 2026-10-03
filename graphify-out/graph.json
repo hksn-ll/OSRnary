@@ -160,7 +160,7 @@
       "source_location": "L165"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325",
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333",
       "label": "Callback",
       "_callable": true,
       "_callable_class": true,
@@ -170,7 +170,7 @@
       "file_type": "code",
       "norm_label": "callback",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L325"
+      "source_location": "L333"
     },
     {
       "id": "app_src_main_java_com_example_gabai_githubupdatehelper_versioninfo",
@@ -1652,10 +1652,10 @@
       "file_type": "code",
       "norm_label": ".downloadapkinapp()",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L314"
+      "source_location": "L322"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325_onfailure",
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333_onfailure",
       "label": ".onFailure()",
       "_callable": true,
       "_origin": "ast",
@@ -1664,10 +1664,10 @@
       "file_type": "code",
       "norm_label": ".onfailure()",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L326"
+      "source_location": "L334"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325_onresponse",
+      "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333_onresponse",
       "label": ".onResponse()",
       "_callable": true,
       "_origin": "ast",
@@ -1676,7 +1676,7 @@
       "file_type": "code",
       "norm_label": ".onresponse()",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L333"
+      "source_location": "L341"
     },
     {
       "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_installapk",
@@ -1688,7 +1688,7 @@
       "file_type": "code",
       "norm_label": ".installapk()",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L405"
+      "source_location": "L413"
     },
     {
       "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_showupdatedialog",
@@ -8005,7 +8005,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L415",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
@@ -8017,7 +8017,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L257",
+      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -8029,7 +8029,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L275",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -14899,11 +14899,11 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L314",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325_onfailure",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333_onfailure",
       "target": "call",
       "relation": "references",
       "_origin": "ast",
@@ -14911,11 +14911,11 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L326",
+      "source_location": "L334",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333_onresponse",
       "target": "call",
       "relation": "references",
       "_origin": "ast",
@@ -14923,11 +14923,11 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L333",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333_onresponse",
       "target": "response",
       "relation": "references",
       "_origin": "ast",
@@ -14935,7 +14935,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L333",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -14947,7 +14947,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L405",
+      "source_location": "L413",
       "weight": 1.0
     },
     {
@@ -16218,13 +16218,13 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp",
-      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L325",
+      "source_location": "L333",
       "weight": 1.0
     },
     {
@@ -16789,14 +16789,14 @@
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333",
       "target": "app_src_main_java_com_example_gabai_githubupdatehelper_kt_callback",
       "relation": "implements",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L325",
+      "source_location": "L333",
       "weight": 1.0
     },
     {
@@ -18138,7 +18138,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L314",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -18149,7 +18149,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L405",
+      "source_location": "L413",
       "weight": 1.0
     },
     {
@@ -18208,25 +18208,25 @@
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325",
-      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325_onfailure",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333_onfailure",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L326",
+      "source_location": "L334",
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325",
-      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l325_onresponse",
+      "source": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333",
+      "target": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_downloadapkinapp_object_callback_l333_onresponse",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt",
-      "source_location": "L333",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -20786,5 +20786,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "81cf56ee581a5663c207d038f914c8e8dc5c73c6"
+  "built_at_commit": "84cd6a1969e690321ad65ac26c4afee3a9f0caf2"
 }
