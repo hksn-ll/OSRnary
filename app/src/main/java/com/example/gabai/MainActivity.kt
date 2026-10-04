@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Clip blur strictly to 24dp rounded top corners (no overflow at edges)
+        // Clip bottom navigation strictly to 24dp rounded top corners
         binding.blurBottomNav.outlineProvider = object : android.view.ViewOutlineProvider() {
             override fun getOutline(view: android.view.View, outline: android.graphics.Outline) {
                 val radius = 24 * view.resources.displayMetrics.density
@@ -150,30 +150,12 @@ class MainActivity : AppCompatActivity() {
         }
         binding.blurBottomNav.clipToOutline = true
 
-        // Setup real-time frosted glass backdrop for top header bar
-        GabAIUtils.setupBlurView(
-            binding.blurHeaderBar,
-            binding.blurTargetMain,
-            radius = 6f,
-            overlayColor = Color.parseColor("#73FFFFFF"),
-            clearDrawable = window.decorView.background
-        )
-
         // Wire Option A interactive Material Bubble Button with spring press effect and haptics
         GabAIUtils.addSpringPressEffect(binding.btnBubbleToggle) {
             GabAIUtils.performHaptic(binding.btnBubbleToggle)
             toggleBubble()
         }
         syncBubbleButtonState()
-
-        // Setup real-time frosted glass backdrop for bottom navigation (6f radius = 90 FPS ultra-smooth)
-        GabAIUtils.setupBlurView(
-            binding.blurBottomNav,
-            binding.blurTargetMain,
-            radius = 6f,
-            overlayColor = Color.parseColor("#73FFFFFF"),
-            clearDrawable = window.decorView.background
-        )
 
         // Wire elevated center circular scanner button with haptic feedback
         GabAIUtils.addSpringPressEffect(binding.btnCenterScanner) {

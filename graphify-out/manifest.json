@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1791061143.630157,
-    "seen": 1791061172.3250568,
-    "ast_hash": "638a01e6a9999a2fa974ba96b37d32f7",
+    "mtime": 1791092850.9945338,
+    "seen": 1791092868.832522,
+    "ast_hash": "6b342e3fdef9c1f55753e4050d37edc9",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/MainActivity.kt": {
-    "mtime": 1791060280.365216,
-    "seen": 1791060461.0486093,
-    "ast_hash": "4ac68a9ac0f1e528c6bbeee029a70920",
+    "mtime": 1791092842.6597261,
+    "seen": 1791092868.8325572,
+    "ast_hash": "33ec1eacf49518a3da213db921f42db9",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ManageClassesActivity.kt": {
@@ -408,9 +408,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1791061149.4895308,
-    "seen": 1791061172.325054,
-    "ast_hash": "3e6d12466fe8112f605f18e1c7ab00c6",
+    "mtime": 1791092859.4539323,
+    "seen": 1791092868.8325188,
+    "ast_hash": "cc6d09fd7d7d1c5934c2fdd64eec63fc",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
