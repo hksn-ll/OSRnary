@@ -56,7 +56,7 @@ class InitiationActivity : AppCompatActivity() {
 
     // Setup Gemini
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash-lite",
+        modelName = "gemini-3.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY
     )
 

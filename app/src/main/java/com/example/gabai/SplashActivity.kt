@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.animation.DecelerateInterpolator
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -26,7 +25,6 @@ class SplashActivity : AppCompatActivity() {
         val logoView = findViewById<GabAiAnimatedLogoView>(R.id.animated_logo)
         val tvTitle = findViewById<TextView>(R.id.tv_app_title)
         val tvSub = findViewById<TextView>(R.id.tv_app_subtitle)
-        val progressBar = findViewById<ProgressBar>(R.id.splash_progress)
 
         // Launch the multi-stage physics logo choreography immediately on layout
         logoView?.post {
@@ -48,12 +46,6 @@ class SplashActivity : AppCompatActivity() {
             ?.setStartDelay(680)
             ?.setDuration(600)
             ?.setInterpolator(DecelerateInterpolator())
-            ?.start()
-
-        progressBar?.animate()
-            ?.alpha(1f)
-            ?.setStartDelay(850)
-            ?.setDuration(500)
             ?.start()
 
         val startTime = System.currentTimeMillis()

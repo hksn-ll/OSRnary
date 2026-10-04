@@ -14,7 +14,6 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +49,7 @@ class SubjectDetailActivity : AppCompatActivity() {
     }
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash-lite",
+        modelName = "gemini-3.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY
     )
 
@@ -97,21 +96,19 @@ class SubjectDetailActivity : AppCompatActivity() {
         }
         originalName = originalName.removeSuffix(".pdf").replace("_", " ")
 
-        val input = EditText(this).apply {
-            setText(originalName)
-            hint = "Enter Document Title"
-            setPadding(50, 40, 50, 40)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Upload PDF")
-            .setView(input)
-            .setPositiveButton("Upload") { _, _ ->
-                val title = input.text.toString().trim()
+        GabAIDialogs.showInputDialog(
+            context = this,
+            title = "Upload PDF",
+            subtitle = "Enter a title for this study material:",
+            initialText = originalName,
+            hint = "Enter Document Title",
+            confirmText = "Upload",
+            cancelText = "Cancel",
+            badgeIcon = "📄",
+            onConfirm = { title ->
                 if (title.isNotEmpty()) uploadPdfToDrive(fileUri, title)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun uploadPdfToDrive(fileUri: Uri, title: String) {
@@ -546,12 +543,25 @@ class SubjectDetailActivity : AppCompatActivity() {
 
                             GabAIUtils.hideGlobalLoading(this)
 
-                            val scrollView = ScrollView(this).apply { addView(mainContainer) }
+                            val scrollView = ScrollView(this).apply {
+                                addView(mainContainer)
+                                isFillViewport = true
+                                layoutParams = FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                    (resources.displayMetrics.density * 340).toInt()
+                                )
+                            }
 
-                            MaterialAlertDialogBuilder(this)
-                                .setTitle("Manage Access: '$title'")
-                                .setView(scrollView)
-                                .setPositiveButton("Save Access") { _, _ ->
+                            GabAIDialogs.showCustomDialog(
+                                context = this,
+                                title = "Manage Access",
+                                subtitle = "File: $title",
+                                customView = scrollView,
+                                confirmText = "Save Access",
+                                cancelText = "Cancel",
+                                badgeIcon = "👥",
+                                onConfirm = { dialog ->
+                                    dialog.dismiss()
                                     uploadProgress.visibility = View.VISIBLE
                                     db.collection("library_materials").document(materialId)
                                         .update("assignedSections", selectedStudentIds)
@@ -564,8 +574,7 @@ class SubjectDetailActivity : AppCompatActivity() {
                                             GabAIUtils.showSnackbar(this, "Failed to update access.")
                                         }
                                 }
-                                .setNegativeButton("Cancel", null)
-                                .show()
+                            )
                         }
                 }
         }

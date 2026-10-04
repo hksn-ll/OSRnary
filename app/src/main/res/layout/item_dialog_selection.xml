@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll_selection_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_item_selection_pill"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="13dp">
+
+    <TextView
+        android:id="@+id/tv_selection_item_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:text="Item Option"
+        android:textColor="#2D3436"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/iv_selection_chevron"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:alpha="0.5"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_chevron_right"
+        app:tint="#6C5CE7" />
+</LinearLayout>

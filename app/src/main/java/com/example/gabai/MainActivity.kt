@@ -20,13 +20,13 @@ import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.gabai.databinding.ActivityMainBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -211,6 +211,27 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // System Back navigation: If on Profile, navigate back to Home first before exiting
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.bottomNavigation.selectedItemId != R.id.nav_home) {
+                    binding.bottomNavigation.selectedItemId = R.id.nav_home
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
+        })
+
+        // Ensure bubble toggle button scales inward from right edge without cropping
+        binding.btnBubbleToggle.post {
+            if (binding.btnBubbleToggle.width > 0) {
+                binding.btnBubbleToggle.pivotX = binding.btnBubbleToggle.width.toFloat()
+                binding.btnBubbleToggle.pivotY = binding.btnBubbleToggle.height.toFloat() / 2f
+            }
+        }
     }
 
     // ==========================================
@@ -218,29 +239,35 @@ class MainActivity : AppCompatActivity() {
     // 🟢 FORCE LOGOUT DIALOGS 🟢
     // ==========================================
     private fun showAdminWebOnlyDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Web Administrative Portal Only")
-            .setMessage("Super Admin and School Admin accounts must sign in using the GabAI Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students.")
-            .setCancelable(false)
-            .setPositiveButton("Log Out") { _, _ ->
+        GabAIDialogs.showNoticeDialog(
+            context = this,
+            title = "Web Administrative Portal Only",
+            message = "Super Admin and School Admin accounts must sign in using the GabAI Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students.",
+            buttonText = "Log Out",
+            badgeIcon = "💻",
+            cancelable = false,
+            onAction = {
                 FirebaseAuth.getInstance().signOut()
                 startActivity(Intent(this, AuthActivity::class.java))
                 finish()
             }
-            .show()
+        )
     }
 
     private fun showAccountDeletedDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Account Not Found")
-            .setMessage("Your account details could not be found. It may have been deleted by your adviser or school administrator.\n\nPlease log out.")
-            .setCancelable(false) // Forces them to click the button
-            .setPositiveButton("Log Out") { _, _ ->
+        GabAIDialogs.showNoticeDialog(
+            context = this,
+            title = "Account Not Found",
+            message = "Your account details could not be found. It may have been deleted by your adviser or school administrator.\n\nPlease log out.",
+            buttonText = "Log Out",
+            badgeIcon = "🚫",
+            cancelable = false,
+            onAction = {
                 FirebaseAuth.getInstance().signOut()
                 startActivity(Intent(this, AuthActivity::class.java))
                 finish()
             }
-            .show()
+        )
     }
 
     override fun onStart() {
@@ -287,6 +314,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun syncBubbleButtonState() {
+        val currentRole = binding.root.tag as? String ?: "student"
+        if (currentRole == "teacher") {
+            binding.btnBubbleToggle.visibility = View.GONE
+            return
+        }
         val active = isBubbleActive()
         val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
         prefs.edit().putBoolean("bubble_enabled", active).apply()
@@ -294,6 +326,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateBubbleUi(isActive: Boolean, animate: Boolean = true) {
+        val currentRole = binding.root.tag as? String ?: "student"
+        if (currentRole == "teacher") {
+            binding.btnBubbleToggle.visibility = View.GONE
+            return
+        }
         val btn = binding.btnBubbleToggle
         val targetText = if (isActive) "Bubble Active" else "Launch Bubble"
         val targetBgColor = if (isActive) Color.parseColor("#00B894") else Color.parseColor("#F8FAFC")
@@ -331,21 +368,29 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Tactile Spring Rebound Animation
+        // Tactile Spring Rebound Animation (Anchored to right edge so expansion goes inward)
         btn.animate().cancel()
+        if (btn.width > 0) {
+            btn.pivotX = btn.width.toFloat()
+            btn.pivotY = btn.height.toFloat() / 2f
+        }
         btn.animate()
-            .scaleX(0.92f)
-            .scaleY(0.92f)
+            .scaleX(0.94f)
+            .scaleY(0.94f)
             .setDuration(100)
             .setInterpolator(DecelerateInterpolator())
             .withEndAction {
                 btn.text = targetText
                 btn.elevation = targetElevation
+                if (btn.width > 0) {
+                    btn.pivotX = btn.width.toFloat()
+                    btn.pivotY = btn.height.toFloat() / 2f
+                }
                 btn.animate()
-                    .scaleX(1.05f)
-                    .scaleY(1.05f)
+                    .scaleX(1.04f)
+                    .scaleY(1.04f)
                     .setDuration(160)
-                    .setInterpolator(OvershootInterpolator(2.5f))
+                    .setInterpolator(OvershootInterpolator(1.8f))
                     .withEndAction {
                         btn.animate()
                             .scaleX(1.0f)
@@ -393,17 +438,32 @@ class MainActivity : AppCompatActivity() {
     // Caching fragment switcher (preserves state, view hierarchy, and scroll position)
     private var activeFragment: Fragment? = null
 
+    private fun applyRoleUi(role: String) {
+        // GabAI frosted glass header is always visible for both Student and Teacher!
+        binding.blurHeaderBar.visibility = View.VISIBLE
+
+        if (role == "teacher") {
+            // Hide the floating bubble switch in header
+            binding.btnBubbleToggle.visibility = View.GONE
+            // Hide the elevated circular center scanner button
+            binding.btnCenterScanner.visibility = View.GONE
+            // Hide placeholder item in bottom nav so Home and Profile space evenly
+            binding.bottomNavigation.menu.findItem(R.id.nav_placeholder)?.isVisible = false
+        } else {
+            // Student: show bubble switch, center scanner, and placeholder
+            binding.btnBubbleToggle.visibility = View.VISIBLE
+            binding.btnCenterScanner.visibility = View.VISIBLE
+            binding.bottomNavigation.menu.findItem(R.id.nav_placeholder)?.isVisible = true
+        }
+    }
+
     private fun loadDashboard(role: String) {
         if (role == "super_admin" || role == "school_admin" || role == "admin") {
             showAdminWebOnlyDialog()
             return
         }
         binding.root.tag = role // Save role so the bottom menu knows which one to show
-        if (role == "teacher") {
-            binding.blurHeaderBar.visibility = View.GONE
-        } else {
-            binding.blurHeaderBar.visibility = View.VISIBLE
-        }
+        applyRoleUi(role)
         val targetTag = if (role == "teacher") "teacher_home" else "student_home"
         showFragmentByTag(targetTag)
     }
@@ -412,11 +472,7 @@ class MainActivity : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
 
         val currentRole = binding.root.tag as? String ?: "student"
-        if (currentRole == "teacher") {
-            binding.blurHeaderBar.visibility = View.GONE
-        } else {
-            binding.blurHeaderBar.visibility = View.VISIBLE
-        }
+        applyRoleUi(currentRole)
 
         val fm = supportFragmentManager
         val target = fm.findFragmentByTag(tag) ?: when (tag) {

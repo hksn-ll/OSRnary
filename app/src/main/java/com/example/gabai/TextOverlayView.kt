@@ -60,6 +60,10 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
     private var onTouchStarted: (() -> Unit)? = null
     private var onSelectionFinished: ((selectedText: String, surroundingSentence: String) -> Unit)? = null
 
+    // Selection Drag Mode
+    private enum class DragMode { NONE, SELECTION, DRAG_START_HANDLE, DRAG_END_HANDLE }
+    private var currentDragMode = DragMode.NONE
+
     // Idle Animation State
     private var idlePulseProgress = 0.35f
     private var idleAnimator: android.animation.ValueAnimator? = null
@@ -67,6 +71,9 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
     // Scaling
     private var scaleX = 1f
     private var scaleY = 1f
+
+    private val density: Float
+        get() = resources.displayMetrics.density
 
     // 3. Receive Data from Activity
     fun setTextResult(text: Text, imgWidth: Int, imgHeight: Int, viewWidth: Int, viewHeight: Int) {
@@ -83,14 +90,13 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         val offsetX = (viewWidth - (imgWidth * scale)) / 2
         val offsetY = (viewHeight - (imgHeight * scale)) / 2
 
-        // Flatten the complex ML Kit data into a simple list of words
+        // Flatten the complex ML Kit data into words
         for (block in text.textBlocks) {
             val rawBlockText = block.text
             for (line in block.lines) {
                 val rawLineText = line.text
                 for (element in line.elements) {
                     element.boundingBox?.let { box ->
-                        // Convert image rect to screen rect
                         val screenRect = RectF(
                             (box.left * scale) + offsetX,
                             (box.top * scale) + offsetY,
@@ -102,6 +108,18 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                 }
             }
         }
+
+        // Sort into geometric natural reading order (top-to-bottom, left-to-right)
+        allWords.sortWith { a, b ->
+            val yDiff = a.rect.centerY() - b.rect.centerY()
+            val lineHeight = min(a.rect.height(), b.rect.height())
+            if (kotlin.math.abs(yDiff) < lineHeight * 0.5f) {
+                a.rect.left.compareTo(b.rect.left)
+            } else {
+                a.rect.centerY().compareTo(b.rect.centerY())
+            }
+        }
+
         startIdleAnimation()
         invalidate()
     }
@@ -140,7 +158,17 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         onTouchStarted = action
     }
 
-    // 4. Handle Touch (The Magic)
+    private fun performHapticTick() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+                performHapticFeedback(android.view.HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+            } else {
+                performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            }
+        } catch (_: Exception) {}
+    }
+
+    // 4. Handle Touch (Ultra-Snappy & Draggable Handles)
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
         val y = event.y
@@ -148,62 +176,111 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 onTouchStarted?.invoke()
-                // User started touching. Find which word they touched.
-                val index = findWordIndex(x, y)
+
+                // 1. Check if user grabbed the existing start or end handles
+                if (startIndex != -1 && endIndex != -1 && allWords.isNotEmpty()) {
+                    val first = min(startIndex, endIndex)
+                    val last = max(startIndex, endIndex)
+                    val startBox = allWords[first].rect
+                    val endBox = allWords[last].rect
+                    val handleRadius = 36f * density
+
+                    val startHandleX = startBox.left
+                    val startHandleY = startBox.bottom + (10f * density)
+                    if (kotlin.math.hypot(x - startHandleX, y - startHandleY) <= handleRadius) {
+                        currentDragMode = DragMode.DRAG_START_HANDLE
+                        performHapticTick()
+                        return true
+                    }
+
+                    val endHandleX = endBox.right
+                    val endHandleY = endBox.bottom + (10f * density)
+                    if (kotlin.math.hypot(x - endHandleX, y - endHandleY) <= handleRadius) {
+                        currentDragMode = DragMode.DRAG_END_HANDLE
+                        performHapticTick()
+                        return true
+                    }
+                }
+
+                // 2. Direct hit or nearest word snapping (no missed touches in word gaps)
+                val index = findNearestWordIndex(x, y, maxDistance = 44f * density)
                 if (index != -1) {
                     startIndex = index
                     endIndex = index
-                    invalidate() // Redraw to show selection
+                    currentDragMode = DragMode.SELECTION
+                    performHapticTick()
+                    invalidate()
                     return true
                 }
-                // If they didn't touch text, clear selection
+
+                // Tapped far outside any text -> clear selection
                 startIndex = -1
                 endIndex = -1
+                currentDragMode = DragMode.NONE
                 invalidate()
                 return false
             }
+
             MotionEvent.ACTION_MOVE -> {
-                // User is dragging. Update the end word.
-                val index = findWordIndex(x, y)
-                if (index != -1 && startIndex != -1) {
-                    endIndex = index
-                    invalidate() // Redraw the new range
+                if (currentDragMode == DragMode.NONE || allWords.isEmpty()) return true
+
+                val nearest = findNearestWordIndex(x, y, maxDistance = 90f * density)
+                if (nearest != -1) {
+                    when (currentDragMode) {
+                        DragMode.DRAG_START_HANDLE -> {
+                            if (nearest != startIndex) {
+                                startIndex = nearest
+                                performHapticTick()
+                                invalidate()
+                            }
+                        }
+                        DragMode.DRAG_END_HANDLE -> {
+                            if (nearest != endIndex) {
+                                endIndex = nearest
+                                performHapticTick()
+                                invalidate()
+                            }
+                        }
+                        DragMode.SELECTION -> {
+                            if (nearest != endIndex) {
+                                endIndex = nearest
+                                performHapticTick()
+                                invalidate()
+                            }
+                        }
+                        DragMode.NONE -> {}
+                    }
                 }
                 return true
             }
-            MotionEvent.ACTION_UP -> {
-                // User let go. Send the selected text and its surrounding sentence.
-                if (startIndex != -1 && endIndex != -1) {
+
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (startIndex != -1 && endIndex != -1 && allWords.isNotEmpty()) {
                     val first = min(startIndex, endIndex)
                     val last = max(startIndex, endIndex)
                     val selectedText = buildSelectedString()
                     val sentence = extractSurroundingSentence(first, selectedText)
                     onSelectionFinished?.invoke(selectedText, sentence)
                 }
+                currentDragMode = DragMode.NONE
                 return true
             }
         }
         return super.onTouchEvent(event)
     }
 
-    // Helper: Extract enclosing sentence bounded by . ? !
+    // Helper: Extract enclosing complete sentence bounded by . ? ! without arbitrary truncation
     private fun extractSurroundingSentence(wordIndex: Int, selectedText: String): String {
         if (wordIndex !in allWords.indices) return selectedText
         val block = allWords[wordIndex].blockText
         if (block.isBlank()) return selectedText
 
-        // Split into sentences using punctuation lookbehind
+        // Split into candidate sentences using punctuation lookbehind
         val sentences = block.split(Regex("(?<=[.?!\\n])\\s+"))
         for (candidate in sentences) {
             val clean = candidate.trim().replace("\n", " ")
             if (clean.contains(selectedText, ignoreCase = true)) {
-                // Cap word count to prevent runaway input tokens
-                val words = clean.split(Regex("\\s+"))
-                return if (words.size > 35) {
-                    words.take(35).joinToString(" ") + "..."
-                } else {
-                    clean
-                }
+                return clean // Return complete, un-severed sentence
             }
         }
 
@@ -212,35 +289,37 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
             return line
         }
 
-        return selectedText
+        return block.trim().replace("\n", " ")
     }
 
     // 5. Drawing (The Visuals)
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        if (startIndex != -1 && endIndex != -1) {
-            // Ensure start is always before end
+        if (startIndex != -1 && endIndex != -1 && allWords.isNotEmpty()) {
             val first = min(startIndex, endIndex)
             val last = max(startIndex, endIndex)
 
-            // Draw highlight for every word in the range
+            // Draw highlight for every word in range
             for (i in first..last) {
                 val box = allWords[i].rect
-                canvas.drawRoundRect(box, 12f, 12f, boxPaint) // Draw Filled Purple Box
-                canvas.drawRoundRect(box, 12f, 12f, boxStrokePaint) // Draw Crisp Purple Border
+                canvas.drawRoundRect(box, 10f * density, 10f * density, boxPaint)
+                canvas.drawRoundRect(box, 10f * density, 10f * density, boxStrokePaint)
             }
 
-            // Draw "Teardrop" handles (Circles) at start and end
+            // Draw interactive grab handles at start and end
             val startBox = allWords[first].rect
             val endBox = allWords[last].rect
+            val handleOffsetY = 8f * density
+            val handleRadius = 11f * density
 
             // Start Handle (Left side)
-            canvas.drawCircle(startBox.left, startBox.bottom + 10, 15f, handlePaint)
+            canvas.drawCircle(startBox.left, startBox.bottom + handleOffsetY, handleRadius, handlePaint)
             // End Handle (Right side)
-            canvas.drawCircle(endBox.right, endBox.bottom + 10, 15f, handlePaint)
+            canvas.drawCircle(endBox.right, endBox.bottom + handleOffsetY, handleRadius, handlePaint)
+
         } else if (allWords.isNotEmpty()) {
-            // Idle State: Draw subtle pulsating detected-word pills across the screen!
+            // Idle State: Subtle pulsating detected-word pills
             val fillAlpha = (22 * (idlePulseProgress / 0.7f)).toInt().coerceIn(10, 42)
             val strokeAlpha = (70 * (idlePulseProgress / 0.7f)).toInt().coerceIn(25, 90)
 
@@ -254,11 +333,13 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         }
     }
 
-    // Helper: Find which word is at coordinates (x, y)
-    private fun findWordIndex(x: Float, y: Float): Int {
-        // We expand the touch area slightly (20px) to make it easier to grab small words
-        val touchPadding = 20f
+    // Helper: Find nearest word with line-aware projection
+    private fun findNearestWordIndex(x: Float, y: Float, maxDistance: Float = 60f * density): Int {
+        if (allWords.isEmpty()) return -1
 
+        val touchPadding = 24f * density
+
+        // 1. Direct hit test with generous touch padding
         for (i in allWords.indices) {
             val r = allWords[i].rect
             if (x >= r.left - touchPadding && x <= r.right + touchPadding &&
@@ -266,7 +347,35 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                 return i
             }
         }
-        return -1
+
+        // 2. Nearest word projection (weighted to prefer words on the same horizontal line)
+        var bestIndex = -1
+        var minScore = Float.MAX_VALUE
+
+        for (i in allWords.indices) {
+            val r = allWords[i].rect
+
+            val dx = when {
+                x < r.left -> r.left - x
+                x > r.right -> x - r.right
+                else -> 0f
+            }
+
+            val dy = when {
+                y < r.top -> r.top - y
+                y > r.bottom -> y - r.bottom
+                else -> 0f
+            }
+
+            // Heavy penalty for vertical deviation so dragging stays locked to the line
+            val score = kotlin.math.sqrt((dx * dx) + (dy * dy * 3.5f))
+            if (score < minScore) {
+                minScore = score
+                bestIndex = i
+            }
+        }
+
+        return if (minScore <= maxDistance) bestIndex else -1
     }
 
     // Helper: Combine all selected words into one string
@@ -277,7 +386,7 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
 
         for (i in first..last) {
             sb.append(allWords[i].text)
-            if (i < last) sb.append(" ") // Add space between words
+            if (i < last) sb.append(" ")
         }
         return sb.toString()
     }

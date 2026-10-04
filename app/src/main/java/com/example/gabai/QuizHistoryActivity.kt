@@ -10,7 +10,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -172,6 +171,18 @@ class QuizHistoryActivity : AppCompatActivity() {
                 qLayout.addView(tvCorrection)
             }
 
+            val explanation = item["explanation"] as? String
+            if (!explanation.isNullOrBlank()) {
+                val tvExp = TextView(this).apply {
+                    text = "💡 Insight: $explanation"
+                    textSize = 12.5f
+                    setTypeface(null, Typeface.ITALIC)
+                    setTextColor(Color.parseColor("#4338CA"))
+                    setPadding(0, 6, 0, 0)
+                }
+                qLayout.addView(tvExp)
+            }
+
             container.addView(qLayout)
 
             if (index < items.size - 1) {
@@ -184,12 +195,26 @@ class QuizHistoryActivity : AppCompatActivity() {
             }
         }
 
-        val scrollView = ScrollView(this).apply { addView(container) }
+        val scrollView = ScrollView(this).apply {
+            addView(container)
+            isFillViewport = true
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                (resources.displayMetrics.density * 340).toInt()
+            )
+        }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Session Review • $score / $attempts")
-            .setView(scrollView)
-            .setPositiveButton("Done", null)
-            .show()
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Session Review",
+            subtitle = "Score: $score / $attempts",
+            customView = scrollView,
+            confirmText = "Done",
+            cancelText = null,
+            badgeIcon = "📝",
+            onConfirm = { dialog ->
+                dialog.dismiss()
+            }
+        )
     }
 }

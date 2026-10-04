@@ -186,16 +186,17 @@ object GabAIUtils {
     /**
      * Staggered cascade entrance animation for cards/items.
      */
-    fun animateCascade(views: List<View>, baseDelay: Long = 45L) {
+    fun animateCascade(views: List<View>, baseDelay: Long = 35L, startDelayOffset: Long = 300L) {
         views.forEachIndexed { index, view ->
+            view.animate().cancel()
             view.alpha = 0f
-            view.translationY = 50f
+            view.translationY = 56f
             view.animate()
                 .alpha(1f)
                 .translationY(0f)
-                .setStartDelay(index * baseDelay)
-                .setDuration(280)
-                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .setStartDelay(startDelayOffset + (index * baseDelay))
+                .setDuration(380)
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.8f))
                 .start()
         }
     }
@@ -247,6 +248,80 @@ object GabAIUtils {
                 params.preferredDisplayModeId = maxMode.modeId
                 activity.window.attributes = params
             }
+        }
+    }
+
+    enum class TextSpanType {
+        WORD,
+        PHRASE,
+        SENTENCE
+    }
+
+    data class TextSpanClassification(
+        val type: TextSpanType,
+        val wordCount: Int,
+        val cleanText: String,
+        val badgeLabel: String,
+        val targetSpeakLabel: String,
+        val actionButtonLabel: String
+    )
+
+    /**
+     * Accurately categorizes selected text as a single Word, a multi-word Phrase (e.g. "Daily Quests"),
+     * or a full Sentence. Strips trailing punctuation to prevent OCR noise from converting titles/phrases
+     * into sentences.
+     */
+    fun classifyTextSpan(text: String): TextSpanClassification {
+        val trimmed = text.trim()
+        val clean = trimmed.trim('.', '!', '?', ':', ';', ',', '"', '\'', '-', '—', '“', '”', '`', ' ')
+        val words = clean.split(Regex("\\s+")).filter { it.isNotBlank() }
+        val count = words.size
+        val hasTerminalPunctuation = trimmed.let { it.endsWith(".") || it.endsWith("?") || it.endsWith("!") }
+
+        val type = when {
+            count <= 1 -> TextSpanType.WORD
+            count in 2..7 && (!hasTerminalPunctuation || count <= 5) -> TextSpanType.PHRASE
+            else -> TextSpanType.SENTENCE
+        }
+
+        val badge = when (type) {
+            TextSpanType.WORD -> "TARGET WORD"
+            TextSpanType.PHRASE -> "KEY PHRASE ($count WORDS)"
+            TextSpanType.SENTENCE -> "FULL SENTENCE ($count WORDS)"
+        }
+
+        val speakLabel = when (type) {
+            TextSpanType.WORD -> "Word"
+            TextSpanType.PHRASE -> "Phrase"
+            TextSpanType.SENTENCE -> "Sentence"
+        }
+
+        val actionLabel = when (type) {
+            TextSpanType.WORD -> "Explain Word  →"
+            TextSpanType.PHRASE -> "Explain Phrase  →"
+            TextSpanType.SENTENCE -> "Explain Sentence  →"
+        }
+
+        return TextSpanClassification(
+            type = type,
+            wordCount = count,
+            cleanText = clean,
+            badgeLabel = badge,
+            targetSpeakLabel = speakLabel,
+            actionButtonLabel = actionLabel
+        )
+    }
+
+    /**
+     * Determines whether context surrounding a selection is a phrase, sentence, or passage.
+     */
+    fun classifyContextLabel(contextText: String): String {
+        val clean = contextText.trim().trim('.', '!', '?', ':', ';', ',', '"', '\'', '-', '—')
+        val words = clean.split(Regex("\\s+")).filter { it.isNotBlank() }
+        return when {
+            words.size > 25 -> "Passage"
+            words.size in 1..7 -> "Phrase"
+            else -> "Sentence"
         }
     }
 }

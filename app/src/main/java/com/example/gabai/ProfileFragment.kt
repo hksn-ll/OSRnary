@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +11,6 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
 import com.example.gabai.databinding.FragmentProfileBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -21,9 +21,12 @@ class ProfileFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        setupLanguageDropdown()
+        val cachedRole = requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            .getString("cached_user_role", "student") ?: "student"
+        applyRoleVisibility(cachedRole)
+
+        setupButtons()
         loadUserData()
-        loadLifetimeStats()
 
         binding.tvAppVersionLabel.text = "v${BuildConfig.VERSION_NAME}"
         binding.rowCheckUpdate.setOnClickListener {
@@ -44,7 +47,7 @@ class ProfileFragment : Fragment() {
                 // Stop the bubble service and reset toggle
                 requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))
                 requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-                    .edit().putBoolean("bubble_enabled", false).apply()
+                .edit().putBoolean("bubble_enabled", false).apply()
 
                 FirebaseAuth.getInstance().signOut()
                 val intent = Intent(requireContext(), AuthActivity::class.java).apply {
@@ -58,10 +61,108 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        playEntranceAnimation()
+    }
+
+    fun playEntranceAnimation() {
+        if (_binding == null || !isAdded) return
+        val isTeacher = binding.llTeacherStatsContainer.visibility == View.VISIBLE
+
+        val viewsToAnimate = if (isTeacher) {
+            listOfNotNull(
+                binding.headerProfile,
+                binding.cardUserIdentity,
+                binding.headerProfileStats,
+                binding.cardTeacherStatClasses,
+                binding.cardTeacherStatStudents,
+                binding.cardTeacherStatMaterials,
+                binding.cardTeacherStatQuizzes,
+                binding.headerTeacherShortcuts,
+                binding.btnTeacherProfileClasses,
+                binding.btnTeacherProfileLibrary,
+                binding.headerPreferences,
+                binding.cardPreferences
+            )
+        } else {
+            listOfNotNull(
+                binding.headerProfile,
+                binding.cardUserIdentity,
+                binding.headerProfileStats,
+                binding.cardStatWordsMastered,
+                binding.cardStatAccuracy,
+                binding.cardStatQuizzesTaken,
+                binding.cardStatStreak,
+                binding.headerStudentHubs,
+                binding.btnProfileProgress,
+                binding.btnProfileBadges,
+                binding.btnProfileLeaderboard,
+                binding.btnProfileFavorites,
+                binding.headerPreferences,
+                binding.cardPreferences
+            )
+        }
+        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 35L, startDelayOffset = 180L)
+    }
+
+    private fun applyRoleVisibility(role: String) {
+        if (role == "teacher") {
+            binding.tvProfileSubtitle.text = "Educator credentials & account settings"
+            binding.llStudentGradeSectionRow.visibility = View.GONE
+            binding.llTeacherCodeRow.visibility = View.VISIBLE
+            binding.tvStatsHeader.text = "TEACHING STATS"
+            binding.llStudentStatsContainer.visibility = View.GONE
+            binding.llTeacherStatsContainer.visibility = View.VISIBLE
+            binding.llStudentHubsContainer.visibility = View.GONE
+            binding.llTeacherShortcutsContainer.visibility = View.VISIBLE
+            binding.llAiLanguageContainer.visibility = View.GONE
+        } else {
+            binding.tvProfileSubtitle.text = "Personal learning identity & account settings"
+            binding.llStudentGradeSectionRow.visibility = View.VISIBLE
+            binding.llTeacherCodeRow.visibility = View.GONE
+            binding.tvStatsHeader.text = "LEARNING STATS"
+            binding.llStudentStatsContainer.visibility = View.VISIBLE
+            binding.llTeacherStatsContainer.visibility = View.GONE
+            binding.llStudentHubsContainer.visibility = View.VISIBLE
+            binding.llTeacherShortcutsContainer.visibility = View.GONE
+            binding.llAiLanguageContainer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupButtons() {
+        // Student Learning Hub Shortcuts
+        GabAIUtils.addSpringPressEffect(binding.btnProfileProgress) {
+            startActivity(Intent(requireContext(), ProgressDashboardActivity::class.java))
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.btnProfileBadges) {
+            startActivity(Intent(requireContext(), AchievementsActivity::class.java))
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.btnProfileLeaderboard) {
+            startActivity(Intent(requireContext(), LeaderboardActivity::class.java))
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.btnProfileFavorites) {
+            startActivity(Intent(requireContext(), FavoritesActivity::class.java))
+        }
+
+        // Teacher Shortcuts
+        GabAIUtils.addSpringPressEffect(binding.btnTeacherProfileClasses) {
+            startActivity(Intent(requireContext(), ManageClassesActivity::class.java))
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.btnTeacherProfileLibrary) {
+            startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
+        }
+    }
+
     private fun loadUserData() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
 
-        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+        db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists() && _binding != null && isAdded) {
                     val firstName = doc.getString("firstName") ?: ""
@@ -83,30 +184,35 @@ class ProfileFragment : Fragment() {
                     val schoolName = SchoolRepository.getSchoolName(sId)
                     binding.tvProfileSchool.text = "School: $schoolName"
 
+                    applyRoleVisibility(role)
+
                     if (role == "teacher") {
-                        binding.tvProfileSection.visibility = View.GONE
                         val joinCode = doc.getString("joinCode") ?: "N/A"
-                        binding.tvProfileGrade.text = "Join Code: $joinCode 🏷️ (Tap for QR)"
-                        binding.tvProfileGrade.setTextColor(android.graphics.Color.parseColor("#5341CD"))
-                        binding.tvProfileGrade.setTypeface(null, android.graphics.Typeface.BOLD)
-                        if (joinCode != "N/A") {
-                            binding.tvProfileGrade.setOnClickListener {
-                                val ctx = context ?: return@setOnClickListener
+                        binding.tvProfileTeacherCode.text = "Join Code: $joinCode"
+
+                        GabAIUtils.addSpringPressEffect(binding.btnTeacherQrPill) {
+                            val ctx = context ?: return@addSpringPressEffect
+                            if (joinCode != "N/A") {
                                 GabAIDialogs.showQrCodeDialog(
                                     ctx,
                                     title = "Your Teacher QR Code",
-                                    subtitle = "Share this with students to let them join your subjects.",
+                                    subtitle = "Share this with learners to enroll into your classes.",
                                     qrContent = joinCode,
                                     displayCode = joinCode
                                 )
                             }
                         }
+
+                        // Load Educator Stats
+                        loadTeacherStats(uid, db)
                     } else {
-                        binding.tvProfileSection.visibility = View.VISIBLE
                         binding.tvProfileSection.text = "Section: ${doc.getString("section") ?: "N/A"}"
                         binding.tvProfileGrade.text = "Grade: ${doc.getString("grade") ?: "N/A"}"
-                        binding.tvProfileGrade.setTextColor(android.graphics.Color.parseColor("#334155"))
-                        binding.tvProfileGrade.setTypeface(null, android.graphics.Typeface.BOLD)
+
+                        setupLanguageDropdown()
+
+                        // Load Student Stats
+                        loadLifetimeStats(uid, db)
                     }
                 }
             }
@@ -118,16 +224,54 @@ class ProfileFragment : Fragment() {
             }
     }
 
-    private fun loadLifetimeStats() {
+    private fun loadTeacherStats(uid: String, db: FirebaseFirestore) {
+        // Classes & Enrolled Students
+        db.collection("classes")
+            .whereEqualTo("teacherId", uid)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                if (_binding != null && isAdded) {
+                    binding.tvTeacherStatClasses.text = snapshots.size().toString()
+
+                    var totalStudents = 0
+                    for (doc in snapshots.documents) {
+                        val joined = doc.get("joinedStudents") as? List<*>
+                        totalStudents += joined?.size ?: 0
+                    }
+                    binding.tvTeacherStatStudents.text = totalStudents.toString()
+                }
+            }
+
+        // Materials Uploaded
+        db.collection("library_materials")
+            .whereEqualTo("uploadedBy", uid)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                if (_binding != null && isAdded) {
+                    binding.tvTeacherStatMaterials.text = snapshots.size().toString()
+                }
+            }
+
+        // Quizzes Authored
+        db.collection("quizzes")
+            .whereEqualTo("teacherId", uid)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                if (_binding != null && isAdded) {
+                    binding.tvTeacherStatQuizzes.text = snapshots.size().toString()
+                }
+            }
+    }
+
+    private fun loadLifetimeStats(uid: String, db: FirebaseFirestore) {
         val ctx = context ?: return
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         // 1. Study Streak
         val streak = QuestManager.getStreak(ctx)
         binding.tvStatStreak.text = "${streak}d"
 
         // 2. Words Mastered (spaced repetition interval >= 4)
-        FirebaseFirestore.getInstance().collection("users").document(uid).collection("history")
+        db.collection("users").document(uid).collection("history")
             .whereGreaterThanOrEqualTo("interval", 4)
             .get()
             .addOnSuccessListener { qs ->
@@ -137,7 +281,7 @@ class ProfileFragment : Fragment() {
             }
 
         // 3. Quizzes Taken & Overall Accuracy
-        FirebaseFirestore.getInstance().collection("users").document(uid).collection("quiz_history")
+        db.collection("users").document(uid).collection("quiz_history")
             .get()
             .addOnSuccessListener { qs ->
                 if (_binding != null && isAdded) {
@@ -164,16 +308,17 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupLanguageDropdown() {
-        val prefs = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+        val ctx = context ?: return
+        val prefs = ctx.getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
         val languageOptions = arrayOf("English", "Taglish", "Tagalog")
-        val adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, languageOptions)
-        val autoText = binding.root.findViewById<AutoCompleteTextView>(R.id.actv_language)
+        val adapter = ArrayAdapter(ctx, android.R.layout.simple_dropdown_item_1line, languageOptions)
+        val autoText = binding.root.findViewById<AutoCompleteTextView>(R.id.actv_language) ?: return
         autoText.setAdapter(adapter)
 
         val currentLang = prefs.getString("ai_language_pref", "English") ?: "English"
         autoText.setText(currentLang, false)
 
-        autoText.setOnItemClickListener { parent: AdapterView<*>, _, position: Int, _ ->
+        autoText.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
             val selected = parent.getItemAtPosition(position).toString()
             prefs.edit().putString("ai_language_pref", selected).apply()
             GabAIUtils.showSnackbar(context, "AI will now explain in $selected")

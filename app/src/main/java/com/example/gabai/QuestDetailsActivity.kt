@@ -76,14 +76,16 @@ class QuestDetailsActivity : AppCompatActivity() {
             }
     }
     private fun showCompanionRequiredDialog() {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Companion Required 🧚‍♂️")
-            .setMessage("You cannot face the reading trials alone! \n\nPlease return to your dashboard and activate the GabAI Floating Bubble. Your AI guide is essential for deciphering these texts.")
-            .setPositiveButton("Understood") { dialog, _ ->
-                dialog.dismiss()
-                finish() // Automatically takes them back to the dashboard to turn it on!
+        GabAIDialogs.showNoticeDialog(
+            context = this,
+            title = "Companion Required",
+            message = "You cannot face the reading trials alone!\n\nPlease return to your dashboard and activate the GabAI Floating Bubble. Your AI guide is essential for deciphering these texts.",
+            buttonText = "Understood",
+            badgeIcon = "🧚‍♂️",
+            onAction = {
+                finish()
             }
-            .show()
+        )
     }
 
     // Helper function to dynamically change the Material 3 colors based on completion

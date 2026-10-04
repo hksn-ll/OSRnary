@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.gabai.databinding.FragmentTeacherHomeBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -19,28 +18,67 @@ class TeacherHomeFragment : Fragment() {
         _binding = FragmentTeacherHomeBinding.inflate(inflater, container, false)
 
         setupButtons()
-        loadEducatorMetrics()
-
-        // Cascade entrance animation
-        GabAIUtils.animateCascade(
-            listOf(
-                binding.headerEducator,
-                binding.llEducatorMetrics,
-                binding.btnManageClasses,
-                binding.btnAssignMaterials,
-                binding.btnViewPerformance
-            ),
-            35L
-        )
-
+        loadEducatorProfileAndMetrics()
         return binding.root
     }
 
-    private fun loadEducatorMetrics() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        playEntranceAnimation()
+    }
+
+    fun playEntranceAnimation() {
+        if (_binding == null || !isAdded) return
+        val viewsToAnimate = listOfNotNull(
+            binding.headerEducator,
+            binding.cardHeroJoinCode,
+            binding.headerEducatorOverview,
+            binding.btnMetricClasses,
+            binding.btnMetricStudents,
+            binding.btnMetricMaterials,
+            binding.btnMetricQuizzes,
+            binding.headerTeachingWorkspace,
+            binding.btnManageClasses,
+            binding.btnAssignMaterials,
+            binding.btnViewPerformance,
+            binding.btnCreateClassQuick
+        )
+        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 35L, startDelayOffset = 300L)
+    }
+
+    private fun loadEducatorProfileAndMetrics() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
-        // 1. Classes & Total Enrolled Learners
+        // 1. Load Teacher User Document (Name, School, Join Code)
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { doc ->
+                if (_binding != null && isAdded && doc.exists()) {
+                    val firstName = doc.getString("firstName") ?: ""
+                    val sId = doc.getString("schoolId")
+                    val schoolName = SchoolRepository.getSchoolName(sId)
+                    val joinCode = doc.getString("joinCode") ?: "N/A"
+
+                    binding.tvTeacherWelcome.text = if (firstName.isNotEmpty()) "Hello, Teacher $firstName!" else "Hello, Teacher!"
+                    binding.tvTeacherSchool.text = if (schoolName.isNotEmpty()) "$schoolName • Educator Console" else "EDUCATOR CONSOLE"
+                    binding.tvTeacherJoinCode.text = joinCode
+
+                    GabAIUtils.addSpringPressEffect(binding.btnShowQrCode) {
+                        val ctx = context ?: return@addSpringPressEffect
+                        if (joinCode != "N/A") {
+                            GabAIDialogs.showQrCodeDialog(
+                                ctx,
+                                title = "Your Teacher QR Code",
+                                subtitle = "Share this with learners to enroll into your classes.",
+                                qrContent = joinCode,
+                                displayCode = joinCode
+                            )
+                        }
+                    }
+                }
+            }
+
+        // 2. Classes & Total Enrolled Learners
         db.collection("classes")
             .whereEqualTo("teacherId", uid)
             .get()
@@ -58,7 +96,7 @@ class TeacherHomeFragment : Fragment() {
                 }
             }
 
-        // 2. Materials Uploaded/Assigned
+        // 3. Materials Uploaded/Assigned
         db.collection("library_materials")
             .whereEqualTo("uploadedBy", uid)
             .get()
@@ -67,22 +105,54 @@ class TeacherHomeFragment : Fragment() {
                     binding.tvMetricMaterials.text = snapshots.size().toString()
                 }
             }
+
+        // 4. Quizzes Authored
+        db.collection("quizzes")
+            .whereEqualTo("teacherId", uid)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                if (_binding != null && isAdded) {
+                    binding.tvMetricQuizzes.text = snapshots.size().toString()
+                }
+            }
     }
 
     private fun setupButtons() {
-        // 1. OPEN CLASS MANAGEMENT
+        // Class Sections & Rosters
         GabAIUtils.addSpringPressEffect(binding.btnManageClasses) {
             startActivity(Intent(requireContext(), ManageClassesActivity::class.java))
         }
 
-        // 2. OPEN TEACHER LIBRARY
+        // Curriculum & Library Vault
         GabAIUtils.addSpringPressEffect(binding.btnAssignMaterials) {
             startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
         }
 
-        // 3. DIRECT LEARNER ANALYTICS & PERFORMANCE
+        // Learner Analytics & Performance
         GabAIUtils.addSpringPressEffect(binding.btnViewPerformance) {
             openClassPerformance()
+        }
+
+        // Quick Create Class Button
+        GabAIUtils.addSpringPressEffect(binding.btnCreateClassQuick) {
+            startActivity(Intent(requireContext(), ManageClassesActivity::class.java))
+        }
+
+        // Metric Card Tap Shortcuts
+        GabAIUtils.addSpringPressEffect(binding.btnMetricClasses) {
+            startActivity(Intent(requireContext(), ManageClassesActivity::class.java))
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.btnMetricStudents) {
+            startActivity(Intent(requireContext(), ManageClassesActivity::class.java))
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.btnMetricMaterials) {
+            startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.btnMetricQuizzes) {
+            startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
         }
     }
 
@@ -111,16 +181,19 @@ class TeacherHomeFragment : Fragment() {
                         val cName = it.getString("className") ?: "Class"
                         val grade = it.getString("grade") ?: ""
                         if (grade.isNotEmpty()) "$grade - $cName" else cName
-                    }.toTypedArray()
+                    }
 
-                    MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Select Class to View Performance")
-                        .setItems(classNames) { _, which ->
+                    GabAIDialogs.showSelectionDialog(
+                        context = requireContext(),
+                        title = "Select Class to View Performance",
+                        subtitle = "Choose which section metrics you want to inspect.",
+                        items = classNames,
+                        badgeIcon = "📊",
+                        onSelected = { which, _ ->
                             val doc = snapshots.documents[which]
                             launchPerformanceForClass(doc.id, doc.getString("className") ?: "", doc.getString("sectionName") ?: "", doc.getString("schoolId") ?: "", doc.getString("grade") ?: "")
                         }
-                        .setNegativeButton("Cancel", null)
-                        .show()
+                    )
                 }
             }
             .addOnFailureListener { e ->

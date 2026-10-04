@@ -40,6 +40,9 @@ class MaterialQuizActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.question_text).text = "Checking your records..."
         findViewById<View>(R.id.options_container).visibility = View.GONE
 
+        // Header back button
+        findViewById<View>(R.id.btn_back)?.setOnClickListener { finish() }
+
         // 🟢 BUG FIX: Remove the unneeded extra exit button
         findViewById<Button>(R.id.btn_exit).visibility = View.GONE
 
@@ -113,7 +116,13 @@ class MaterialQuizActivity : AppCompatActivity() {
                         val opts = obj.getJSONArray("options")
                         val optList = listOf(opts.getString(0), opts.getString(1), opts.getString(2), opts.getString(3))
                         val ans = obj.getInt("ans")
-                        allQuestions.add(GeneratedQuestion(q, optList, ans))
+
+                        // Anti-cheating: Shuffle the 4 options and update the correct index
+                        val correctText = optList.getOrElse(ans) { optList[0] }
+                        val shuffledOpts = optList.shuffled()
+                        val newAns = shuffledOpts.indexOf(correctText).coerceAtLeast(0)
+
+                        allQuestions.add(GeneratedQuestion(q, shuffledOpts, newAns))
                     }
 
                     quizList = allQuestions.shuffled().take(maxItems).toMutableList()
@@ -148,7 +157,14 @@ class MaterialQuizActivity : AppCompatActivity() {
         }
 
         val qData = quizList[currentQuizIndex]
-        findViewById<TextView>(R.id.question_text).text = "Q${currentQuizIndex + 1}/${quizList.size}: ${qData.question}"
+        findViewById<TextView>(R.id.question_text).text = qData.question
+        findViewById<TextView>(R.id.tv_progress_counter)?.text = "Question ${currentQuizIndex + 1} of ${quizList.size}"
+        val pct = ((currentQuizIndex + 1) * 100) / quizList.size.coerceAtLeast(1)
+        findViewById<TextView>(R.id.tv_progress_percent)?.text = "$pct%"
+        findViewById<android.widget.ProgressBar>(R.id.progress_quiz)?.apply {
+            max = quizList.size
+            progress = currentQuizIndex + 1
+        }
 
         val buttons = listOf(
             findViewById<Button>(R.id.btn_choice1),
@@ -158,7 +174,8 @@ class MaterialQuizActivity : AppCompatActivity() {
         )
 
         for (i in buttons.indices) {
-            buttons[i].text = qData.options[i]
+            val letter = ('A' + i)
+            buttons[i].text = "$letter)  ${qData.options[i]}"
             buttons[i].setOnClickListener { checkAnswer(i, qData) }
         }
     }

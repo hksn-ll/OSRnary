@@ -1,12 +1,12 @@
 package com.example.gabai
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.text.PDFTextStripper
@@ -43,7 +43,7 @@ class QuizEditorActivity : AppCompatActivity() {
     data class ClassInfo(val id: String, val name: String, val schoolId: String, val grade: String)
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash-lite",
+        modelName = "gemini-3.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY
     )
 
@@ -243,16 +243,21 @@ class QuizEditorActivity : AppCompatActivity() {
         }
 
         btnDelete.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Delete Question?")
-                .setMessage("Are you sure you want to remove this question?")
-                .setPositiveButton("Delete") { _, _ ->
+            GabAIDialogs.showConfirmDialog(
+                context = this,
+                title = "Delete Question?",
+                message = "Are you sure you want to remove this question?",
+                confirmText = "Delete",
+                cancelText = "Cancel",
+                isDestructive = true,
+                badgeIcon = "🗑️",
+                iconRes = R.drawable.ic_trash,
+                onConfirm = {
                     container.removeView(view)
                     updateQuestionNumbers()
                     GabAIUtils.showSnackbar(this, "Question removed.")
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
+            )
         }
 
         container.addView(view)
@@ -269,32 +274,80 @@ class QuizEditorActivity : AppCompatActivity() {
     private fun showManualAddDialog() {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(50, 40, 50, 40)
+            setPadding(0, 0, 0, 0)
         }
 
-        val etQ = EditText(this).apply { hint = "Enter Question"; setPadding(0, 0, 0, 20) }
-        val etO0 = EditText(this).apply { hint = "Option 1" }
-        val etO1 = EditText(this).apply { hint = "Option 2" }
-        val etO2 = EditText(this).apply { hint = "Option 3" }
-        val etO3 = EditText(this).apply { hint = "Option 4" }
+        val etQ = EditText(this).apply {
+            hint = "Enter Question"
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#CBD5E1"))
+            textSize = 14f
+        }
+        val etO0 = EditText(this).apply {
+            hint = "Option 1"
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#CBD5E1"))
+            textSize = 14f
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 16 }
+        }
+        val etO1 = EditText(this).apply {
+            hint = "Option 2"
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#CBD5E1"))
+            textSize = 14f
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 16 }
+        }
+        val etO2 = EditText(this).apply {
+            hint = "Option 3"
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#CBD5E1"))
+            textSize = 14f
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 16 }
+        }
+        val etO3 = EditText(this).apply {
+            hint = "Option 4"
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#CBD5E1"))
+            textSize = 14f
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 16 }
+        }
 
         val tvAns = TextView(this).apply {
             text = "Correct Answer:"
             setPadding(0, 24, 0, 8)
             setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
         }
         val spinner = Spinner(this).apply {
             adapter = ArrayAdapter(this@QuizEditorActivity, android.R.layout.simple_spinner_dropdown_item, arrayOf("Option 1", "Option 2", "Option 3", "Option 4"))
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(24, 20, 24, 20)
         }
 
         val tvExp = TextView(this).apply {
             text = "Educational Explanation:"
             setPadding(0, 24, 0, 8)
             setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
         }
         val etExp = EditText(this).apply {
             hint = "Explain why this answer is correct..."
             minLines = 2
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#CBD5E1"))
+            textSize = 14f
         }
 
         layout.addView(etQ)
@@ -307,25 +360,36 @@ class QuizEditorActivity : AppCompatActivity() {
         layout.addView(tvExp)
         layout.addView(etExp)
 
-        val scrollView = ScrollView(this).apply { addView(layout) }
+        val scrollView = ScrollView(this).apply {
+            addView(layout)
+            isFillViewport = true
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, (resources.displayMetrics.density * 320).toInt())
+        }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Add Custom Question")
-            .setView(scrollView)
-            .setPositiveButton("Add") { _, _ ->
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Add Custom Question",
+            subtitle = "Enter question details, options, and explanation",
+            customView = scrollView,
+            confirmText = "Add",
+            cancelText = "Cancel",
+            badgeIcon = "✍️",
+            onConfirm = { dialog ->
                 val q = etQ.text.toString().trim()
                 val opts = listOf(etO0.text.toString().trim(), etO1.text.toString().trim(), etO2.text.toString().trim(), etO3.text.toString().trim())
                 val ans = spinner.selectedItemPosition
                 val exp = etExp.text.toString().trim()
 
                 if (q.isNotEmpty()) {
+                    dialog.dismiss()
                     addQuestionToUI(q, opts, ans, exp)
                     GabAIUtils.showSnackbar(this, "Question added!")
                     scrollToBottom()
+                } else {
+                    GabAIUtils.showSnackbar(this, "Please enter a question.")
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun scrollToBottom() {
@@ -344,23 +408,22 @@ class QuizEditorActivity : AppCompatActivity() {
             return
         }
 
-        val input = EditText(this).apply {
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            hint = "Generate how many items? (Max $maxAllowed)"
-            setPadding(50, 40, 50, 40)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("✨ Generate More Questions")
-            .setMessage("Gemini will generate and append new questions with educational explanations.\n\nCurrent questions: $currentCount. You can generate up to $maxAllowed more.")
-            .setView(input)
-            .setPositiveButton("Generate") { _, _ ->
-                var count = input.text.toString().toIntOrNull() ?: maxAllowed
+        GabAIDialogs.showInputDialog(
+            context = this,
+            title = "Generate More Questions",
+            message = "Gemini will generate and append new questions with educational explanations.\n\nCurrent questions: $currentCount. You can generate up to $maxAllowed more.",
+            hint = "Generate how many items? (Max $maxAllowed)",
+            initialText = "5",
+            confirmText = "Generate",
+            cancelText = "Cancel",
+            isNumeric = true,
+            badgeIcon = "✨",
+            onConfirm = { text ->
+                var count = text.toIntOrNull() ?: maxAllowed
                 if (count > maxAllowed) count = maxAllowed
                 if (count > 0) generateMoreQuestions(count)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun generateMoreQuestions(count: Int) {

@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.barteksc.pdfviewer.PDFView
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
@@ -34,7 +33,7 @@ class PdfViewerActivity : AppCompatActivity() {
     private val uid get() = FirebaseAuth.getInstance().currentUser?.uid
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash-lite",
+        modelName = "gemini-3.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY
     )
 
@@ -227,28 +226,25 @@ class PdfViewerActivity : AppCompatActivity() {
     }
 
     private fun promptForInitialQuizGeneration() {
-        val input = EditText(this).apply {
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            hint = "Number of Quiz Items (Max 15)" // 🟢 Changed hint
-            setPadding(50, 40, 50, 40)
-        }
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Create New AI Quiz")
-            .setMessage("No quiz exists for this material yet. How many questions should GabAI generate to start? (Max 15 at a time)")
-            .setView(input)
-            .setPositiveButton("Generate") { _, _ ->
-                var maxItems = input.text.toString().toIntOrNull() ?: 5
-
-                // 🟢 STRICT AI LIMIT: Cap the request to 15
+        GabAIDialogs.showInputDialog(
+            context = this,
+            title = "Create New AI Quiz",
+            message = "No quiz exists for this material yet. How many questions should GabAI generate to start? (Max 15 at a time)",
+            hint = "Number of Quiz Items (Max 15)",
+            initialText = "5",
+            confirmText = "Generate",
+            cancelText = "Cancel",
+            isNumeric = true,
+            badgeIcon = "✨",
+            onConfirm = { text ->
+                var maxItems = text.toIntOrNull() ?: 5
                 if (maxItems > 15) {
                     maxItems = 15
                     GabAIUtils.showSnackbar(this, "AI generation limited to 15 questions at a time.")
                 }
-
                 generateInitialQuizLocally(maxItems)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun generateInitialQuizLocally(maxItems: Int) {
@@ -399,17 +395,33 @@ class PdfViewerActivity : AppCompatActivity() {
                         }
 
                         findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
-                        val scrollView = ScrollView(this).apply { addView(mainContainer) }
+                        val scrollView = ScrollView(this).apply {
+                            addView(mainContainer)
+                            isFillViewport = true
+                            layoutParams = FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.MATCH_PARENT,
+                                (resources.displayMetrics.density * 340).toInt()
+                            )
+                        }
 
-                        MaterialAlertDialogBuilder(this).setTitle("Manage Access").setView(scrollView)
-                            .setPositiveButton("Save Access") { _, _ ->
+                        GabAIDialogs.showCustomDialog(
+                            context = this,
+                            title = "Manage Access",
+                            subtitle = "Assign sections permitted to access this document",
+                            customView = scrollView,
+                            confirmText = "Save Access",
+                            cancelText = "Cancel",
+                            badgeIcon = "👥",
+                            onConfirm = { dialog ->
+                                dialog.dismiss()
                                 findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
                                 db.collection("library_materials").document(materialId).update("assignedSections", selectedStudentIds).addOnSuccessListener {
                                     findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
                                     intent.putStringArrayListExtra("ASSIGNED_SECTIONS", ArrayList(selectedStudentIds)) // Update intent so it remembers!
                                     GabAIUtils.showSnackbar(this, "Access updated successfully!")
                                 }
-                            }.setNegativeButton("Cancel", null).show()
+                            }
+                        )
                     }
             }
         }

@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_teacher_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app_aurora"
-    android:fillViewport="true">
+    android:background="@android:color/transparent"
+    android:clipToPadding="false"
+    android:paddingTop="76dp"
+    android:paddingBottom="96dp"
+    android:scrollbars="none">
 
     <LinearLayout
         android:id="@+id/teacher_home_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="48dp"
-        android:paddingBottom="28dp">
+        android:paddingHorizontal="16dp">
 
-        <!-- Educator Hero Header -->
+        <!-- ========================================================= -->
+        <!-- 1. GREETING SECTION                                       -->
+        <!-- ========================================================= -->
         <LinearLayout
             android:id="@+id/header_educator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="16dp"
+            android:paddingHorizontal="4dp">
 
             <TextView
+                android:id="@+id/tv_teacher_school"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EDUCATOR CONSOLE"
@@ -33,323 +42,769 @@
                 android:fontFamily="@font/font_plus_jakarta_sans"
                 android:letterSpacing="0.08" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvTeacherWelcome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello, Teacher!"
+                    android:textColor="#161D1F"
+                    android:textSize="26sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="👋"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
             <TextView
-                android:id="@+id/tvTeacherWelcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Educator Dashboard"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="#161D1F"
-                android:fontFamily="@font/font_plus_jakarta_sans" />
+                android:text="Manage classrooms, distribute reading units, and monitor learner performance."
+                android:textColor="#64748B"
+                android:textSize="13sp"
+                android:fontFamily="@font/font_nunito_sans" />
+        </LinearLayout>
 
-            <TextView
+        <!-- ========================================================= -->
+        <!-- 2. HERO CARD: TEACHER JOIN CODE (HERO GRADIENT STYLE)     -->
+        <!-- ========================================================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_hero_join_code"
+            style="@style/Widget.Material3.CardView.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:contentPadding="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_tools_camera_gradient"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_level_pill"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp"
+                        android:text="CLASS JOIN CODE"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/btn_show_qr_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:background="@drawable/bg_pill_white"
+                        android:gravity="center"
+                        android:paddingHorizontal="14dp"
+                        android:text="Show QR  📷"
+                        android:textColor="#5341CD"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_teacher_join_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="------"
+                        android:textColor="#FFFFFF"
+                        android:textSize="28sp"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Share this code with your students to enroll them into your subjects."
+                        android:textColor="#E4DFFF"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ========================================================= -->
+        <!-- 3. EDUCATOR OVERVIEW SECTION (2x2 BENTO GRID)             -->
+        <!-- ========================================================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Section Title Header with purple pill indicator -->
+            <LinearLayout
+                android:id="@+id/header_educator_overview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Manage your classrooms, assign curriculum readings, and inspect learner performance."
-                android:textSize="14sp"
-                android:textColor="#5A6472"
-                android:fontFamily="@font/font_plus_jakarta_sans" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp"
+                android:paddingHorizontal="4dp">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="#5341CD" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EDUCATOR OVERVIEW"
+                    android:textColor="#161D1F"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
+            </LinearLayout>
+
+            <!-- Row 1: Classes + Enrolled Learners -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <!-- Classes Tile -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_metric_classes"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
+                    android:layout_height="136dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="5dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_purple"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_school"
+                                app:tint="#5341CD"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/tv_metric_classes"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="0"
+                                android:textColor="#161D1F"
+                                android:textSize="22sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Classes"
+                            android:textColor="#161D1F"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Active class sections"
+                            android:textColor="#64748B"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:singleLine="true" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Learners Tile -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_metric_students"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
+                    android:layout_height="136dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_mint"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_task_alt"
+                                app:tint="#00B894"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/tv_metric_students"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="0"
+                                android:textColor="#161D1F"
+                                android:textSize="22sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Learners"
+                            android:textColor="#161D1F"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Enrolled students"
+                            android:textColor="#64748B"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:singleLine="true" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Row 2: Readings + Quizzes Authored -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Readings Tile -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_metric_materials"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
+                    android:layout_height="136dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="5dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_rose"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_menu_book"
+                                app:tint="#E11D48"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/tv_metric_materials"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="0"
+                                android:textColor="#161D1F"
+                                android:textSize="22sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Readings"
+                            android:textColor="#161D1F"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="PDF materials vault"
+                            android:textColor="#64748B"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:singleLine="true" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Quizzes Authored Tile -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_metric_quizzes"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
+                    android:layout_height="136dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:contentPadding="0dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_bento_lavender"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_psychology"
+                                app:tint="#6C5CE7"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/tv_metric_quizzes"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="0"
+                                android:textColor="#161D1F"
+                                android:textSize="22sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Quizzes"
+                            android:textColor="#161D1F"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Created assessments"
+                            android:textColor="#64748B"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:singleLine="true" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Educator Quick Metrics Bento Row -->
+        <!-- ========================================================= -->
+        <!-- 4. TEACHING WORKSPACE SECTION (CARDS MATCHING TOOLS)      -->
+        <!-- ========================================================= -->
         <LinearLayout
-            android:id="@+id/ll_educator_metrics"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
 
-            <!-- Metric 1: Classes -->
+            <!-- Section Title Header with purple pill indicator -->
+            <LinearLayout
+                android:id="@+id/header_teaching_workspace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp"
+                android:paddingHorizontal="4dp">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="#5341CD" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TEACHING WORKSPACE"
+                    android:textColor="#161D1F"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
+            </LinearLayout>
+
+            <!-- Card 1: Class Sections & Rosters -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Stitch.Card"
-                android:layout_width="0dp"
-                android:layout_height="88dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
-                app:cardBackgroundColor="#FFFFFF"
+                android:id="@+id/btnManageClasses"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="#EDF2F7">
+                app:strokeColor="#EDF2F7"
+                app:contentPadding="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_bento_purple"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_school"
+                        app:tint="#5341CD"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Class Sections &amp; Rosters"
+                            android:textColor="#161D1F"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Manage sections, student rosters &amp; codes."
+                            android:textColor="#64748B"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:singleLine="true" />
+                    </LinearLayout>
 
                     <TextView
-                        android:id="@+id/tv_metric_classes"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="#5341CD"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Classes"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_btn_pill_purple"
+                        android:gravity="center"
+                        android:paddingHorizontal="14dp"
+                        android:text="Manage"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Metric 2: Enrolled Learners -->
+            <!-- Card 2: Curriculum & Library -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Stitch.Card"
-                android:layout_width="0dp"
-                android:layout_height="88dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="3dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
-                app:cardBackgroundColor="#FFFFFF"
+                android:id="@+id/btnAssignMaterials"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="#EDF2F7">
+                app:strokeColor="#EDF2F7"
+                app:contentPadding="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_bento_mint"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_menu_book"
+                        app:tint="#00B894"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Curriculum &amp; Library Vault"
+                            android:textColor="#161D1F"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Upload reading PDFs &amp; author quizzes."
+                            android:textColor="#64748B"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:singleLine="true" />
+                    </LinearLayout>
 
                     <TextView
-                        android:id="@+id/tv_metric_students"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="#00B894"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Learners"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_btn_pill_grey"
+                        android:gravity="center"
+                        android:paddingHorizontal="14dp"
+                        android:text="Open Vault"
+                        android:textColor="#475569"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Metric 3: Materials Assigned -->
+            <!-- Card 3: Learner Analytics & Mastery -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Stitch.Card"
-                android:layout_width="0dp"
-                android:layout_height="88dp"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
-                app:cardBackgroundColor="#FFFFFF"
+                android:id="@+id/btnViewPerformance"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="#EDF2F7">
+                app:strokeColor="#EDF2F7"
+                app:contentPadding="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="14dp">
+
+                    <ImageView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_bento_lavender"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_insights"
+                        app:tint="#6C5CE7"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Learner Analytics &amp; Mastery"
+                            android:textColor="#161D1F"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="Accuracy heatmaps, streaks &amp; metrics."
+                            android:textColor="#64748B"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:singleLine="true" />
+                    </LinearLayout>
 
                     <TextView
-                        android:id="@+id/tv_metric_materials"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="#E11D48"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Readings"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_btn_pill_grey"
+                        android:gravity="center"
+                        android:paddingHorizontal="14dp"
+                        android:text="Analytics"
+                        android:textColor="#475569"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
 
-        <!-- Bento Card 1: Class Sections -->
-        <LinearLayout
-            android:id="@+id/btnManageClasses"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_card_bento"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="20dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_btn_frosted_circle"
-                android:padding="12dp"
-                android:src="@drawable/ic_school"
-                app:tint="#5341CD" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Class Sections &amp; Rosters"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#161D1F"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Manage sections, student rosters, and credentials"
-                    android:textSize="13sp"
-                    android:textColor="#5A6472"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_chevron_right_white"
-                app:tint="#5341CD" />
-        </LinearLayout>
-
-        <!-- Bento Card 2: Assign Materials -->
-        <LinearLayout
-            android:id="@+id/btnAssignMaterials"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_card_bento"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="20dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_btn_frosted_circle"
-                android:padding="12dp"
-                android:src="@drawable/ic_menu_book"
-                app:tint="#00B894" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Curriculum &amp; Library"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#161D1F"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Distribute reading PDFs and assign materials"
-                    android:textSize="13sp"
-                    android:textColor="#5A6472"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_chevron_right_white"
-                app:tint="#00B894" />
-        </LinearLayout>
-
-        <!-- Bento Card 3: Direct Performance & Analytics -->
-        <LinearLayout
-            android:id="@+id/btnViewPerformance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_card_bento"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="20dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_btn_frosted_circle"
-                android:padding="12dp"
-                android:src="@drawable/ic_insights"
-                app:tint="#0984E3" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Learner Analytics &amp; Mastery"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#161D1F"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Track quiz accuracy, active streaks, and rankings"
-                    android:textSize="13sp"
-                    android:textColor="#5A6472"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_chevron_right_white"
-                app:tint="#0984E3" />
+            <!-- Full-Width Deep Teal Create Class Button (matches Join Class on Home) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_create_class_quick"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/btn_teal_stitch"
+                app:backgroundTint="@null"
+                android:text="  Create New Class Section"
+                app:icon="@drawable/ic_school"
+                app:iconGravity="textStart"
+                app:iconSize="20dp"
+                app:iconTint="#FFFFFF"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:elevation="0dp" />
         </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

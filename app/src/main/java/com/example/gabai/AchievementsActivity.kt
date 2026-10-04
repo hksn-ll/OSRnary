@@ -14,7 +14,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class AchievementsActivity : AppCompatActivity() {
 
@@ -194,11 +193,13 @@ class AchievementsActivity : AppCompatActivity() {
             // Click Dialog
             card.setOnClickListener {
                 GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
-                MaterialAlertDialogBuilder(this)
-                    .setTitle(badge.title)
-                    .setMessage("${badge.description}\n\nCriteria: ${badge.unlockCriteria}\nStatus: ${if (badge.isUnlocked) "Completed! 🎉" else "In Progress 🔒"}")
-                    .setPositiveButton("Close", null)
-                    .show()
+                GabAIDialogs.showNoticeDialog(
+                    context = this,
+                    title = badge.title,
+                    message = "${badge.description}\n\nCriteria: ${badge.unlockCriteria}\nStatus: ${if (badge.isUnlocked) "Completed! 🎉" else "In Progress 🔒"}",
+                    buttonText = "Close",
+                    badgeIcon = if (badge.isUnlocked) "🏆" else "🔒"
+                )
             }
 
             grid.addView(card)

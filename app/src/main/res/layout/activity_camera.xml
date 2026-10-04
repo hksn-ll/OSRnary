@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000">
 
+    <!-- 1. Live Camera Preview -->
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="0dp"
@@ -15,15 +17,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- 2. Cyber Scanner Reticle & Viewfinder Frame -->
+    <FrameLayout
+        android:id="@+id/viewfinder_reticle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="24dp"
+        android:background="@drawable/bg_viewfinder_frame"
+        app:layout_constraintTop_toTopOf="@id/viewFinder"
+        app:layout_constraintBottom_toBottomOf="@id/viewFinder"
+        app:layout_constraintStart_toStartOf="@id/viewFinder"
+        app:layout_constraintEnd_toEndOf="@id/viewFinder">
+
+        <!-- Laser Sweep Beam inside Reticle -->
+        <View
+            android:id="@+id/camera_laser_sweep"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_scanner_laser_beam"
+            android:alpha="0.85" />
+    </FrameLayout>
+
+    <!-- 3. Top Header Bar: Close Button, Guidance Chip, Flashlight Toggle -->
     <ImageButton
         android:id="@+id/btn_close_camera"
         android:layout_width="44dp"
         android:layout_height="44dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="36dp"
         android:background="@drawable/bg_btn_frosted_circle"
         android:contentDescription="Close Camera"
-        android:padding="10dp"
+        android:padding="11dp"
         android:src="@drawable/ic_close_bold"
         app:tint="#FFFFFF"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,13 +62,39 @@
         android:letterSpacing="0.02"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
-        android:text="Align document or text within frame"
+        android:text="Align text within frame"
         android:textColor="#FFFFFF"
-        android:textSize="14sp"
+        android:textSize="13sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="36dp" />
+
+    <!-- Flashlight / Torch Toggle -->
+    <ImageButton
+        android:id="@+id/btn_flash_toggle"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="36dp"
+        android:background="@drawable/bg_btn_frosted_circle"
+        android:contentDescription="Toggle Flashlight"
+        android:padding="11dp"
+        android:src="@drawable/ic_flash_off"
+        app:tint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 4. Bottom Controls: Shutter Outer Ring & Capture Button -->
+    <View
+        android:id="@+id/shutter_ring"
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:background="@drawable/bg_shutter_outer_ring"
+        app:layout_constraintBottom_toBottomOf="@id/btn_capture"
+        app:layout_constraintTop_toTopOf="@id/btn_capture"
+        app:layout_constraintStart_toStartOf="@id/btn_capture"
+        app:layout_constraintEnd_toEndOf="@id/btn_capture" />
 
     <ImageButton
         android:id="@+id/btn_capture"
@@ -58,6 +108,43 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="44dp" />
+        android:layout_marginBottom="40dp" />
+
+    <!-- 5. Shutter Flash Overlay (White Camera Flash Effect) -->
+    <View
+        android:id="@+id/shutter_flash_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:alpha="0"
+        android:visibility="gone"
+        tools:visibility="gone" />
+
+    <!-- 6. Camera Initialization Loading Overlay -->
+    <LinearLayout
+        android:id="@+id/camera_loading_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0A0E1A"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ProgressBar
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:indeterminateTint="#818CF8" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.04"
+            android:text="Starting Camera Lens..."
+            android:textColor="#E2E8F0"
+            android:textSize="14sp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

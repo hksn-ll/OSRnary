@@ -742,6 +742,7 @@
 
                 <!-- Section Title Header with purple pill -->
                 <LinearLayout
+                    android:id="@+id/header_your_journey"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -1047,6 +1048,7 @@
 
                 <!-- Section Title -->
                 <LinearLayout
+                    android:id="@+id/header_tools"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"

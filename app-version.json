@@ -1,11 +1,11 @@
 {
-  "versionCode": 17,
-  "versionName": "0.4.3",
-  "minRequiredVersionCode": 17,
+  "versionCode": 18,
+  "versionName": "0.4.4",
+  "minRequiredVersionCode": 18,
   "forceUpdate": false,
-  "title": "Modern Dialog Engine & Expressive In-App Updates (v0.4.3)",
-  "message": "Major UI & workflow upgrade: Google Code Scanner for classroom joining, offline teacher QR generation, hardware-accelerated frosted glass backdrop blur behind dialogs, unified modern dialogs across the app, and modernized GabAI APK updater.",
+  "title": "Clean Web Landing & Expressive In-App Updates (v0.4.4)",
+  "message": "Elevated GabAI with refreshed academic capstone landing portal, high-contrast expressive UI, and streamlined release assets.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.3/GabAI-v0.4.3.apk",
-  "changelog": "• Universal Modern Dialog Engine: Replaced system dialogs with GabAI Expressive Dialogs (28dp rounded surfaces, 3D icon badges, uppercase monospace letter-spaced inputs, and tactile spring feedback)\n• Hardware-Accelerated Backdrop Blur: Real-time GPU window backdrop blur (FLAG_BLUR_BEHIND) behind every dialog on Android 12+\n• Expressive In-App Update System: Modernized update interface with 28dp rounded card, rocket badge, live progress indicator, and streamlined GabAI-v0.4.3.apk asset delivery\n• Google Code Scanner: Instant zero-permission camera QR code scanning powered by Google Play Services to join classroom sections in one tap\n• Offline Teacher QR Codes: High-contrast classroom QR codes generated instantly on-device via ZXing for teachers in Profile and Section views\n• Full App-Wide Dialog Modernization: Transformed PDF jump, document rename, folder creation, sign out, and deletion alerts to the modern design system"
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.4/GabAI-v0.4.4.apk",
+  "changelog": "• Refreshed Capstone Web Experience: Deployed modern high-craft product landing page with official GabAI branding\n• Dedicated School Admin Portal: Partitioned web portal for campus governance while mobile app serves students and teachers\n• Expressive Dialog Engine: Hardware-accelerated frosted glass backdrop blur and 28dp tactile feedback dialogs\n• Zero-Friction Class Joining: Google Code Scanner QR integration for instant student enrollment"
 }

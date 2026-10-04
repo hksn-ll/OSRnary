@@ -220,11 +220,16 @@ object GabAIDialogs {
         context: Context,
         title: String,
         subtitle: String? = null,
+        message: String? = null,
         hint: String? = null,
         initialText: String? = null,
         confirmText: String = "Confirm",
+        cancelText: String = "Cancel",
         isNumeric: Boolean = false,
+        inputType: Int? = null,
+        minLines: Int = 1,
         badgeIcon: String = "✏️",
+        iconRes: Int? = null,
         onConfirm: (String) -> Unit
     ): Dialog {
         val dialog = Dialog(context)
@@ -233,16 +238,27 @@ object GabAIDialogs {
         applyModernWindowStyles(dialog)
 
         val tvBadge = view.findViewById<TextView>(R.id.tv_dialog_badge_icon)
+        val ivBadge = view.findViewById<ImageView?>(R.id.iv_dialog_badge_icon)
         val tvTitle = view.findViewById<TextView>(R.id.tv_dialog_title)
         val tvSubtitle = view.findViewById<TextView>(R.id.tv_dialog_subtitle)
         val etInput = view.findViewById<EditText>(R.id.et_dialog_input)
         val btnCancel = view.findViewById<Button>(R.id.btn_dialog_cancel)
         val btnConfirm = view.findViewById<Button>(R.id.btn_dialog_confirm)
 
-        tvBadge.text = badgeIcon
+        if (iconRes != null && ivBadge != null) {
+            ivBadge.setImageResource(iconRes)
+            ivBadge.visibility = View.VISIBLE
+            tvBadge.visibility = View.GONE
+        } else {
+            tvBadge.text = badgeIcon
+            tvBadge.visibility = View.VISIBLE
+            ivBadge?.visibility = View.GONE
+        }
+
         tvTitle.text = title
-        if (subtitle != null) {
-            tvSubtitle.text = subtitle
+        val subText = subtitle ?: message
+        if (subText != null) {
+            tvSubtitle.text = subText
             tvSubtitle.visibility = View.VISIBLE
         } else {
             tvSubtitle.visibility = View.GONE
@@ -254,10 +270,18 @@ object GabAIDialogs {
             etInput.setSelection(initialText.length)
         }
 
-        if (isNumeric) {
+        if (inputType != null) {
+            etInput.inputType = inputType
+        } else if (isNumeric) {
             etInput.inputType = InputType.TYPE_CLASS_NUMBER
         }
 
+        if (minLines > 1) {
+            etInput.minLines = minLines
+            etInput.gravity = android.view.Gravity.TOP
+        }
+
+        btnCancel.text = cancelText
         btnConfirm.text = confirmText
 
         GabAIUtils.addSpringPressEffect(btnCancel) {
@@ -290,6 +314,7 @@ object GabAIDialogs {
         cancelText: String = "Cancel",
         isDestructive: Boolean = false,
         badgeIcon: String = if (isDestructive) "🗑️" else "⚠️",
+        iconRes: Int? = null,
         onConfirm: () -> Unit
     ): Dialog {
         val dialog = Dialog(context)
@@ -298,12 +323,22 @@ object GabAIDialogs {
         applyModernWindowStyles(dialog)
 
         val tvBadge = view.findViewById<TextView>(R.id.tv_dialog_badge_icon)
+        val ivBadge = view.findViewById<ImageView?>(R.id.iv_dialog_badge_icon)
         val tvTitle = view.findViewById<TextView>(R.id.tv_dialog_title)
         val tvMessage = view.findViewById<TextView>(R.id.tv_dialog_message)
         val btnCancel = view.findViewById<Button>(R.id.btn_dialog_cancel)
         val btnConfirm = view.findViewById<Button>(R.id.btn_dialog_confirm)
 
-        tvBadge.text = badgeIcon
+        if (iconRes != null && ivBadge != null) {
+            ivBadge.setImageResource(iconRes)
+            ivBadge.visibility = View.VISIBLE
+            tvBadge.visibility = View.GONE
+        } else {
+            tvBadge.text = badgeIcon
+            tvBadge.visibility = View.VISIBLE
+            ivBadge?.visibility = View.GONE
+        }
+
         tvTitle.text = title
         tvMessage.text = message
         btnCancel.text = cancelText
@@ -320,6 +355,188 @@ object GabAIDialogs {
         GabAIUtils.addSpringPressEffect(btnConfirm) {
             dialog.dismiss()
             onConfirm()
+        }
+
+        dialog.show()
+        applyDialogDimensions(dialog)
+        return dialog
+    }
+
+    /**
+     * Universal Modern Notice / Info Dialog (Single Action).
+     */
+    fun showNoticeDialog(
+        context: Context,
+        title: String,
+        message: String,
+        buttonText: String = "Got It",
+        badgeIcon: String = "ℹ️",
+        iconRes: Int? = null,
+        cancelable: Boolean = true,
+        onAction: (() -> Unit)? = null,
+        onDismiss: (() -> Unit)? = null
+    ): Dialog {
+        val dialog = Dialog(context)
+        dialog.setCancelable(cancelable)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_modern_notice, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val tvBadge = view.findViewById<TextView>(R.id.tv_dialog_badge_icon)
+        val ivBadge = view.findViewById<ImageView?>(R.id.iv_dialog_badge_icon)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_dialog_title)
+        val tvMessage = view.findViewById<TextView>(R.id.tv_dialog_message)
+        val btnAction = view.findViewById<Button>(R.id.btn_dialog_action)
+
+        if (iconRes != null && ivBadge != null) {
+            ivBadge.setImageResource(iconRes)
+            ivBadge.visibility = View.VISIBLE
+            tvBadge.visibility = View.GONE
+        } else {
+            tvBadge.text = badgeIcon
+            tvBadge.visibility = View.VISIBLE
+            ivBadge?.visibility = View.GONE
+        }
+
+        tvTitle.text = title
+        tvMessage.text = message
+        btnAction.text = buttonText
+
+        GabAIUtils.addSpringPressEffect(btnAction) {
+            dialog.dismiss()
+            onAction?.invoke() ?: onDismiss?.invoke()
+        }
+
+        if (onDismiss != null) {
+            dialog.setOnDismissListener {
+                onDismiss.invoke()
+            }
+        }
+
+        dialog.show()
+        applyDialogDimensions(dialog)
+        return dialog
+    }
+
+    /**
+     * Universal Modern Bento Selection Dialog.
+     */
+    fun showSelectionDialog(
+        context: Context,
+        title: String,
+        subtitle: String? = null,
+        items: List<String>,
+        badgeIcon: String = "📋",
+        onSelected: (Int, String) -> Unit
+    ): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_modern_selection, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val tvBadge = view.findViewById<TextView>(R.id.tv_dialog_badge_icon)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_dialog_title)
+        val tvSubtitle = view.findViewById<TextView>(R.id.tv_dialog_subtitle)
+        val container = view.findViewById<LinearLayout>(R.id.ll_selection_container)
+        val btnCancel = view.findViewById<Button>(R.id.btn_dialog_cancel)
+
+        tvBadge.text = badgeIcon
+        tvTitle.text = title
+        if (subtitle != null) {
+            tvSubtitle.text = subtitle
+            tvSubtitle.visibility = View.VISIBLE
+        } else {
+            tvSubtitle.visibility = View.GONE
+        }
+
+        val inflater = LayoutInflater.from(context)
+        items.forEachIndexed { index, itemText ->
+            val itemView = inflater.inflate(R.layout.item_dialog_selection, container, false)
+            val tvItem = itemView.findViewById<TextView>(R.id.tv_selection_item_text)
+            tvItem.text = itemText
+
+            GabAIUtils.addSpringPressEffect(itemView) {
+                dialog.dismiss()
+                onSelected(index, itemText)
+            }
+            container.addView(itemView)
+        }
+
+        GabAIUtils.addSpringPressEffect(btnCancel) {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        applyDialogDimensions(dialog)
+        return dialog
+    }
+
+    /**
+     * Universal Modern Custom Content Dialog.
+     */
+    fun showCustomDialog(
+        context: Context,
+        title: String,
+        subtitle: String? = null,
+        customView: View,
+        confirmText: String? = "Confirm",
+        cancelText: String? = "Cancel",
+        badgeIcon: String = "✨",
+        iconRes: Int? = null,
+        onConfirm: ((Dialog) -> Unit)? = null,
+        onCancel: ((Dialog) -> Unit)? = null
+    ): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_modern_custom, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val tvBadge = view.findViewById<TextView>(R.id.tv_dialog_badge_icon)
+        val ivBadge = view.findViewById<ImageView?>(R.id.iv_dialog_badge_icon)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_dialog_title)
+        val tvSubtitle = view.findViewById<TextView>(R.id.tv_dialog_subtitle)
+        val flCustom = view.findViewById<FrameLayout>(R.id.fl_custom_container)
+        val btnCancel = view.findViewById<Button>(R.id.btn_dialog_cancel)
+        val btnConfirm = view.findViewById<Button>(R.id.btn_dialog_confirm)
+
+        if (iconRes != null && ivBadge != null) {
+            ivBadge.setImageResource(iconRes)
+            ivBadge.visibility = View.VISIBLE
+            tvBadge.visibility = View.GONE
+        } else {
+            tvBadge.text = badgeIcon
+            tvBadge.visibility = View.VISIBLE
+            ivBadge?.visibility = View.GONE
+        }
+
+        tvTitle.text = title
+        if (subtitle != null) {
+            tvSubtitle.text = subtitle
+            tvSubtitle.visibility = View.VISIBLE
+        } else {
+            tvSubtitle.visibility = View.GONE
+        }
+
+        flCustom.addView(customView)
+
+        if (confirmText != null && onConfirm != null) {
+            btnConfirm.text = confirmText
+            btnConfirm.visibility = View.VISIBLE
+            GabAIUtils.addSpringPressEffect(btnConfirm) {
+                onConfirm(dialog)
+            }
+        } else {
+            btnConfirm.visibility = View.GONE
+        }
+
+        if (cancelText != null) {
+            btnCancel.text = cancelText
+            btnCancel.visibility = View.VISIBLE
+            GabAIUtils.addSpringPressEffect(btnCancel) {
+                onCancel?.invoke(dialog) ?: dialog.dismiss()
+            }
+        } else {
+            btnCancel.visibility = View.GONE
         }
 
         dialog.show()

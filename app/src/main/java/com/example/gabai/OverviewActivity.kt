@@ -55,6 +55,7 @@ class OverviewActivity : AppCompatActivity() {
     private var lastPartOfSpeech: String = ""
     private var lastPhonetics: String = ""
     private var lastInSentenceRole: String = ""
+    private var selectionTypeLabel: String = "Word"
     private lateinit var tts: TextToSpeech
     private var isTtsReady = false
 
@@ -75,9 +76,32 @@ class OverviewActivity : AppCompatActivity() {
     private var currentVisualTerm: String = ""
     private var defaultVisualQuery: String = ""
     private var activeVisualMode: VisualMode = VisualMode.OVERVIEW
+    private var isVisualFeasible: Boolean = true
+    private var isCuratedWikipediaActive: Boolean = false
 
     private enum class VisualMode {
         OVERVIEW, REAL_WORLD, DIAGRAMS
+    }
+
+    private fun updateFullscreenButtonVisibility() {
+        val btnFullscreen = findViewById<ImageButton>(R.id.btn_fullscreen_visual)
+        btnFullscreen?.visibility = if (isCuratedWikipediaActive && curatedBitmap != null) View.VISIBLE else View.GONE
+    }
+
+    private fun isGrammaticalStopWordOrSentence(text: String, isSentence: Boolean): Boolean {
+        if (isSentence) return true
+        val clean = text.trim().lowercase()
+        val words = clean.split(Regex("\\s+")).filter { it.isNotBlank() }
+        if (words.size > 3) return true
+        val nonVisualConnectives = setOf(
+            "furthermore", "moreover", "however", "therefore", "nevertheless", "nonetheless",
+            "although", "though", "whereas", "while", "despite", "meanwhile", "consequently",
+            "additionally", "similarly", "conversely", "alternatively", "otherwise", "accordingly",
+            "hence", "thus", "instead", "besides", "indeed", "likewise", "finally", "initially",
+            "namely", "specifically", "especially", "particularly", "notably", "significantly",
+            "subsequently", "eventually", "ultimately", "overall", "in conclusion", "for example"
+        )
+        return nonVisualConnectives.contains(clean)
     }
 
     private val httpClient by lazy {
@@ -90,7 +114,7 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash-lite",
+        modelName = "gemini-3.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY,
         generationConfig = com.google.ai.client.generativeai.type.generationConfig {
             temperature = 0.2f
@@ -120,14 +144,18 @@ class OverviewActivity : AppCompatActivity() {
         val surroundingSentenceRaw = intent.getStringExtra("SURROUNDING_SENTENCE")?.trim() ?: ""
         val surroundingSentence = if (surroundingSentenceRaw.isNotBlank()) surroundingSentenceRaw else scannedText
 
-        // Classify selection mode
-        val words = scannedText.split(Regex("\\s+")).filter { it.isNotBlank() }
-        val isSingleWord = words.size == 1
-        val isPhrase = words.size in 2..5 && !scannedText.contains(Regex("[.?!]"))
-        val isSentence = !isSingleWord && !isPhrase
+        // Classify selection mode (Word vs Phrase vs Sentence aware)
+        val textClassification = GabAIUtils.classifyTextSpan(scannedText)
+        val isSingleWord = textClassification.type == GabAIUtils.TextSpanType.WORD
+        val isPhrase = textClassification.type == GabAIUtils.TextSpanType.PHRASE
+        val isSentence = textClassification.type == GabAIUtils.TextSpanType.SENTENCE
+        val hasEnclosingContext = surroundingSentenceRaw.isNotBlank() &&
+                !surroundingSentence.trim().equals(scannedText.trim(), ignoreCase = true)
+
+        selectionTypeLabel = textClassification.targetSpeakLabel
 
         // Configure Hero Context Card
-        configureHeroContextCard(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
+        configureHeroContextCard(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence, hasEnclosingContext)
 
         // Initialize Text-To-Speech
         tts = TextToSpeech(this) { status ->
@@ -244,7 +272,7 @@ class OverviewActivity : AppCompatActivity() {
                     isCurrentlyFavorite = true
                     favoriteBtn?.setImageResource(R.drawable.ic_star_filled)
                     GabAIUtils.performHaptic(favoriteBtn, android.view.HapticFeedbackConstants.CONFIRM)
-                    GabAIUtils.showSnackbar(this, "Saved to Favorites! ⭐")
+                    GabAIUtils.showSnackbar(this, "Saved $selectionTypeLabel to Favorites! ⭐")
                 }
             }
         }
@@ -278,21 +306,33 @@ class OverviewActivity : AppCompatActivity() {
 
             if (isSentence) {
                 targetWordView?.text = "Sentence Breakdown"
+                targetWordView?.textSize = 16f
                 phoneticsView?.visibility = View.GONE
-                posView?.text = if (preloadedPos.isNotEmpty()) preloadedPos else "STATEMENT"
-            } else {
+                posView?.text = if (preloadedPos.isNotEmpty()) preloadedPos else "ANALYSIS"
+            } else if (isPhrase) {
                 targetWordView?.text = scannedText
+                targetWordView?.textSize = 22f
                 if (preloadedPhonetics.isNotEmpty()) {
                     phoneticsView?.text = preloadedPhonetics
                     phoneticsView?.visibility = View.VISIBLE
                 } else {
                     phoneticsView?.visibility = View.GONE
                 }
-                posView?.text = if (preloadedPos.isNotEmpty()) preloadedPos else if (isPhrase) "PHRASE" else "WORD"
+                posView?.text = if (preloadedPos.isNotEmpty()) preloadedPos else "PHRASE"
+            } else {
+                targetWordView?.text = scannedText
+                targetWordView?.textSize = 22f
+                if (preloadedPhonetics.isNotEmpty()) {
+                    phoneticsView?.text = preloadedPhonetics
+                    phoneticsView?.visibility = View.VISIBLE
+                } else {
+                    phoneticsView?.visibility = View.GONE
+                }
+                posView?.text = if (preloadedPos.isNotEmpty()) preloadedPos else "WORD"
             }
 
             if (!isAllSelected && preloadedInSentenceRole.isNotEmpty()) {
-                inSentenceLabel?.text = if (isPhrase) "PHRASE ROLE IN THIS SENTENCE" else "WORD ROLE IN THIS SENTENCE"
+                inSentenceLabel?.text = if (isSentence) "SENTENCE ROLE IN CONTEXT" else if (isPhrase) "PHRASE ROLE IN THIS SENTENCE" else "WORD ROLE IN THIS SENTENCE"
                 inSentenceTextView?.text = preloadedInSentenceRole
                 inSentenceContainer?.visibility = View.VISIBLE
             } else {
@@ -310,7 +350,15 @@ class OverviewActivity : AppCompatActivity() {
             )
             populateRelatedQuestions(preloadedQuestions, scannedText, surroundingSentence)
 
-            // Zero-AI Curated Wikimedia Diagram & Deterministic Visual Context
+            // Feasibility Gating for Preloaded Item
+            val isGrammarWord = isGrammaticalStopWordOrSentence(scannedText, isSentence) ||
+                    preloadedPos.equals("CONJUNCTION", ignoreCase = true) ||
+                    preloadedPos.equals("PREPOSITION", ignoreCase = true) ||
+                    preloadedPos.equals("ADVERB", ignoreCase = true) ||
+                    preloadedPos.equals("PRONOUN", ignoreCase = true) ||
+                    preloadedPos.equals("INTERJECTION", ignoreCase = true)
+            isVisualFeasible = !isGrammarWord
+
             val visualQuery = buildDeterministicVisualQuery(scannedText, surroundingSentence, isSentence)
             defaultVisualQuery = visualQuery
             currentVisualTerm = if (isSingleWord || isPhrase) {
@@ -318,7 +366,12 @@ class OverviewActivity : AppCompatActivity() {
             } else {
                 extractCoreSubject(surroundingSentence)
             }
-            setupVisualContainer(currentVisualTerm, defaultVisualQuery)
+
+            if (isVisualFeasible) {
+                setupVisualContainer(currentVisualTerm, defaultVisualQuery)
+            } else {
+                findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
+            }
 
             // Trigger Detail Quest progress
             val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -327,10 +380,10 @@ class OverviewActivity : AppCompatActivity() {
                     .update("quests_completed", FieldValue.arrayUnion("detail"))
             }
         } else if (scannedText.isNotEmpty()) {
-            // Generate AI Overview and Question Prompts
-            generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
+            // Initial heuristic check (Gemini will confirm or refine feasibility)
+            val isGrammarWord = isGrammaticalStopWordOrSentence(scannedText, isSentence)
+            isVisualFeasible = !isGrammarWord
 
-            // Zero-AI Curated Wikimedia Diagram & Deterministic Visual Context
             val visualQuery = buildDeterministicVisualQuery(scannedText, surroundingSentence, isSentence)
             defaultVisualQuery = visualQuery
             currentVisualTerm = if (isSingleWord || isPhrase) {
@@ -338,7 +391,15 @@ class OverviewActivity : AppCompatActivity() {
             } else {
                 extractCoreSubject(surroundingSentence)
             }
-            setupVisualContainer(currentVisualTerm, defaultVisualQuery)
+
+            if (isVisualFeasible) {
+                setupVisualContainer(currentVisualTerm, defaultVisualQuery)
+            } else {
+                findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
+            }
+
+            // Generate AI Overview and Question Prompts
+            generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
         } else {
             GabAIUtils.showSnackbar(this, "No text provided")
         }
@@ -380,44 +441,77 @@ class OverviewActivity : AppCompatActivity() {
         surroundingSentence: String,
         isSingleWord: Boolean,
         isPhrase: Boolean,
-        isSentence: Boolean
+        isSentence: Boolean,
+        hasEnclosingContext: Boolean = false
     ) {
         val contextBadge = findViewById<TextView>(R.id.tv_context_badge)
         val selectedTextView = findViewById<TextView>(R.id.selected_text_view)
         val wordSpeakBtn = findViewById<View>(R.id.btn_speak_word)
         val sentenceSpeakBtn = findViewById<View>(R.id.btn_speak_sentence)
         val wordSpeakLabel = findViewById<TextView>(R.id.tv_btn_speak_word)
+        val sentenceSpeakLabel = findViewById<TextView>(R.id.tv_btn_speak_sentence)
+
+        val contextType = GabAIUtils.classifyContextLabel(surroundingSentence)
 
         when {
             isSingleWord -> {
-                contextBadge?.text = "IN-SENTENCE CONTEXT"
+                contextBadge?.text = if (hasEnclosingContext) "WORD IN CONTEXT" else "WORD CONTEXT"
                 wordSpeakLabel?.text = "Word"
+                wordSpeakBtn?.contentDescription = "Speak word"
                 wordSpeakBtn?.visibility = View.VISIBLE
-                sentenceSpeakBtn?.visibility = View.VISIBLE
+
+                if (hasEnclosingContext) {
+                    sentenceSpeakLabel?.text = contextType
+                    sentenceSpeakBtn?.contentDescription = "Speak full $contextType"
+                    sentenceSpeakBtn?.visibility = View.VISIBLE
+                } else {
+                    sentenceSpeakBtn?.visibility = View.GONE
+                }
             }
             isPhrase -> {
-                contextBadge?.text = "PHRASE IN CONTEXT"
+                contextBadge?.text = if (hasEnclosingContext) "PHRASE IN CONTEXT" else "KEY PHRASE"
                 wordSpeakLabel?.text = "Phrase"
+                wordSpeakBtn?.contentDescription = "Speak phrase"
                 wordSpeakBtn?.visibility = View.VISIBLE
-                sentenceSpeakBtn?.visibility = View.VISIBLE
+
+                if (hasEnclosingContext) {
+                    sentenceSpeakLabel?.text = contextType
+                    sentenceSpeakBtn?.contentDescription = "Speak full $contextType"
+                    sentenceSpeakBtn?.visibility = View.VISIBLE
+                } else {
+                    sentenceSpeakBtn?.visibility = View.GONE
+                }
             }
             else -> {
-                contextBadge?.text = "FULL STATEMENT"
-                wordSpeakLabel?.text = "Listen"
+                contextBadge?.text = "FULL SENTENCE"
+                wordSpeakLabel?.text = "Sentence"
+                wordSpeakBtn?.contentDescription = "Speak full sentence"
                 wordSpeakBtn?.visibility = View.VISIBLE
-                sentenceSpeakBtn?.visibility = View.GONE
+
+                if (hasEnclosingContext) {
+                    sentenceSpeakLabel?.text = "Passage"
+                    sentenceSpeakBtn?.contentDescription = "Speak full passage"
+                    sentenceSpeakBtn?.visibility = View.VISIBLE
+                } else {
+                    sentenceSpeakBtn?.visibility = View.GONE
+                }
             }
         }
 
-        // Render sentence with highlight
         if (isSentence) {
-            selectedTextView?.text = surroundingSentence
-        } else {
-            val spannable = SpannableStringBuilder(surroundingSentence)
+            val padH = (14 * resources.displayMetrics.density).toInt()
+            val padV = (12 * resources.displayMetrics.density).toInt()
+            val heroLayout = findViewById<com.google.android.material.card.MaterialCardView>(R.id.card_sentence_context)?.getChildAt(0) as? LinearLayout
+            heroLayout?.setPadding(padH, padV, padH, padV)
+            selectedTextView?.textSize = 14f
+        }
+
+        // Render highlighted text/passage
+        if (hasEnclosingContext) {
             val startIndex = surroundingSentence.indexOf(targetText, ignoreCase = true)
             if (startIndex >= 0) {
                 val endIndex = startIndex + targetText.length
-                // High-visibility gold text with translucent pill background on gradient
+                val spannable = SpannableStringBuilder(surroundingSentence)
                 spannable.setSpan(
                     BackgroundColorSpan(Color.parseColor("#40FFFFFF")),
                     startIndex,
@@ -436,8 +530,12 @@ class OverviewActivity : AppCompatActivity() {
                     endIndex,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
+                selectedTextView?.text = spannable
+            } else {
+                selectedTextView?.text = surroundingSentence
             }
-            selectedTextView?.text = spannable
+        } else {
+            selectedTextView?.text = targetText
         }
     }
 
@@ -510,8 +608,6 @@ class OverviewActivity : AppCompatActivity() {
 
     private fun setupVisualContainer(term: String, fallbackQuery: String) {
         val visualsContainer = findViewById<View>(R.id.visuals_container)
-        visualsContainer?.visibility = View.VISIBLE
-
         val chipDiagram = findViewById<TextView>(R.id.chip_diagram)
         val chipMicroscopic = findViewById<TextView>(R.id.chip_microscopic)
         val chipProcess = findViewById<TextView>(R.id.chip_process)
@@ -522,12 +618,20 @@ class OverviewActivity : AppCompatActivity() {
         val imageWebView = findViewById<WebView>(R.id.image_webview)
         val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
 
-        // Show progress spinner initially
+        isCuratedWikipediaActive = false
+        updateFullscreenButtonVisibility()
+
+        if (!isVisualFeasible && curatedBitmap == null) {
+            visualsContainer?.visibility = View.GONE
+            return
+        }
+
+        visualsContainer?.visibility = View.VISIBLE
         progressVisual?.visibility = View.VISIBLE
         curatedContainer?.visibility = View.GONE
         imageWebView?.visibility = View.GONE
 
-        // Lightbox trigger
+        // Lightbox trigger: only active when curatedBitmap != null
         btnFullscreen?.setOnClickListener {
             if (curatedBitmap != null) {
                 showFullscreenLightbox(curatedBitmap, curatedTitle, curatedCaption)
@@ -546,43 +650,67 @@ class OverviewActivity : AppCompatActivity() {
                 updateChipStyle(chipDiagram, listOf(chipMicroscopic, chipProcess))
             }
             if (curatedBitmap != null) {
+                isCuratedWikipediaActive = true
+                updateFullscreenButtonVisibility()
                 tvBadge?.text = "ENCYCLOPEDIA"
                 curatedContainer?.visibility = View.VISIBLE
                 imageWebView?.visibility = View.GONE
                 progressVisual?.visibility = View.GONE
+                visualsContainer?.visibility = View.VISIBLE
             } else {
-                tvBadge?.text = "WEB VISUALS"
-                curatedContainer?.visibility = View.GONE
-                imageWebView?.visibility = View.VISIBLE
-                progressVisual?.visibility = View.GONE
-                if (imageWebView != null) loadGoogleImages(imageWebView, fallbackQuery)
+                isCuratedWikipediaActive = false
+                updateFullscreenButtonVisibility()
+                if (isVisualFeasible) {
+                    tvBadge?.text = "WEB VISUALS"
+                    curatedContainer?.visibility = View.GONE
+                    imageWebView?.visibility = View.VISIBLE
+                    progressVisual?.visibility = View.GONE
+                    visualsContainer?.visibility = View.VISIBLE
+                    if (imageWebView != null) loadGoogleImages(imageWebView, fallbackQuery)
+                } else {
+                    visualsContainer?.visibility = View.GONE
+                }
             }
         }
 
         chipMicroscopic?.setOnClickListener {
             activeVisualMode = VisualMode.REAL_WORLD
+            isCuratedWikipediaActive = false
+            updateFullscreenButtonVisibility()
             if (chipDiagram != null && chipProcess != null) {
                 updateChipStyle(chipMicroscopic, listOf(chipDiagram, chipProcess))
             }
-            tvBadge?.text = "REAL-WORLD"
-            curatedContainer?.visibility = View.GONE
-            imageWebView?.visibility = View.VISIBLE
-            progressVisual?.visibility = View.GONE
-            val realWorldQuery = "$term real world photo example"
-            if (imageWebView != null) loadGoogleImages(imageWebView, realWorldQuery)
+            if (isVisualFeasible) {
+                tvBadge?.text = "REAL-WORLD"
+                curatedContainer?.visibility = View.GONE
+                imageWebView?.visibility = View.VISIBLE
+                progressVisual?.visibility = View.GONE
+                visualsContainer?.visibility = View.VISIBLE
+                val realWorldQuery = "$term real world photo example"
+                if (imageWebView != null) loadGoogleImages(imageWebView, realWorldQuery)
+            } else {
+                visualsContainer?.visibility = View.GONE
+            }
         }
 
         chipProcess?.setOnClickListener {
             activeVisualMode = VisualMode.DIAGRAMS
+            isCuratedWikipediaActive = false
+            updateFullscreenButtonVisibility()
             if (chipDiagram != null && chipMicroscopic != null) {
                 updateChipStyle(chipProcess, listOf(chipDiagram, chipMicroscopic))
             }
-            tvBadge?.text = "DIAGRAMS & CHARTS"
-            curatedContainer?.visibility = View.GONE
-            imageWebView?.visibility = View.VISIBLE
-            progressVisual?.visibility = View.GONE
-            val diagramQuery = "$term diagram chart infographic"
-            if (imageWebView != null) loadGoogleImages(imageWebView, diagramQuery)
+            if (isVisualFeasible) {
+                tvBadge?.text = "DIAGRAMS & CHARTS"
+                curatedContainer?.visibility = View.GONE
+                imageWebView?.visibility = View.VISIBLE
+                progressVisual?.visibility = View.GONE
+                visualsContainer?.visibility = View.VISIBLE
+                val diagramQuery = "$term diagram chart infographic"
+                if (imageWebView != null) loadGoogleImages(imageWebView, diagramQuery)
+            } else {
+                visualsContainer?.visibility = View.GONE
+            }
         }
 
         // Fetch curated diagram asynchronously
@@ -672,12 +800,16 @@ class OverviewActivity : AppCompatActivity() {
                                     val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
                                     val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
                                     val imageWebView = findViewById<WebView>(R.id.image_webview)
+                                    val visualsContainer = findViewById<View>(R.id.visuals_container)
 
                                     progressVisual?.visibility = View.GONE
                                     ivDiagram?.setImageBitmap(bitmap)
                                     tvCaption?.text = curatedCaption
+                                    visualsContainer?.visibility = View.VISIBLE
 
                                     if (activeVisualMode == VisualMode.OVERVIEW) {
+                                        isCuratedWikipediaActive = true
+                                        updateFullscreenButtonVisibility()
                                         tvBadge?.text = "ENCYCLOPEDIA"
                                         curatedContainer?.visibility = View.VISIBLE
                                         imageWebView?.visibility = View.GONE
@@ -701,13 +833,26 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     private fun fallbackToWebSearch(query: String) {
+        isCuratedWikipediaActive = false
+        updateFullscreenButtonVisibility()
+
         val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
         val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
         val imageWebView = findViewById<WebView>(R.id.image_webview)
         val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
+        val visualsContainer = findViewById<View>(R.id.visuals_container)
 
         progressVisual?.visibility = View.GONE
         curatedContainer?.visibility = View.GONE
+
+        // Feasibility Gate: Only load web images if the concept is genuinely visually feasible!
+        if (!isVisualFeasible) {
+            visualsContainer?.visibility = View.GONE
+            imageWebView?.visibility = View.GONE
+            return
+        }
+
+        visualsContainer?.visibility = View.VISIBLE
         imageWebView?.visibility = View.VISIBLE
         tvBadge?.text = "WEB VISUALS"
 
@@ -978,6 +1123,12 @@ class OverviewActivity : AppCompatActivity() {
                     Selection Type: $selectionType
                     ${langConfig.directive}
 
+                    CRITICAL VISUAL FEASIBILITY ASSESSMENT:
+                    - Assess whether "Target Selection" has a concrete, meaningful visual representation (e.g. biological cell, anatomical organ, animal, plant, machine, physical apparatus, scientific process diagram, historical figure/artifact, geometric shape, chemical structure).
+                    - Set "isVisuallyFeasible" to TRUE for concrete, visually depictable physical entities or textbook-illustrated scientific mechanisms.
+                    - Set "isVisuallyFeasible" to FALSE for abstract concepts (e.g. freedom, justice, sadness), verbs/actions without distinct apparatus, grammatical transition words (e.g. furthermore, whereas, although, nevertheless), linguistic clauses, idioms, or general sentences.
+                    - If "isVisuallyFeasible" is TRUE, provide "visualSearchTerm": a clean, 1-3 word noun or diagram keyword optimal for retrieving an accurate educational illustration. If FALSE, set "visualSearchTerm" to "".
+
                     CRITICAL SAFETY & TRUTHFULNESS DIRECTIVES:
                     1. FACTUAL ACCURACY (NO HALLUCINATIONS):
                        State what the entity actually is with 100% truth. DO NOT hallucinate, assume, or invent that an unknown brand, commercial app, game, company, or website is an "educational platform" or "study hub" just because you are an educational tutor.
@@ -991,6 +1142,8 @@ class OverviewActivity : AppCompatActivity() {
                       "partOfSpeech": "noun / verb / adjective / phrase / clause / statement",
                       "definition": "${langConfig.definitionDesc}",
                       "inSentenceRole": "${langConfig.roleDesc}",
+                      "isVisuallyFeasible": true,
+                      "visualSearchTerm": "concrete entity or diagram keyword",
                       "relatedQuestions": [
                         "${langConfig.questionDescs[0]}",
                         "${langConfig.questionDescs[1]}",
@@ -1015,9 +1168,11 @@ class OverviewActivity : AppCompatActivity() {
                     .trim()
 
                 var phonetics = ""
-                var partOfSpeech = if (isSingleWord) "WORD" else if (isPhrase) "PHRASE" else "STATEMENT"
+                var partOfSpeech = if (isSingleWord) "WORD" else if (isPhrase) "PHRASE" else "SENTENCE"
                 var definition = ""
                 var inSentenceRole = ""
+                var isAiVisuallyFeasible = !isSentence && !isGrammaticalStopWordOrSentence(inputText, isSentence)
+                var visualSearchTerm = ""
                 val relatedQuestions = mutableListOf<String>()
 
                 try {
@@ -1026,6 +1181,10 @@ class OverviewActivity : AppCompatActivity() {
                     partOfSpeech = json.optString("partOfSpeech", partOfSpeech).trim().uppercase()
                     definition = json.optString("definition", "").trim()
                     inSentenceRole = json.optString("inSentenceRole", "").trim()
+                    if (json.has("isVisuallyFeasible")) {
+                        isAiVisuallyFeasible = json.optBoolean("isVisuallyFeasible", isAiVisuallyFeasible)
+                    }
+                    visualSearchTerm = json.optString("visualSearchTerm", "").trim()
                     val questionsArray = json.optJSONArray("relatedQuestions")
                     if (questionsArray != null) {
                         for (i in 0 until questionsArray.length()) {
@@ -1038,19 +1197,19 @@ class OverviewActivity : AppCompatActivity() {
                     definition = rawText
                     val fallbackQuestions = when (aiLanguage) {
                         "Tagalog" -> listOf(
-                            "Paano gumagana ang konseptong ito sa binabasa mo?",
-                            "Bakit mahalaga ito sa paksang pinag-aaralan?",
-                            "Ano ang mangyayari kung magbabago ang prosesong ito?"
+                             "Paano gumagana ang konseptong ito sa binabasa mo?",
+                             "Bakit mahalaga ito sa paksang pinag-aaralan?",
+                             "Ano ang mangyayari kung magbabago ang prosesong ito?"
                         )
                         "Taglish" -> listOf(
-                            "Paano nagfa-function ang concept na ito sa kabuuang topic?",
-                            "Bakit important ito sa binabasa mo?",
-                            "Ano ang mangyayari kung ma-alter o magbago ang process na ito?"
+                             "Paano nagfa-function ang concept na ito sa kabuuang topic?",
+                             "Bakit important ito sa binabasa mo?",
+                             "Ano ang mangyayari kung ma-alter o magbago ang process na ito?"
                         )
                         else -> listOf(
-                            "How does this concept function in this context?",
-                            "Why is this essential to the topic?",
-                            "What happens if this process is altered?"
+                             "How does this concept function in this context?",
+                             "Why is this essential to the topic?",
+                             "What happens if this process is altered?"
                         )
                     }
                     relatedQuestions.addAll(fallbackQuestions)
@@ -1065,10 +1224,22 @@ class OverviewActivity : AppCompatActivity() {
                 // Populate UI
                 if (isSentence) {
                     targetWordView?.text = "Sentence Breakdown"
+                    targetWordView?.textSize = 16f
                     phoneticsView?.visibility = View.GONE
-                    posView?.text = if (partOfSpeech.isNotEmpty()) partOfSpeech else "STATEMENT"
+                    posView?.text = if (partOfSpeech.isNotEmpty()) partOfSpeech else "ANALYSIS"
+                } else if (isPhrase) {
+                    targetWordView?.text = inputText
+                    targetWordView?.textSize = 22f
+                    if (phonetics.isNotEmpty()) {
+                        phoneticsView?.text = phonetics
+                        phoneticsView?.visibility = View.VISIBLE
+                    } else {
+                        phoneticsView?.visibility = View.GONE
+                    }
+                    posView?.text = if (partOfSpeech.isNotEmpty()) partOfSpeech else "PHRASE"
                 } else {
                     targetWordView?.text = inputText
+                    targetWordView?.textSize = 22f
                     if (phonetics.isNotEmpty()) {
                         phoneticsView?.text = phonetics
                         phoneticsView?.visibility = View.VISIBLE
@@ -1081,7 +1252,7 @@ class OverviewActivity : AppCompatActivity() {
                 markwon.setMarkdown(definitionTextView, definition)
 
                 if (!isAllSelected && inSentenceRole.isNotEmpty()) {
-                    inSentenceLabel?.text = if (isPhrase) "PHRASE ROLE IN THIS SENTENCE" else "WORD ROLE IN THIS SENTENCE"
+                    inSentenceLabel?.text = if (isSentence) "SENTENCE ROLE IN CONTEXT" else if (isPhrase) "PHRASE ROLE IN THIS SENTENCE" else "WORD ROLE IN THIS SENTENCE"
                     inSentenceTextView?.text = inSentenceRole
                     inSentenceContainer?.visibility = View.VISIBLE
                 } else {
@@ -1090,6 +1261,22 @@ class OverviewActivity : AppCompatActivity() {
 
                 // Populate Related Questions Vertically
                 populateRelatedQuestions(relatedQuestions, inputText, surroundingSentence)
+
+                // Apply Dynamic Visual Feasibility Gate based on AI Evaluation
+                isVisualFeasible = isAiVisuallyFeasible && !isSentence
+                val visualsContainer = findViewById<View>(R.id.visuals_container)
+                if (!isVisualFeasible) {
+                    if (curatedBitmap == null) {
+                        visualsContainer?.visibility = View.GONE
+                    }
+                } else {
+                    val refinedTerm = if (visualSearchTerm.isNotEmpty()) visualSearchTerm else currentVisualTerm
+                    if (refinedTerm.isNotEmpty() && refinedTerm != currentVisualTerm && curatedBitmap == null) {
+                        currentVisualTerm = refinedTerm
+                        defaultVisualQuery = "$refinedTerm diagram"
+                        setupVisualContainer(currentVisualTerm, defaultVisualQuery)
+                    }
+                }
 
                 // Save to History with actual enclosing sentence as originalContext and grammatical metadata
                 saveToHistory(
@@ -1235,7 +1422,7 @@ class OverviewActivity : AppCompatActivity() {
                 GabAIUtils.showSnackbar(this, "Saved! +10 XP gained")
             }
         } else {
-            GabAIUtils.showSnackbar(this, "Saved to Favorites! ⭐")
+            GabAIUtils.showSnackbar(this, "Saved $selectionTypeLabel to Favorites! ⭐")
         }
 
         val favEntry = hashMapOf(

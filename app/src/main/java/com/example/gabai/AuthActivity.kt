@@ -14,7 +14,6 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.gabai.databinding.ActivityAuthBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -487,26 +486,17 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun showForgotPasswordDialog() {
-        val emailInput = android.widget.EditText(this).apply {
-            hint = "Enter your registered email"
-            inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-            setPadding(50, 40, 50, 40)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Reset Password")
-            .setMessage("We will send a password reset link to your email address.")
-            .setView(emailInput)
-            .setPositiveButton("Send Link") { _, _ ->
-                val email = emailInput.text.toString().trim()
-                if (email.isNotEmpty()) {
-                    sendPasswordReset(email)
-                } else {
-                    GabAIUtils.showSnackbar(this, "Please enter an email address")
-                }
+        GabAIDialogs.showInputDialog(
+            context = this,
+            title = "Reset Password",
+            subtitle = "We will send a password reset link to your email address.",
+            hint = "Enter your registered email",
+            confirmText = "Send Link",
+            badgeIcon = "🔐",
+            onConfirm = { email ->
+                sendPasswordReset(email)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun sendPasswordReset(email: String) {
@@ -526,11 +516,14 @@ class AuthActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getSystemService(AutofillManager::class.java)?.cancel()
         }
-        MaterialAlertDialogBuilder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-            .show()
+        val isSuccess = title.contains("Email", ignoreCase = true) || title.contains("Success", ignoreCase = true)
+        GabAIDialogs.showNoticeDialog(
+            context = this,
+            title = title,
+            message = message,
+            buttonText = "OK",
+            badgeIcon = if (isSuccess) "📧" else "⚠️"
+        )
     }
 
     private fun navigateToMain(role: String?) {

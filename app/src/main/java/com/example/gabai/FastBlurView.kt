@@ -180,6 +180,7 @@ class FastBlurView @JvmOverloads constructor(
 
                 canvas.save()
                 canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
+                canvas.save()
                 canvas.scale(width.toFloat() / scaledW, height.toFloat() / scaledH)
                 canvas.drawRenderNode(blurNode)
                 canvas.restore()
@@ -187,6 +188,7 @@ class FastBlurView @JvmOverloads constructor(
                 if (overlayColor != Color.TRANSPARENT) {
                     canvas.drawColor(overlayColor)
                 }
+                canvas.restore()
             }
         } else {
             // ============================================================
@@ -234,6 +236,7 @@ class FastBlurView @JvmOverloads constructor(
         // Render the blurred bitmap scaled up to fit this view with bilinear interpolation
         canvas.save()
         canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
+        canvas.save()
         canvas.scale(width.toFloat() / scaledW, height.toFloat() / scaledH)
         canvas.drawBitmap(bmp, 0f, 0f, filterPaint)
         canvas.restore()
@@ -241,6 +244,7 @@ class FastBlurView @JvmOverloads constructor(
         if (overlayColor != Color.TRANSPARENT) {
             canvas.drawColor(overlayColor)
         }
+        canvas.restore()
     }
 
     private fun fastBoxBlur(bitmap: Bitmap, radius: Int) {

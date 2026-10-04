@@ -114,15 +114,26 @@ class FloatingControlService : Service() {
                 val rowStride = planes[0].rowStride
                 val rowPadding = rowStride - pixelStride * image.width
 
-                val bitmap = Bitmap.createBitmap(
+                val rawBitmap = Bitmap.createBitmap(
                     image.width + rowPadding / pixelStride,
                     image.height,
                     Bitmap.Config.ARGB_8888
                 )
-                bitmap.copyPixelsFromBuffer(buffer)
+                rawBitmap.copyPixelsFromBuffer(buffer)
+                val screenWidth = image.width
+                val screenHeight = image.height
                 image.close()
 
-                saveBitmapAndOpenResult(bitmap)
+                // Crop off any hardware row padding so text aspect ratio is never squished/skewed
+                val cleanBitmap = if (rowPadding == 0) {
+                    rawBitmap
+                } else {
+                    val cropped = Bitmap.createBitmap(rawBitmap, 0, 0, screenWidth, screenHeight)
+                    rawBitmap.recycle()
+                    cropped
+                }
+
+                saveBitmapAndOpenResult(cleanBitmap)
             } else {
                 GabAIUtils.showSnackbar(this, "Screen not ready yet, try again...")
             }
@@ -257,21 +268,21 @@ class FloatingControlService : Service() {
     }
 
     private fun saveBitmapAndOpenResult(bitmap: Bitmap) {
+        // Pass uncompressed bitmap in-memory for instant launch & 100% pixel-perfect OCR clarity
+        ScanImageHolder.currentBitmap = bitmap
+
+        val intent = Intent(this@FloatingControlService, ScanResultActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+
+        // Asynchronously save lossless PNG cache file as fallback
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val filename = "screenshot_temp.jpg"
-                val file = java.io.File(cacheDir, filename)
+                val file = java.io.File(cacheDir, "screenshot_temp.png")
                 java.io.FileOutputStream(file).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                     out.flush()
-                }
-
-                withContext(Dispatchers.Main) {
-                    val intent = Intent(this@FloatingControlService, ScanResultActivity::class.java).apply {
-                        putExtra("IMG_PATH", file.absolutePath)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                    startActivity(intent)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

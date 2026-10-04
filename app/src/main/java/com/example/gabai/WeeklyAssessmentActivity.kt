@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.json.JSONArray
@@ -205,8 +204,16 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                 }
                 val ans = obj.optInt("ans", 0)
                 val exp = obj.optString("explanation", "Review the key learning objectives for this topic.")
-                questions.add(AssessmentQuestion(q, optList, ans, exp))
+
+                // Anti-cheating: Shuffle the 4 options and update the correct index accordingly
+                val correctText = optList.getOrElse(ans) { optList.firstOrNull() ?: "" }
+                val shuffledOpts = optList.shuffled()
+                val newAns = shuffledOpts.indexOf(correctText).coerceAtLeast(0)
+
+                questions.add(AssessmentQuestion(q, shuffledOpts, newAns, exp))
             }
+            // Anti-cheating: Shuffle the question order for each student
+            questions.shuffle()
         } catch (e: Exception) {
             // Fallback
         }
@@ -297,7 +304,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             setPadding((16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt())
         }
 
-        var dialog: androidx.appcompat.app.AlertDialog? = null
+        var dialog: android.app.Dialog? = null
 
         for (i in questions.indices) {
             val isCurrent = (i == currentIndex)
@@ -346,12 +353,15 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             addView(grid)
         }
 
-        dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Question Palette")
-            .setMessage("Purple = Answered • Gray = Unanswered")
-            .setView(scroll)
-            .setNegativeButton("Close", null)
-            .show()
+        dialog = GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Question Palette",
+            subtitle = "Purple = Answered • Gray = Unanswered",
+            customView = scroll,
+            confirmText = null,
+            cancelText = "Close",
+            badgeIcon = "🔢"
+        )
     }
 
     private fun confirmExit() {
@@ -360,31 +370,43 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             return
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Exit Assessment?")
-            .setMessage("Your current progress will not be submitted until you complete all questions.")
-            .setPositiveButton("Exit") { _, _ -> finish() }
-            .setNegativeButton("Keep Going", null)
-            .show()
+        GabAIDialogs.showConfirmDialog(
+            context = this,
+            title = "Exit Assessment?",
+            message = "Your current progress will not be submitted until you complete all questions.",
+            confirmText = "Exit",
+            cancelText = "Keep Going",
+            isDestructive = true,
+            badgeIcon = "📝",
+            onConfirm = { finish() }
+        )
     }
 
     private fun confirmSubmit() {
         // Check if any unanswered
         val unanswered = studentAnswers.count { it == -1 }
         if (unanswered > 0) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Unanswered Questions")
-                .setMessage("You have $unanswered unanswered question(s). Are you sure you want to submit?")
-                .setPositiveButton("Submit Anyway") { _, _ -> submitAssessment() }
-                .setNegativeButton("Review Questions", null)
-                .show()
+            GabAIDialogs.showConfirmDialog(
+                context = this,
+                title = "Unanswered Questions",
+                message = "You have $unanswered unanswered question(s). Are you sure you want to submit?",
+                confirmText = "Submit Anyway",
+                cancelText = "Review Questions",
+                isDestructive = false,
+                badgeIcon = "⚠️",
+                onConfirm = { submitAssessment() }
+            )
         } else {
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Submit Assessment?")
-                .setMessage("Are you ready to submit your answers? You will see your score and detailed educational explanations immediately.")
-                .setPositiveButton("Submit") { _, _ -> submitAssessment() }
-                .setNegativeButton("Cancel", null)
-                .show()
+            GabAIDialogs.showConfirmDialog(
+                context = this,
+                title = "Submit Assessment?",
+                message = "Are you ready to submit your answers? You will see your score and detailed educational explanations immediately.",
+                confirmText = "Submit",
+                cancelText = "Cancel",
+                isDestructive = false,
+                badgeIcon = "🚀",
+                onConfirm = { submitAssessment() }
+            )
         }
     }
 

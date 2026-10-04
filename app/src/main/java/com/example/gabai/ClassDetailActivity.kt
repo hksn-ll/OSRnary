@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FirebaseFirestore
 import android.graphics.Color
 import android.content.Intent
@@ -20,7 +19,7 @@ import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import androidx.appcompat.app.AlertDialog // Make sure you have this
+import android.app.Dialog
 import android.provider.OpenableColumns
 import com.google.ai.client.generativeai.GenerativeModel
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
@@ -46,7 +45,7 @@ class ClassDetailActivity : AppCompatActivity() {
     private var currentInitiationItems = 5
     private var customPdfs = mutableMapOf<String, Map<String, String>>()
     private val driveApiUrl = GabAIApp.DRIVE_API_URL
-    private var activeDialog: androidx.appcompat.app.AlertDialog? = null
+    private var activeDialog: Dialog? = null
 
     // --- WEEKLY ASSESSMENT VARIABLES ---
     private var selectedGeminiFocus: String = "Standard Comprehensive (Balanced concepts & applications)"
@@ -317,27 +316,22 @@ class ClassDetailActivity : AppCompatActivity() {
     }
     // CREATE
     private fun showGenerateStudentsDialog() {
-        val input = EditText(this).apply {
-            hint = "Enter student names, one per line\n(e.g.\nJuan Cruz\nMaria Clara)"
-            minLines = 4
-            gravity = android.view.Gravity.TOP
-            setPadding(40, 40, 40, 40)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Add Students to $className")
-            .setMessage("List the students (one name per line). The system will auto-generate secure Usernames and Passwords for them.")
-            .setView(input)
-            .setPositiveButton("Generate") { _, _ ->
-                val namesText = input.text.toString()
+        GabAIDialogs.showInputDialog(
+            context = this,
+            title = "Add Students to $className",
+            message = "List the students (one name per line). The system will auto-generate secure Usernames and Passwords for them.",
+            hint = "Enter student names, one per line\n(e.g.\nJuan Cruz\nMaria Clara)",
+            confirmText = "Generate",
+            cancelText = "Cancel",
+            minLines = 4,
+            badgeIcon = "👥",
+            onConfirm = { namesText ->
                 if (namesText.isNotEmpty()) {
-                    // CHANGED: Now splits by New Line instead of Commas
                     val namesList = namesText.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
                     generateStudentAccounts(namesList)
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun generateStudentAccounts(names: List<String>) {
@@ -382,25 +376,47 @@ class ClassDetailActivity : AppCompatActivity() {
 
     // UPDATE
     private fun showEditStudentDialog(docId: String, isPending: Boolean, currentFullName: String, pass: String) {
-        val layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(50, 40, 50, 40) }
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
 
-        // CHANGED: Now shows as a single Full Name text field
-        val etName = EditText(this).apply { setText(currentFullName); hint = "Full Name" }
+        val etName = EditText(this).apply {
+            setText(currentFullName)
+            hint = "Full Name"
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            textSize = 14f
+        }
         layout.addView(etName)
 
         var etPass: EditText? = null
         if (isPending) {
-            etPass = EditText(this).apply { setText(pass); hint = "Password" }
+            etPass = EditText(this).apply {
+                setText(pass)
+                hint = "Password"
+                setBackgroundResource(R.drawable.bg_modern_input)
+                setPadding(32, 24, 32, 24)
+                setTextColor(Color.parseColor("#2D3436"))
+                textSize = 14f
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = 16 }
+            }
             layout.addView(etPass)
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Edit Student")
-            .setView(layout)
-            .setPositiveButton("Save") { _, _ ->
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Edit Student",
+            subtitle = "Update student profile details",
+            customView = layout,
+            confirmText = "Save",
+            cancelText = "Cancel",
+            badgeIcon = "✏️",
+            onConfirm = { dialog ->
                 val newFullName = etName.text.toString().trim()
-
-                // Intelligently split back to maintain DB schema
                 val parts = newFullName.split(" ", limit = 2)
                 val fName = parts.firstOrNull() ?: "Student"
                 val lName = if (parts.size > 1) parts[1] else ""
@@ -414,12 +430,12 @@ class ClassDetailActivity : AppCompatActivity() {
                     updates["password"] = etPass.text.toString().trim()
                 }
 
+                dialog.dismiss()
                 val collection = if (isPending) "pending_students" else "users"
                 db.collection(collection).document(docId).update(updates)
-                    .addOnSuccessListener { com.example.gabai.GabAIUtils.showSnackbar(this, "Updated successfully") }
+                    .addOnSuccessListener { GabAIUtils.showSnackbar(this, "Updated successfully") }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     // DELETE
@@ -463,21 +479,30 @@ class ClassDetailActivity : AppCompatActivity() {
     private fun showInitiationDialogUI() {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(60, 40, 60, 40)
         }
 
-        val itemsLabel = TextView(this).apply { text = "Number of Quiz Items per material:" }
+        val itemsLabel = TextView(this).apply {
+            text = "Number of Quiz Items per material:"
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
+            setPadding(0, 0, 0, 8)
+        }
         val itemsInput = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
             setText(currentInitiationItems.toString())
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            textSize = 14f
         }
         layout.addView(itemsLabel)
         layout.addView(itemsInput)
 
         val pdfsLabel = TextView(this).apply {
             text = "Custom Reading Materials (Optional):"
-            setPadding(0, 40, 0, 10)
+            setPadding(0, 24, 0, 10)
             setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
         }
         layout.addView(pdfsLabel)
 
@@ -488,25 +513,45 @@ class ClassDetailActivity : AppCompatActivity() {
 
             val btn = Button(this).apply {
                 text = btnText
+                isAllCaps = false
+                setTextColor(Color.parseColor("#4338CA"))
+                setBackgroundResource(R.drawable.bg_btn_modern_secondary)
                 setOnClickListener {
                     currentPdfSlot = i
                     pdfPickerLauncher.launch("application/pdf")
                 }
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    (resources.displayMetrics.density * 46).toInt()
+                ).apply { setMargins(0, 0, 0, 12) }
             }
             layout.addView(btn)
         }
 
-        val dialogBuilder = MaterialAlertDialogBuilder(this)
-            .setTitle("Manage Initiation Quest")
-            .setView(layout)
-            .setPositiveButton("Save Item Count") { _, _ ->
+        val scrollView = ScrollView(this).apply {
+            addView(layout)
+            isFillViewport = true
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                (resources.displayMetrics.density * 340).toInt()
+            )
+        }
+
+        activeDialog = GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Manage Initiation Quest",
+            subtitle = "Configure quest questions and study materials",
+            customView = scrollView,
+            confirmText = "Save Item Count",
+            cancelText = "Cancel",
+            badgeIcon = "📜",
+            onConfirm = { dialog ->
                 val newCount = itemsInput.text.toString().toIntOrNull() ?: 5
                 db.collection("classes").document(classId).update("initiation_items", newCount)
                 GabAIUtils.showSnackbar(this, "Initiation settings updated!")
+                dialog.dismiss()
             }
-            .setNegativeButton("Cancel", null)
-
-        activeDialog = dialogBuilder.show()
+        )
     }
 
     private fun promptForInitiationPdfTitle(fileUri: Uri) {
@@ -517,21 +562,19 @@ class ClassDetailActivity : AppCompatActivity() {
         }
         originalName = originalName.removeSuffix(".pdf").replace("_", " ")
 
-        val input = EditText(this).apply {
-            setText(originalName)
-            hint = "Enter Material Title"
-            setPadding(50, 40, 50, 40)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Upload Custom Material $currentPdfSlot")
-            .setView(input)
-            .setPositiveButton("Upload") { _, _ ->
-                val title = input.text.toString().trim()
+        GabAIDialogs.showInputDialog(
+            context = this,
+            title = "Upload Custom Material $currentPdfSlot",
+            subtitle = "Enter a title for this initiation reading material:",
+            initialText = originalName,
+            hint = "Enter Material Title",
+            confirmText = "Upload",
+            cancelText = "Cancel",
+            badgeIcon = "📄",
+            onConfirm = { title ->
                 if (title.isNotEmpty()) uploadInitiationPdfToDrive(fileUri, title)
             }
-            .setNegativeButton("Cancel") { _, _ -> openInitiationSettings() } // Go back if canceled
-            .show()
+        )
     }
 
     private fun uploadInitiationPdfToDrive(fileUri: Uri, title: String) {
@@ -605,32 +648,38 @@ class ClassDetailActivity : AppCompatActivity() {
     // =========================================================
 
     private fun showCreateAssessmentDialog() {
-        val focusOptions = arrayOf(
+        val focusOptions = listOf(
             "Standard Comprehensive (Balanced concepts & applications)",
             "Higher-Order Thinking & Problem Solving (Scenario & analytical)",
             "Core Vocabulary & Key Terms (Definitions & concept recall)",
             "Quick Diagnostic (Core knowledge & fast check)"
         )
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Select how you want Gemini to generate the assessment")
-            .setItems(focusOptions) { _, which ->
-                selectedGeminiFocus = focusOptions[which]
+        GabAIDialogs.showSelectionDialog(
+            context = this,
+            title = "Assessment Focus",
+            subtitle = "Select how you want Gemini to generate the assessment",
+            items = focusOptions,
+            badgeIcon = "📝",
+            onSelected = { _, selectedText ->
+                selectedGeminiFocus = selectedText
                 promptUploadAssessmentPdf()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun promptUploadAssessmentPdf() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("📄 Upload PDF for Weekly Assessment")
-            .setMessage("Please upload the lesson PDF or reviewer document for Section $sectionName ($className).\n\nGemini will analyze the material and create 10 multiple-choice questions focusing on:\n• $selectedGeminiFocus.")
-            .setPositiveButton("Choose PDF") { _, _ ->
+        GabAIDialogs.showConfirmDialog(
+            context = this,
+            title = "Upload Assessment PDF",
+            message = "Please upload the lesson PDF or reviewer document for Section $sectionName ($className).\n\nGemini will analyze the material and create 10 multiple-choice questions focusing on:\n• $selectedGeminiFocus.",
+            confirmText = "Choose PDF",
+            cancelText = "Cancel",
+            badgeIcon = "📄",
+            onConfirm = {
                 assessmentPdfPickerLauncher.launch("application/pdf")
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun handleAssessmentPdfSelected(uri: Uri) {
@@ -649,7 +698,7 @@ class ClassDetailActivity : AppCompatActivity() {
                 }
 
                 val generativeModel = GenerativeModel(
-                    modelName = "gemini-2.5-flash-lite",
+                    modelName = "gemini-3.5-flash-lite",
                     apiKey = BuildConfig.GEMINI_API_KEY
                 )
 

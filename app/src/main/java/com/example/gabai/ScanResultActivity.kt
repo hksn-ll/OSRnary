@@ -49,20 +49,21 @@ class ScanResultActivity : AppCompatActivity() {
         val overlayView = findViewById<TextOverlayView>(R.id.text_overlay)
         val closeBtn = findViewById<ImageButton>(R.id.close_button)
 
-        // 1. Get the image path passed from the Service
-        // 1. Get the image path passed from the Service
-        val imagePath = intent.getStringExtra("IMG_PATH")
-        if (imagePath != null) {
-            // LOAD THE IMAGE
-            val originalBitmap = BitmapFactory.decodeFile(imagePath)
-
-            // FIX THE ROTATION BEFORE SHOWING IT
-            val correctedBitmap = rotateImageIfRequired(originalBitmap, imagePath)
-
-            imageView.setImageBitmap(correctedBitmap)
-
-            // 2. Run the scanner on the CORRECTED image
-            runScanner(correctedBitmap, overlayView, imageView)
+        // 1. Get image from memory (instant zero-delay) or fallback to file path
+        val memoryBitmap = ScanImageHolder.currentBitmap
+        if (memoryBitmap != null && !memoryBitmap.isRecycled) {
+            imageView.setImageBitmap(memoryBitmap)
+            runScanner(memoryBitmap, overlayView, imageView)
+        } else {
+            val imagePath = intent.getStringExtra("IMG_PATH")
+            if (imagePath != null) {
+                val originalBitmap = BitmapFactory.decodeFile(imagePath)
+                if (originalBitmap != null) {
+                    val correctedBitmap = rotateImageIfRequired(originalBitmap, imagePath)
+                    imageView.setImageBitmap(correctedBitmap)
+                    runScanner(correctedBitmap, overlayView, imageView)
+                }
+            }
         }
 
         findViewById<ImageButton>(R.id.close_button).setOnClickListener {
@@ -123,6 +124,10 @@ class ScanResultActivity : AppCompatActivity() {
         val bounceArrow = findViewById<android.view.View>(R.id.iv_hud_bounce_arrow)
 
         hudCard?.let { view ->
+            view.post {
+                view.pivotX = view.width / 2f
+                view.pivotY = view.height / 2f
+            }
             val scaleX = android.animation.ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.03f).apply {
                 duration = 1100
                 repeatMode = android.animation.ValueAnimator.REVERSE
@@ -201,19 +206,39 @@ class ScanResultActivity : AppCompatActivity() {
         val badge = findViewById<android.widget.TextView>(R.id.tv_selection_badge)
         val btnAnalyze = findViewById<android.view.View>(R.id.btn_analyze_action)
 
-        // Classify selection mode
-        val words = text.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
-        if (words.size > 1) {
-            badge?.text = "PHRASE SELECTED (${words.size} WORDS)"
-        } else {
-            badge?.text = "TARGET WORD"
-        }
+        // Classify selection mode (Word vs Phrase vs Sentence aware)
+        val classification = GabAIUtils.classifyTextSpan(text)
+        badge?.text = classification.badgeLabel
+        (btnAnalyze as? android.widget.Button)?.text = classification.actionButtonLabel
 
-        title.text = text
-        body.text = if (sentence.isNotBlank() && sentence != text) {
-            "\"$sentence\""
-        } else {
-            "Tap below for AI Explanation..."
+        when (classification.type) {
+            GabAIUtils.TextSpanType.WORD -> {
+                title.text = classification.cleanText
+                title.textSize = 20f
+                body.text = if (sentence.isNotBlank() && sentence.trim() != text.trim()) {
+                    "\"$sentence\""
+                } else {
+                    "Tap below for AI definition & pronunciation..."
+                }
+            }
+            GabAIUtils.TextSpanType.PHRASE -> {
+                title.text = classification.cleanText
+                title.textSize = 18f
+                body.text = if (sentence.isNotBlank() && sentence.trim() != text.trim()) {
+                    "\"$sentence\""
+                } else {
+                    "Tap below for meaning, context & role..."
+                }
+            }
+            GabAIUtils.TextSpanType.SENTENCE -> {
+                title.text = if (classification.cleanText.length > 40) {
+                    classification.cleanText.take(40).trim() + "..."
+                } else {
+                    classification.cleanText
+                }
+                title.textSize = 16f
+                body.text = "\"$text\""
+            }
         }
 
         btnAnalyze?.setOnClickListener {
@@ -310,6 +335,7 @@ class ScanResultActivity : AppCompatActivity() {
         super.onDestroy()
         laserAnimator?.cancel()
         laserAnimator = null
+        ScanImageHolder.clear()
 
         findViewById<ImageView>(R.id.screenshot_view)?.setImageDrawable(null)
 

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -35,23 +34,35 @@ class ManageClassesActivity : AppCompatActivity() {
     private fun showCreateClassDialog() {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(60, 40, 60, 40)
         }
 
-        val gradeLabel = TextView(this).apply { text = "Select Grade:" }
+        val gradeLabel = TextView(this).apply {
+            text = "Select Grade:"
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
+            setPadding(0, 0, 0, 8)
+        }
         val gradeSpinner = Spinner(this).apply {
-            // 🟢 ADDED GRADES 7 TO 10
             val grades = arrayOf("Grade 7", "Grade 8", "Grade 9", "Grade 10")
             adapter = ArrayAdapter(this@ManageClassesActivity, android.R.layout.simple_spinner_dropdown_item, grades)
             setSelection(3) // Default to Grade 10
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(24, 20, 24, 20)
         }
 
         val sectionLabel = TextView(this).apply {
             text = "Enter Section Name:"
-            setPadding(0, 40, 0, 0)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
+            setPadding(0, 20, 0, 8)
         }
         val sectionInput = EditText(this).apply {
             hint = "e.g., Rizal"
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#CBD5E1"))
+            textSize = 14f
         }
 
         layout.addView(gradeLabel)
@@ -59,21 +70,26 @@ class ManageClassesActivity : AppCompatActivity() {
         layout.addView(sectionLabel)
         layout.addView(sectionInput)
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Create New Class Section")
-            .setView(layout)
-            .setPositiveButton("Create") { _, _ ->
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Create New Class Section",
+            subtitle = "Set up a new grade level and section roster",
+            customView = layout,
+            confirmText = "Create",
+            cancelText = "Cancel",
+            badgeIcon = "🏫",
+            onConfirm = { dialog ->
                 val selectedGrade = gradeSpinner.selectedItem.toString()
                 val sectionName = sectionInput.text.toString().trim()
 
                 if (sectionName.isNotEmpty()) {
+                    dialog.dismiss()
                     saveClassToFirestore(selectedGrade, sectionName)
                 } else {
                     GabAIUtils.showSnackbar(this, "Section name cannot be empty")
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun fetchAndDisplayClasses() {
@@ -237,32 +253,67 @@ class ManageClassesActivity : AppCompatActivity() {
     }
     // UPDATE Class
     private fun showEditClassDialog(classId: String, currentGrade: String, currentSection: String, currentMaxSessions: Int, currentMaxItems: Int) {
-        val layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(60, 40, 60, 40) }
-
-        val gradeLabel = TextView(this).apply { text = "Select Grade:" }
-        val gradeSpinner = Spinner(this).apply {
-            // 🟢 ADDED GRADES 7 TO 10
-            val grades = arrayOf("Grade 7", "Grade 8", "Grade 9", "Grade 10")
-            adapter = ArrayAdapter(this@ManageClassesActivity, android.R.layout.simple_spinner_dropdown_item, grades)
-
-            // Set the spinner to the current grade
-            val gradeIndex = grades.indexOf(currentGrade)
-            if (gradeIndex >= 0) setSelection(gradeIndex)
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
         }
 
-        val sectionLabel = TextView(this).apply { text = "Enter Section Name:"; setPadding(0, 40, 0, 0) }
-        val sectionInput = EditText(this).apply { setText(currentSection) }
+        val gradeLabel = TextView(this).apply {
+            text = "Select Grade:"
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
+            setPadding(0, 0, 0, 8)
+        }
+        val gradeSpinner = Spinner(this).apply {
+            val grades = arrayOf("Grade 7", "Grade 8", "Grade 9", "Grade 10")
+            adapter = ArrayAdapter(this@ManageClassesActivity, android.R.layout.simple_spinner_dropdown_item, grades)
+            val gradeIndex = grades.indexOf(currentGrade)
+            if (gradeIndex >= 0) setSelection(gradeIndex)
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(24, 20, 24, 20)
+        }
 
-        val sessionsLabel = TextView(this).apply { text = "Max Quiz Sessions per Day:"; setPadding(0, 40, 0, 0) }
+        val sectionLabel = TextView(this).apply {
+            text = "Enter Section Name:"
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
+            setPadding(0, 20, 0, 8)
+        }
+        val sectionInput = EditText(this).apply {
+            setText(currentSection)
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            textSize = 14f
+        }
+
+        val sessionsLabel = TextView(this).apply {
+            text = "Max Quiz Sessions per Day:"
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
+            setPadding(0, 20, 0, 8)
+        }
         val sessionsInput = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
             setText(currentMaxSessions.toString())
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            textSize = 14f
         }
 
-        val itemsLabel = TextView(this).apply { text = "Max Items per Quiz:"; setPadding(0, 40, 0, 0) }
+        val itemsLabel = TextView(this).apply {
+            text = "Max Items per Quiz:"
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#2D3436"))
+            setPadding(0, 20, 0, 8)
+        }
         val itemsInput = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
             setText(currentMaxItems.toString())
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#2D3436"))
+            textSize = 14f
         }
 
         layout.addView(gradeLabel); layout.addView(gradeSpinner)
@@ -270,10 +321,24 @@ class ManageClassesActivity : AppCompatActivity() {
         layout.addView(sessionsLabel); layout.addView(sessionsInput)
         layout.addView(itemsLabel); layout.addView(itemsInput)
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Class Settings")
-            .setView(layout)
-            .setPositiveButton("Save") { _, _ ->
+        val scrollView = ScrollView(this).apply {
+            addView(layout)
+            isFillViewport = true
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                (resources.displayMetrics.density * 340).toInt()
+            )
+        }
+
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Class Settings",
+            subtitle = "Configure section details and daily limits",
+            customView = scrollView,
+            confirmText = "Save",
+            cancelText = "Cancel",
+            badgeIcon = "⚙️",
+            onConfirm = { dialog ->
                 val newGrade = gradeSpinner.selectedItem.toString()
                 val newSection = sectionInput.text.toString().trim()
                 val newFullName = "$newGrade - $newSection"
@@ -283,7 +348,9 @@ class ManageClassesActivity : AppCompatActivity() {
 
                 if (newSection.isNotEmpty()) {
                     val db = FirebaseFirestore.getInstance()
-                    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@setPositiveButton
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@showCustomDialog
+
+                    dialog.dismiss()
 
                     // 🟢 STRICT CHECK: Prevent editing into a grade they already own (unless it's the same grade)
                     if (newGrade != currentGrade) {
@@ -311,15 +378,10 @@ class ManageClassesActivity : AppCompatActivity() {
                     }
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
-    // DELETE Class
-    // DELETE Class & Cascade Delete Students
-    // DELETE Class & Cascade Delete Students
     // DELETE Class & Cascade Delete Students (Only if Adviser)
-    // 🟢 FIX: Added 'grade' to the function signature
     private fun confirmDeleteClass(classId: String, className: String, sectionName: String, grade: String, schoolId: String, isAdviser: Boolean) {
         val title = if (isAdviser) "Delete Class & Students?" else "Remove Class?"
         val message = if (isAdviser) {
@@ -328,10 +390,16 @@ class ManageClassesActivity : AppCompatActivity() {
             "Remove $className from your list? Since you are not the adviser, the student accounts will NOT be deleted."
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(if (isAdviser) "Delete All" else "Remove") { _, _ ->
+        GabAIDialogs.showConfirmDialog(
+            context = this,
+            title = title,
+            message = message,
+            confirmText = if (isAdviser) "Delete All" else "Remove",
+            cancelText = "Cancel",
+            isDestructive = true,
+            badgeIcon = "🗑️",
+            iconRes = R.drawable.ic_trash,
+            onConfirm = {
                 GabAIUtils.showGlobalLoading(this)
                 val db = FirebaseFirestore.getInstance()
 
@@ -362,8 +430,7 @@ class ManageClassesActivity : AppCompatActivity() {
                         GabAIUtils.showSnackbar(this, "Class removed successfully!")
                     }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
     private fun saveClassToFirestore(grade: String, sectionName: String) {
         val db = FirebaseFirestore.getInstance()
@@ -430,28 +497,7 @@ class ManageClassesActivity : AppCompatActivity() {
         }
     }
 
-//    private fun askPermissionToJoinSection(className: String, originalTeacherId: String, classId: String) {
-//        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-//        val db = FirebaseFirestore.getInstance()
-//
-//        MaterialAlertDialogBuilder(this)
-//            .setTitle("Section Already Exists")
-//            .setMessage("Another teacher at your school has already created '$className'. Would you like to request co-teacher access?")
-//            .setPositiveButton("Request Access") { _, _ ->
-//                val requestData = hashMapOf(
-//                    "classId" to classId,
-//                    "className" to className,
-//                    "requesterId" to uid,
-//                    "ownerId" to originalTeacherId,
-//                    "status" to "pending",
-//                    "timestamp" to System.currentTimeMillis()
-//                )
-//                db.collection("section_requests").add(requestData)
-//                    .addOnSuccessListener { com.example.gabai.GabAIUtils.showSnackbar(this, "Request sent!") }
-//            }
-//            .setNegativeButton("Cancel", null)
-//            .show()
-//    }
+
 
     private fun showClassRosterDialog(className: String, targetSection: String, classId: String, schoolId: String) {
         val db = FirebaseFirestore.getInstance()
@@ -459,19 +505,34 @@ class ManageClassesActivity : AppCompatActivity() {
 
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(50, 40, 50, 40)
+            setPadding(0, 0, 0, 0)
         }
 
-        val loadingText = TextView(this).apply { text = "Loading student roster..." }
+        val loadingText = TextView(this).apply {
+            text = "Loading student roster..."
+            setTextColor(Color.parseColor("#636E72"))
+            setPadding(0, 16, 0, 16)
+        }
         container.addView(loadingText)
 
-        val scrollView = android.widget.ScrollView(this).apply { addView(container) }
+        val scrollView = android.widget.ScrollView(this).apply {
+            addView(container)
+            isFillViewport = true
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                (resources.displayMetrics.density * 340).toInt()
+            )
+        }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Roster: $className")
-            .setView(scrollView)
-            .setPositiveButton("Close", null)
-            .show()
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Roster: $className",
+            subtitle = "Active and pending student accounts",
+            customView = scrollView,
+            confirmText = null,
+            cancelText = "Close",
+            badgeIcon = "👥"
+        )
 
         // 1. Fetch the class document to check privileges and see who joined
         db.collection("classes").document(classId).get().addOnSuccessListener { classDoc ->
@@ -482,8 +543,13 @@ class ManageClassesActivity : AppCompatActivity() {
             if (isAdviser) {
                 val btnGenerate = Button(this).apply {
                     text = "Generate Student Accounts"
+                    setTextColor(Color.WHITE)
+                    setBackgroundResource(R.drawable.bg_btn_modern_primary)
                     setOnClickListener { showGenerateStudentsDialog(className, targetSection, classId, schoolId) }
-                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { setMargins(0, 0, 0, 30) }
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (resources.displayMetrics.density * 48).toInt()
+                    ).apply { setMargins(0, 0, 0, 24) }
                 }
                 container.addView(btnGenerate, 0)
             }
@@ -582,26 +648,22 @@ class ManageClassesActivity : AppCompatActivity() {
     }
 
     private fun showGenerateStudentsDialog(className: String, sectionName: String, classId: String, schoolId: String) {
-        val input = EditText(this).apply {
-            hint = "Enter student names, separated by commas (e.g. Juan Cruz, Maria Clara)"
-            minLines = 3
-            gravity = android.view.Gravity.TOP
-            setPadding(40, 40, 40, 40)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Add Students to $className")
-            .setMessage("Paste a comma-separated list of students. The system will auto-generate secure Usernames and Passwords for them.")
-            .setView(input)
-            .setPositiveButton("Generate") { _, _ ->
-                val namesText = input.text.toString()
+        GabAIDialogs.showInputDialog(
+            context = this,
+            title = "Add Students to $className",
+            message = "Paste a comma-separated list of students. The system will auto-generate secure Usernames and Passwords for them.",
+            hint = "Enter student names (e.g. Juan Cruz, Maria Clara)",
+            confirmText = "Generate",
+            cancelText = "Cancel",
+            minLines = 3,
+            badgeIcon = "👥",
+            onConfirm = { namesText ->
                 if (namesText.isNotEmpty()) {
                     val namesList = namesText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                     generateStudentAccounts(namesList, sectionName, classId, schoolId)
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
     private fun generateStudentAccounts(names: List<String>, sectionName: String, classId: String, schoolId: String) {
@@ -648,10 +710,12 @@ class ManageClassesActivity : AppCompatActivity() {
         }
     }
     private fun showJoinCodeInstructionDialog(className: String) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Section Already Exists")
-            .setMessage("The section '$className' has already been created by its adviser.\n\nYou do not need to create it again. To add these students to your subject, simply share your unique Teacher Join Code located in your Profile so they can join your class.")
-            .setPositiveButton("Understood", null)
-            .show()
+        GabAIDialogs.showNoticeDialog(
+            context = this,
+            title = "Section Already Exists",
+            message = "The section '$className' has already been created by its adviser.\n\nYou do not need to create it again. To add these students to your subject, simply share your unique Teacher Join Code located in your Profile so they can join your class.",
+            buttonText = "Understood",
+            badgeIcon = "ℹ️"
+        )
     }
 }

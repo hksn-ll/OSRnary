@@ -40,24 +40,36 @@ class HomeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-
         setupDashboard()
-
-        // Sleek staggered entrance cascade
-        GabAIUtils.animateCascade(
-            listOfNotNull(
-                binding.tvGreetingTitle,
-                binding.cardHeroXp,
-                binding.questBoardContainer,
-                binding.btnOpenCamera,
-                binding.btnOpenLibrary,
-                binding.btnLeaderboard,
-                binding.btnDailyQuests
-            ),
-            30L
-        )
-
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        playEntranceAnimation()
+    }
+
+    fun playEntranceAnimation() {
+        if (_binding == null || !isAdded) return
+        val viewsToAnimate = listOfNotNull(
+            binding.tvGreetingTitle,
+            binding.cardHeroXp,
+            binding.questBoardContainer,
+            binding.sectionWeeklyAssessments.takeIf { it.visibility == View.VISIBLE },
+            binding.headerYourJourney,
+            binding.btnLearningProgress,
+            binding.btnDailyQuests,
+            binding.btnAchievements,
+            binding.btnLeaderboard,
+            binding.btnJoinClass,
+            binding.headerTools,
+            binding.btnOpenCamera,
+            binding.btnOpenLibrary,
+            binding.btnStartQuiz,
+            binding.btnFavs,
+            binding.btnHistory
+        )
+        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 35L, startDelayOffset = 300L)
     }
 
     override fun onResume() {
@@ -117,16 +129,20 @@ class HomeFragment : Fragment() {
             if (mainAct?.isBubbleActive() == true) {
                 startActivity(Intent(requireContext(), LibraryActivity::class.java))
             } else {
-                com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Companion Required 🧚‍♂️")
-                    .setMessage("Activate the GabAI Floating Bubble to assist your reading inside the Digital Library.")
-                    .setPositiveButton("Turn On & Open") { _, _ ->
+                GabAIDialogs.showConfirmDialog(
+                    context = requireContext(),
+                    title = "Companion Required",
+                    message = "Activate the GabAI Floating Bubble to assist your reading inside the Digital Library.",
+                    confirmText = "Turn On & Open",
+                    cancelText = "Cancel",
+                    isDestructive = false,
+                    badgeIcon = "🧚‍♂️",
+                    onConfirm = {
                         mainAct?.toggleBubble(enable = true) {
                             startActivity(Intent(requireContext(), LibraryActivity::class.java))
                         }
                     }
-                    .setNegativeButton("Cancel", null)
-                    .show()
+                )
             }
         }
         GabAIUtils.addSpringPressEffect(binding.btnOpenCamera) {
@@ -270,48 +286,14 @@ class HomeFragment : Fragment() {
         startActivity(Intent(requireContext(), QuestDetailsActivity::class.java))
     }
     private fun showGrandUnlockCelebration() {
-        val layout = android.widget.LinearLayout(requireContext()).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            gravity = android.view.Gravity.CENTER
-            setPadding(60, 80, 60, 80)
-        }
-
-        val icon = android.widget.TextView(requireContext()).apply {
-            text = "🎉🏆✨"
-            textSize = 50f
-            gravity = android.view.Gravity.CENTER
-            setPadding(0, 0, 0, 30)
-        }
-
-        val title = android.widget.TextView(requireContext()).apply {
-            text = "RANK UNLOCKED!"
-            textSize = 24f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(android.graphics.Color.parseColor("#6C5CE7"))
-            gravity = android.view.Gravity.CENTER
-            setPadding(0, 0, 0, 20)
-        }
-
-        val desc = android.widget.TextView(requireContext()).apply {
-            text = "Incredible work! You have mastered all the basic tools and passed the trials. Your Leveling System is now permanently unlocked.\n\nGo forth and start earning XP!"
-            textSize = 16f
-            setTextColor(android.graphics.Color.DKGRAY)
-            gravity = android.view.Gravity.CENTER
-            textAlignment = android.view.View.TEXT_ALIGNMENT_CENTER
-            setLineSpacing(0f, 1.2f)
-        }
-
-        layout.addView(icon)
-        layout.addView(title)
-        layout.addView(desc)
-
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-            .setView(layout)
-            .setCancelable(false) // Forces them to click the button to dismiss
-            .setPositiveButton("Accept Rank & Enter GabAI") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+        GabAIDialogs.showNoticeDialog(
+            context = requireContext(),
+            title = "RANK UNLOCKED!",
+            message = "Incredible work! You have mastered all the basic tools and passed the trials. Your Leveling System is now permanently unlocked.\n\nGo forth and start earning XP!",
+            buttonText = "Accept Rank & Enter GabAI",
+            badgeIcon = "🏆",
+            cancelable = false
+        )
     }
     private fun showJoinClassDialog() {
         GabAIDialogs.showJoinClassDialog(

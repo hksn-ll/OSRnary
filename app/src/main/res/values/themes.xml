@@ -31,6 +31,10 @@
         <!-- Default component styles -->
         <item name="materialButtonStyle">@style/Widget.GabAI.Button.Primary</item>
         <item name="materialCardViewStyle">@style/Widget.GabAI.CardView</item>
+
+        <!-- Modern Dialog Styling (Banish cheap purple tint app-wide) -->
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.GabAI.MaterialAlertDialog</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.GabAI.MaterialAlertDialog</item>
     </style>
 
     <style name="Theme.GabAI" parent="Base.Theme.GabAI">
@@ -64,5 +68,44 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="ThemeOverlay.GabAI.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.GabAI.Dialog</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.GabAI.Dialog.Title</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/TextAppearance.GabAI.Dialog.Body</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.GabAI.Dialog.Button.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.GabAI.Dialog.Button.Negative</item>
+    </style>
+
+    <style name="ShapeAppearance.GabAI.Dialog" parent="">
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="TextAppearance.GabAI.Dialog.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">#2D3436</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/font_plus_jakarta_sans</item>
+        <item name="fontFamily">@font/font_plus_jakarta_sans</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.GabAI.Dialog.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">#636E72</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">@font/font_plus_jakarta_sans</item>
+        <item name="fontFamily">@font/font_plus_jakarta_sans</item>
+    </style>
+
+    <style name="Widget.GabAI.Dialog.Button.Positive" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">#5341CD</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/font_plus_jakarta_sans</item>
+    </style>
+
+    <style name="Widget.GabAI.Dialog.Button.Negative" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">#636E72</item>
+        <item name="android:fontFamily">@font/font_plus_jakarta_sans</item>
     </style>
 </resources>

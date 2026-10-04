@@ -52,16 +52,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Elegant Spinner Loader -->
-    <ProgressBar
-        android:id="@+id/splash_progress"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="28dp"
-        android:indeterminateTint="#5341CD"
-        android:alpha="0"
-        app:layout_constraintTop_toBottomOf="@id/tv_app_subtitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

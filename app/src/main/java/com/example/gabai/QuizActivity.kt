@@ -1,47 +1,83 @@
 package com.example.gabai
 
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import java.util.Calendar
 
 class QuizActivity : AppCompatActivity() {
 
     // --- Dynamic Limits (Fetched from Teacher's Settings) ---
-    // Defaults used only if the teacher's class config can't be loaded; overwritten in initializeQuizSession().
     private var maxItemsPerSession = 10
     private var maxSessionsPerDay = 3
 
+    // --- Data Model for Pre-Generated Questions ---
+    data class QuizQuestionItem(
+        val docSnapshot: DocumentSnapshot,
+        val word: String,
+        val question: String,
+        val options: List<String>,
+        val correct: String,
+        val explanation: String
+    )
+
     // --- Session Trackers ---
-    private var sessionWords = mutableListOf<com.google.firebase.firestore.DocumentSnapshot>()
-    private var currentActiveDoc: com.google.firebase.firestore.DocumentSnapshot? = null
+    private val quizQueue = mutableListOf<QuizQuestionItem>()
+    private var currentActiveItem: QuizQuestionItem? = null
     private val sessionResults = mutableListOf<Map<String, Any>>()
+
+    private var totalQuestionsInSession = 0
+    private var currentQuestionIndex = 0
 
     private var score = 0
     private var totalAttempts = 0
-    private lateinit var correctWord: String
     private var startTime: Long = 0
 
     // Combo streak tracking
     private var comboStreak = 0
     private var maxComboStreak = 0
 
-    private var currentDocId: String? = null
-    private var currentInterval: Int = 1
-
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-2.5-flash-lite",
+        modelName = "gemini-3.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY
     )
+
+    // View references
+    private lateinit var quizHeader: TextView
+    private lateinit var tvComboStreak: TextView
+    private lateinit var tvProgressCounter: TextView
+    private lateinit var tvProgressPercent: TextView
+    private lateinit var progressQuiz: ProgressBar
+    private lateinit var questionCard: View
+    private lateinit var questionText: TextView
+    private lateinit var optionsContainer: View
+    private lateinit var optionButtons: List<MaterialButton>
+    private lateinit var cardExplanation: View
+    private lateinit var tvExplanation: TextView
+    private lateinit var btnNextQuestion: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,27 +86,92 @@ class QuizActivity : AppCompatActivity() {
 
         // Fix Status Bar
         val root = findViewById<View>(R.id.quiz_root)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + 16, v.paddingRight, v.paddingBottom)
             insets
         }
 
+        bindViews()
+        setupListeners()
+        setupBackProtection()
+
         initializeQuizSession()
+    }
+
+    private fun bindViews() {
+        quizHeader = findViewById(R.id.quiz_header)
+        tvComboStreak = findViewById(R.id.tv_combo_streak)
+        tvProgressCounter = findViewById(R.id.tv_progress_counter)
+        tvProgressPercent = findViewById(R.id.tv_progress_percent)
+        progressQuiz = findViewById(R.id.progress_quiz)
+        questionCard = findViewById(R.id.question_card)
+        questionText = findViewById(R.id.question_text)
+        optionsContainer = findViewById(R.id.options_container)
+
+        optionButtons = listOf(
+            findViewById(R.id.btn_choice1),
+            findViewById(R.id.btn_choice2),
+            findViewById(R.id.btn_choice3),
+            findViewById(R.id.btn_choice4)
+        )
+
+        cardExplanation = findViewById(R.id.card_explanation)
+        tvExplanation = findViewById(R.id.tv_explanation)
+        btnNextQuestion = findViewById(R.id.btn_next_question)
+    }
+
+    private fun setupListeners() {
+        findViewById<View>(R.id.btn_back)?.setOnClickListener {
+            confirmExitQuiz()
+        }
 
         findViewById<Button>(R.id.btn_restart).setOnClickListener {
-            finish() // Return to dashboard
+            finish()
         }
 
         findViewById<Button>(R.id.btn_exit).setOnClickListener {
             finish()
         }
-        val btnHistory = findViewById<Button>(R.id.btn_quiz_history)
-        // Check if the button exists in the layout to prevent crashes
-        btnHistory?.setOnClickListener {
-            startActivity(android.content.Intent(this, QuizHistoryActivity::class.java))
-            finish() // Optional: close the current quiz screen so pressing "back" doesn't return here
+
+        findViewById<Button>(R.id.btn_quiz_history)?.setOnClickListener {
+            startActivity(Intent(this, QuizHistoryActivity::class.java))
+            finish()
         }
+
+        btnNextQuestion.setOnClickListener {
+            GabAIUtils.performHaptic(it, HapticFeedbackConstants.CLOCK_TICK)
+            cardExplanation.visibility = View.GONE
+            btnNextQuestion.visibility = View.GONE
+            displayNextQuestion()
+        }
+    }
+
+    private fun setupBackProtection() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                confirmExitQuiz()
+            }
+        })
+    }
+
+    private fun confirmExitQuiz() {
+        val resultView = findViewById<View>(R.id.result_view)
+        if (resultView.visibility == View.VISIBLE || (quizQueue.isEmpty() && currentActiveItem == null)) {
+            finish()
+            return
+        }
+
+        GabAIDialogs.showConfirmDialog(
+            context = this,
+            title = "Leave Quiz Session?",
+            message = "Your current recall streak and progress for this session will be lost.",
+            confirmText = "Leave",
+            cancelText = "Keep Playing",
+            isDestructive = true,
+            badgeIcon = "🏃‍♂️",
+            onConfirm = { finish() }
+        )
     }
 
     // ========================================================================
@@ -79,8 +180,10 @@ class QuizActivity : AppCompatActivity() {
     private fun initializeQuizSession() {
         val userId = auth.currentUser?.uid ?: return
 
-        findViewById<TextView>(R.id.question_text).text = "Fetching teacher settings..."
-        findViewById<View>(R.id.options_container).visibility = View.GONE
+        questionText.text = "Fetching teacher settings..."
+        optionsContainer.visibility = View.GONE
+        cardExplanation.visibility = View.GONE
+        btnNextQuestion.visibility = View.GONE
 
         db.collection("users").document(userId).get().addOnSuccessListener { userDoc ->
             val schoolId = userDoc.getString("schoolId") ?: ""
@@ -102,10 +205,11 @@ class QuizActivity : AppCompatActivity() {
         }.addOnFailureListener { showLoadError() }
     }
 
-    // Shared error state: surface a clear message + a way back instead of a stuck spinner.
     private fun showLoadError() {
-        findViewById<View>(R.id.options_container).visibility = View.GONE
-        findViewById<TextView>(R.id.question_text).text = getString(R.string.error_load_settings_failed)
+        optionsContainer.visibility = View.GONE
+        cardExplanation.visibility = View.GONE
+        btnNextQuestion.visibility = View.GONE
+        questionText.text = getString(R.string.error_load_settings_failed)
         val resultView = findViewById<View>(R.id.result_view)
         val btnRestart = findViewById<Button>(R.id.btn_restart)
         val scoreText = findViewById<TextView>(R.id.final_score_text)
@@ -117,27 +221,22 @@ class QuizActivity : AppCompatActivity() {
     }
 
     // ========================================================================
-    // STEP 2: CHECK IF THEY ALREADY DID THEIR MAX QUIZZES TODAY
-    // ========================================================================
-    // ========================================================================
-    // STEP 2: CHECK IF THEY ALREADY DID THEIR MAX QUIZZES TODAY
+    // STEP 2: CHECK DAILY LIMITS
     // ========================================================================
     private fun checkDailyLimits(userId: String) {
-        findViewById<TextView>(R.id.question_text).text = "Checking daily limits..."
+        questionText.text = "Checking daily limits..."
 
-        val calendar = java.util.Calendar.getInstance()
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
-        calendar.set(java.util.Calendar.MINUTE, 0)
-        calendar.set(java.util.Calendar.SECOND, 0)
-        calendar.set(java.util.Calendar.MILLISECOND, 0)
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
         val startOfToday = calendar.timeInMillis
 
         db.collection("users").document(userId).collection("quiz_history")
             .whereGreaterThanOrEqualTo("timestamp", startOfToday)
             .get()
             .addOnSuccessListener { historyDocs ->
-
-                // 🟢 THE FIX: Only count "recall" quizzes. Ignore "material" quizzes!
                 val sessionsToday = historyDocs.documents.count { it.getString("quizType") != "material" }
 
                 if (sessionsToday >= maxSessionsPerDay) {
@@ -147,7 +246,6 @@ class QuizActivity : AppCompatActivity() {
 
                     scoreText.visibility = View.VISIBLE
                     scoreText.text = "Brain Rest Required!\n\nYou've completed your $maxSessionsPerDay daily sessions. Come back tomorrow to let your memory consolidate!"
-
                     resultView.visibility = View.VISIBLE
                     btnRestart.text = "Return to Dashboard"
                 } else {
@@ -158,18 +256,17 @@ class QuizActivity : AppCompatActivity() {
     }
 
     // ========================================================================
-    // STEP 3: LOAD THE WORDS DUE FOR REVIEW
+    // STEP 3: LOAD WORDS & BATCH PRE-GENERATE ALL QUESTIONS
     // ========================================================================
     private fun loadWordsForSession(userId: String) {
         val currentTime = System.currentTimeMillis()
-        findViewById<TextView>(R.id.question_text).text = "Loading your study session..."
+        questionText.text = "Loading your review words..."
 
         db.collection("users").document(userId).collection("history")
             .whereLessThanOrEqualTo("nextReview", currentTime)
             .limit(50)
             .get()
             .addOnSuccessListener { documents ->
-                // Filter out full sentences (> 4 words) from cloze testing to ensure valid question blanks
                 val eligibleDocs = documents.documents.filter { doc ->
                     val w = doc.getString("word")?.trim() ?: ""
                     val wordCount = w.split(Regex("\\s+")).filter { it.isNotBlank() }.size
@@ -177,15 +274,12 @@ class QuizActivity : AppCompatActivity() {
                 }
                 val readyCount = eligibleDocs.size
 
-                // STRICT MODE: Student MUST have enough words to meet the teacher's exact requirement
                 if (readyCount < maxItemsPerSession) {
                     val needed = maxItemsPerSession - readyCount
-
                     val resultView = findViewById<View>(R.id.result_view)
                     val btnRestart = findViewById<Button>(R.id.btn_restart)
                     val scoreText = findViewById<TextView>(R.id.final_score_text)
 
-                    // FIX: Make the text visible and write the warning directly to the result screen!
                     scoreText.visibility = View.VISIBLE
                     scoreText.text = "Session Locked!\n\n" +
                             "Your teacher requires a fixed $maxItemsPerSession-item quiz.\n" +
@@ -195,84 +289,104 @@ class QuizActivity : AppCompatActivity() {
                     resultView.visibility = View.VISIBLE
                     btnRestart.text = "Return to Dashboard"
                 } else {
-                    // They hit the exact requirement! Let them play.
-                    sessionWords.addAll(eligibleDocs.take(maxItemsPerSession))
-                    startNewQuestion()
+                    val targetDocs = eligibleDocs.take(maxItemsPerSession)
+                    batchGenerateQuizQuestions(targetDocs, userId)
                 }
             }
             .addOnFailureListener { e ->
-                findViewById<TextView>(R.id.question_text).text = "Failed to load session: ${e.message}"
+                questionText.text = "Failed to load session: ${e.message}"
             }
     }
 
     // ========================================================================
-    // POP THE NEXT WORD FROM THE QUEUE
+    // BATCH AI PRE-GENERATION (Single Request for All Session Words)
     // ========================================================================
-    private fun startNewQuestion() {
-        if (sessionWords.isEmpty()) {
-            showFinalResults()
-            return
-        }
-
-        currentActiveDoc = sessionWords.removeAt(0)
-
-        currentDocId = currentActiveDoc?.id
-        currentInterval = currentActiveDoc?.getLong("interval")?.toInt() ?: 1
-
-        val wordToTest = currentActiveDoc?.getString("word") ?: ""
-        val savedDef = currentActiveDoc?.getString("explanation") ?: ""
-        val savedContext = currentActiveDoc?.getString("originalContext") ?: ""
-
-        generateAiQuiz(wordToTest, savedDef, savedContext)
-    }
-
-    // ========================================================================
-    // GENERATE THE CONTEXTUAL QUIZ
-    // ========================================================================
-    private fun generateAiQuiz(word: String, definition: String, contextText: String) {
-        val questionTextView = findViewById<TextView>(R.id.question_text)
-        questionTextView.text = "AI is thinking of a challenge..."
-        findViewById<View>(R.id.options_container).visibility = View.INVISIBLE
+    private fun batchGenerateQuizQuestions(docs: List<DocumentSnapshot>, userId: String) {
+        questionText.text = "AI is preparing your challenge session..."
+        optionsContainer.visibility = View.GONE
 
         lifecycleScope.launch {
             try {
+                val itemsSpec = StringBuilder()
+                docs.forEachIndexed { i, doc ->
+                    val w = doc.getString("word")?.trim() ?: ""
+                    val d = doc.getString("explanation")?.trim() ?: ""
+                    val c = doc.getString("originalContext")?.trim() ?: ""
+                    itemsSpec.append("${i + 1}. Word: \"$w\"\n   Definition: \"$d\"\n   Context: \"$c\"\n\n")
+                }
+
                 val prompt = """
                     You are an expert linguistics engine generating cloze (fill-in-the-blank) tests for Grade 10 students.
-                    Target Word: "$word"
-                    Simplified Definition: "$definition"
-                    Original Context: "$contextText"
+                    Generate exactly ${docs.size} cloze questions, one for each target word provided below:
 
-                    **STEP 1: SENTENCE GENERATION**
-                    - Read the "Original Context".
-                    - Identify the exact morphological form of the "Target Word" needed (e.g., base verb, past tense, plural noun).
-                    - Create a clear, realistic high-school-level sentence using this context. Expand it logically if it is shorter than 6 words.
-                    - Replace the target word in the sentence with exactly 7 underscores: "_______".
+                    $itemsSpec
 
-                    **STEP 2: OPTION GENERATION (CRITICAL RULES)**
-                    - Generate exactly 4 options labeled A, B, C, and D.
-                    - Exactly ONE option MUST be the correct Target Word (in the correct grammatical form to fit the blank).
-                    - Generate THREE distractors.
-                    - **ABSOLUTE GRAMMAR RULE:** All 4 options MUST share the EXACT same part of speech and grammatical form. 
-                        - Example: If the blank follows "to" (infinitive), ALL 4 options MUST be base-form verbs (e.g., come, stay, leave, go). Never mix tenses (e.g., do not mix "arrived" with "come").
-                        - Example: If the correct word is a plural noun, ALL distractors must be plural nouns.
-                    - Distractors must fit grammatically perfectly into the blank, but be logically incorrect contextually.
-                    - The Question sentence and all 4 Options MUST be written in the exact same language as the "Original Context".
+                    RULES FOR EACH QUESTION:
+                    1. SENTENCE: Create a clear, high-school-level sentence using the context. Replace the target word with exactly 7 underscores: "_______".
+                    2. OPTIONS: Exactly 4 options. Exactly ONE option MUST be the correct target word in the exact grammatical form needed.
+                    3. DISTRACTORS: Three plausible distractors sharing the exact same part of speech and grammatical form.
+                    4. CORRECT: The exact string of the correct option.
+                    5. EXPLANATION: A concise 1-2 sentence educational insight explaining why the correct word fits best and clarifying nuance.
 
-                    **STEP 3: OUTPUT FORMAT**
-                    - Output ONLY the text requested below. 
-                    - NO conversational filler (do not say "Here is the quiz"). 
-                    - NO markdown formatting (no bolding or italics) on the options.
-
-                    Question: [The generated sentence with _______]
-                    A) [Option 1]
-                    B) [Option 2]
-                    C) [Option 3]
-                    D) [Option 4]
-                    Correct: [The exact text of the correct option, matching one of the A-D strings precisely]
+                    CRITICAL: Output ONLY a valid JSON array of objects. No markdown backticks outside the JSON, no preamble, no commentary.
+                    JSON Format:
+                    [
+                      {
+                        "itemIndex": 1,
+                        "question": "Sentence with _______",
+                        "options": ["choice1", "choice2", "choice3", "choice4"],
+                        "correct": "choice1",
+                        "explanation": "Clear educational insight."
+                      }
+                    ]
                 """.trimIndent()
 
-                val response = generativeModel.generateContent(prompt)
-                parseAndDisplayQuiz(response.text ?: "")
+                val response = withContext(Dispatchers.IO) {
+                    generativeModel.generateContent(prompt)
+                }
+
+                var jsonStr = response.text ?: "[]"
+                val startIndex = jsonStr.indexOf("[")
+                val endIndex = jsonStr.lastIndexOf("]")
+                if (startIndex != -1 && endIndex != -1) {
+                    jsonStr = jsonStr.substring(startIndex, endIndex + 1)
+                }
+
+                val jsonArray = JSONArray(jsonStr)
+                quizQueue.clear()
+
+                for (i in 0 until jsonArray.length().coerceAtMost(docs.size)) {
+                    val obj = jsonArray.getJSONObject(i)
+                    val q = obj.getString("question").replace("**", "").trim()
+                    val optsArr = obj.getJSONArray("options")
+                    val optsList = mutableListOf<String>()
+                    for (k in 0 until optsArr.length()) {
+                        optsList.add(optsArr.getString(k).replace("**", "").trim())
+                    }
+                    val correct = obj.getString("correct").replace("**", "").trim()
+                    val explanation = obj.optString("explanation", "Review the key context and grammatical form of the target word.").trim()
+
+                    // Ensure target word option is present and shuffle choices
+                    val finalOpts = if (optsList.contains(correct)) optsList else (optsList.take(3) + correct)
+                    val shuffledOpts = finalOpts.shuffled()
+
+                    quizQueue.add(
+                        QuizQuestionItem(
+                            docSnapshot = docs[i],
+                            word = docs[i].getString("word") ?: correct,
+                            question = q,
+                            options = shuffledOpts,
+                            correct = correct,
+                            explanation = explanation
+                        )
+                    )
+                }
+
+                if (quizQueue.isEmpty()) throw Exception("AI did not produce valid questions.")
+
+                totalQuestionsInSession = quizQueue.size
+                currentQuestionIndex = 0
+                displayNextQuestion()
 
             } catch (e: Exception) {
                 val resultView = findViewById<View>(R.id.result_view)
@@ -280,85 +394,89 @@ class QuizActivity : AppCompatActivity() {
                 val scoreText = findViewById<TextView>(R.id.final_score_text)
 
                 scoreText.visibility = View.VISIBLE
-                scoreText.text = "Could not load AI question (${e.localizedMessage ?: "timeout"}).\nPlease check your internet connection."
-                btnRestart.text = "Retry Question"
+                scoreText.text = "Could not generate AI questions (${e.localizedMessage ?: "network issue"}).\nPlease check your internet connection."
+                btnRestart.text = "Retry Session"
                 btnRestart.setOnClickListener {
                     resultView.visibility = View.GONE
-                    generateAiQuiz(word, definition, contextText)
+                    batchGenerateQuizQuestions(docs, userId)
                 }
                 resultView.visibility = View.VISIBLE
             }
         }
     }
 
-private fun parseAndDisplayQuiz(rawResult: String) {
-    try {
-        val lines = rawResult.lines().map { it.trim() }
+    // ========================================================================
+    // DISPLAY NEXT QUESTION FROM PRE-GENERATED QUEUE
+    // ========================================================================
+    private fun displayNextQuestion() {
+        if (quizQueue.isEmpty()) {
+            showFinalResults()
+            return
+        }
 
-        // FIX 1: Flexible regex to ignore bolding (**) and handle variations in formatting
-        val questionLine = lines.find { it.contains("Question:", ignoreCase = true) }
-            ?: throw Exception("Missing Question")
-        val question = questionLine.substringAfter("Question:").replace("**", "").trim()
+        currentActiveItem = quizQueue.removeAt(0)
+        currentQuestionIndex++
 
-        // FIX 2: Catch A), A., **A)**, etc.
-        val options = lines.filter { it.matches(Regex(".*[A-D][\\)\\.].*")) }
-            .map { it.substringAfter(")").substringAfter(".").replace("**", "").trim() }
+        val item = currentActiveItem ?: return
 
-        if (options.isEmpty()) throw Exception("Missing Options")
+        // Update Progress UI
+        tvProgressCounter.text = "Question $currentQuestionIndex of $totalQuestionsInSession"
+        val pct = (currentQuestionIndex * 100) / totalQuestionsInSession.coerceAtLeast(1)
+        tvProgressPercent.text = "$pct%"
+        progressQuiz.max = totalQuestionsInSession
+        progressQuiz.progress = currentQuestionIndex
 
-        // FIX 3: Flexible Correct answer parsing
-        val correctLine = lines.find { it.contains("Correct:", ignoreCase = true) }
-            ?: throw Exception("Missing Correct Answer")
-        var cleanCorrect = correctLine.substringAfter("Correct:").replace("**", "").trim()
-        cleanCorrect = cleanCorrect.replace(Regex("^[A-D][\\)\\.]"), "").trim()
-        correctWord = cleanCorrect
+        // Reset state & buttons
+        cardExplanation.visibility = View.GONE
+        btnNextQuestion.visibility = View.GONE
+
+        resetOptionButtonStyles()
 
         animateCardFlip {
-            findViewById<TextView>(R.id.question_text).text = question
+            questionText.text = item.question
 
-            val buttons = listOf(
-                findViewById<Button>(R.id.btn_choice1),
-                findViewById<Button>(R.id.btn_choice2),
-                findViewById<Button>(R.id.btn_choice3),
-                findViewById<Button>(R.id.btn_choice4)
-            )
-
-            for (i in buttons.indices) {
-                if (i < options.size) {
-                    buttons[i].visibility = View.VISIBLE
-                    buttons[i].text = options[i]
-                    buttons[i].setOnClickListener { checkAnswer(options[i]) }
+            for (i in optionButtons.indices) {
+                if (i < item.options.size) {
+                    val opt = item.options[i]
+                    val letter = ('A' + i)
+                    optionButtons[i].visibility = View.VISIBLE
+                    optionButtons[i].isEnabled = true
+                    optionButtons[i].text = "$letter)  $opt"
+                    optionButtons[i].setOnClickListener {
+                        checkAnswer(opt, optionButtons[i], item)
+                    }
                 } else {
-                    buttons[i].visibility = View.GONE // Hide extra buttons if AI generates fewer than 4
+                    optionButtons[i].visibility = View.GONE
                 }
             }
 
-            findViewById<View>(R.id.options_container).visibility = View.VISIBLE
-            startTime = System.currentTimeMillis() // Start timing for SRS!
+            optionsContainer.visibility = View.VISIBLE
+            startTime = System.currentTimeMillis()
         }
-
-    } catch (e: Exception) {
-        startNewQuestion() // If AI hallucinated the format heavily, skip to the next word safely
     }
-}
+
+    private fun resetOptionButtonStyles() {
+        for (btn in optionButtons) {
+            btn.isEnabled = true
+            btn.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+            btn.strokeColor = ColorStateList.valueOf(Color.parseColor("#EDF2F7"))
+            btn.strokeWidth = (1.5f * resources.displayMetrics.density).toInt()
+            btn.setTextColor(Color.parseColor("#161D1F"))
+        }
+    }
 
     private fun animateCardFlip(onHalfway: () -> Unit) {
-        val card = findViewById<View>(R.id.question_card)
-        if (card == null) {
-            onHalfway()
-            return
-        }
-        card.cameraDistance = 8000f * resources.displayMetrics.density
-        card.animate()
+        questionCard.cameraDistance = 8000f * resources.displayMetrics.density
+        questionCard.animate()
             .rotationY(90f)
-            .setDuration(150)
+            .setDuration(140)
             .setInterpolator(android.view.animation.AccelerateInterpolator())
             .withEndAction {
                 onHalfway()
-                card.rotationY = -90f
-                card.animate()
+                questionCard.rotationY = -90f
+                questionCard.animate()
                     .rotationY(0f)
-                    .setDuration(150)
+                    .setDuration(140)
                     .setInterpolator(android.view.animation.DecelerateInterpolator())
                     .start()
             }
@@ -366,82 +484,118 @@ private fun parseAndDisplayQuiz(rawResult: String) {
     }
 
     // ========================================================================
-    // CHECK ANSWER & HAUNT FAILED WORDS
+    // TWO-STEP ANSWER FLOW & EDUCATIONAL INSIGHT PILL
     // ========================================================================
-    private fun checkAnswer(selected: String) {
+    private fun checkAnswer(selectedOption: String, selectedBtn: MaterialButton, item: QuizQuestionItem) {
         val responseTime = System.currentTimeMillis() - startTime
         totalAttempts++
 
-        val userChoice = selected.replace("*", "").trim().removeSuffix(".")
-        val rightAnswer = correctWord.replace("*", "").trim().removeSuffix(".")
-        val isCorrect = userChoice.equals(rightAnswer, ignoreCase = true)
+        // Freeze all buttons immediately to prevent duplicate presses
+        for (btn in optionButtons) {
+            btn.isEnabled = false
+        }
 
-        // 1. Audit Trail: Save this answer to our history block
-        val currentQuestionText = findViewById<TextView>(R.id.question_text).text.toString()
+        val cleanSelected = selectedOption.replace("*", "").trim().removeSuffix(".")
+        val cleanCorrect = item.correct.replace("*", "").trim().removeSuffix(".")
+        val isCorrect = cleanSelected.equals(cleanCorrect, ignoreCase = true)
+
+        // 1. Audit Trail: Save with educational explanation
         val resultItem = hashMapOf(
-            "question" to currentQuestionText,
-            "targetWord" to rightAnswer,
-            "userAnswer" to userChoice,
-            "isCorrect" to isCorrect
+            "question" to item.question,
+            "targetWord" to cleanCorrect,
+            "userAnswer" to cleanSelected,
+            "isCorrect" to isCorrect,
+            "explanation" to item.explanation
         )
         sessionResults.add(resultItem)
 
-        // 2. SRS & Combo Logic
-        val comboBadge = findViewById<TextView>(R.id.tv_combo_streak)
+        // 2. High-Contrast Two-Step Button Feedback
         if (isCorrect) {
             score++
             comboStreak++
             if (comboStreak > maxComboStreak) maxComboStreak = comboStreak
-            updateSRSMetadata(true, responseTime)
+            updateSRSMetadata(item.docSnapshot, true, responseTime)
+
+            // Mint green success styling
+            selectedBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+            selectedBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#00B894"))
+            selectedBtn.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
+            selectedBtn.setTextColor(Color.parseColor("#065F46"))
 
             if (comboStreak >= 2) {
-                comboBadge?.text = "🔥 ${comboStreak}x Combo"
-                comboBadge?.visibility = View.VISIBLE
-                comboBadge?.animate()?.scaleX(1.25f)?.scaleY(1.25f)?.setDuration(100)?.withEndAction {
-                    comboBadge.animate()?.scaleX(1.0f)?.scaleY(1.0f)?.setDuration(100)?.start()
+                tvComboStreak.text = "🔥 ${comboStreak}x Combo"
+                tvComboStreak.visibility = View.VISIBLE
+                tvComboStreak.animate()?.scaleX(1.25f)?.scaleY(1.25f)?.setDuration(100)?.withEndAction {
+                    tvComboStreak.animate()?.scaleX(1.0f)?.scaleY(1.0f)?.setDuration(100)?.start()
                 }?.start()
-                GabAIUtils.performHaptic(comboBadge, android.view.HapticFeedbackConstants.CONFIRM)
-                GabAIUtils.showSnackbar(this, "🔥 ${comboStreak}x Combo! Correct! (${responseTime / 1000}s)")
+                GabAIUtils.performHaptic(tvComboStreak, HapticFeedbackConstants.CONFIRM)
             } else {
-                comboBadge?.visibility = View.GONE
-                GabAIUtils.performHaptic(comboBadge, android.view.HapticFeedbackConstants.CLOCK_TICK)
-                GabAIUtils.showSnackbar(this, "Correct! (${responseTime / 1000}s)")
+                tvComboStreak.visibility = View.GONE
+                GabAIUtils.performHaptic(selectedBtn, HapticFeedbackConstants.CLOCK_TICK)
             }
         } else {
             comboStreak = 0
-            comboBadge?.visibility = View.GONE
-            updateSRSMetadata(false, responseTime)
-            GabAIUtils.performHaptic(comboBadge, android.view.HapticFeedbackConstants.REJECT)
-            GabAIUtils.showSnackbar(this, "Wrong! Answer: $rightAnswer")
+            tvComboStreak.visibility = View.GONE
+            updateSRSMetadata(item.docSnapshot, false, responseTime)
+            GabAIUtils.performHaptic(selectedBtn, HapticFeedbackConstants.REJECT)
+
+            // Rose red error styling on selected button
+            selectedBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF2F2"))
+            selectedBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#EF4444"))
+            selectedBtn.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
+            selectedBtn.setTextColor(Color.parseColor("#991B1B"))
+
+            // Highlight the correct answer in mint so the user learns
+            for ((idx, opt) in item.options.withIndex()) {
+                val cleanOpt = opt.replace("*", "").trim().removeSuffix(".")
+                if (cleanOpt.equals(cleanCorrect, ignoreCase = true) && idx < optionButtons.size) {
+                    val correctBtn = optionButtons[idx]
+                    correctBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+                    correctBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#00B894"))
+                    correctBtn.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
+                    correctBtn.setTextColor(Color.parseColor("#065F46"))
+                }
+            }
         }
 
-        // 3. Move to the next word in the queue
-        startNewQuestion()
+        // 3. Reveal Educational Insight Pill
+        tvExplanation.text = item.explanation
+        cardExplanation.alpha = 0f
+        cardExplanation.visibility = View.VISIBLE
+        cardExplanation.animate().alpha(1f).setDuration(200).start()
+
+        // 4. Reveal "Next Question ➔" button
+        if (quizQueue.isEmpty()) {
+            btnNextQuestion.text = "Complete Quiz ✓"
+            btnNextQuestion.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#00B894"))
+        } else {
+            btnNextQuestion.text = "Next Question ➔"
+            btnNextQuestion.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#6C5CE7"))
+        }
+        btnNextQuestion.alpha = 0f
+        btnNextQuestion.visibility = View.VISIBLE
+        btnNextQuestion.animate().alpha(1f).setDuration(200).start()
     }
 
     // ========================================================================
     // SPACED REPETITION MATH
     // ========================================================================
-    // ========================================================================
-    // SPACED REPETITION MATH
-    // ========================================================================
-    private fun updateSRSMetadata(isCorrect: Boolean, latency: Long) {
-        val docId = currentDocId ?: return
+    private fun updateSRSMetadata(doc: DocumentSnapshot, isCorrect: Boolean, latency: Long) {
         val userId = auth.currentUser?.uid ?: return
+        val docId = doc.id
+        val currentInterval = doc.getLong("interval")?.toInt() ?: 1
         val newInterval: Int
         val nextReviewDate: Long
 
         if (!isCorrect) {
             newInterval = 1
-            // HAUNTING: See this word again in exactly 30 seconds!
+            // HAUNTING: Review this word again in 30 seconds
             nextReviewDate = System.currentTimeMillis() + (30 * 1000)
         } else {
-            // SPEED BOOST: 2.0x for fast answers, 1.5x for slow answers
+            // SPEED BOOST: 2.0x for fast responses, 1.5x for slow
             val boost: Double = if (latency < 5000) 2.0 else 1.5
             newInterval = (currentInterval.toDouble() * boost).toInt().coerceAtLeast(1)
-
-            // FASTER ALGORITHM: Base unit is now 4 HOURS instead of 24 HOURS
-            // 4L * 60 mins * 60 secs * 1000 ms = 4 Hours
+            // Base unit: 4 Hours
             nextReviewDate = System.currentTimeMillis() + (newInterval * 4L * 60 * 60 * 1000)
         }
 
@@ -456,7 +610,7 @@ private fun parseAndDisplayQuiz(rawResult: String) {
     }
 
     // ========================================================================
-    // FINISH AND SAVE SESSION
+    // FINISH AND SAVE SESSION WITH EDUCATIONAL INSIGHTS
     // ========================================================================
     private fun showFinalResults() {
         if (XPManager.canEarnXP(this)) {
@@ -464,11 +618,11 @@ private fun parseAndDisplayQuiz(rawResult: String) {
         }
         QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
 
-        // Save the entire session to a new 'quiz_history' collection
+        // Save session with explanations to quiz_history
         val userId = auth.currentUser?.uid
         if (userId != null && sessionResults.isNotEmpty()) {
             val historyData = hashMapOf(
-                "quizType" to "recall", // 🟢 ADD THIS LINE
+                "quizType" to "recall",
                 "timestamp" to System.currentTimeMillis(),
                 "finalScore" to score,
                 "totalAttempts" to totalAttempts,
@@ -477,11 +631,13 @@ private fun parseAndDisplayQuiz(rawResult: String) {
             db.collection("users").document(userId).collection("quiz_history").add(historyData)
         }
 
-        findViewById<View>(R.id.options_container).visibility = View.GONE
+        optionsContainer.visibility = View.GONE
+        cardExplanation.visibility = View.GONE
+        btnNextQuestion.visibility = View.GONE
+
         val resultView = findViewById<View>(R.id.result_view)
         val scoreText = findViewById<TextView>(R.id.final_score_text)
 
-        // --- TURN THE REAL SCORE BACK ON ---
         scoreText.visibility = View.VISIBLE
         val streakMsg = if (maxComboStreak >= 2) "\n🔥 Best Streak: ${maxComboStreak}x Combo!" else ""
         scoreText.text = "Session Complete!\nYou scored $score / $totalAttempts$streakMsg"

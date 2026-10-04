@@ -1,137 +1,489 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/quiz_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
-    android:padding="24dp">
+    android:background="@drawable/bg_app_aurora">
 
-    <TextView
-        android:id="@+id/quiz_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recall Quiz"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <TextView
-        android:id="@+id/tv_combo_streak"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_pill_translucent"
-        android:backgroundTint="#FEF3C7"
-        android:textColor="#D97706"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/font_plus_jakarta_sans"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="4dp"
-        android:text="🔥 2x Combo"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/quiz_header"
-        app:layout_constraintBottom_toBottomOf="@id/quiz_header"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/question_card"
+    <!-- Main Content Area -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintTop_toBottomOf="@id/quiz_header">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:paddingBottom="40dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
-            <TextView
-                android:text="WHAT WORD DOES THIS DEFINE?"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_secondary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/question_text"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="16dp">
+
+            <!-- ========================================================= -->
+            <!-- 1. TOP HEADER BAR                                         -->
+            <!-- ========================================================= -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:textSize="16sp"
-                android:textColor="@color/text_primary"
-                android:text="Loading definition..."/>
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="14dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_back"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="21dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E2E8F0"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_arrow_back"
+                        app:tint="#161D1F" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/quiz_header"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:text="Recall Practice"
+                    android:textColor="#161D1F"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+                <!-- Combo Streak Badge Pill -->
+                <TextView
+                    android:id="@+id/tv_combo_streak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#FEF3C7"
+                    android:textColor="#D97706"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:text="🔥 2x Combo"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- 2. PROGRESS BAR & COUNTER                                 -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/layout_progress_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#F1F5F9"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp">
+
+                        <TextView
+                            android:id="@+id/tv_progress_counter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Question 1 of 10"
+                            android:textColor="#5341CD"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/tv_progress_percent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="10%"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progress_quiz"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="7dp"
+                    android:max="10"
+                    android:progress="1"
+                    android:progressTint="#6C5CE7"
+                    android:progressBackgroundTint="#E2E8F0" />
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- 3. QUESTION BENTO CARD                                    -->
+            <!-- ========================================================= -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/question_card"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#EDF2F7"
+                app:contentPadding="0dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tv_question_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_level_pill"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="3dp"
+                        android:text="CONTEXTUAL CLOZE TEST"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/question_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:lineSpacingMultiplier="1.25"
+                        android:text="Loading definition..."
+                        android:textColor="#161D1F"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ========================================================= -->
+            <!-- 4. OPTIONS CONTAINER (BENTO BUTTONS A-D)                  -->
+            <!-- ========================================================= -->
+            <LinearLayout
+                android:id="@+id/options_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_choice1"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_marginBottom="10dp"
+                    app:cornerRadius="18dp"
+                    app:strokeWidth="1.5dp"
+                    app:strokeColor="#EDF2F7"
+                    android:backgroundTint="#FFFFFF"
+                    android:textColor="#161D1F"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical|start"
+                    android:textAlignment="viewStart"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="14dp"
+                    app:rippleColor="#1A6C5CE7"
+                    android:text="Option 1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_choice2"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_marginBottom="10dp"
+                    app:cornerRadius="18dp"
+                    app:strokeWidth="1.5dp"
+                    app:strokeColor="#EDF2F7"
+                    android:backgroundTint="#FFFFFF"
+                    android:textColor="#161D1F"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical|start"
+                    android:textAlignment="viewStart"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="14dp"
+                    app:rippleColor="#1A6C5CE7"
+                    android:text="Option 2" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_choice3"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_marginBottom="10dp"
+                    app:cornerRadius="18dp"
+                    app:strokeWidth="1.5dp"
+                    app:strokeColor="#EDF2F7"
+                    android:backgroundTint="#FFFFFF"
+                    android:textColor="#161D1F"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical|start"
+                    android:textAlignment="viewStart"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="14dp"
+                    app:rippleColor="#1A6C5CE7"
+                    android:text="Option 3" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_choice4"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="60dp"
+                    android:layout_marginBottom="14dp"
+                    app:cornerRadius="18dp"
+                    app:strokeWidth="1.5dp"
+                    app:strokeColor="#EDF2F7"
+                    android:backgroundTint="#FFFFFF"
+                    android:textColor="#161D1F"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical|start"
+                    android:textAlignment="viewStart"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="14dp"
+                    app:rippleColor="#1A6C5CE7"
+                    android:text="Option 4" />
+            </LinearLayout>
+
+            <!-- ========================================================= -->
+            <!-- 5. EDUCATIONAL INSIGHT CARD (Reveals after answer)       -->
+            <!-- ========================================================= -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_explanation"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E2E8F0"
+                app:cardBackgroundColor="#F8FAFC">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_insights"
+                            app:tint="#6C5CE7" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="EDUCATIONAL INSIGHT"
+                            android:textColor="#6C5CE7"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.06"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_explanation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:lineSpacingMultiplier="1.25"
+                        android:text="This word conveys nuance and fits the grammatical structure of the sentence."
+                        android:textColor="#334155"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ========================================================= -->
+            <!-- 6. NEXT QUESTION BUTTON (Reveals after answer)            -->
+            <!-- ========================================================= -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_next_question"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                app:cornerRadius="16dp"
+                android:backgroundTint="#6C5CE7"
+                android:textColor="#FFFFFF"
+                android:text="Next Question ➔"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                app:elevation="2dp" />
+
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:id="@+id/options_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@id/question_card">
-
-        <Button android:id="@+id/btn_choice1" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option 1"/>
-        <Button android:id="@+id/btn_choice2" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option 2"/>
-        <Button android:id="@+id/btn_choice3" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:layout_marginBottom="12dp" android:text="Option 3"/>
-        <Button android:id="@+id/btn_choice4" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="match_parent" android:layout_height="60dp" android:text="Option 4"/>
-    </LinearLayout>
+    <!-- ========================================================= -->
+    <!-- 7. FULLSCREEN CELEBRATION RESULT VIEW                     -->
+    <!-- ========================================================= -->
     <LinearLayout
         android:id="@+id/result_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F8F9FA"
+        android:background="@drawable/bg_app_aurora"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="20dp"
         android:visibility="gone"
-        android:elevation="10dp">
+        tools:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quiz Finished!"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"/>
-
-        <TextView
-            android:id="@+id/final_score_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Score: 0 / 5"
-            android:textSize="20sp"
-            android:layout_marginTop="16dp"
-            android:textColor="#6C5CE7"/>
-
-        <Button
-            android:id="@+id/btn_restart"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Try Again"
-            android:layout_marginTop="40dp"/>
-        <!-- Add this inside your result_view LinearLayout, right below btn_restart -->
-        <Button
-            android:id="@+id/btn_quiz_history"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Material3.CardView.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Quiz History"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#0984E3"
-            android:textColor="#FFFFFF" />
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#EDF2F7"
+            app:cardBackgroundColor="#FFFFFF"
+            app:contentPadding="0dp">
 
-        <Button
-            android:id="@+id/btn_exit"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Back to Menu"
-            android:layout_marginTop="12dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="26dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🏆"
+                    android:textSize="50sp"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quiz Complete!"
+                    android:textSize="24sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:textColor="#161D1F" />
+
+                <TextView
+                    android:id="@+id/final_score_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Score: 0 / 5"
+                    android:textSize="16sp"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textColor="#6C5CE7"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_restart"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="Try Again"
+                    app:cornerRadius="16dp"
+                    android:backgroundTint="#6C5CE7"
+                    android:textColor="#FFFFFF"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:layout_marginTop="28dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_quiz_history"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="View Quiz History"
+                    app:cornerRadius="16dp"
+                    android:backgroundTint="#5341CD"
+                    android:textColor="#FFFFFF"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:layout_marginTop="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_exit"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:text="Back to Menu"
+                    android:textColor="#64748B"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginTop="6dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
