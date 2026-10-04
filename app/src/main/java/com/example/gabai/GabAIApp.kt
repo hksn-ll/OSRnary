@@ -15,6 +15,9 @@ class GabAIApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // Initialize centralized GitHub update monitor with lifecycle tracking and idle poller
+        GitHubUpdateHelper.init(this)
+
         // Offload App Check to background thread so AppBindData runs at maximum speed
         thread(start = true, name = "GabAI-Init") {
             try {

@@ -1,15 +1,18 @@
 package com.example.gabai
 
 import android.app.Activity
+import android.app.Application
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -28,6 +31,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -38,7 +42,17 @@ object GitHubUpdateHelper {
     // Primary endpoint: raw GitHub configuration
     private const val VERSION_URL = "https://raw.githubusercontent.com/hksn-ll/OSRnary/main/app-version.json"
 
+    // Periodic idle poller interval: 3 minutes
+    private const val IDLE_POLL_INTERVAL_MS = 3 * 60 * 1000L
+
     private var lastBackgroundCheckTime = 0L
+    private var isInitialized = false
+    private var resumedActivityCount = 0
+    private var currentActivityRef: WeakReference<Activity>? = null
+    private var activeDialog: Dialog? = null
+    private var pendingUpdateInfo: VersionInfo? = null
+
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val httpClient by lazy {
         OkHttpClient.Builder()
@@ -62,9 +76,101 @@ object GitHubUpdateHelper {
     )
 
     /**
+     * Determines whether the activity represents a high-stakes, uninterrupted task
+     * (e.g. taking a timed quiz, assessment, editing questions, or active scanning).
+     */
+    fun isCrucialActivity(activity: Activity?): Boolean {
+        if (activity == null) return false
+        return when (activity.javaClass.simpleName) {
+            "QuizActivity",
+            "MaterialQuizActivity",
+            "WeeklyAssessmentActivity",
+            "QuizEditorActivity",
+            "CameraActivity",
+            "OverviewActivity",
+            "ScanResultActivity" -> true
+            else -> false
+        }
+    }
+
+    /**
+     * Identifies transient startup activities (like Splash) that must never anchor persistent dialogs.
+     */
+    fun isTransientActivity(activity: Activity?): Boolean {
+        if (activity == null) return false
+        return activity.javaClass.simpleName == "SplashActivity"
+    }
+
+    private val idleCheckRunnable = object : Runnable {
+        override fun run() {
+            if (resumedActivityCount > 0) {
+                currentActivityRef?.get()?.let { currentAct ->
+                    if (!isCrucialActivity(currentAct) && !isTransientActivity(currentAct)) {
+                        checkUpdate(currentAct, isBackground = true)
+                    }
+                }
+            }
+            mainHandler.postDelayed(this, IDLE_POLL_INTERVAL_MS)
+        }
+    }
+
+    /**
+     * Initializes global lifecycle tracking and the 3-minute idle update detector.
+     * Called once inside GabAIApp.onCreate().
+     */
+    fun init(app: Application) {
+        if (isInitialized) return
+        isInitialized = true
+
+        app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+            override fun onActivityStarted(activity: Activity) {}
+
+            override fun onActivityResumed(activity: Activity) {
+                resumedActivityCount++
+                currentActivityRef = WeakReference(activity)
+
+                // If an update was previously queued (from Splash or when user was in a crucial exam),
+                // and the current activity is safe to prompt, immediately display the force-update modal!
+                val pending = pendingUpdateInfo
+                if (pending != null && !isCrucialActivity(activity) && !isTransientActivity(activity)) {
+                    if (!activity.isFinishing && !activity.isDestroyed) {
+                        mainHandler.post {
+                            showUpdateDialog(activity, pending, BuildConfig.VERSION_NAME)
+                        }
+                    }
+                }
+            }
+
+            override fun onActivityPaused(activity: Activity) {
+                resumedActivityCount = (resumedActivityCount - 1).coerceAtLeast(0)
+            }
+
+            override fun onActivityStopped(activity: Activity) {}
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
+            override fun onActivityDestroyed(activity: Activity) {
+                if (currentActivityRef?.get() === activity) {
+                    currentActivityRef = null
+                }
+                if (activeDialog?.ownerActivity === activity) {
+                    try {
+                        activeDialog?.dismiss()
+                    } catch (_: Exception) {}
+                    activeDialog = null
+                }
+            }
+        })
+
+        // Start recurring idle poller
+        mainHandler.removeCallbacks(idleCheckRunnable)
+        mainHandler.postDelayed(idleCheckRunnable, IDLE_POLL_INTERVAL_MS)
+    }
+
+    /**
      * Checks GitHub for updates asynchronously.
      * @param activity current active activity
-     * @param isBackground true if called during lifecycle transitions (debounced every 30s)
+     * @param isBackground true if called during lifecycle transitions or idle checks
      * @param forceShow true if explicitly requested by user (shows feedback toast if up-to-date)
      * @param onProceed callback invoked if no update is required or if offline (allow app use)
      */
@@ -75,6 +181,17 @@ object GitHubUpdateHelper {
         onProceed: () -> Unit = {}
     ) {
         val now = System.currentTimeMillis()
+
+        // If an update is already verified and pending, and we are on a safe activity, display it immediately
+        val existingPending = pendingUpdateInfo
+        if (existingPending != null && !isCrucialActivity(activity) && !isTransientActivity(activity)) {
+            if (!activity.isFinishing && !activity.isDestroyed) {
+                showUpdateDialog(activity, existingPending, BuildConfig.VERSION_NAME, onProceed)
+                return
+            }
+        }
+
+        // Throttle background/lifecycle checks to avoid network hammering
         if (isBackground && (now - lastBackgroundCheckTime < 30_000)) {
             onProceed()
             return
@@ -97,7 +214,7 @@ object GitHubUpdateHelper {
         httpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.w(TAG, "Failed to check update from GitHub: ${e.message}")
-                Handler(Looper.getMainLooper()).post {
+                mainHandler.post {
                     if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
                         Toast.makeText(activity, "Update check failed: Check connection", Toast.LENGTH_SHORT).show()
                     }
@@ -109,7 +226,7 @@ object GitHubUpdateHelper {
                 val bodyString = response.body?.string()
                 if (!response.isSuccessful || bodyString.isNullOrBlank()) {
                     Log.w(TAG, "Update check returned unsuccessful response: ${response.code}")
-                    Handler(Looper.getMainLooper()).post {
+                    mainHandler.post {
                         if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
                             Toast.makeText(activity, "Server returned no update info", Toast.LENGTH_SHORT).show()
                         }
@@ -124,9 +241,9 @@ object GitHubUpdateHelper {
                         versionCode = json.optInt("versionCode", 1),
                         versionName = json.optString("versionName", "1.0.0"),
                         minRequiredVersionCode = json.optInt("minRequiredVersionCode", 1),
-                        forceUpdate = json.optBoolean("forceUpdate", false),
-                        title = json.optString("title", "New Build Available"),
-                        message = json.optString("message", "A new build of GabAI is available. Update to get the latest features!"),
+                        forceUpdate = json.optBoolean("forceUpdate", true),
+                        title = json.optString("title", "Update Required"),
+                        message = json.optString("message", "A new build of GabAI is available. Please update to continue using the application."),
                         downloadUrl = json.optString("downloadUrl", "https://github.com/hksn-ll/OSRnary/releases/latest"),
                         apkUrl = json.optString("apkUrl", "https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk"),
                         changelog = json.optString("changelog", "")
@@ -138,7 +255,8 @@ object GitHubUpdateHelper {
                             (info.versionName.isNotBlank() && !info.versionName.equals(currentVersionName, ignoreCase = true) && info.versionCode >= currentVersionCode)
 
                     if (!isNewerVersion) {
-                        Handler(Looper.getMainLooper()).post {
+                        pendingUpdateInfo = null
+                        mainHandler.post {
                             if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
                                 Toast.makeText(activity, "You are on the latest build (v$currentVersionName)!", Toast.LENGTH_SHORT).show()
                             }
@@ -148,7 +266,6 @@ object GitHubUpdateHelper {
                     }
 
                     // 🟢 CRITICAL: Verify that the APK release asset is ACTUALLY published on GitHub
-                    // Checks versioned asset (e.g. GabAI-v0.4.3.apk), with fallback to apkUrl / static GabAI.apk
                     val primaryApkUrl = if (info.versionName.isNotBlank()) {
                         "https://github.com/hksn-ll/OSRnary/releases/download/${info.versionName}/GabAI-v${info.versionName}.apk"
                     } else {
@@ -163,7 +280,7 @@ object GitHubUpdateHelper {
                     httpClient.newCall(headRequest).enqueue(object : Callback {
                         override fun onFailure(call: Call, e: IOException) {
                             Log.w(TAG, "Failed to verify release asset: ${e.message}. Allowing user to proceed.")
-                            Handler(Looper.getMainLooper()).post { onProceed() }
+                            mainHandler.post { onProceed() }
                         }
 
                         override fun onResponse(call: Call, response: Response) {
@@ -171,10 +288,25 @@ object GitHubUpdateHelper {
                             response.close()
 
                             if (isAssetLive) {
-                                Handler(Looper.getMainLooper()).post {
-                                    if (!activity.isFinishing && !activity.isDestroyed) {
-                                        val verifiedInfo = info.copy(apkUrl = primaryApkUrl)
-                                        showUpdateDialog(activity, verifiedInfo, currentVersionName, onProceed)
+                                mainHandler.post {
+                                    val verifiedInfo = info.copy(apkUrl = primaryApkUrl)
+                                    pendingUpdateInfo = verifiedInfo
+
+                                    if (isTransientActivity(activity)) {
+                                        // DO NOT show dialog on SplashActivity!
+                                        // SplashActivity proceeds smoothly, and the force-update modal
+                                        // will appear centered on the incoming MainActivity / AuthActivity.
+                                        onProceed()
+                                    } else if (isCrucialActivity(activity)) {
+                                        // Student/teacher is in an active quiz, exam, or camera viewfinder.
+                                        // Do NOT interrupt; let them finish their action.
+                                        onProceed()
+                                    } else {
+                                        if (!activity.isFinishing && !activity.isDestroyed) {
+                                            showUpdateDialog(activity, verifiedInfo, currentVersionName, onProceed)
+                                        } else {
+                                            onProceed()
+                                        }
                                     }
                                 }
                             } else {
@@ -185,17 +317,29 @@ object GitHubUpdateHelper {
                                 val fallbackRequest = Request.Builder().url(fallbackUrl).head().build()
                                 httpClient.newCall(fallbackRequest).enqueue(object : Callback {
                                     override fun onFailure(call: Call, e: IOException) {
-                                        Handler(Looper.getMainLooper()).post { onProceed() }
+                                        mainHandler.post { onProceed() }
                                     }
 
                                     override fun onResponse(call: Call, fallbackResp: Response) {
                                         val isFallbackLive = fallbackResp.isSuccessful || fallbackResp.code in 300..399
                                         fallbackResp.close()
 
-                                        Handler(Looper.getMainLooper()).post {
-                                            if (isFallbackLive && !activity.isFinishing && !activity.isDestroyed) {
+                                        mainHandler.post {
+                                            if (isFallbackLive) {
                                                 val verifiedInfo = info.copy(apkUrl = fallbackUrl)
-                                                showUpdateDialog(activity, verifiedInfo, currentVersionName, onProceed)
+                                                pendingUpdateInfo = verifiedInfo
+
+                                                if (isTransientActivity(activity)) {
+                                                    onProceed()
+                                                } else if (isCrucialActivity(activity)) {
+                                                    onProceed()
+                                                } else {
+                                                    if (!activity.isFinishing && !activity.isDestroyed) {
+                                                        showUpdateDialog(activity, verifiedInfo, currentVersionName, onProceed)
+                                                    } else {
+                                                        onProceed()
+                                                    }
+                                                }
                                             } else {
                                                 Log.i(TAG, "Release asset for v${info.versionName} is not yet live (HTTP ${response.code}). Cloud build may still be compiling.")
                                                 if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
@@ -216,7 +360,7 @@ object GitHubUpdateHelper {
 
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing update json: ${e.message}", e)
-                    Handler(Looper.getMainLooper()).post {
+                    mainHandler.post {
                         if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
                             Toast.makeText(activity, "Error parsing update data", Toast.LENGTH_SHORT).show()
                         }
@@ -228,7 +372,8 @@ object GitHubUpdateHelper {
     }
 
     /**
-     * Displays a modern update dialog with in-app download and hardware backdrop blur.
+     * Displays a modern force-update dialog with in-app download and hardware backdrop blur.
+     * The dialog is strictly non-cancellable outside crucial app moments to enforce app updates.
      */
     private fun showUpdateDialog(
         activity: Activity,
@@ -236,12 +381,37 @@ object GitHubUpdateHelper {
         currentVersionName: String,
         onProceed: () -> Unit = {}
     ) {
+        // If an update dialog is already active and showing, avoid opening multiple dialogs
+        if (activeDialog?.isShowing == true) {
+            return
+        }
+
+        if (activity.isFinishing || activity.isDestroyed) {
+            return
+        }
+
+        // Never show dialog directly on transient splash screen
+        if (isTransientActivity(activity)) {
+            onProceed()
+            return
+        }
+
+        // Never interrupt crucial exams, quizzes, or camera viewfinder
+        if (isCrucialActivity(activity)) {
+            onProceed()
+            return
+        }
+
         val dialog = Dialog(activity)
+        dialog.setOwnerActivity(activity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
-        val isForced = info.forceUpdate
-        dialog.setCancelable(!isForced)
-        dialog.setCanceledOnTouchOutside(!isForced)
+        // Strict modal enforcement: non-cancellable, no outside touch dismiss, intercept back key
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setOnKeyListener { _, keyCode, _ ->
+            keyCode == KeyEvent.KEYCODE_BACK
+        }
 
         val view = LayoutInflater.from(activity).inflate(R.layout.dialog_force_update, null)
         dialog.setContentView(view)
@@ -329,20 +499,23 @@ object GitHubUpdateHelper {
             )
         }
 
-        if (isForced) {
-            btnExitApp.text = "Exit Application"
-            btnExitApp.setOnClickListener {
+        // Action: Exit Application (Strict requirement: force update outside crucial moments)
+        btnExitApp.text = "Exit Application"
+        btnExitApp.setOnClickListener {
+            try {
                 dialog.dismiss()
-                activity.finishAffinity()
-            }
-        } else {
-            btnExitApp.text = "Remind Me Later"
-            btnExitApp.setOnClickListener {
-                dialog.dismiss()
-                onProceed()
+            } catch (_: Exception) {}
+            activeDialog = null
+            activity.finishAffinity()
+        }
+
+        dialog.setOnDismissListener {
+            if (activeDialog === dialog) {
+                activeDialog = null
             }
         }
 
+        activeDialog = dialog
         dialog.show()
     }
 
@@ -364,14 +537,14 @@ object GitHubUpdateHelper {
         httpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "In-app download failed: ${e.message}", e)
-                Handler(Looper.getMainLooper()).post {
+                mainHandler.post {
                     onError(e.localizedMessage ?: "Network error")
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    Handler(Looper.getMainLooper()).post {
+                    mainHandler.post {
                         onError("Server responded with code ${response.code}")
                     }
                     return
@@ -379,7 +552,7 @@ object GitHubUpdateHelper {
 
                 val body = response.body
                 if (body == null) {
-                    Handler(Looper.getMainLooper()).post {
+                    mainHandler.post {
                         onError("Empty response from server")
                     }
                     return
@@ -414,7 +587,7 @@ object GitHubUpdateHelper {
                             val percent = ((downloadedBytes * 100) / totalBytes).toInt()
                             if (percent != lastReportedPercent) {
                                 lastReportedPercent = percent
-                                Handler(Looper.getMainLooper()).post {
+                                mainHandler.post {
                                     onProgress(percent, downloadedBytes, totalBytes)
                                 }
                             }
@@ -425,13 +598,13 @@ object GitHubUpdateHelper {
                     outputStream.close()
                     inputStream.close()
 
-                    Handler(Looper.getMainLooper()).post {
+                    mainHandler.post {
                         onComplete(apkFile)
                     }
 
                 } catch (e: Exception) {
                     Log.e(TAG, "File write error during APK download: ${e.message}", e)
-                    Handler(Looper.getMainLooper()).post {
+                    mainHandler.post {
                         onError(e.localizedMessage ?: "Storage write error")
                     }
                 }

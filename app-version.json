@@ -1,11 +1,11 @@
 {
-  "versionCode": 18,
-  "versionName": "0.4.4",
-  "minRequiredVersionCode": 18,
-  "forceUpdate": false,
-  "title": "Clean Web Landing & Expressive In-App Updates (v0.4.4)",
-  "message": "Elevated GabAI with refreshed academic capstone landing portal, high-contrast expressive UI, and streamlined release assets.",
+  "versionCode": 19,
+  "versionName": "0.4.5",
+  "minRequiredVersionCode": 19,
+  "forceUpdate": true,
+  "title": "Persistent Updates & Crucial Activity Shield (v0.4.5)",
+  "message": "A required update for GabAI is available. Please update to continue using the application with the latest performance and reliability improvements.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.4/GabAI-v0.4.4.apk",
-  "changelog": "• Refreshed Capstone Web Experience: Deployed modern high-craft product landing page with official GabAI branding\n• Dedicated School Admin Portal: Partitioned web portal for campus governance while mobile app serves students and teachers\n• Expressive Dialog Engine: Hardware-accelerated frosted glass backdrop blur and 28dp tactile feedback dialogs\n• Zero-Friction Class Joining: Google Code Scanner QR integration for instant student enrollment"
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.5/GabAI-v0.4.5.apk",
+  "changelog": "• Seamless Update Transition: Fixed splash screen update dialog teardown, anchoring updates securely to active screens\n• Crucial Activity Shield: Suppresses update prompts during active quizzes, exams, and camera scanning so work is never lost\n• Background & Idle Poller: Automatically detects new app releases while roaming or idle every 3 minutes\n• Enforced App Integrity: Modal non-cancellable update policy ensures all users stay on the latest supported release"
 }

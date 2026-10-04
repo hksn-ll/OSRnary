@@ -1,8 +1,8 @@
 {
   "0": "Intent",
   "1": "CameraActivity",
-  "2": "InitiationActivity",
-  "3": "FirebaseAuth",
+  "2": "FirebaseAuth",
+  "3": "ManageClassesActivity",
   "4": "ScanResultActivity",
   "5": "FloatingControlService",
   "6": "AuthActivity",
@@ -15,10 +15,10 @@
   "13": "Call",
   "14": "TextOverlayView",
   "15": "ProfileFragment",
-  "16": "TeacherLibraryActivity",
+  "16": "launch.ps1",
   "17": "SubjectDetailActivity",
-  "18": "LibraryActivity",
-  "19": "Dialog",
+  "18": "HistoryActivity.kt",
+  "19": "GabAIDialogs",
   "20": "WeeklyAssessmentActivity",
   "21": "SplashActivity.kt",
   "22": "HomeFragment",
@@ -36,6 +36,7 @@
   "34": "ic_search_bubble (drawable)",
   "35": "DualStackHandler",
   "36": "QuestManager",
+  "37": "ProgressDashboardActivity.kt",
   "50": "build.gradle.kts",
   "51": "settings.gradle.kts"
 }

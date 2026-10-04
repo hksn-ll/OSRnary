@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1791104464.53613,
-    "seen": 1791104651.9729903,
-    "ast_hash": "2f14b4ca29f40a7f62a027f4a261918f",
+    "mtime": 1791135828.2443109,
+    "seen": 1791135879.91745,
+    "ast_hash": "72764e2d0d3300a65135c2ed04faad60",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -18,15 +18,15 @@
     "semantic_hash": "d50521356c98ddeda3cab406e03e967a"
   },
   "app/src/main/java/com/example/gabai/AchievementsActivity.kt": {
-    "mtime": 1791041632.2509153,
-    "seen": 1791042089.0155213,
-    "ast_hash": "cb4b5de12f4486a8e2dfd6fff80fc32b",
+    "mtime": 1791134850.3785238,
+    "seen": 1791135879.9174569,
+    "ast_hash": "68ac322a711ee825212576f2fda9b04b",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/AuthActivity.kt": {
-    "mtime": 1791099484.9614491,
-    "seen": 1791099523.68339,
-    "ast_hash": "f2c5f91352938b776ef85f050e0ec508",
+    "mtime": 1791134857.636787,
+    "seen": 1791135879.9174585,
+    "ast_hash": "b0f340a8d0fdf41fc69aa45b981755ea",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/CameraActivity.kt": {
@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ClassDetailActivity.kt": {
-    "mtime": 1791106154.4060717,
-    "seen": 1791106232.87932,
-    "ast_hash": "71d3af0f519f84c5e80d783e06c5ca77",
+    "mtime": 1791134832.5712855,
+    "seen": 1791135879.917462,
+    "ast_hash": "7e6d8cece5adc6865db5c62a73cca4ab",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/HomeFragment.kt": {
-    "mtime": 1791130279.0405214,
-    "seen": 1791130589.5222151,
-    "ast_hash": "1fee9b3bba5fd9fe9982bccbc75598c6",
+    "mtime": 1791134031.4503424,
+    "seen": 1791135879.9174817,
+    "ast_hash": "0a01b73f3b73df510da218c140dd9897",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/InitiationActivity.kt": {
@@ -102,15 +102,15 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/MainActivity.kt": {
-    "mtime": 1791132207.8446877,
-    "seen": 1791132443.4643528,
-    "ast_hash": "bc905936f2daecc4482d697b1b2aafd5",
+    "mtime": 1791134866.764437,
+    "seen": 1791135879.9174883,
+    "ast_hash": "f93875357a0f98ee855bb7f1c0709544",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ManageClassesActivity.kt": {
-    "mtime": 1791099869.2310936,
-    "seen": 1791099964.4937634,
-    "ast_hash": "0819f0b45b39c51c3c20ac7b58427ce6",
+    "mtime": 1791135168.605759,
+    "seen": 1791135879.91749,
+    "ast_hash": "3f62d9bb4c312e4a3131f792abc593a2",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/MaterialQuizActivity.kt": {
@@ -126,9 +126,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/PdfViewerActivity.kt": {
-    "mtime": 1791106180.9036992,
-    "seen": 1791106232.8793738,
-    "ast_hash": "64664ce9a37c827055039dca09e15cd2",
+    "mtime": 1791135182.9672675,
+    "seen": 1791135879.9174945,
+    "ast_hash": "2e02d263b53c4245e6f50ccc8115c483",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ProfileFragment.kt": {
@@ -144,10 +144,10 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/QuestDetailsActivity.kt": {
-    "mtime": 1788443407.1245742,
-    "seen": 1788701745.6429598,
-    "ast_hash": "9afb5f14a5ab51eb9e2f474cca96d57c",
-    "semantic_hash": "9afb5f14a5ab51eb9e2f474cca96d57c"
+    "mtime": 1791134441.5462453,
+    "seen": 1791135879.9174993,
+    "ast_hash": "bbfbc866ef970342aef35e6edbe6fb9c",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/QuestManager.kt": {
     "mtime": 1790846565.9398408,
@@ -156,21 +156,21 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/QuizActivity.kt": {
-    "mtime": 1791113976.6222956,
-    "seen": 1791114058.2857764,
-    "ast_hash": "cf0249c7b98255799b27064b10e3c7e5",
+    "mtime": 1791134892.6929574,
+    "seen": 1791135879.9175026,
+    "ast_hash": "5cac3e09a22b020ee001ff50bfa90f95",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/QuizEditorActivity.kt": {
-    "mtime": 1791106197.295338,
-    "seen": 1791106232.8793898,
-    "ast_hash": "f3e425805ffaa0322221c36ac00b6787",
+    "mtime": 1791135191.238449,
+    "seen": 1791135879.9175043,
+    "ast_hash": "57e748724afef72df4678c550ce629f4",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt": {
-    "mtime": 1791114018.6167266,
-    "seen": 1791114058.2857802,
-    "ast_hash": "5c41756f3eedb5383ec83f1db41ca35b",
+    "mtime": 1791134498.8033712,
+    "seen": 1791135879.9175055,
+    "ast_hash": "088f6b1d78b3fa53c5f3c0702fe45baa",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ScanResultActivity.kt": {
@@ -192,21 +192,21 @@
     "semantic_hash": "a35afbb2fc49ab1d8a768db6c1b2d533"
   },
   "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt": {
-    "mtime": 1791106207.5110977,
-    "seen": 1791106232.879405,
-    "ast_hash": "3a4baa77e5b149d6eed1bbad69074116",
+    "mtime": 1791134603.7158785,
+    "seen": 1791135879.917516,
+    "ast_hash": "6c63c0da0629abd81b671f1af621890a",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/TeacherHomeFragment.kt": {
-    "mtime": 1791130269.0897026,
-    "seen": 1791130589.5223014,
-    "ast_hash": "3ce268478b796e3c6e64994e3f59d896",
+    "mtime": 1791134901.1178944,
+    "seen": 1791135879.9175174,
+    "ast_hash": "961079554f58c539923105e241740b87",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt": {
-    "mtime": 1791100906.361877,
-    "seen": 1791100944.385435,
-    "ast_hash": "d5bedb5773cec00387ae6a1cae473f28",
+    "mtime": 1791134912.890165,
+    "seen": 1791135879.9175189,
+    "ast_hash": "56ae6c78dd730ef8d14b9fbc5f713e5c",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt": {
@@ -402,9 +402,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1791104475.395125,
-    "seen": 1791104651.9729862,
-    "ast_hash": "71b5a252eb69f3bcf3399349f56ff86f",
+    "mtime": 1791135795.4341505,
+    "seen": 1791135879.9174469,
+    "ast_hash": "7049be2e5f9ce2ae2181d5c09fa0d877",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/WeeklyAssessmentActivity.kt": {
-    "mtime": 1791114000.9714527,
-    "seen": 1791114058.2857997,
-    "ast_hash": "fe88281023b986291637a01056d91a7b",
+    "mtime": 1791135214.8119829,
+    "seen": 1791135879.9175236,
+    "ast_hash": "6d8465b2b108530a320cbceff826ee4d",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/SchoolRepository.kt": {
@@ -444,9 +444,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GabAIDialogs.kt": {
-    "mtime": 1791103201.290383,
-    "seen": 1791103501.431063,
-    "ast_hash": "defbd05f89909f38eef3e2180b6da968",
+    "mtime": 1791134431.8790472,
+    "seen": 1791135879.917473,
+    "ast_hash": "fe79c9761f2a982e31f10487248abad8",
     "semantic_hash": ""
   },
   "admin-portal/admin.html": {
@@ -485,34 +485,10 @@
     "ast_hash": "9996917d756030dc837e5c545c113219",
     "semantic_hash": ""
   },
-  "device1.png": {
-    "mtime": 1791132561.6984065,
-    "seen": 1791132592.102216,
-    "ast_hash": "f79328261e3c2824158ba2afb62e5f72",
-    "semantic_hash": ""
-  },
-  "device2.png": {
-    "mtime": 1791132562.562969,
-    "seen": 1791132592.1022182,
-    "ast_hash": "29a6ef57edee12d2d878d1dffb38517d",
-    "semantic_hash": ""
-  },
   "app/src/main/java/com/example/gabai/ScanImageHolder.kt": {
     "mtime": 1791133310.251603,
     "seen": 1791133617.238297,
     "ast_hash": "626d32ab45cd334eba9deba857728426",
-    "semantic_hash": ""
-  },
-  "device1_fixed.png": {
-    "mtime": 1791132856.599036,
-    "seen": 1791133617.2386134,
-    "ast_hash": "d572fab8954c7eaf04e19355e2e74002",
-    "semantic_hash": ""
-  },
-  "device2_fixed.png": {
-    "mtime": 1791132857.4881206,
-    "seen": 1791133617.2386332,
-    "ast_hash": "fb89e0caadbf0b2abc56bee051effd8a",
     "semantic_hash": ""
   }
 }
