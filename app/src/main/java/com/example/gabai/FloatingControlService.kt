@@ -104,6 +104,25 @@ class FloatingControlService : Service() {
                 .setDuration(350)
                 .setInterpolator(android.view.animation.OvershootInterpolator(1.4f))
                 .start()
+
+            updateBubbleVisibility()
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateBubbleVisibility()
+    }
+
+    private fun updateBubbleVisibility() {
+        if (!::floatingView.isInitialized) return
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val isEnabled = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).getBoolean("bubble_enabled", false)
+
+        if (isLandscape || isTemporarilyHidden || !isEnabled) {
+            floatingView.visibility = View.GONE
+        } else {
+            floatingView.visibility = View.VISIBLE
         }
     }
 
@@ -188,8 +207,18 @@ class FloatingControlService : Service() {
                         ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                 startForeground(2, serviceNotification, serviceTypes)
             }
-            val metrics = resources.displayMetrics
-            imageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels, PixelFormat.RGBA_8888, 2)
+            // Use real physical display metrics so screenshot buffer matches full display 1:1
+            val (realWidth, realHeight, densityDpi) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val bounds = windowManager.maximumWindowMetrics.bounds
+                Triple(bounds.width(), bounds.height(), resources.configuration.densityDpi)
+            } else {
+                val dm = DisplayMetrics()
+                @Suppress("DEPRECATION")
+                windowManager.defaultDisplay.getRealMetrics(dm)
+                Triple(dm.widthPixels, dm.heightPixels, dm.densityDpi)
+            }
+
+            imageReader = ImageReader.newInstance(realWidth, realHeight, PixelFormat.RGBA_8888, 2)
 
             val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
             mediaProjection = projectionManager.getMediaProjection(resultCode, data)
@@ -197,24 +226,24 @@ class FloatingControlService : Service() {
 
             virtualDisplay = mediaProjection?.createVirtualDisplay(
                 "ScreenCapture",
-                metrics.widthPixels, metrics.heightPixels, metrics.densityDpi,
+                realWidth, realHeight, densityDpi,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                 imageReader?.surface, null, null
             )
-            if (::floatingView.isInitialized) {
-                floatingView.visibility = View.VISIBLE
-            }
+            updateBubbleVisibility()
         }
         if (intent != null) {
             when (intent.action) {
                 "ACTION_HIDE" -> {
-                    floatingView.visibility = View.GONE
+                    isTemporarilyHidden = true
+                    updateBubbleVisibility()
                 }
                 "ACTION_SHOW" -> {
-                    floatingView.visibility = View.VISIBLE
+                    isTemporarilyHidden = false
+                    updateBubbleVisibility()
                 }
                 else -> {
-                    // Default start
+                    updateBubbleVisibility()
                 }
             }
         }
