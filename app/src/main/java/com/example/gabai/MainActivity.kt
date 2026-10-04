@@ -107,28 +107,33 @@ class MainActivity : AppCompatActivity() {
         val userRole = intent.getStringExtra("USER_ROLE")
         if (userRole != null) {
             loadDashboard(userRole)
+            // Background verification of account status to catch deleted accounts or role shifts
+            FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
+                .get().addOnSuccessListener { doc ->
+                    if (!doc.exists()) {
+                        showAccountDeletedDialog()
+                    }
+                }
         } else {
-            // 1. SHOW THE LOADER IMMEDIATELY HERE
             GabAIUtils.showGlobalLoading(this, "Verifying Account...")
 
             FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
                 .get().addOnSuccessListener { doc ->
                     GabAIUtils.hideGlobalLoading(this)
 
-                    // ==========================================
-                    // 🟢 THE FIX: CHECK IF DOCUMENT EXISTS 🟢
-                    // ==========================================
                     if (!doc.exists()) {
                         showAccountDeletedDialog()
                         return@addOnSuccessListener
                     }
-                    // ==========================================
 
                     val role = doc.getString("role") ?: "student"
                     loadDashboard(role)
                 }.addOnFailureListener {
                     GabAIUtils.hideGlobalLoading(this)
-                    GabAIUtils.showSnackbar(this, "Failed to verify account. Check your connection.")
+                    val cachedRole = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+                        .getString("cached_user_role", "student") ?: "student"
+                    loadDashboard(cachedRole)
+                    GabAIUtils.showSnackbar(this, "Operating offline. Check connection to sync.")
                 }
         }
 
@@ -149,6 +154,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.blurBottomNav.clipToOutline = true
+
+        // Hardware-accelerated ultra-low-resolution frosted glass blur (downsampled 12x for zero lag)
+        binding.blurHeaderBar.setupWith(
+            binding.blurTargetMain,
+            downsampleFactor = 12f,
+            blurRadius = 2.5f,
+            overlayColor = Color.parseColor("#BFFFFFFF")
+        )
+        binding.blurBottomNav.setupWith(
+            binding.blurTargetMain,
+            downsampleFactor = 12f,
+            blurRadius = 2.5f,
+            overlayColor = Color.parseColor("#BFFFFFFF")
+        )
 
         // Wire Option A interactive Material Bubble Button with spring press effect and haptics
         GabAIUtils.addSpringPressEffect(binding.btnBubbleToggle) {

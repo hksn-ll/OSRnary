@@ -121,20 +121,15 @@ object GabAIUtils {
      * for real-time hardware-accelerated backdrop blur.
      */
     fun setupBlurView(
-        blurView: eightbitlab.com.blurview.BlurView?,
-        blurTarget: eightbitlab.com.blurview.BlurTarget?,
-        radius: Float = 16f,
-        overlayColor: Int = Color.parseColor("#73FFFFFF"),
-        clearDrawable: android.graphics.drawable.Drawable? = null
+        blurView: FastBlurView?,
+        blurTarget: FastBlurTarget?,
+        downsampleFactor: Float = 12f,
+        radius: Float = 2.5f,
+        overlayColor: Int = Color.parseColor("#BFFFFFFF")
     ) {
         if (blurView == null || blurTarget == null) return
         try {
-            val facade = blurView.setupWith(blurTarget)
-                .setBlurRadius(radius)
-                .setOverlayColor(overlayColor)
-            if (clearDrawable != null) {
-                facade.setFrameClearDrawable(clearDrawable)
-            }
+            blurView.setupWith(blurTarget, downsampleFactor, radius, overlayColor)
         } catch (_: Exception) {}
     }
 

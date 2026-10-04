@@ -650,76 +650,8 @@ class ManageClassesActivity : AppCompatActivity() {
     private fun showJoinCodeInstructionDialog(className: String) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Section Already Exists")
-            .setMessage("The section '$className' has already been created by its adviser.\n\nYou do not need to create it again. To add these students to your subject, simply give them your unique Teacher Join Code (which we will add to your Profile next) so they can join your class!")
+            .setMessage("The section '$className' has already been created by its adviser.\n\nYou do not need to create it again. To add these students to your subject, simply share your unique Teacher Join Code located in your Profile so they can join your class.")
             .setPositiveButton("Understood", null)
             .show()
     }
-//    private fun checkForCoTeacherRequests() {
-//        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-//        val db = FirebaseFirestore.getInstance()
-//        val reqContainer = findViewById<LinearLayout>(R.id.requests_container)
-//
-//        db.collection("section_requests")
-//            .whereEqualTo("ownerId", uid)
-//            .whereEqualTo("status", "pending")
-//            .addSnapshotListener { snapshots, error ->
-//                if (error != null || snapshots == null || snapshots.isEmpty) {
-//                    reqContainer.visibility = View.GONE
-//                    return@addSnapshotListener
-//                }
-//
-//                reqContainer.visibility = View.VISIBLE
-//                reqContainer.removeAllViews()
-//
-//                val reqTitle = TextView(this).apply {
-//                    text = "Pending Co-Teacher Requests"
-//                    setTextColor(Color.parseColor("#D63031"))
-//                    setTypeface(null, android.graphics.Typeface.BOLD)
-//                    setPadding(0, 0, 0, 16)
-//                }
-//                reqContainer.addView(reqTitle)
-//
-//                for (requestDoc in snapshots) {
-//                    val className = requestDoc.getString("className") ?: "Unknown Class"
-//                    val requesterId = requestDoc.getString("requesterId") ?: ""
-//                    val classId = requestDoc.getString("classId") ?: return@addSnapshotListener
-//                    val requestId = requestDoc.id
-//
-//                    db.collection("users").document(requesterId).get().addOnSuccessListener { userDoc ->
-//                        val requesterName = "${userDoc.getString("firstName")} ${userDoc.getString("lastName")}"
-//
-//                        val reqCard = LinearLayout(this).apply {
-//                            orientation = LinearLayout.VERTICAL
-//                            setBackgroundResource(R.drawable.bg_card_history)
-//                            setPadding(30, 30, 30, 30)
-//                            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { setMargins(0, 0, 0, 16) }
-//                        }
-//                        reqCard.addView(TextView(this).apply { text = "$requesterName wants to co-teach $className" })
-//                        reqCard.setOnClickListener { showApprovalDialog(className, requesterName, requesterId, classId, requestId) }
-//
-//                        reqContainer.addView(reqCard)
-//                    }
-//                }
-//            }
-//    }
-
-//    private fun showApprovalDialog(className: String, requesterName: String, requesterId: String, classId: String, requestId: String) {
-//        val db = FirebaseFirestore.getInstance()
-//
-//        MaterialAlertDialogBuilder(this)
-//            .setTitle("Co-Teacher Request")
-//            .setMessage("Approve $requesterName to co-teach '$className'?")
-//            .setPositiveButton("Approve") { _, _ ->
-//                db.collection("classes").document(classId)
-//                    .update("teacherIds", com.google.firebase.firestore.FieldValue.arrayUnion(requesterId))
-//                    .addOnSuccessListener {
-//                        db.collection("section_requests").document(requestId).update("status", "approved")
-//                        com.example.gabai.GabAIUtils.showSnackbar(this, "Approved!")
-//                    }
-//            }
-//            .setNegativeButton("Deny") { _, _ ->
-//                db.collection("section_requests").document(requestId).update("status", "denied")
-//            }
-//            .show()
-//    }
 }

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_modern_dialog"
+    android:fontFamily="@font/font_plus_jakarta_sans"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Header Row with Badge & Close Button -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+
+        <!-- 3D Header Icon Badge -->
+        <FrameLayout
+            android:id="@+id/dialog_badge_container"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/bg_btn_modern_primary">
+
+            <TextView
+                android:id="@+id/tv_dialog_badge_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🏫"
+                android:textSize="26sp" />
+        </FrameLayout>
+
+        <!-- Close button in top-right -->
+        <ImageButton
+            android:id="@+id/btn_dialog_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/bg_btn_modern_secondary"
+            android:contentDescription="Close"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:tint="#8E94A5" />
+    </RelativeLayout>
+
+    <!-- Title & Subtitle -->
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:text="Join a Classroom"
+        android:textColor="#2D3436"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_dialog_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="18dp"
+        android:gravity="center"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:lineSpacingExtra="2dp"
+        android:text="Scan your teacher's QR code or enter their 6-character code below."
+        android:textColor="#636E72"
+        android:textSize="13sp" />
+
+    <!-- Prominent QR Scan Button -->
+    <LinearLayout
+        android:id="@+id/btn_scan_qr"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_btn_modern_qr"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="📷"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="Scan Teacher QR Code"
+            android:textColor="#6C5CE7"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Divider "OR ENTER CODE" -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#E2E8F0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="OR ENTER CODE"
+            android:textColor="#8E94A5"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#E2E8F0" />
+    </LinearLayout>
+
+    <!-- Monospace Letter-Spaced Input Box -->
+    <EditText
+        android:id="@+id/et_join_code"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginBottom="18dp"
+        android:background="@drawable/bg_modern_input"
+        android:gravity="center"
+        android:hint="e.g. 7X9K2P"
+        android:inputType="textCapCharacters|textNoSuggestions"
+        android:letterSpacing="0.25"
+        android:maxLength="6"
+        android:paddingHorizontal="16dp"
+        android:textColor="#2D3436"
+        android:textColorHint="#CBD5E1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:typeface="monospace" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <android.widget.Button
+            android:id="@+id/btn_dialog_cancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_btn_modern_secondary"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:paddingHorizontal="16dp"
+            android:singleLine="true"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="#636E72"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <android.widget.Button
+            android:id="@+id/btn_dialog_confirm"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1.6"
+            android:background="@drawable/bg_btn_modern_primary"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:paddingHorizontal="16dp"
+            android:singleLine="true"
+            android:text="Join Class ➔"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

@@ -76,6 +76,11 @@ class SplashActivity : AppCompatActivity() {
                             .putString("cached_user_role", role)
                             .putString("cached_first_name", firstName)
                             .apply()
+                    } else {
+                        // User account deleted or uninitialized
+                        FirebaseAuth.getInstance().signOut()
+                        prefs.edit().remove("cached_user_role").remove("cached_first_name").apply()
+                        preloadedRole = null
                     }
                     isAuthCheckDone = true
                     checkReadyToProceed(startTime)

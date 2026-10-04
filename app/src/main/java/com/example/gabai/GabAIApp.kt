@@ -8,6 +8,10 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 import kotlin.concurrent.thread
 
 class GabAIApp : Application() {
+    companion object {
+        const val DRIVE_API_URL = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
+    }
+
     override fun onCreate() {
         super.onCreate()
 

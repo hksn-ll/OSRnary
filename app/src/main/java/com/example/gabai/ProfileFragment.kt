@@ -33,24 +33,26 @@ class ProfileFragment : Fragment() {
 
         binding.btnLogout.setOnClickListener {
             val ctx = context ?: return@setOnClickListener
-            MaterialAlertDialogBuilder(ctx)
-                .setTitle("Sign Out")
-                .setMessage("Are you sure you want to sign out of GabAI?")
-                .setPositiveButton("Sign Out") { _, _ ->
-                    // Stop the bubble service and reset toggle
-                    requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))
-                    requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-                        .edit().putBoolean("bubble_enabled", false).apply()
+            GabAIDialogs.showConfirmDialog(
+                ctx,
+                title = "Sign Out",
+                message = "Are you sure you want to sign out of GabAI?",
+                confirmText = "Sign Out",
+                isDestructive = true,
+                badgeIcon = "🚪"
+            ) {
+                // Stop the bubble service and reset toggle
+                requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))
+                requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+                    .edit().putBoolean("bubble_enabled", false).apply()
 
-                    FirebaseAuth.getInstance().signOut()
-                    val intent = Intent(requireContext(), AuthActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-                    startActivity(intent)
-                    requireActivity().finish()
+                FirebaseAuth.getInstance().signOut()
+                val intent = Intent(requireContext(), AuthActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
+                startActivity(intent)
+                requireActivity().finish()
+            }
         }
 
         return binding.root
@@ -84,9 +86,21 @@ class ProfileFragment : Fragment() {
                     if (role == "teacher") {
                         binding.tvProfileSection.visibility = View.GONE
                         val joinCode = doc.getString("joinCode") ?: "N/A"
-                        binding.tvProfileGrade.text = "Join Code: $joinCode"
+                        binding.tvProfileGrade.text = "Join Code: $joinCode 🏷️ (Tap for QR)"
                         binding.tvProfileGrade.setTextColor(android.graphics.Color.parseColor("#5341CD"))
                         binding.tvProfileGrade.setTypeface(null, android.graphics.Typeface.BOLD)
+                        if (joinCode != "N/A") {
+                            binding.tvProfileGrade.setOnClickListener {
+                                val ctx = context ?: return@setOnClickListener
+                                GabAIDialogs.showQrCodeDialog(
+                                    ctx,
+                                    title = "Your Teacher QR Code",
+                                    subtitle = "Share this with students to let them join your subjects.",
+                                    qrContent = joinCode,
+                                    displayCode = joinCode
+                                )
+                            }
+                        }
                     } else {
                         binding.tvProfileSection.visibility = View.VISIBLE
                         binding.tvProfileSection.text = "Section: ${doc.getString("section") ?: "N/A"}"

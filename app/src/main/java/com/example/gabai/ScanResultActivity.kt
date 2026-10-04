@@ -263,10 +263,7 @@ class ScanResultActivity : AppCompatActivity() {
                             isClick = false
                         }
 
-                        v.animate()
-                            .y(event.rawY + dY)
-                            .setDuration(0)
-                            .start()
+                        v.y = event.rawY + dY
                     }
                     android.view.MotionEvent.ACTION_UP -> {
                         // If it was a click, open the new screen!
@@ -313,5 +310,17 @@ class ScanResultActivity : AppCompatActivity() {
         super.onDestroy()
         laserAnimator?.cancel()
         laserAnimator = null
+
+        findViewById<ImageView>(R.id.screenshot_view)?.setImageDrawable(null)
+
+        val imagePath = intent.getStringExtra("IMG_PATH")
+        if (imagePath != null) {
+            try {
+                val f = java.io.File(imagePath)
+                if (f.exists() && f.absolutePath.startsWith(cacheDir.absolutePath)) {
+                    f.delete()
+                }
+            } catch (_: Exception) {}
+        }
     }
 }

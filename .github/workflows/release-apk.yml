@@ -47,13 +47,25 @@ jobs:
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Prepare APK Release Assets
+        run: |
+          VERSION_NAME=$(jq -r '.versionName' app-version.json)
+          mkdir -p release-assets
+          APK_FILE=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          echo "Found APK: $APK_FILE"
+          cp "$APK_FILE" "release-assets/GabAI-v${VERSION_NAME}.apk"
+          cp "$APK_FILE" "release-assets/GabAI.apk"
+
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version_info.outputs.tag }}
           name: ${{ steps.version_info.outputs.title }}
           body: ${{ steps.version_info.outputs.changelog }}
-          files: app/build/outputs/apk/debug/app-debug.apk
+          files: |
+            release-assets/GabAI-v${{ steps.version_info.outputs.tag }}.apk
+            release-assets/GabAI.apk
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

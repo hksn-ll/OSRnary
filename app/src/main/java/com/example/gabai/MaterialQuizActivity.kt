@@ -26,6 +26,13 @@ class MaterialQuizActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz)
 
+        val root = findViewById<View>(R.id.quiz_root)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
+            insets
+        }
+
         materialId = intent.getStringExtra("MATERIAL_ID") ?: return finish()
         val materialTitle = intent.getStringExtra("MATERIAL_TITLE") ?: "Reading Quiz"
 
@@ -118,7 +125,18 @@ class MaterialQuizActivity : AppCompatActivity() {
                     } else throw java.lang.Exception("Empty Quiz Pool")
 
                 } catch (e: Exception) {
-                    findViewById<TextView>(R.id.question_text).text = "Error loading quiz data."
+                    val resultView = findViewById<View>(R.id.result_view)
+                    val btnRestart = findViewById<Button>(R.id.btn_restart)
+                    val scoreText = findViewById<TextView>(R.id.final_score_text)
+
+                    scoreText.visibility = View.VISIBLE
+                    scoreText.text = "Error loading quiz data (${e.localizedMessage ?: "network issue"})."
+                    btnRestart.text = "Retry"
+                    btnRestart.setOnClickListener {
+                        resultView.visibility = View.GONE
+                        loadQuizFromFirestore()
+                    }
+                    resultView.visibility = View.VISIBLE
                 }
             }
     }

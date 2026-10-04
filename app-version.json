@@ -1,11 +1,11 @@
 {
-  "versionCode": 16,
-  "versionName": "0.4.2",
-  "minRequiredVersionCode": 16,
+  "versionCode": 17,
+  "versionName": "0.4.3",
+  "minRequiredVersionCode": 17,
   "forceUpdate": false,
-  "title": "Frosted Glass Performance Optimization (v0.4.2)",
-  "message": "Silky-smooth 90/120 FPS frosted glass rendering with zero scroll lag and instant touch response.",
+  "title": "Modern Dialog Engine & Expressive In-App Updates (v0.4.3)",
+  "message": "Major UI & workflow upgrade: Google Code Scanner for classroom joining, offline teacher QR generation, hardware-accelerated frosted glass backdrop blur behind dialogs, unified modern dialogs across the app, and modernized GabAI APK updater.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk",
-  "changelog": "• Frosted Glass Performance Optimization: Replaced GPU-heavy real-time blur passes with hardware-accelerated specular acrylic frosted glass for header and bottom navigation\n• Zero-Lag Scrolling: Eliminated 180 blur snapshot passes per second, unlocking consistent 90/120 FPS buttery smooth scrolling\n• Reduced Memory Footprint: Eliminated ~20 MB offscreen bitmap thrashing per frame, preserving battery and preventing thermal throttling\n• Seamless Aesthetics: Maintained modern frosted acrylic glass styling with specular edge borders matching Apple & Google Stitch design"
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.3/GabAI-v0.4.3.apk",
+  "changelog": "• Universal Modern Dialog Engine: Replaced system dialogs with GabAI Expressive Dialogs (28dp rounded surfaces, 3D icon badges, uppercase monospace letter-spaced inputs, and tactile spring feedback)\n• Hardware-Accelerated Backdrop Blur: Real-time GPU window backdrop blur (FLAG_BLUR_BEHIND) behind every dialog on Android 12+\n• Expressive In-App Update System: Modernized update interface with 28dp rounded card, rocket badge, live progress indicator, and streamlined GabAI-v0.4.3.apk asset delivery\n• Google Code Scanner: Instant zero-permission camera QR code scanning powered by Google Play Services to join classroom sections in one tap\n• Offline Teacher QR Codes: High-contrast classroom QR codes generated instantly on-device via ZXing for teachers in Profile and Section views\n• Full App-Wide Dialog Modernization: Transformed PDF jump, document rename, folder creation, sign out, and deletion alerts to the modern design system"
 }

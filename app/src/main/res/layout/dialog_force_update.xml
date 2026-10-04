@@ -1,225 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/Widget.Material3.CardView.Filled"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="#EDF2F7"
-    app:contentPadding="0dp"
-    app:cardBackgroundColor="#FFFFFF">
+    android:background="@drawable/bg_modern_dialog"
+    android:fontFamily="@font/font_plus_jakarta_sans"
+    android:orientation="vertical"
+    android:padding="24dp">
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_dialog_root"
+    <!-- 3D Rocket Icon Badge -->
+    <FrameLayout
+        android:id="@+id/dialog_badge_container"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_btn_modern_primary">
+
+        <TextView
+            android:id="@+id/tv_dialog_badge_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="🚀"
+            android:textSize="26sp" />
+    </FrameLayout>
+
+    <!-- Title & Subtitle -->
+    <TextView
+        android:id="@+id/tv_update_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:text="Update Available"
+        android:textColor="#2D3436"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_update_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="12dp"
+        android:gravity="center"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:lineSpacingExtra="3dp"
+        android:text="A new version of GabAI is available. Update now to access the latest features and optimizations."
+        android:textColor="#636E72"
+        android:textSize="13sp" />
+
+    <!-- Version Comparison Pill -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="7dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_current_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current: v0.4.2"
+            android:textColor="#64748B"
+            android:textSize="12sp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:text="➔"
+            android:textColor="#6C5CE7"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_new_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New: v0.4.3"
+            android:textColor="#00B894"
+            android:textSize="12sp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Scrollable Changelog Box -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_changelog"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:padding="12dp"
         android:scrollbars="vertical"
         android:fadeScrollbars="false"
-        android:fillViewport="true">
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_changelog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="What's new:\n• Bug fixes and performance improvements"
+            android:textColor="#475569"
+            android:textSize="12sp"
+            android:fontFamily="@font/font_nunito_sans"
+            android:lineSpacingMultiplier="1.2" />
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Download Progress Container -->
+    <LinearLayout
+        android:id="@+id/container_download_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="16dp">
+            android:orientation="horizontal">
 
-            <!-- Icon Badge -->
-            <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_bento_purple">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="🚀"
-                    android:textSize="24sp" />
-            </FrameLayout>
-
-            <!-- Title & Subtitle -->
             <TextView
-                android:id="@+id/tv_update_title"
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_download_status"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center"
-                android:text="Update Required"
-                android:textColor="#0F172A"
-                android:textSize="17sp"
+                android:layout_weight="1"
+                android:text="Downloading update..."
+                android:textColor="#6C5CE7"
+                android:textSize="12sp"
                 android:fontFamily="@font/font_plus_jakarta_sans"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_update_message"
+                android:id="@+id/tv_download_percent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:text="A new version of GabAI is available on GitHub. Please update to continue using the application."
-                android:textColor="#64748B"
-                android:textSize="12sp"
-                android:fontFamily="@font/font_nunito_sans"
-                android:lineSpacingMultiplier="1.15" />
-
-            <!-- Version Comparison Pill -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_input_field"
-                android:orientation="horizontal"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="6dp"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tv_current_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Current: v1.0.0"
-                    android:textColor="#94A3B8"
-                    android:textSize="11sp"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:text="➔"
-                    android:textColor="#5341CD"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_new_version"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="New: v1.1.0"
-                    android:textColor="#00B894"
-                    android:textSize="11sp"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Scrollable Changelog Box -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/scroll_changelog"
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginTop="10dp"
-                android:background="#F8FAFC"
-                android:scrollbars="vertical"
-                android:fadeScrollbars="false"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/tv_changelog"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:text="What's new:\n• Bug fixes and performance improvements"
-                    android:textColor="#475569"
-                    android:textSize="11sp"
-                    android:fontFamily="@font/font_nunito_sans"
-                    android:lineSpacingMultiplier="1.2" />
-            </androidx.core.widget.NestedScrollView>
-
-            <!-- Download Progress Container -->
-            <LinearLayout
-                android:id="@+id/container_download_progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tv_download_status"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Downloading update..."
-                        android:textColor="#5341CD"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_download_percent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0%"
-                        android:textColor="#64748B"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/progress_bar_download"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="6dp"
-                    android:indeterminate="false"
-                    android:max="100"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/bg_progress_bar_stitch" />
-
-                <TextView
-                    android:id="@+id/tv_download_size"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_gravity="end"
-                    android:text="0 MB / 0 MB"
-                    android:textColor="#94A3B8"
-                    android:textSize="11sp"
-                    android:fontFamily="@font/font_nunito_sans" />
-            </LinearLayout>
-
-            <!-- Download & Update Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_update_now"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/btn_gradient_stitch"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:text="Download &amp; Update  ➔"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:backgroundTint="@null"
-                app:cornerRadius="14dp"
-                app:elevation="3dp" />
-
-            <!-- Exit App Button -->
-            <TextView
-                android:id="@+id/btn_exit_app"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:padding="6dp"
-                android:text="Exit Application"
-                android:textColor="#94A3B8"
+                android:text="0%"
+                android:textColor="#2D3436"
                 android:textSize="12sp"
                 android:fontFamily="@font/font_plus_jakarta_sans"
-                android:clickable="true"
-                android:focusable="true" />
+                android:textStyle="bold" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-</com.google.android.material.card.MaterialCardView>
+
+        <ProgressBar
+            android:id="@+id/progress_bar_download"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="6dp"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/bg_progress_bar_stitch" />
+
+        <TextView
+            android:id="@+id/tv_download_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_gravity="end"
+            android:text="0 MB / 0 MB"
+            android:textColor="#8E94A5"
+            android:textSize="11sp"
+            android:fontFamily="@font/font_nunito_sans" />
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <android.widget.Button
+        android:id="@+id/btn_update_now"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_btn_modern_primary"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:text="Download &amp; Install Now  ➔"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <android.widget.Button
+        android:id="@+id/btn_exit_app"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:text="Exit Application"
+        android:textAllCaps="false"
+        android:textColor="#636E72"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

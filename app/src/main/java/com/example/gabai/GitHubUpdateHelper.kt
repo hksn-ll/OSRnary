@@ -4,8 +4,6 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -15,12 +13,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import com.google.android.material.button.MaterialButton
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -130,11 +128,11 @@ object GitHubUpdateHelper {
                         title = json.optString("title", "New Build Available"),
                         message = json.optString("message", "A new build of GabAI is available. Update to get the latest features!"),
                         downloadUrl = json.optString("downloadUrl", "https://github.com/hksn-ll/OSRnary/releases/latest"),
-                        apkUrl = json.optString("apkUrl", "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk"),
+                        apkUrl = json.optString("apkUrl", "https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk"),
                         changelog = json.optString("changelog", "")
                     )
 
-                    // Nightly build update detection:
+                    // Version check:
                     // Trigger if versionCode is greater, OR if versionName differs and code >= current
                     val isNewerVersion = (info.versionCode > currentVersionCode) ||
                             (info.versionName.isNotBlank() && !info.versionName.equals(currentVersionName, ignoreCase = true) && info.versionCode >= currentVersionCode)
@@ -150,15 +148,15 @@ object GitHubUpdateHelper {
                     }
 
                     // 🟢 CRITICAL: Verify that the APK release asset is ACTUALLY published on GitHub
-                    // Avoids locking out the user or triggering an update loop while GitHub Actions is compiling in the cloud!
-                    val expectedApkUrl = if (info.versionName.isNotBlank()) {
-                        "https://github.com/hksn-ll/OSRnary/releases/download/${info.versionName}/app-debug.apk"
+                    // Checks versioned asset (e.g. GabAI-v0.4.3.apk), with fallback to apkUrl / static GabAI.apk
+                    val primaryApkUrl = if (info.versionName.isNotBlank()) {
+                        "https://github.com/hksn-ll/OSRnary/releases/download/${info.versionName}/GabAI-v${info.versionName}.apk"
                     } else {
-                        info.apkUrl.ifBlank { "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk" }
+                        info.apkUrl.ifBlank { "https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" }
                     }
 
                     val headRequest = Request.Builder()
-                        .url(expectedApkUrl)
+                        .url(primaryApkUrl)
                         .head()
                         .build()
 
@@ -169,26 +167,49 @@ object GitHubUpdateHelper {
                         }
 
                         override fun onResponse(call: Call, response: Response) {
-                            // GitHub returns 302 Found redirecting to release-assets on success, or 200 OK.
                             val isAssetLive = response.isSuccessful || response.code in 300..399
                             response.close()
 
-                            Handler(Looper.getMainLooper()).post {
-                                if (isAssetLive && !activity.isFinishing && !activity.isDestroyed) {
-                                    val verifiedInfo = info.copy(apkUrl = expectedApkUrl)
-                                    showUpdateDialog(activity, verifiedInfo, currentVersionName)
-                                } else {
-                                    // New version exists in code but GitHub Actions has not finished uploading APK yet!
-                                    Log.i(TAG, "Release asset for v${info.versionName} is not yet available (HTTP ${response.code}). Build is in progress.")
-                                    if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
-                                        Toast.makeText(
-                                            activity,
-                                            "v${info.versionName} is currently compiling on GitHub Actions. Please check back in a minute.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                            if (isAssetLive) {
+                                Handler(Looper.getMainLooper()).post {
+                                    if (!activity.isFinishing && !activity.isDestroyed) {
+                                        val verifiedInfo = info.copy(apkUrl = primaryApkUrl)
+                                        showUpdateDialog(activity, verifiedInfo, currentVersionName, onProceed)
                                     }
-                                    onProceed()
                                 }
+                            } else {
+                                // Fallback check to configured apkUrl or static GabAI.apk
+                                val fallbackUrl = info.apkUrl.ifBlank {
+                                    "https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk"
+                                }
+                                val fallbackRequest = Request.Builder().url(fallbackUrl).head().build()
+                                httpClient.newCall(fallbackRequest).enqueue(object : Callback {
+                                    override fun onFailure(call: Call, e: IOException) {
+                                        Handler(Looper.getMainLooper()).post { onProceed() }
+                                    }
+
+                                    override fun onResponse(call: Call, fallbackResp: Response) {
+                                        val isFallbackLive = fallbackResp.isSuccessful || fallbackResp.code in 300..399
+                                        fallbackResp.close()
+
+                                        Handler(Looper.getMainLooper()).post {
+                                            if (isFallbackLive && !activity.isFinishing && !activity.isDestroyed) {
+                                                val verifiedInfo = info.copy(apkUrl = fallbackUrl)
+                                                showUpdateDialog(activity, verifiedInfo, currentVersionName, onProceed)
+                                            } else {
+                                                Log.i(TAG, "Release asset for v${info.versionName} is not yet live (HTTP ${response.code}). Cloud build may still be compiling.")
+                                                if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
+                                                    Toast.makeText(
+                                                        activity,
+                                                        "v${info.versionName} is currently compiling on GitHub Actions. Please check back in a minute.",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
+                                                onProceed()
+                                            }
+                                        }
+                                    }
+                                })
                             }
                         }
                     })
@@ -207,22 +228,26 @@ object GitHubUpdateHelper {
     }
 
     /**
-     * Displays a strictly mandatory, un-dismissible update dialog with in-app download.
+     * Displays a modern update dialog with in-app download and hardware backdrop blur.
      */
     private fun showUpdateDialog(
         activity: Activity,
         info: VersionInfo,
-        currentVersionName: String
+        currentVersionName: String,
+        onProceed: () -> Unit = {}
     ) {
         val dialog = Dialog(activity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(false)
-        dialog.setCanceledOnTouchOutside(false)
+
+        val isForced = info.forceUpdate
+        dialog.setCancelable(!isForced)
+        dialog.setCanceledOnTouchOutside(!isForced)
 
         val view = LayoutInflater.from(activity).inflate(R.layout.dialog_force_update, null)
         dialog.setContentView(view)
 
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        // Apply hardware-accelerated frosted glass backdrop blur, animations, and responsive dimensions
+        GabAIDialogs.applyModernWindowStyles(dialog)
 
         val tvTitle = view.findViewById<TextView>(R.id.tv_update_title)
         val tvMessage = view.findViewById<TextView>(R.id.tv_update_message)
@@ -230,8 +255,8 @@ object GitHubUpdateHelper {
         val tvNewVersion = view.findViewById<TextView>(R.id.tv_new_version)
         val scrollChangelog = view.findViewById<View>(R.id.scroll_changelog)
         val tvChangelog = view.findViewById<TextView>(R.id.tv_changelog)
-        val btnUpdateNow = view.findViewById<MaterialButton>(R.id.btn_update_now)
-        val btnExitApp = view.findViewById<TextView>(R.id.btn_exit_app)
+        val btnUpdateNow = view.findViewById<Button>(R.id.btn_update_now)
+        val btnExitApp = view.findViewById<Button>(R.id.btn_exit_app)
 
         val containerProgress = view.findViewById<LinearLayout>(R.id.container_download_progress)
         val tvStatus = view.findViewById<TextView>(R.id.tv_download_status)
@@ -263,14 +288,14 @@ object GitHubUpdateHelper {
 
             val targetUrl = when {
                 info.apkUrl.isNotBlank() -> info.apkUrl
-                info.downloadUrl.isNotBlank() -> info.downloadUrl
-                else -> "https://github.com/hksn-ll/OSRnary/releases/latest/download/app-debug.apk"
+                info.versionName.isNotBlank() -> "https://github.com/hksn-ll/OSRnary/releases/download/${info.versionName}/GabAI-v${info.versionName}.apk"
+                else -> "https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk"
             }
 
             // Begin in-app download
             btnUpdateNow.visibility = View.GONE
             containerProgress.visibility = View.VISIBLE
-            tvStatus.text = "Connecting to server..."
+            tvStatus.text = "Connecting to mirror..."
             progressBar.progress = 0
             tvPercent.text = "0%"
             tvSize.text = "0 MB"
@@ -278,10 +303,11 @@ object GitHubUpdateHelper {
             downloadApkInApp(
                 activity = activity,
                 url = targetUrl,
+                versionName = info.versionName,
                 onProgress = { percent, downloadedBytes, totalBytes ->
                     val downloadedMb = downloadedBytes / (1024.0 * 1024.0)
                     val totalMb = totalBytes / (1024.0 * 1024.0)
-                    tvStatus.text = "Downloading update..."
+                    tvStatus.text = "Downloading GabAI update..."
                     progressBar.progress = percent
                     tvPercent.text = "$percent%"
                     tvSize.text = String.format(Locale.US, "%.1f MB / %.1f MB", downloadedMb, totalMb)
@@ -303,17 +329,21 @@ object GitHubUpdateHelper {
             )
         }
 
-        btnExitApp.text = "Exit Application"
-        btnExitApp.setOnClickListener {
-            activity.finishAffinity()
+        if (isForced) {
+            btnExitApp.text = "Exit Application"
+            btnExitApp.setOnClickListener {
+                dialog.dismiss()
+                activity.finishAffinity()
+            }
+        } else {
+            btnExitApp.text = "Remind Me Later"
+            btnExitApp.setOnClickListener {
+                dialog.dismiss()
+                onProceed()
+            }
         }
 
         dialog.show()
-        dialog.window?.let { window ->
-            val displayMetrics = activity.resources.displayMetrics
-            val dialogWidth = (displayMetrics.widthPixels * 0.90).toInt()
-            window.setLayout(dialogWidth, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
     }
 
     /**
@@ -322,6 +352,7 @@ object GitHubUpdateHelper {
     private fun downloadApkInApp(
         activity: Activity,
         url: String,
+        versionName: String,
         onProgress: (percent: Int, downloadedBytes: Long, totalBytes: Long) -> Unit,
         onComplete: (File) -> Unit,
         onError: (String) -> Unit
@@ -359,7 +390,8 @@ object GitHubUpdateHelper {
                     if (!downloadDir.exists()) {
                         downloadDir.mkdirs()
                     }
-                    val apkFile = File(downloadDir, "GabAI-Update.apk")
+                    val apkFileName = if (versionName.isNotBlank()) "GabAI-v$versionName.apk" else "GabAI.apk"
+                    val apkFile = File(downloadDir, apkFileName)
                     if (apkFile.exists()) {
                         apkFile.delete()
                     }

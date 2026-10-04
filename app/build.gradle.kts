@@ -18,8 +18,8 @@ android {
         applicationId = "com.example.gabai"
         minSdk = 24
         targetSdk = 35
-        versionCode = 16
-        versionName = "0.4.2"
+        versionCode = 17
+        versionName = "0.4.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -84,6 +84,13 @@ android {
             excludes.add("META-INF/INDEX.LIST")
         }
     }
+
+    applicationVariants.all {
+        outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            output?.outputFileName = "GabAI-v${versionName}.apk"
+        }
+    }
 }
 
 // The secrets-gradle-plugin injects BuildConfig.GEMINI_API_KEY from local.properties
@@ -133,4 +140,10 @@ dependencies {
 
     // Hardware-Accelerated Dynamic Frosted Glass Blur
     implementation("com.github.Dimezis:BlurView:version-3.2.0")
+
+    // Google Play Services Code Scanner (Zero camera permission QR scanning)
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+
+    // ZXing for fast, offline, on-device QR Code generation
+    implementation("com.google.zxing:core:3.5.3")
 }

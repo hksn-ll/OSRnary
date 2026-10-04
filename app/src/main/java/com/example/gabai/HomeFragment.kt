@@ -15,11 +15,15 @@ import androidx.core.content.ContextCompat
 import android.Manifest
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import android.os.Build
+
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var currentCompletedQuests: List<String> = emptyList()
+    private var userListener: ListenerRegistration? = null
+    private var assessmentListener: ListenerRegistration? = null
 
     // This handles the pop-up result
     private val requestPermissionLauncher = registerForActivityResult(
@@ -150,7 +154,8 @@ class HomeFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
 
         // Real-time listener for user progress & onboarding (non-blocking, cached data renders immediately)
-        db.collection("users").document(uid).addSnapshotListener { snapshot, e ->
+        userListener?.remove()
+        userListener = db.collection("users").document(uid).addSnapshotListener { snapshot, e ->
 
             if (e != null || snapshot == null || !snapshot.exists() || _binding == null || !isAdded) return@addSnapshotListener
             val firstName = snapshot.getString("firstName") ?: snapshot.getString("first_name") ?: ""
@@ -169,8 +174,6 @@ class HomeFragment : Fragment() {
             QuestManager.syncStreakFromFirestore(requireContext(), currentStreak)
             currentCompletedQuests = completedQuests // Save for the dialog
 
-            // --- THE GRAND UNLOCK LOGIC ---
-            // --- THE GRAND UNLOCK LOGIC ---
             // --- THE GRAND UNLOCK LOGIC (NOW REQUIRES 8 QUESTS) ---
             val requiredQuests = listOf("bubble", "read", "test", "scan", "save", "history", "detail", "library")
             if (!isOnboarded && completedQuests.containsAll(requiredQuests)) {
@@ -203,7 +206,7 @@ class HomeFragment : Fragment() {
                 binding.root.findViewById<android.widget.TextView>(R.id.tv_quest_progress_badge)?.text = "$countDone / 8 Done"
 
                 setQuestRowState(R.id.row_quest_bubble, R.id.indicator_quest_bubble, R.id.quest_bubble, R.id.badge_quest_bubble, "Activate the Floating Bubble", completedQuests.contains("bubble"))
-                setQuestRowState(R.id.row_quest_read, R.id.indicator_quest_read, R.id.quest_read, R.id.badge_quest_read, "Read the 4 Required Materials", completedQuests.contains("read"))
+                setQuestRowState(R.id.row_quest_read, R.id.indicator_quest_read, R.id.quest_read, R.id.badge_quest_read, "Read Required Study Materials", completedQuests.contains("read"))
                 setQuestRowState(R.id.row_quest_test, R.id.indicator_quest_test, R.id.quest_test, R.id.badge_quest_test, "Pass the Initiation Test", completedQuests.contains("test"))
                 setQuestRowState(R.id.row_quest_scan, R.id.indicator_quest_scan, R.id.quest_scan, R.id.badge_quest_scan, "Scan a text with the Camera", completedQuests.contains("scan"))
                 setQuestRowState(R.id.row_quest_save, R.id.indicator_quest_save, R.id.quest_save, R.id.badge_quest_save, "Save a word to Favorites", completedQuests.contains("save"))
@@ -261,10 +264,7 @@ class HomeFragment : Fragment() {
             }
         }
     }
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+
     private fun showQuestDetailsDialog() {
         // Launch the epic full-screen Quest Details Activity!
         startActivity(Intent(requireContext(), QuestDetailsActivity::class.java))
@@ -314,27 +314,60 @@ class HomeFragment : Fragment() {
             .show()
     }
     private fun showJoinClassDialog() {
-        val input = android.widget.EditText(requireContext()).apply {
-            hint = "Enter 6-character Teacher Code"
-            inputType = android.text.InputType.TYPE_CLASS_TEXT
-            setPadding(50, 40, 50, 40)
-            isAllCaps = true
-        }
-
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Join a Class")
-            .setMessage("Enter the Join Code provided by your teacher to access their subject materials.")
-            .setView(input)
-            .setPositiveButton("Join") { _, _ ->
-                val code = input.text.toString().trim().uppercase()
-                if (code.length == 6) {
-                    joinClassWithCode(code)
-                } else {
-                    GabAIUtils.showSnackbar(requireContext(), "Invalid Code. Must be 6 characters.")
-                }
+        GabAIDialogs.showJoinClassDialog(
+            requireContext(),
+            onScanQrClicked = { activeDialog ->
+                activeDialog.dismiss()
+                startGoogleQrScan()
+            },
+            onJoinCodeSubmitted = { activeDialog, code ->
+                activeDialog.dismiss()
+                joinClassWithCode(code)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
+    }
+
+    private fun startGoogleQrScan() {
+        try {
+            val options = com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions.Builder()
+                .setBarcodeFormats(com.google.mlkit.vision.barcode.common.Barcode.FORMAT_QR_CODE)
+                .enableAutoZoom()
+                .build()
+            val scanner = com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(requireContext(), options)
+
+            scanner.startScan()
+                .addOnSuccessListener { barcode ->
+                    val rawValue = barcode.rawValue?.trim() ?: ""
+                    val cleanCode = extractCleanJoinCode(rawValue)
+                    if (cleanCode.length == 6) {
+                        try {
+                            GabAIUtils.performHaptic(requireView(), android.view.HapticFeedbackConstants.CONFIRM)
+                        } catch (_: Exception) {}
+                        joinClassWithCode(cleanCode)
+                    } else {
+                        GabAIUtils.showSnackbar(requireContext(), "Scanned code '$cleanCode' is not a valid 6-character Teacher Code.")
+                    }
+                }
+                .addOnCanceledListener {
+                    // User canceled scanning
+                }
+                .addOnFailureListener { e ->
+                    GabAIUtils.showSnackbar(requireContext(), "Scan failed: ${e.message}")
+                }
+        } catch (e: Exception) {
+            GabAIUtils.showSnackbar(requireContext(), "Could not launch scanner: ${e.message}")
+        }
+    }
+
+    private fun extractCleanJoinCode(raw: String): String {
+        var result = raw.trim()
+        if (result.contains("/")) {
+            result = result.substringAfterLast("/")
+        }
+        if (result.contains(":")) {
+            result = result.substringAfterLast(":")
+        }
+        return result.replace(Regex("[^A-Za-z0-9]"), "").uppercase()
     }
 
     private fun joinClassWithCode(joinCode: String) {
@@ -433,7 +466,8 @@ class HomeFragment : Fragment() {
             val studentGrade = userDoc.getString("grade") ?: ""
             val studentSection = userDoc.getString("section") ?: ""
 
-            db.collection("weekly_assessments")
+            assessmentListener?.remove()
+            assessmentListener = db.collection("weekly_assessments")
                 .whereEqualTo("status", "active")
                 .addSnapshotListener { snapshots, error ->
                     if (!isAdded || _binding == null || error != null || snapshots == null) return@addSnapshotListener
@@ -526,5 +560,14 @@ class HomeFragment : Fragment() {
                         }
                 }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        userListener?.remove()
+        userListener = null
+        assessmentListener?.remove()
+        assessmentListener = null
+        _binding = null
     }
 }

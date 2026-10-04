@@ -30,13 +30,16 @@ class PdfViewerActivity : AppCompatActivity() {
 
     private var downloadedPdfFile: File? = null
     private val db = FirebaseFirestore.getInstance()
-    private val uid = FirebaseAuth.getInstance().currentUser?.uid
-    private val driveApiUrl = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
+    private val driveApiUrl = GabAIApp.DRIVE_API_URL
+    private val uid get() = FirebaseAuth.getInstance().currentUser?.uid
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-2.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY
     )
+
+    private var totalPdfPages = 1
+    private var currentPdfPage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,45 +104,65 @@ class PdfViewerActivity : AppCompatActivity() {
         val pdfPrefKey = "pdf_last_page_" + (materialId ?: pdfUrl.hashCode().toString())
         val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
         val savedPage = prefs.getInt(pdfPrefKey, 0)
-        var totalPdfPages = 1
-        var currentPdfPage = savedPage
+        currentPdfPage = savedPage
 
         pageIndicator.setOnClickListener {
-            val input = EditText(this).apply {
-                inputType = android.text.InputType.TYPE_CLASS_NUMBER
-                hint = "1 - $totalPdfPages"
-                setPadding(48, 32, 48, 32)
-            }
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Jump to Page")
-                .setMessage("Enter a page number between 1 and $totalPdfPages:")
-                .setView(input)
-                .setPositiveButton("Jump") { _, _ ->
-                    val pageNum = input.text.toString().trim().toIntOrNull()
-                    if (pageNum != null && pageNum in 1..totalPdfPages) {
-                        pdfView.jumpTo(pageNum - 1)
-                        GabAIUtils.performHaptic(pageIndicator, android.view.HapticFeedbackConstants.CLOCK_TICK)
-                    } else {
-                        GabAIUtils.showSnackbar(this, "Please enter a valid page number")
-                    }
+            GabAIDialogs.showInputDialog(
+                this,
+                title = "Jump to Page",
+                subtitle = "Enter a page number between 1 and $totalPdfPages:",
+                hint = "1 - $totalPdfPages",
+                confirmText = "Jump",
+                isNumeric = true,
+                badgeIcon = "📖"
+            ) { text ->
+                val pageNum = text.toIntOrNull()
+                if (pageNum != null && pageNum in 1..totalPdfPages) {
+                    pdfView.jumpTo(pageNum - 1)
+                    GabAIUtils.performHaptic(pageIndicator, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                } else {
+                    GabAIUtils.showSnackbar(this, "Please enter a valid page number")
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
+            }
         }
 
-        // Download the PDF in the background
-        thread {
+        loadPdfDocument(pdfUrl, savedPage, pdfPrefKey, prefs, progressBar, pdfView, pageIndicator)
+    }
+
+    private fun loadPdfDocument(
+        pdfUrl: String,
+        savedPage: Int,
+        pdfPrefKey: String,
+        prefs: android.content.SharedPreferences,
+        progressBar: ProgressBar,
+        pdfView: PDFView,
+        pageIndicator: TextView
+    ) {
+        progressBar.visibility = View.VISIBLE
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val input = URL(pdfUrl).openStream()
-                val tempFile = File.createTempFile("temp_pdf", ".pdf", cacheDir)
-                tempFile.outputStream().use { output -> input.copyTo(output) }
+                val safeHash = pdfUrl.hashCode().toString().replace("-", "n")
+                val cachedFile = File(cacheDir, "cached_pdf_${safeHash}.pdf")
 
-                downloadedPdfFile = tempFile // SAVE IT SO AI CAN READ IT INSTANTLY LATER
+                val finalFile = if (cachedFile.exists() && cachedFile.length() > 0) {
+                    cachedFile
+                } else {
+                    val input = URL(pdfUrl).openStream()
+                    val tempFile = File.createTempFile("temp_pdf", ".pdf", cacheDir)
+                    tempFile.outputStream().use { output -> input.copyTo(output) }
+                    if (tempFile.renameTo(cachedFile)) {
+                        cachedFile
+                    } else {
+                        tempFile
+                    }
+                }
 
-                runOnUiThread {
+                downloadedPdfFile = finalFile
+
+                withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
                     pdfView.visibility = View.VISIBLE
-                    pdfView.fromFile(tempFile)
+                    pdfView.fromFile(finalFile)
                         .defaultPage(savedPage)
                         .enableSwipe(true)
                         .swipeHorizontal(false)
@@ -159,9 +182,18 @@ class PdfViewerActivity : AppCompatActivity() {
                         .load()
                 }
             } catch (e: Exception) {
-                runOnUiThread {
-                    GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to load PDF")
-                    finish()
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                    GabAIDialogs.showConfirmDialog(
+                        this@PdfViewerActivity,
+                        title = "Failed to Load Document",
+                        message = "Could not download or open the PDF material. Please check your internet connection and try again.",
+                        confirmText = "Retry",
+                        cancelText = "Close",
+                        badgeIcon = "⚠️"
+                    ) {
+                        loadPdfDocument(pdfUrl, savedPage, pdfPrefKey, prefs, progressBar, pdfView, pageIndicator)
+                    }
                 }
             }
         }
@@ -282,14 +314,14 @@ class PdfViewerActivity : AppCompatActivity() {
     private fun managePdfAccess() {
         val materialId = intent.getStringExtra("MATERIAL_ID") ?: return
         val currentlyAssigned = intent.getStringArrayListExtra("ASSIGNED_SECTIONS")?.toList() ?: listOf()
-        if (uid == null) return
+        val currentUid = uid ?: return
 
         findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
         findViewById<TextView>(R.id.tv_action_status).text = "Loading students..."
 
-        db.collection("users").document(uid).get().addOnSuccessListener { teacherDoc ->
+        db.collection("users").document(currentUid).get().addOnSuccessListener { teacherDoc ->
             val teacherSchoolId = teacherDoc.getString("schoolId") ?: ""
-            db.collection("classes").whereArrayContains("teacherIds", uid).get().addOnSuccessListener { classSnaps ->
+            db.collection("classes").whereArrayContains("teacherIds", currentUid).get().addOnSuccessListener { classSnaps ->
                 if (classSnaps.isEmpty) {
                     findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
                     GabAIUtils.showSnackbar(this, "You need to create or join a class section first.")
@@ -391,70 +423,80 @@ class PdfViewerActivity : AppCompatActivity() {
         val fileId = intent.getStringExtra("DRIVE_FILE_ID") ?: return
         val currentTitle = titleView.text.toString()
 
-        val input = EditText(this).apply { setText(currentTitle); setPadding(50, 40, 50, 40) }
-        MaterialAlertDialogBuilder(this).setTitle("Rename PDF").setView(input)
-            .setPositiveButton("Save") { _, _ ->
-                val newTitle = input.text.toString().trim()
-                if (newTitle.isNotEmpty() && newTitle != currentTitle) {
-                    findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
-                    findViewById<TextView>(R.id.tv_action_status).text = "Renaming in Drive..."
+        GabAIDialogs.showInputDialog(
+            this,
+            title = "Rename Document",
+            subtitle = "Enter a new title for this PDF:",
+            initialText = currentTitle,
+            confirmText = "Save",
+            badgeIcon = "✏️"
+        ) { newTitle ->
+            if (newTitle.isNotEmpty() && newTitle != currentTitle) {
+                findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
+                findViewById<TextView>(R.id.tv_action_status).text = "Renaming in Drive..."
 
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        try {
-                            if (fileId.isNotEmpty()) {
-                                val client = OkHttpClient()
-                                val formBody = FormBody.Builder().add("action", "rename").add("fileId", fileId).add("newName", newTitle).build()
-                                client.newCall(Request.Builder().url(driveApiUrl).post(formBody).build()).execute()
-                            }
-                            withContext(Dispatchers.Main) {
-                                db.collection("library_materials").document(materialId).update("title", newTitle)
-                                titleView.text = newTitle
-                                findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
-                                GabAIUtils.showSnackbar(this@PdfViewerActivity, "Renamed Successfully")
-                            }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
-                                GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to rename: ${e.message}")
-                            }
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        if (fileId.isNotEmpty()) {
+                            val client = OkHttpClient()
+                            val formBody = FormBody.Builder().add("action", "rename").add("fileId", fileId).add("newName", newTitle).build()
+                            client.newCall(Request.Builder().url(driveApiUrl).post(formBody).build()).execute()
+                        }
+                        withContext(Dispatchers.Main) {
+                            db.collection("library_materials").document(materialId).update("title", newTitle)
+                            titleView.text = newTitle
+                            findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
+                            GabAIUtils.showSnackbar(this@PdfViewerActivity, "Renamed Successfully")
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
+                            GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to rename: ${e.message}")
                         }
                     }
                 }
-            }.setNegativeButton("Cancel", null).show()
+            }
+        }
     }
 
     // ==============================================================
     // TEACHER ACTION: DELETE
     // ==============================================================
     private fun confirmDelete() {
-        MaterialAlertDialogBuilder(this).setTitle("Delete PDF?")
-            .setMessage("This will permanently delete the file from Google Drive and remove it from the library.")
-            .setPositiveButton("Delete") { _, _ ->
-                val materialId = intent.getStringExtra("MATERIAL_ID") ?: return@setPositiveButton
-                val fileId = intent.getStringExtra("DRIVE_FILE_ID") ?: return@setPositiveButton
+        val materialId = intent.getStringExtra("MATERIAL_ID") ?: return
+        val fileId = intent.getStringExtra("DRIVE_FILE_ID") ?: return
 
-                findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
-                findViewById<TextView>(R.id.tv_action_status).text = "Deleting from Drive..."
+        GabAIDialogs.showConfirmDialog(
+            this,
+            title = "Delete PDF Document?",
+            message = "This will permanently delete the file from Google Drive and remove it from the library.",
+            confirmText = "Delete",
+            cancelText = "Cancel",
+            isDestructive = true,
+            badgeIcon = "🗑️"
+        ) {
+            findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tv_action_status).text = "Deleting from Drive..."
 
-                lifecycleScope.launch(Dispatchers.IO) {
-                    try {
-                        if (fileId.isNotEmpty()) {
-                            val client = OkHttpClient()
-                            val formBody = FormBody.Builder().add("action", "delete").add("fileId", fileId).build()
-                            client.newCall(Request.Builder().url(driveApiUrl).post(formBody).build()).execute()
-                        }
-                        withContext(Dispatchers.Main) {
-                            db.collection("library_materials").document(materialId).delete()
-                            finish() // Close the viewer because it's deleted!
-                            GabAIUtils.showSnackbar(this@PdfViewerActivity, "PDF Deleted")
-                        }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
-                            GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to delete: ${e.message}")
-                        }
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    if (fileId.isNotEmpty()) {
+                        val client = OkHttpClient()
+                        val formBody = FormBody.Builder().add("action", "delete").add("fileId", fileId).build()
+                        client.newCall(Request.Builder().url(driveApiUrl).post(formBody).build()).execute()
+                    }
+                    withContext(Dispatchers.Main) {
+                        db.collection("library_materials").document(materialId).delete()
+                        finish()
+                        GabAIUtils.showSnackbar(this@PdfViewerActivity, "PDF Deleted")
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
+                        GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to delete: ${e.message}")
                     }
                 }
-            }.setNegativeButton("Cancel", null).show()
+            }
+        }
     }
 }

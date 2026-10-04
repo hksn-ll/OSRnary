@@ -21,9 +21,7 @@ class TeacherLibraryActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
     private var teacherFullName: String = "Teacher"
-    // --- PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ---
-    // Make sure it ends in /exec !
-    private val driveApiUrl = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
+    private val driveApiUrl = GabAIApp.DRIVE_API_URL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,42 +107,39 @@ class TeacherLibraryActivity : AppCompatActivity() {
     }
 
     private fun showFolderDialog(docId: String?, currentName: String) {
-        val input = EditText(this).apply {
-            setText(currentName)
-            hint = "e.g. Mathematics"
-            setPadding(50, 40, 50, 40)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle(if (docId == null) "New Subject" else "Rename Subject")
-            .setView(input)
-            .setPositiveButton("Save") { _, _ ->
-                val newName = input.text.toString().trim()
-                if (newName.isNotEmpty()) {
-                    if (docId == null) {
-                        // Create
-                        val data = hashMapOf("name" to newName, "teacherId" to uid, "teacherName" to teacherFullName, "timestamp" to System.currentTimeMillis())
-                        db.collection("library_subjects").add(data)
-                    } else {
-                        // Update
-                        db.collection("library_subjects").document(docId).update("name", newName)
-                    }
+        GabAIDialogs.showInputDialog(
+            this,
+            title = if (docId == null) "New Subject" else "Rename Subject",
+            subtitle = "Enter a name for this subject folder:",
+            hint = "e.g. Mathematics",
+            initialText = currentName,
+            confirmText = "Save",
+            badgeIcon = "📁"
+        ) { newName ->
+            if (newName.isNotEmpty()) {
+                if (docId == null) {
+                    val data = hashMapOf("name" to newName, "teacherId" to uid, "teacherName" to teacherFullName, "timestamp" to System.currentTimeMillis())
+                    db.collection("library_subjects").add(data)
+                } else {
+                    db.collection("library_subjects").document(docId).update("name", newName)
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
     }
 
     // 1. UPDATED DELETION CONFIRMATION
     private fun confirmDelete(subjectId: String, subjectName: String) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Delete $subjectName?")
-            .setMessage("This will permanently delete this folder AND all the PDFs inside it from both the app and your Google Drive. Are you sure?")
-            .setPositiveButton("Delete") { _, _ ->
-                deleteSubjectAndContents(subjectId)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        GabAIDialogs.showConfirmDialog(
+            this,
+            title = "Delete $subjectName?",
+            message = "This will permanently delete this folder AND all the PDFs inside it from both the app and your Google Drive. Are you sure?",
+            confirmText = "Delete",
+            cancelText = "Cancel",
+            isDestructive = true,
+            badgeIcon = "🗑️"
+        ) {
+            deleteSubjectAndContents(subjectId)
+        }
     }
 
     // 2. THE NEW CASCADE DELETE LOGIC

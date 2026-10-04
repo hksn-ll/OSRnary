@@ -45,7 +45,7 @@ class ClassDetailActivity : AppCompatActivity() {
     private var currentPdfSlot = 1
     private var currentInitiationItems = 5
     private var customPdfs = mutableMapOf<String, Map<String, String>>()
-    private val driveApiUrl = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
+    private val driveApiUrl = GabAIApp.DRIVE_API_URL
     private var activeDialog: androidx.appcompat.app.AlertDialog? = null
 
     // --- WEEKLY ASSESSMENT VARIABLES ---
@@ -163,12 +163,45 @@ class ClassDetailActivity : AppCompatActivity() {
                         if (snapshots.isEmpty) {
                             pendingContainer.addView(TextView(this).apply { text = "No pending accounts." })
                         } else {
-                            pendingContainer.addView(TextView(this).apply {
-                                text = "Unclaimed Accounts"
+                            val headerLayout = LinearLayout(this).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                )
+                                setPadding(0, 0, 0, 10)
+                                gravity = android.view.Gravity.CENTER_VERTICAL
+                            }
+                            val headerTitle = TextView(this).apply {
+                                text = "Unclaimed Accounts (${snapshots.size()})"
                                 setTypeface(null, android.graphics.Typeface.BOLD)
                                 setTextColor(Color.DKGRAY)
-                                setPadding(0, 0, 0, 10)
-                            })
+                                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                            }
+                            val btnCopyAll = com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
+                                text = "Copy All 📋"
+                                textSize = 12f
+                                isAllCaps = false
+                                setOnClickListener {
+                                    val rosterBuilder = StringBuilder()
+                                    rosterBuilder.append("Section: $sectionName ($grade)\n")
+                                    rosterBuilder.append("Unclaimed Student Accounts:\n\n")
+                                    for (d in snapshots) {
+                                        val fn = "${d.getString("firstName") ?: ""} ${d.getString("lastName") ?: ""}".trim()
+                                        val u = d.getString("username") ?: ""
+                                        val p = d.getString("password") ?: ""
+                                        rosterBuilder.append("• $fn\n  Username: $u\n  Password: $p\n\n")
+                                    }
+                                    val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                    val clip = android.content.ClipData.newPlainText("Class Roster Credentials", rosterBuilder.toString().trim())
+                                    clipboard.setPrimaryClip(clip)
+                                    GabAIUtils.performHaptic(this, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                                    GabAIUtils.showSnackbar(this@ClassDetailActivity, "Copied all credentials to clipboard! 📋")
+                                }
+                            }
+                            headerLayout.addView(headerTitle)
+                            headerLayout.addView(btnCopyAll)
+                            pendingContainer.addView(headerLayout)
                             for (doc in snapshots) {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
@@ -391,16 +424,19 @@ class ClassDetailActivity : AppCompatActivity() {
 
     // DELETE
     private fun confirmDelete(docId: String, isPending: Boolean, studentName: String) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Remove Student?")
-            .setMessage("Are you sure you want to remove $studentName from this section?")
-            .setPositiveButton("Delete") { _, _ ->
-                val collection = if (isPending) "pending_students" else "users"
-                db.collection(collection).document(docId).delete()
-                    .addOnSuccessListener { com.example.gabai.GabAIUtils.showSnackbar(this, "Student removed") }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        GabAIDialogs.showConfirmDialog(
+            this,
+            title = "Remove Student?",
+            message = "Are you sure you want to remove $studentName from this section?",
+            confirmText = "Remove",
+            cancelText = "Cancel",
+            isDestructive = true,
+            badgeIcon = "👤"
+        ) {
+            val collection = if (isPending) "pending_students" else "users"
+            db.collection(collection).document(docId).delete()
+                .addOnSuccessListener { com.example.gabai.GabAIUtils.showSnackbar(this, "Student removed") }
+        }
     }
     // ==============================================================
     // 🟢 PHASE 1: INITIATION QUEST MANAGEMENT 🟢
@@ -503,6 +539,17 @@ class ClassDetailActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                val pfd = contentResolver.openFileDescriptor(fileUri, "r")
+                val fileSize = pfd?.statSize ?: 0L
+                pfd?.close()
+                if (fileSize > 15 * 1024 * 1024) {
+                    withContext(Dispatchers.Main) {
+                        GabAIUtils.hideGlobalLoading(this@ClassDetailActivity)
+                        GabAIUtils.showSnackbar(this@ClassDetailActivity, "PDF exceeds the 15MB upload limit. Please compress or select a smaller PDF.")
+                    }
+                    return@launch
+                }
+
                 val inputStream = contentResolver.openInputStream(fileUri)
                 val bytes = inputStream?.readBytes() ?: throw Exception("Could not read file.")
                 val base64File = Base64.encodeToString(bytes, Base64.DEFAULT)

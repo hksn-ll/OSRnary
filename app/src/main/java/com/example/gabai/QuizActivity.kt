@@ -275,7 +275,18 @@ class QuizActivity : AppCompatActivity() {
                 parseAndDisplayQuiz(response.text ?: "")
 
             } catch (e: Exception) {
-                questionTextView.text = "Error: Could not reach AI."
+                val resultView = findViewById<View>(R.id.result_view)
+                val btnRestart = findViewById<Button>(R.id.btn_restart)
+                val scoreText = findViewById<TextView>(R.id.final_score_text)
+
+                scoreText.visibility = View.VISIBLE
+                scoreText.text = "Could not load AI question (${e.localizedMessage ?: "timeout"}).\nPlease check your internet connection."
+                btnRestart.text = "Retry Question"
+                btnRestart.setOnClickListener {
+                    resultView.visibility = View.GONE
+                    generateAiQuiz(word, definition, contextText)
+                }
+                resultView.visibility = View.VISIBLE
             }
         }
     }

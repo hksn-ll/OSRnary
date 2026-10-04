@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Clean Specular Frosted Glass Base -->
+    <!-- Clean Specular Frosted Glass Base with Top-to-Bottom Feathering -->
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:angle="135"
-                android:startColor="#E6FFFFFF"
-                android:centerColor="#D4F8FAFC"
-                android:endColor="#C4F1F5F9"
+                android:angle="270"
+                android:startColor="#FAFBFD"
+                android:centerColor="#F1F5F9"
+                android:endColor="#E2E8F0"
                 android:type="linear" />
         </shape>
     </item>
@@ -16,7 +16,7 @@
         <shape android:shape="rectangle">
             <stroke
                 android:width="1dp"
-                android:color="#1A000000" />
+                android:color="#14000000" />
         </shape>
     </item>
 </layer-list>

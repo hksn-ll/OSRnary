@@ -7,21 +7,27 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_app_aurora">
 
-    <!-- Fragment container spans full height so content scrolls seamlessly underneath the frosted header & nav -->
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <!-- Fragment container wrapped in FastBlurTarget so scrolling content is sampled for backdrop blur -->
+    <com.example.gabai.FastBlurTarget
+        android:id="@+id/blur_target_main"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.example.gabai.FastBlurTarget>
 
     <!-- Frosted Glass Floating Top Header Bar (Persistent across Home and Profile) -->
-    <FrameLayout
+    <com.example.gabai.FastBlurView
         android:id="@+id/blur_header_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="64dp"
-        android:background="@drawable/bg_glass_top_bar"
+        android:background="@drawable/bg_glass_blur_top"
         android:elevation="6dp"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -96,14 +102,14 @@
                 app:strokeColor="#CBD5E1"
                 app:strokeWidth="1.2dp" />
         </LinearLayout>
-    </FrameLayout>
+    </com.example.gabai.FastBlurView>
 
     <!-- Frosted Glass Floating Bottom Navigation Bar -->
-    <FrameLayout
+    <com.example.gabai.FastBlurView
         android:id="@+id/blur_bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_glass_nav_bar"
+        android:background="@drawable/bg_glass_blur_nav"
         android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="parent">
 
@@ -125,7 +131,7 @@
             app:itemTextAppearanceActive="@style/NavLabelActive"
             app:itemTextAppearanceInactive="@style/NavLabelInactive"
             app:menu="@menu/bottom_nav_menu" />
-    </FrameLayout>
+    </com.example.gabai.FastBlurView>
 
     <!-- Elevated Floating Circular Center Scanner Hero Button -->
     <FrameLayout

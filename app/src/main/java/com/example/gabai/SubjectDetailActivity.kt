@@ -43,8 +43,7 @@ class SubjectDetailActivity : AppCompatActivity() {
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
     private var teacherFullName: String = "Teacher"
 
-    // --- PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ---
-    private val driveApiUrl = "https://script.google.com/macros/s/AKfycbxmlWtZXkpYqbgQU8wZ6Qdga9ImIHhlP5kMUSdujH8y2Db9SdP_DLswqoTO1-FDcf9CaQ/exec"
+    private val driveApiUrl = GabAIApp.DRIVE_API_URL
 
     private val pdfPickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) promptForPdfTitle(uri)
@@ -125,6 +124,17 @@ class SubjectDetailActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                val pfd = contentResolver.openFileDescriptor(fileUri, "r")
+                val fileSize = pfd?.statSize ?: 0L
+                pfd?.close()
+                if (fileSize > 15 * 1024 * 1024) {
+                    withContext(Dispatchers.Main) {
+                        resetUploadUI()
+                        GabAIUtils.showSnackbar(this@SubjectDetailActivity, "PDF exceeds the 15MB upload limit. Please compress or select a smaller PDF.")
+                    }
+                    return@launch
+                }
+
                 val thumbnailBase64 = generateThumbnail(fileUri)
                 val inputStream = contentResolver.openInputStream(fileUri)
                 val bytes = inputStream?.readBytes() ?: throw Exception("Could not read file.")

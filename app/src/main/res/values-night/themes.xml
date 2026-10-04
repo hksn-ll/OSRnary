@@ -26,6 +26,10 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
 
+        <!-- Modern typography system (Plus Jakarta Sans) -->
+        <item name="fontFamily">@font/font_plus_jakarta_sans</item>
+        <item name="android:fontFamily">@font/font_plus_jakarta_sans</item>
+
         <!-- Default component styles -->
         <item name="materialButtonStyle">@style/Widget.GabAI.Button.Primary</item>
         <item name="materialCardViewStyle">@style/Widget.GabAI.CardView</item>

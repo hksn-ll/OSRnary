@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Rounded Top Frosted Glass Acrylic Base -->
+    <!-- Ambient Depth Shadow Underlay -->
     <item>
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="24dp"
+                android:topRightRadius="24dp" />
+            <solid android:color="#0D0F172A" />
+        </shape>
+    </item>
+    <!-- Rounded Top Frosted Glass Acrylic Base -->
+    <item android:top="1dp">
         <shape android:shape="rectangle">
             <corners
                 android:topLeftRadius="24dp"
                 android:topRightRadius="24dp" />
             <gradient
                 android:angle="90"
-                android:startColor="#E6FFFFFF"
-                android:centerColor="#D4F8FAFC"
-                android:endColor="#C4F1F5F9"
+                android:startColor="#FAFBFD"
+                android:centerColor="#F1F5F9"
+                android:endColor="#E8EEF5"
                 android:type="linear" />
         </shape>
     </item>
     <!-- Top Refractive Border Highlight -->
-    <item android:top="0dp">
+    <item android:top="1dp">
         <shape android:shape="rectangle">
             <corners
                 android:topLeftRadius="24dp"
                 android:topRightRadius="24dp" />
             <stroke
                 android:width="1.2dp"
-                android:color="#4DFFFFFF" />
+                android:color="#80FFFFFF" />
         </shape>
     </item>
 </layer-list>

@@ -27,38 +27,8 @@ class AuthActivity : AppCompatActivity() {
     // Default to Student role on launch for immediate, friendly access
     private var selectedRole: String = "student"
 
-    // Map school names to the IDs required by your database structure
-    private val schoolMap = mapOf(
-        "Caruhatan National High School - 305445" to "305445",
-        "Sitero Francisco Memorial National High School - 305446" to "305446",
-        "Punturin Senior High School - 305565" to "305565",
-        "Justice Eliezer R. De Los Santos High School - 305566" to "305566",
-        "Lingunan National High School - 305567" to "305567",
-        "Paso De Blas National High School - 305568" to "305568",
-        "Ugong Senior High School - 305576" to "305576",
-        "Disiplina Village-Bignay National High School - 305705" to "305705",
-        "Malanday National High School - 305706" to "305706",
-        "Veinte Reales National High School - 305707" to "305707",
-        "Lingunan Senior High School - 305708" to "305708",
-        "Valenzuela City School of Mathematics and Science - 320401" to "320401",
-        "Vicente Trinidad National High School (Punturin NHS) - 320402" to "320402",
-        "Mapulang Lupa National High School - 320403" to "320403",
-        "Bignay National High School - 320404" to "320404",
-        "Arkong Bato National High School - 320405" to "320405",
-        "Canumay East National High School - 320406" to "320406",
-        "Wawang Pulo National High School - 320407" to "320407",
-        "Bagbaguin National High School - 320408" to "320408",
-        "Paso de Blas Senior High School - 340729" to "340729",
-        "Polo National High School - 305436" to "305436",
-        "Dalandanan National High School - 305437" to "305437",
-        "Malinta National High School - 305438" to "305438",
-        "Canumay West National High School - 305439" to "305439",
-        "Lawang Bato National High School - 305440" to "305440",
-        "Valenzuela National High School - 305441" to "305441",
-        "Parada National High School - 305442" to "305442",
-        "Gen. Tiburcio de Leon National High School - 305443" to "305443",
-        "Maysan National High School - 305444" to "305444"
-    )
+    // Dynamic school list populated from SchoolRepository
+    private var schoolList: List<School> = SchoolRepository.defaultSchools
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -273,6 +243,7 @@ class AuthActivity : AppCompatActivity() {
 
     private fun setupSchoolDropdown() {
         SchoolRepository.fetchSchools { schools ->
+            schoolList = schools
             val schoolDisplayNames = schools.map { it.displayName }
             val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, schoolDisplayNames)
             binding.spinnerSchool.setAdapter(adapter)
@@ -431,7 +402,9 @@ class AuthActivity : AppCompatActivity() {
         val grade = binding.spinnerGrade.text.toString().trim()
 
         val schoolName = binding.spinnerSchool.text.toString().trim()
-        val schoolId = schoolMap[schoolName] ?: ""
+        val schoolId = schoolList.firstOrNull { it.displayName == schoolName || it.schoolName == schoolName }?.schoolId
+            ?: schoolList.firstOrNull { schoolName.contains(it.schoolId) }?.schoolId
+            ?: ""
 
         val role = "teacher"
 

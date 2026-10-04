@@ -24,6 +24,10 @@
         <item name="android:statusBarColor">@color/aurora_bg_base</item>
         <item name="android:navigationBarColor">@color/aurora_bg_base</item>
 
+        <!-- Modern typography system (Plus Jakarta Sans) -->
+        <item name="fontFamily">@font/font_plus_jakarta_sans</item>
+        <item name="android:fontFamily">@font/font_plus_jakarta_sans</item>
+
         <!-- Default component styles -->
         <item name="materialButtonStyle">@style/Widget.GabAI.Button.Primary</item>
         <item name="materialCardViewStyle">@style/Widget.GabAI.CardView</item>
@@ -39,6 +43,11 @@
         <item name="android:activityOpenExitAnimation">@anim/slide_scale_exit</item>
         <item name="android:activityCloseEnterAnimation">@anim/slide_scale_pop_enter</item>
         <item name="android:activityCloseExitAnimation">@anim/slide_scale_pop_exit</item>
+    </style>
+
+    <style name="SleekDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_scale_enter</item>
+        <item name="android:windowExitAnimation">@anim/slide_scale_exit</item>
     </style>
 
     <style name="Theme.GabAI.Fade" parent="Theme.GabAI">

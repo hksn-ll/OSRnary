@@ -10,6 +10,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="true" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 
     <application
@@ -49,7 +50,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".FavoritesActivity" android:exported="false" />
-        <activity android:name=".FavoriteDetailActivity" android:exported="false" />
         <activity android:name=".HistoryActivity" android:exported="false" />
         <activity android:name=".QuizActivity" android:exported="false" />
         <activity android:name=".InitiationActivity" android:exported="false" />
