@@ -1,11 +1,11 @@
 {
-  "versionCode": 19,
-  "versionName": "0.4.5",
-  "minRequiredVersionCode": 19,
+  "versionCode": 20,
+  "versionName": "0.4.6",
+  "minRequiredVersionCode": 20,
   "forceUpdate": true,
-  "title": "Persistent Updates & Crucial Activity Shield (v0.4.5)",
-  "message": "A required update for GabAI is available. Please update to continue using the application with the latest performance and reliability improvements.",
+  "title": "Zero-Inset Tactile Dialogs & Shadow Elimination (v0.4.6)",
+  "message": "Polished GabAI with eliminated Material3 button shadows, zero-inset tactile action buttons, and refined dialog boundaries.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.5/GabAI-v0.4.5.apk",
-  "changelog": "• Seamless Update Transition: Fixed splash screen update dialog teardown, anchoring updates securely to active screens\n• Crucial Activity Shield: Suppresses update prompts during active quizzes, exams, and camera scanning so work is never lost\n• Background & Idle Poller: Automatically detects new app releases while roaming or idle every 3 minutes\n• Enforced App Integrity: Modal non-cancellable update policy ensures all users stay on the latest supported release"
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.6/GabAI-v0.4.6.apk",
+  "changelog": "• Eliminated Cheap Button Shadows: Stripped Material3 default elevation shadows and stateListAnimator artifacts\n• Zero-Inset Tactile Dialogs: Disabled default vertical insets for clean, flush touch targets\n• Slate-Defined Secondary Buttons: Crisp 1.5dp border stroke and high-contrast Slate-700 typography\n• Universal Dialog Refinement: Consistent tactile response across confirmation, input, QR, and class management modals"
 }

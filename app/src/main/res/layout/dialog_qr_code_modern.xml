@@ -117,5 +117,9 @@
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:stateListAnimator="@null"
+        android:elevation="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp" />
 </LinearLayout>

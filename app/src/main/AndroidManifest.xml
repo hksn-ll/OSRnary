@@ -27,21 +27,25 @@
         android:theme="@style/Theme.GabAI">
         <activity
             android:name=".OverviewActivity"
+            android:screenOrientation="portrait"
             android:taskAffinity="com.example.gabai.scanner"
             android:excludeFromRecents="true"
             android:exported="false" />
         <activity
             android:name=".ScanResultActivity"
+            android:screenOrientation="portrait"
             android:taskAffinity="com.example.gabai.scanner"
             android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@style/Theme.GabAI.Fade" />
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".SplashActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:theme="@style/Theme.GabAI.Splash">
             <intent-filter>
@@ -49,11 +53,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FavoritesActivity" android:exported="false" />
-        <activity android:name=".HistoryActivity" android:exported="false" />
-        <activity android:name=".QuizActivity" android:exported="false" />
-        <activity android:name=".InitiationActivity" android:exported="false" />
-        <activity android:name=".QuestDetailsActivity" android:exported="false" />
+        <activity android:name=".FavoritesActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".HistoryActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".QuizActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".InitiationActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".QuestDetailsActivity" android:screenOrientation="portrait" android:exported="false" />
 
         <service
             android:name=".FloatingControlService"
@@ -65,26 +69,27 @@
         </service>
         <activity
             android:name=".AuthActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"
             />
-        <activity android:name=".CameraActivity" android:exported="false" />
-        <activity android:name=".LibraryActivity" android:exported="false" />
-        <activity android:name=".ManageClassesActivity" android:exported="false" />
-        <activity android:name=".ClassDetailActivity" android:exported="false" />
-        <activity android:name=".TeacherLibraryActivity" android:exported="false" />
-        <activity android:name=".PdfViewerActivity" android:exported="false" />
-        <activity android:name=".SubjectDetailActivity" android:exported="false" />
-        <activity android:name=".StudentSubjectActivity" android:exported="false" />
-        <activity android:name=".QuizHistoryActivity" android:exported="false" />
-        <activity android:name=".ProgressDashboardActivity" android:exported="false" />
-        <activity android:name=".LeaderboardActivity" android:exported="false" />
-        <activity android:name=".DailyQuestsActivity" android:exported="false" />
-        <activity android:name=".TeacherPerformanceActivity" android:exported="false" />
-        <activity android:name=".AchievementsActivity" android:exported="false" />
-        <activity android:name=".MaterialQuizActivity" android:exported="false" />
-        <activity android:name=".QuizEditorActivity" android:exported="false" />
-        <activity android:name=".WeeklyAssessmentActivity" android:exported="false" />
+        <activity android:name=".CameraActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".LibraryActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".ManageClassesActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".ClassDetailActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".TeacherLibraryActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".PdfViewerActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".SubjectDetailActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".StudentSubjectActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".QuizHistoryActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".ProgressDashboardActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".LeaderboardActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".DailyQuestsActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".TeacherPerformanceActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".AchievementsActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".MaterialQuizActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".QuizEditorActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".WeeklyAssessmentActivity" android:screenOrientation="portrait" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

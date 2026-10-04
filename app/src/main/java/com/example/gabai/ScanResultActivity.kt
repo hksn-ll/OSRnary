@@ -15,17 +15,38 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
+import android.os.Build
+import android.view.WindowManager
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+
 class ScanResultActivity : AppCompatActivity() {
 
     private var currentSelectedText: String = "" // Add this line
     private var currentSurroundingSentence: String = ""
 
+    private fun hideSystemBars() {
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+        insetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        insetsController.hide(WindowInsetsCompat.Type.systemBars())
+    }
+
     override fun onResume() {
         super.onResume()
+        hideSystemBars()
         // Always try to hide it when this screen is open
         val intent = android.content.Intent(this, FloatingControlService::class.java)
         intent.action = "ACTION_HIDE"
         startService(intent)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            hideSystemBars()
+        }
     }
 
     override fun onPause() {
@@ -41,6 +62,14 @@ class ScanResultActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
+        // Make truly immersive fullscreen: extend behind cutout & hide status/nav bars
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        hideSystemBars()
 
         setContentView(R.layout.activity_scan_result)
 

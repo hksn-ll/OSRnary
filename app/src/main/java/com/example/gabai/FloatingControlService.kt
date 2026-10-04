@@ -38,6 +38,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+import android.content.res.Configuration
+import android.util.DisplayMetrics
+
 class FloatingControlService : Service() {
     companion object {
         var isRunning = false
@@ -49,6 +52,7 @@ class FloatingControlService : Service() {
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
+    private var isTemporarilyHidden = false
 
     // Bottom dismiss dock
     private var dismissView: View? = null

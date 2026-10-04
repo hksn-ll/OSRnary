@@ -185,7 +185,11 @@
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:stateListAnimator="@null"
+        android:elevation="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp" />
 
     <android.widget.Button
         android:id="@+id/btn_exit_app"
@@ -196,8 +200,12 @@
         android:fontFamily="@font/font_plus_jakarta_sans"
         android:text="Exit Application"
         android:textAllCaps="false"
-        android:textColor="#636E72"
+        android:textColor="#334155"
         android:textSize="13sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:stateListAnimator="@null"
+        android:elevation="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp" />
 
 </LinearLayout>

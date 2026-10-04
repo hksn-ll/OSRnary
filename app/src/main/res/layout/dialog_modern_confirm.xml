@@ -78,9 +78,13 @@
             android:singleLine="true"
             android:text="Cancel"
             android:textAllCaps="false"
-            android:textColor="#636E72"
+            android:textColor="#334155"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:elevation="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
 
         <android.widget.Button
             android:id="@+id/btn_dialog_confirm"
@@ -96,6 +100,10 @@
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:elevation="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
     </LinearLayout>
 </LinearLayout>
