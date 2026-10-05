@@ -22,8 +22,8 @@ class LeaderboardActivity : AppCompatActivity() {
         GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_leaderboard)
 
-        val blurHeader = findViewById<io.alterac.blurkit.FastBlurView>(R.id.blur_header_leaderboard)
-        val blurTarget = findViewById<io.alterac.blurkit.FastBlurTarget>(R.id.blur_target_leaderboard)
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_leaderboard)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_leaderboard)
         GabAIUtils.setupBlurView(blurHeader, blurTarget)
 
         val headerInner = findViewById<View>(R.id.leaderboard_header)

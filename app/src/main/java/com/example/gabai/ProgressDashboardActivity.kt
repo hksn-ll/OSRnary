@@ -15,10 +15,10 @@ class ProgressDashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_progress_dashboard)
-        GabAIUtils.enableHardwareRefreshRate(this)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
 
-        val blurHeader = findViewById<io.alterac.blurkit.FastBlurView>(R.id.blur_header_progress)
-        val blurTarget = findViewById<io.alterac.blurkit.FastBlurTarget>(R.id.blur_target_progress)
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_progress)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_progress)
         GabAIUtils.setupBlurView(blurHeader, blurTarget)
 
         val headerInner = findViewById<View>(R.id.progress_header)

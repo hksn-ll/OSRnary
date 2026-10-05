@@ -7,7 +7,7 @@
     android:background="@drawable/bg_app_aurora">
 
     <!-- Sticky Glass Header Bar -->
-    <io.alterac.blurkit.FastBlurView
+    <com.example.gabai.FastBlurView
         android:id="@+id/blur_header_leaderboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,10 +64,10 @@
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-    </io.alterac.blurkit.FastBlurView>
+    </com.example.gabai.FastBlurView>
 
     <!-- Frosted Blur Target Content -->
-    <io.alterac.blurkit.FastBlurTarget
+    <com.example.gabai.FastBlurTarget
         android:id="@+id/blur_target_leaderboard"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -356,7 +356,7 @@
                     android:orientation="vertical" />
             </LinearLayout>
         </ScrollView>
-    </io.alterac.blurkit.FastBlurTarget>
+    </com.example.gabai.FastBlurTarget>
 
     <!-- Sticky Bottom "You" Bar -->
     <com.google.android.material.card.MaterialCardView

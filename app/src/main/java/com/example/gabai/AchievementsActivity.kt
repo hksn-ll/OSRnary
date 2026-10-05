@@ -17,8 +17,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.card.MaterialCardView
-import io.alterac.blurkit.FastBlurTarget
-import io.alterac.blurkit.FastBlurView
 
 class AchievementsActivity : AppCompatActivity() {
 
@@ -33,7 +31,7 @@ class AchievementsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        GabAIUtils.enableHardwareRefreshRate(this)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_achievements)
 
         val blurHeader = findViewById<FastBlurView>(R.id.blur_header_achievements)
@@ -223,7 +221,6 @@ class AchievementsActivity : AppCompatActivity() {
 
             // Spring press feedback on card
             GabAIUtils.addSpringPressEffect(card) {
-                GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
                 GabAIDialogs.showNoticeDialog(
                     context = this,
                     title = badge.title,
