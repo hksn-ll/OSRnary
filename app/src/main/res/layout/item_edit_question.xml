@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/Widget.Material3.CardView.Filled"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
+    android:layout_marginBottom="14dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="#EDF2F7"
-    app:contentPadding="0dp"
+    app:strokeWidth="1.2dp"
+    app:strokeColor="#E2E8F0"
     app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
@@ -18,55 +18,61 @@
         android:orientation="vertical"
         android:padding="18dp">
 
-        <!-- Header: Question Number & Actions (Move Up, Move Down, Delete) -->
+        <!-- Header: Question Number Pill & Actions (Move Up, Move Down, Delete) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:id="@+id/tv_q_number"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/font_plus_jakarta_sans"
                 android:text="Question 1"
                 android:textColor="#5341CD"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_bento_purple"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
             <!-- Move Up -->
             <ImageButton
                 android:id="@+id/btn_move_up"
                 android:contentDescription="Move Question Up"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/arrow_up_float"
+                android:src="@drawable/ic_expand_less"
                 app:tint="#64748B" />
 
             <!-- Move Down -->
             <ImageButton
                 android:id="@+id/btn_move_down"
                 android:contentDescription="Move Question Down"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
                 android:layout_marginStart="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/arrow_down_float"
+                android:src="@drawable/ic_expand_more"
                 app:tint="#64748B" />
 
             <!-- Delete -->
             <ImageButton
                 android:id="@+id/btn_delete_q"
                 android:contentDescription="@string/cd_delete"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="8dp"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:layout_marginStart="6dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@drawable/ic_trash"
                 app:tint="#EF4444" />
         </LinearLayout>
 
@@ -75,31 +81,30 @@
             android:id="@+id/et_question"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_input_field"
-            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:background="@drawable/bg_modern_input"
             android:hint="Enter Question"
             android:padding="12dp"
             android:textColor="#0F172A"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="12dp" />
 
         <!-- Options Label -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Multiple Choice Options:"
+            android:text="MULTIPLE CHOICE OPTIONS"
             android:textColor="#64748B"
-            android:textSize="11sp"
-            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:textSize="10sp"
             android:textStyle="bold"
-            android:layout_marginBottom="6dp" />
+            android:letterSpacing="0.06"
+            android:layout_marginBottom="8dp" />
 
         <EditText
             android:id="@+id/et_opt_0"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_input_field"
+            android:background="@drawable/bg_modern_input"
             android:hint="Option 1"
             android:padding="10dp"
             android:textColor="#1E293B"
@@ -110,7 +115,7 @@
             android:id="@+id/et_opt_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_input_field"
+            android:background="@drawable/bg_modern_input"
             android:hint="Option 2"
             android:padding="10dp"
             android:textColor="#1E293B"
@@ -121,7 +126,7 @@
             android:id="@+id/et_opt_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_input_field"
+            android:background="@drawable/bg_modern_input"
             android:hint="Option 3"
             android:padding="10dp"
             android:textColor="#1E293B"
@@ -132,12 +137,12 @@
             android:id="@+id/et_opt_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_input_field"
+            android:background="@drawable/bg_modern_input"
             android:hint="Option 4"
             android:padding="10dp"
             android:textColor="#1E293B"
             android:textSize="13sp"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="12dp" />
 
         <!-- Correct Answer Selector -->
         <LinearLayout
@@ -145,23 +150,25 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Correct Answer: "
-                android:textColor="#00B894"
+                android:text="Correct Answer:"
+                android:textColor="#059669"
                 android:textSize="12sp"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp" />
 
             <Spinner
                 android:id="@+id/spinner_correct_ans"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_input_field"
-                android:padding="8dp" />
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="42dp"
+                android:background="@drawable/bg_modern_input"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
         </LinearLayout>
 
         <!-- Educational Explanation -->
@@ -171,21 +178,19 @@
             android:text="💡 Educational Explanation / Rationale:"
             android:textColor="#5341CD"
             android:textSize="11sp"
-            android:fontFamily="@font/font_plus_jakarta_sans"
             android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="6dp" />
 
         <EditText
             android:id="@+id/et_explanation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_input_field"
+            android:background="@drawable/bg_modern_input"
             android:hint="Explain why the correct answer is right and why it matters..."
             android:minLines="2"
             android:padding="10dp"
             android:textColor="#334155"
             android:textSize="12sp"
-            android:fontFamily="@font/font_nunito_sans"
             android:gravity="top|start" />
 
     </LinearLayout>

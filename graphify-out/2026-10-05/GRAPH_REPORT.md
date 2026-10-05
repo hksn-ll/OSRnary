@@ -1,12 +1,12 @@
 # Graph Report - OSRnary  (2026-10-05)
 
 ## Corpus Check
-- 57 files · ~143,513 words
+- 57 files · ~143,988 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 812 nodes · 1605 edges · 40 communities (29 shown, 7 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.86)
+- 812 nodes · 1608 edges · 40 communities (29 shown, 7 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 9 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -50,7 +50,7 @@
 - ic_launcher-playstore (main)
 - ic_search_bubble (drawable)
 - DualStackHandler
-- DailyQuestsActivity.kt
+- ProgressDashboardActivity.kt
 
 ## God Nodes (most connected - your core abstractions)
 1. `OverviewActivity` - 33 edges
@@ -83,7 +83,7 @@
 
 ### Community 0 - "Intent"
 Cohesion: 0.06
-Nodes (26): ActivityMainBinding, AppCompatActivity, Bundle, LibraryActivity, android, AppCompatActivity, Bundle, Fragment (+18 more)
+Nodes (26): ActivityMainBinding, DailyQuestsActivity, AppCompatActivity, Bundle, AppCompatActivity, Bundle, LibraryActivity, android (+18 more)
 
 ### Community 1 - "CameraActivity"
 Cohesion: 0.10
@@ -98,8 +98,8 @@ Cohesion: 0.25
 Nodes (3): AppCompatActivity, Bundle, ManageClassesActivity
 
 ### Community 4 - "ScanResultActivity"
-Cohesion: 0.11
-Nodes (13): AchievementsActivity, Badge, AppCompatActivity, Bundle, android, AppCompatActivity, Bitmap, Bundle (+5 more)
+Cohesion: 0.14
+Nodes (8): android, AppCompatActivity, Bitmap, Bundle, OnTouchListener, ScanResultActivity, OnTouchListener, WindowManager
 
 ### Community 5 - "FloatingControlService"
 Cohesion: 0.11
@@ -115,7 +115,7 @@ Nodes (5): ClassDetailActivity, AppCompatActivity, Bundle, Dialog, Uri
 
 ### Community 8 - "OverviewActivity"
 Cohesion: 0.08
-Nodes (14): AppCompatActivity, Bitmap, Bundle, OverviewActivity, UtteranceProgressListener, WebViewClient, TtsPlaybackState, IDLE (+6 more)
+Nodes (15): AppCompatActivity, Bitmap, Bundle, OverviewActivity, UtteranceProgressListener, WebViewClient, TtsPlaybackState, IDLE (+7 more)
 
 ### Community 9 - "FavoritesActivity"
 Cohesion: 0.12
@@ -174,8 +174,8 @@ Cohesion: 0.12
 Nodes (11): HomeFragment, Bundle, Fragment, LayoutInflater, View, ViewGroup, Context, SharedPreferences (+3 more)
 
 ### Community 23 - "FastBlurTarget"
-Cohesion: 0.19
-Nodes (7): FastBlurTarget, FastBlurView, android, Bitmap, Canvas, FrameLayout, View
+Cohesion: 0.14
+Nodes (11): AchievementsActivity, Badge, AppCompatActivity, Bundle, FastBlurTarget, FastBlurView, android, Bitmap (+3 more)
 
 ### Community 24 - "TeacherHomeFragment"
 Cohesion: 0.23
@@ -193,9 +193,9 @@ Nodes (3): gradlew script, die(), warn()
 Cohesion: 1.00
 Nodes (3): Earthquakes: Movement of the Earth's Crust, Seismic Waves, Tectonic Plates and Fault Lines
 
-### Community 36 - "DailyQuestsActivity.kt"
+### Community 36 - "ProgressDashboardActivity.kt"
 Cohesion: 0.48
-Nodes (3): DailyQuestsActivity, AppCompatActivity, Bundle
+Nodes (3): AppCompatActivity, Bundle, ProgressDashboardActivity
 
 ## Knowledge Gaps
 - **13 isolated node(s):** `WORD`, `PHRASE`, `SENTENCE`, `IDLE`, `LOADING` (+8 more)
@@ -206,9 +206,9 @@ Nodes (3): DailyQuestsActivity, AppCompatActivity, Bundle
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `GabAiLoadingView` connect `GabAiLoadingView` to `FavoritesActivity`, `HistoryActivity`, `SubjectDetailActivity`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
-- **Why does `HomeFragment` connect `HomeFragment` to `Intent`, `SubjectDetailActivity`?**
-  _High betweenness centrality (0.069) - this node is a cross-community bridge._
+  _High betweenness centrality (0.084) - this node is a cross-community bridge._
+- **Why does `TextOverlayView` connect `TextOverlayView` to `ScanResultActivity`?**
+  _High betweenness centrality (0.065) - this node is a cross-community bridge._
 - **What connects `WORD`, `PHRASE`, `SENTENCE` to the rest of the system?**
   _13 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Intent` be split into smaller, more focused modules?**
@@ -218,4 +218,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `FirebaseAuth` be split into smaller, more focused modules?**
   _Cohesion score 0.08943089430894309 - nodes in this community are weakly interconnected._
 - **Should `ScanResultActivity` be split into smaller, more focused modules?**
-  _Cohesion score 0.10873440285204991 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14461538461538462 - nodes in this community are weakly interconnected._

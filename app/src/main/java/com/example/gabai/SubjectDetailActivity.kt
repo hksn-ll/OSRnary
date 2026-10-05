@@ -55,6 +55,7 @@ class SubjectDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         PDFBoxResourceLoader.init(applicationContext)
         setContentView(R.layout.activity_subject_detail)
 
@@ -62,20 +63,30 @@ class SubjectDetailActivity : AppCompatActivity() {
         subjectName = intent.getStringExtra("SUBJECT_NAME") ?: ""
 
         findViewById<TextView>(R.id.tv_subject_title).text = subjectName
-        val header = findViewById<View>(R.id.subject_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
-            insets
+
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_subject_detail)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_subject_detail)
+        if (blurHeader != null && blurTarget != null) {
+            GabAIUtils.setupBlurView(blurHeader, blurTarget)
         }
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
+        if (blurHeader != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
+                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
+                insets
+            }
+        }
+
+        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
+
         uploadProgress = findViewById(R.id.upload_progress)
         tvUploadStatus = findViewById(R.id.tv_upload_status)
         uploadStatusContainer = findViewById(R.id.upload_status_container)
         btnUploadPdf = findViewById(R.id.btn_upload_pdf)
 
-        btnUploadPdf.setOnClickListener {
+        GabAIUtils.addSpringPressEffect(btnUploadPdf) {
             pdfPickerLauncher.launch("application/pdf")
         }
 
@@ -113,7 +124,7 @@ class SubjectDetailActivity : AppCompatActivity() {
 
     private fun uploadPdfToDrive(fileUri: Uri, title: String) {
         btnUploadPdf.isEnabled = false
-        btnUploadPdf.setBackgroundColor(Color.LTGRAY)
+        btnUploadPdf.alpha = 0.5f
         btnUploadPdf.text = "Uploading..."
         uploadStatusContainer.visibility = View.VISIBLE
         uploadProgress.isIndeterminate = true
@@ -242,12 +253,14 @@ class SubjectDetailActivity : AppCompatActivity() {
     private fun resetUploadUI() {
         uploadStatusContainer.visibility = View.GONE
         btnUploadPdf.isEnabled = true
-        btnUploadPdf.setBackgroundColor(Color.parseColor("#6C5CE7"))
-        btnUploadPdf.text = "+ Upload PDF Here"
+        btnUploadPdf.alpha = 1.0f
+        btnUploadPdf.text = "+ Upload Lesson PDF"
     }
 
     private fun loadPdfs() {
         val container = findViewById<LinearLayout>(R.id.pdf_list_container)
+        val emptyCard = findViewById<View>(R.id.card_empty_pdfs)
+
         db.collection("library_materials")
             .whereEqualTo("subjectId", subjectId)
             .addSnapshotListener { snapshots, e ->
@@ -255,9 +268,13 @@ class SubjectDetailActivity : AppCompatActivity() {
                 container.removeAllViews()
 
                 if (snapshots.isEmpty) {
-                    container.addView(TextView(this).apply { text = "No PDFs uploaded yet." })
+                    emptyCard?.visibility = View.VISIBLE
                     return@addSnapshotListener
+                } else {
+                    emptyCard?.visibility = View.GONE
                 }
+
+                val rowViews = mutableListOf<View>()
 
                 for (doc in snapshots) {
                     val title = doc.getString("title") ?: "Document"
@@ -281,7 +298,7 @@ class SubjectDetailActivity : AppCompatActivity() {
                     } else imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
 
                     // 🟢 THE NEW LAUNCH LOGIC 🟢
-                    row.setOnClickListener {
+                    GabAIUtils.addSpringPressEffect(row) {
                         val intent = Intent(this@SubjectDetailActivity, PdfViewerActivity::class.java).apply {
                             putExtra("PDF_URL", pdfUrl)
                             putExtra("PDF_TITLE", title)
@@ -294,7 +311,10 @@ class SubjectDetailActivity : AppCompatActivity() {
                     }
 
                     container.addView(row)
+                    rowViews.add(row)
                 }
+
+                GabAIUtils.animateCascade(rowViews, 30L)
             }
     }
 

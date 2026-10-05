@@ -24,18 +24,28 @@ class TeacherLibraryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_teacher_library)
 
-        // Fix Status Bar
-        val header = findViewById<View>(R.id.lib_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
-            insets
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_teacher_lib)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_teacher_lib)
+        if (blurHeader != null && blurTarget != null) {
+            GabAIUtils.setupBlurView(blurHeader, blurTarget)
         }
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
-        findViewById<Button>(R.id.btn_create_folder).setOnClickListener { showFolderDialog(null, "") }
+        if (blurHeader != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
+                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
+                insets
+            }
+        }
+
+        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
+
+        val btnCreate = findViewById<View>(R.id.btn_create_folder)
+        GabAIUtils.addSpringPressEffect(btnCreate) { showFolderDialog(null, "") }
 
         loadFolders()
         if (uid != null) {
@@ -48,6 +58,7 @@ class TeacherLibraryActivity : AppCompatActivity() {
     private fun loadFolders() {
         if (uid == null) return
         val container = findViewById<LinearLayout>(R.id.folder_list_container)
+        val emptyCard = findViewById<View>(R.id.card_empty_subjects)
 
         // Query just the teacher's subjects and sort locally to bypass Firebase strict indexes
         db.collection("library_subjects")
@@ -63,15 +74,15 @@ class TeacherLibraryActivity : AppCompatActivity() {
                 container.removeAllViews()
 
                 if (snapshots.isEmpty) {
-                    container.addView(TextView(this).apply {
-                        text = "No subjects created yet."
-                        setPadding(0, 20, 0, 0)
-                    })
+                    emptyCard?.visibility = View.VISIBLE
                     return@addSnapshotListener
+                } else {
+                    emptyCard?.visibility = View.GONE
                 }
 
                 // Sort locally for instant UI updates
                 val sortedDocs = snapshots.documents.sortedBy { it.getLong("timestamp") ?: 0L }
+                val rowViews = mutableListOf<View>()
 
                 for (doc in sortedDocs) {
                     val subjectName = doc.getString("name") ?: "Unnamed Subject"
@@ -83,17 +94,19 @@ class TeacherLibraryActivity : AppCompatActivity() {
                     if (tvTeacher != null) tvTeacher.text = "By: $teacherName"
 
                     // EDIT
-                    row.findViewById<ImageButton>(R.id.btn_edit_folder).setOnClickListener {
+                    val btnEdit = row.findViewById<ImageButton>(R.id.btn_edit_folder)
+                    btnEdit?.setOnClickListener {
                         showFolderDialog(doc.id, subjectName)
                     }
 
                     // DELETE
-                    row.findViewById<ImageButton>(R.id.btn_delete_folder).setOnClickListener {
+                    val btnDelete = row.findViewById<ImageButton>(R.id.btn_delete_folder)
+                    btnDelete?.setOnClickListener {
                         confirmDelete(doc.id, subjectName)
                     }
 
                     // OPEN FOLDER
-                    row.setOnClickListener {
+                    GabAIUtils.addSpringPressEffect(row) {
                         val intent = Intent(this, SubjectDetailActivity::class.java)
                         intent.putExtra("SUBJECT_ID", doc.id)
                         intent.putExtra("SUBJECT_NAME", subjectName)
@@ -101,7 +114,10 @@ class TeacherLibraryActivity : AppCompatActivity() {
                     }
 
                     container.addView(row)
+                    rowViews.add(row)
                 }
+
+                GabAIUtils.animateCascade(rowViews, 30L)
             }
     }
 

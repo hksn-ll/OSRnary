@@ -1,14 +1,19 @@
 package com.example.gabai
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.json.JSONArray
+import org.json.JSONObject
 
 class MaterialQuizActivity : AppCompatActivity() {
 
@@ -22,13 +27,17 @@ class MaterialQuizActivity : AppCompatActivity() {
     private val sessionResults = mutableListOf<Map<String, Any>>()
     private var materialId = ""
 
+    private val prefName: String
+        get() = "material_quiz_session_${materialId}"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_quiz)
 
         val root = findViewById<View>(R.id.quiz_root)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
             insets
         }
@@ -40,13 +49,26 @@ class MaterialQuizActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.question_text).text = "Checking your records..."
         findViewById<View>(R.id.options_container).visibility = View.GONE
 
-        // Header back button
-        findViewById<View>(R.id.btn_back)?.setOnClickListener { finish() }
+        // Header back button with safe exit confirmation
+        findViewById<View>(R.id.btn_back)?.let { btn ->
+            GabAIUtils.addSpringPressEffect(btn) {
+                if (quizList.isNotEmpty() && currentQuizIndex < quizList.size) {
+                    saveCurrentSession()
+                    GabAIDialogs.showNoticeDialog(
+                        context = this,
+                        title = "Progress Saved",
+                        message = "Your quiz progress has been safely preserved. You can resume anytime!",
+                        buttonText = "Exit Quiz",
+                        badgeIcon = "💾",
+                        onDismiss = { finish() }
+                    )
+                } else {
+                    finish()
+                }
+            }
+        }
 
-        // 🟢 BUG FIX: Remove the unneeded extra exit button
         findViewById<Button>(R.id.btn_exit).visibility = View.GONE
-
-        // 🟢 BUG FIX: Make the History Button open the history screen!
         findViewById<Button>(R.id.btn_quiz_history).setOnClickListener {
             startActivity(Intent(this, QuizHistoryActivity::class.java))
             finish()
@@ -55,42 +77,120 @@ class MaterialQuizActivity : AppCompatActivity() {
         checkIfAlreadyPassed()
     }
 
-    // 🟢 NEW: PASS/FAIL LOCKOUT CHECK 🟢
+    override fun onPause() {
+        super.onPause()
+        if (quizList.isNotEmpty() && currentQuizIndex < quizList.size) {
+            saveCurrentSession()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (quizList.isNotEmpty() && currentQuizIndex < quizList.size) {
+            saveCurrentSession()
+        }
+    }
+
+    private fun saveCurrentSession() {
+        if (materialId.isEmpty() || quizList.isEmpty()) return
+        val prefs = getSharedPreferences(prefName, Context.MODE_PRIVATE)
+        val jsonArray = JSONArray()
+        for (q in quizList) {
+            val obj = JSONObject()
+            obj.put("q", q.question)
+            val optsArray = JSONArray()
+            q.options.forEach { optsArray.put(it) }
+            obj.put("opts", optsArray)
+            obj.put("ans", q.correctIndex)
+            jsonArray.put(obj)
+        }
+
+        prefs.edit()
+            .putBoolean("has_saved_session", true)
+            .putString("saved_quiz_data", jsonArray.toString())
+            .putInt("saved_current_index", currentQuizIndex)
+            .putInt("saved_score", currentScore)
+            .putInt("saved_attempts", totalAttempts)
+            .apply()
+    }
+
+    private fun restoreSavedSession(): Boolean {
+        if (materialId.isEmpty()) return false
+        val prefs = getSharedPreferences(prefName, Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("has_saved_session", false)) return false
+
+        val dataStr = prefs.getString("saved_quiz_data", null) ?: return false
+        try {
+            val jsonArray = JSONArray(dataStr)
+            val restored = mutableListOf<GeneratedQuestion>()
+            for (i in 0 until jsonArray.length()) {
+                val obj = jsonArray.getJSONObject(i)
+                val q = obj.getString("q")
+                val optsArray = obj.getJSONArray("opts")
+                val opts = mutableListOf<String>()
+                for (j in 0 until optsArray.length()) {
+                    opts.add(optsArray.getString(j))
+                }
+                val ans = obj.getInt("ans")
+                restored.add(GeneratedQuestion(q, opts, ans))
+            }
+
+            if (restored.isNotEmpty()) {
+                quizList = restored
+                currentQuizIndex = prefs.getInt("saved_current_index", 0)
+                currentScore = prefs.getInt("saved_score", 0)
+                totalAttempts = prefs.getInt("saved_attempts", 0)
+
+                findViewById<View>(R.id.options_container).visibility = View.VISIBLE
+                findViewById<Button>(R.id.btn_restart).setOnClickListener { finish() }
+                showCurrentQuestion()
+                GabAIUtils.showSnackbar(this, "Resumed saved quiz session! 📖")
+                return true
+            }
+        } catch (_: Exception) {}
+        return false
+    }
+
+    private fun clearSavedSession() {
+        getSharedPreferences(prefName, Context.MODE_PRIVATE).edit().clear().apply()
+    }
+
     private fun checkIfAlreadyPassed() {
         val userId = auth.currentUser?.uid ?: return finish()
 
-        // Fetch their history for this specific material
         db.collection("users").document(userId).collection("quiz_history")
             .whereEqualTo("materialId", materialId)
             .get()
             .addOnSuccessListener { docs ->
-                // Check in memory to avoid needing to build a complex Firestore index
                 val passedDoc = docs.documents.find { it.getBoolean("isPassed") == true }
 
                 if (passedDoc != null) {
-                    // THEY ALREADY PASSED IT! Lock them out.
                     val score = passedDoc.getLong("finalScore")?.toInt() ?: 0
                     val attempts = passedDoc.getLong("totalAttempts")?.toInt() ?: 0
                     showAlreadyPassedScreen(score, attempts)
                 } else {
-                    // Haven't passed yet (or haven't taken it). Load the quiz!
-                    loadQuizFromFirestore()
+                    if (!restoreSavedSession()) {
+                        loadQuizFromFirestore()
+                    }
                 }
             }
             .addOnFailureListener {
-                loadQuizFromFirestore() // Fallback
+                if (!restoreSavedSession()) {
+                    loadQuizFromFirestore()
+                }
             }
     }
 
     private fun showAlreadyPassedScreen(score: Int, attempts: Int) {
+        clearSavedSession()
         findViewById<View>(R.id.options_container).visibility = View.GONE
         val resultView = findViewById<View>(R.id.result_view)
         resultView.visibility = View.VISIBLE
 
         findViewById<TextView>(R.id.final_score_text).apply {
             visibility = View.VISIBLE
-            text = "You already passed this quiz!\nPrevious Score: $score / $attempts"
-            setTextColor(android.graphics.Color.parseColor("#00B894")) // Success Green
+            text = "✨ Quiz Already Mastered! ✨\nPrevious Score: $score / $attempts\nYou have satisfied this lesson's requirements."
+            setTextColor(Color.parseColor("#059669"))
         }
 
         findViewById<Button>(R.id.btn_restart).apply {
@@ -117,7 +217,6 @@ class MaterialQuizActivity : AppCompatActivity() {
                         val optList = listOf(opts.getString(0), opts.getString(1), opts.getString(2), opts.getString(3))
                         val ans = obj.getInt("ans")
 
-                        // Anti-cheating: Shuffle the 4 options and update the correct index
                         val correctText = optList.getOrElse(ans) { optList[0] }
                         val shuffledOpts = optList.shuffled()
                         val newAns = shuffledOpts.indexOf(correctText).coerceAtLeast(0)
@@ -131,7 +230,7 @@ class MaterialQuizActivity : AppCompatActivity() {
                         findViewById<View>(R.id.options_container).visibility = View.VISIBLE
                         findViewById<Button>(R.id.btn_restart).setOnClickListener { finish() }
                         showCurrentQuestion()
-                    } else throw java.lang.Exception("Empty Quiz Pool")
+                    } else throw Exception("Empty Quiz Pool")
 
                 } catch (e: Exception) {
                     val resultView = findViewById<View>(R.id.result_view)
@@ -158,6 +257,8 @@ class MaterialQuizActivity : AppCompatActivity() {
 
         val qData = quizList[currentQuizIndex]
         findViewById<TextView>(R.id.question_text).text = qData.question
+        findViewById<TextView>(R.id.tv_bento_quiz_type)?.text = "READING COMPREHENSION"
+        findViewById<TextView>(R.id.tv_bento_quiz_question_num)?.text = "QUESTION ${currentQuizIndex + 1}"
         findViewById<TextView>(R.id.tv_progress_counter)?.text = "Question ${currentQuizIndex + 1} of ${quizList.size}"
         val pct = ((currentQuizIndex + 1) * 100) / quizList.size.coerceAtLeast(1)
         findViewById<TextView>(R.id.tv_progress_percent)?.text = "$pct%"
@@ -199,24 +300,25 @@ class MaterialQuizActivity : AppCompatActivity() {
         ))
 
         currentQuizIndex++
+        saveCurrentSession()
         showCurrentQuestion()
     }
 
     private fun showFinalResults() {
+        clearSavedSession()
         if (XPManager.canEarnXP(this)) {
             XPManager.addXP(this, 30)
         }
         QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
 
-        // 🟢 DETERMINE IF THEY PASSED (Requires 50% or higher)
         val isPassed = currentScore >= (quizList.size / 2.0)
 
         val userId = auth.currentUser?.uid
         if (userId != null && sessionResults.isNotEmpty()) {
             val historyData = hashMapOf(
-                "quizType" to "material", // Explicitly separate from daily recall quizzes
-                "materialId" to materialId, // Save the ID to check later
-                "isPassed" to isPassed, // Save pass/fail status
+                "quizType" to "material",
+                "materialId" to materialId,
+                "isPassed" to isPassed,
                 "timestamp" to System.currentTimeMillis(),
                 "finalScore" to currentScore,
                 "totalAttempts" to totalAttempts,
@@ -232,10 +334,10 @@ class MaterialQuizActivity : AppCompatActivity() {
             visibility = View.VISIBLE
             if (isPassed) {
                 text = "Quiz Passed! 🎉\nYou scored $currentScore / $totalAttempts"
-                setTextColor(android.graphics.Color.parseColor("#00B894"))
+                setTextColor(Color.parseColor("#059669"))
             } else {
                 text = "Quiz Failed. ❌\nYou scored $currentScore / $totalAttempts.\nYou must try again."
-                setTextColor(android.graphics.Color.parseColor("#D63031"))
+                setTextColor(Color.parseColor("#EF4444"))
             }
         }
 
@@ -243,9 +345,8 @@ class MaterialQuizActivity : AppCompatActivity() {
             text = if (isPassed) "Return to Library" else "Retry Quiz"
             setOnClickListener {
                 if (isPassed) {
-                    finish() // Close if passed
+                    finish()
                 } else {
-                    // Retry: Relaunch the exact same intent to cleanly reset everything
                     val retryIntent = intent
                     finish()
                     startActivity(retryIntent)

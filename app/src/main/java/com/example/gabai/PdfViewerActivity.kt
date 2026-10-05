@@ -55,14 +55,52 @@ class PdfViewerActivity : AppCompatActivity() {
         val titleView = findViewById<TextView>(R.id.tv_pdf_title)
         titleView.text = title
 
-        findViewById<ImageButton>(R.id.btn_close_pdf).setOnClickListener { finish() }
+        val btnClose = findViewById<ImageButton>(R.id.btn_close_pdf)
+        GabAIUtils.addSpringPressEffect(btnClose) { finish() }
+
+        val headerInner = findViewById<View>(R.id.pdf_header)
+        val initialPaddingTop = headerInner.paddingTop
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
+            insets
+        }
+
+        val bottomDock = findViewById<View>(R.id.bottom_reading_dock)
+        val initialDockPaddingBottom = bottomDock.paddingBottom
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(bottomDock) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, systemBars.bottom + initialDockPaddingBottom)
+            insets
+        }
+
+        // ==========================================
+        // 🟢 BOTTOM QUIZ ACTION BUTTON 🟢
+        // ==========================================
+        val btnBottomQuiz = findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_bottom_quiz_action)
+        val hasQuiz = intent.getBooleanExtra("HAS_QUIZ", false)
+        if (isTeacher) {
+            btnBottomQuiz.visibility = View.VISIBLE
+            btnBottomQuiz.text = "✏️ Manage Quiz"
+            GabAIUtils.addSpringPressEffect(btnBottomQuiz) { checkExistingQuizAndProceed() }
+        } else if (hasQuiz && materialId != null) {
+            btnBottomQuiz.visibility = View.VISIBLE
+            btnBottomQuiz.text = "📝 Take Quiz"
+            GabAIUtils.addSpringPressEffect(btnBottomQuiz) {
+                val quizIntent = Intent(this, MaterialQuizActivity::class.java).apply {
+                    putExtra("MATERIAL_ID", materialId)
+                    putExtra("MATERIAL_TITLE", titleView.text.toString())
+                }
+                startActivity(quizIntent)
+            }
+        }
 
         // ==========================================
         // 🟢 THE NEW MEATBALLS MENU 🟢
         // ==========================================
         val btnKebab = findViewById<ImageButton>(R.id.btn_kebab_menu)
-        btnKebab.setOnClickListener { view ->
-            val popup = PopupMenu(this, view)
+        GabAIUtils.addSpringPressEffect(btnKebab) {
+            val popup = PopupMenu(this, btnKebab)
 
             if (isTeacher) {
                 popup.menu.add(0, 1, 0, "Assign to Sections")
@@ -70,7 +108,6 @@ class PdfViewerActivity : AppCompatActivity() {
                 popup.menu.add(0, 3, 0, "Rename Document")
                 popup.menu.add(0, 4, 0, "Delete Document")
             } else {
-                val hasQuiz = intent.getBooleanExtra("HAS_QUIZ", false)
                 if (hasQuiz) {
                     popup.menu.add(0, 5, 0, "Take AI Quiz")
                 } else {

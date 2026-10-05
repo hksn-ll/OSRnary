@@ -1,11 +1,11 @@
 {
-  "versionCode": 21,
-  "versionName": "0.4.7",
-  "minRequiredVersionCode": 21,
+  "versionCode": 22,
+  "versionName": "0.4.8",
+  "minRequiredVersionCode": 22,
   "forceUpdate": true,
-  "title": "Crash-Proof Quiz Persistence & Bento UI Modernization (v0.4.7)",
-  "message": "Persistent crash-proof quiz sessions, modern Bento question cards, and unified glassmorphic UI across all student and challenge screens.",
+  "title": "Complete 10-Screen UI/UX Bento Redesign & Ergonomics (v0.4.8)",
+  "message": "Full ergonomic and visual modernization across student library, reader, and teacher administrative suites with Bento design, sticky blur headers, and streamlined workflows.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.7/GabAI-v0.4.7.apk",
-  "changelog": "• Crash-Proof Quiz Persistence: Quiz progress is continuously auto-saved to SharedPreferences. Exiting the app or experiencing a crash allows seamless resumption right where you left off without wasting attempts or AI generations.\n• Premium Bento Question Card: Redesigned the quiz question view into a modern Bento card with 0dp elevation, crisp 1.5dp borders, 24dp squircle corners, question type pill badges, and context clue guidance.\n• Unified Glassmorphic Headers: Standardized sticky FastBlurView headers with real-time backdrop blur, insets support, and borderless navigation across Leaderboard, Daily Quests, Quest Details, Initiation, Quiz History, Progress Dashboard, and Achievements.\n• Bento Card Overhauls: Replaced cheap 1dp material card elevations in Achievements, Daily Quests, and Progress Dashboard with modern Bento squircle cards, squircle icon frames, and tactile spring feedback."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.8/GabAI-v0.4.8.apk",
+  "changelog": "• Ergonomic Class Management: Eliminated bottom-stacked action buttons in Class Detail, introducing a 3-tile Bento Quick Actions Hub for instant access to Performance Analytics, Weekly Assessments, and Initiation Settings, leaving a single thumb-reachable '+ Generate Student Accounts' floating dock.\n• Immersive PDF Reader: Redesigned PDF Viewer with floating frosted HUD, live reading page indicator, and floating thumb-reach quiz launch dock.\n• Full Bento Library Suite: Modernized LibraryActivity, StudentSubjectActivity, TeacherLibraryActivity, and SubjectDetailActivity with Aurora mesh canvas, sticky FastBlurView headers, squircle monogram avatars, and zero-elevation Bento document cards.\n• Enhanced Quiz & Assessment Suite: Upgraded QuizEditorActivity and TeacherPerformanceActivity with Bento question cards, reordering controls, accuracy benchmark tiles, and cascade spring animations."
 }

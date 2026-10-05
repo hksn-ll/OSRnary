@@ -12,24 +12,28 @@ class ManageClassesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_manage_classes)
 
-        // Fix Status Bar
-        val header = findViewById<View>(R.id.manage_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_manage)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_manage)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
+
+        val headerInner = findViewById<View>(R.id.manage_header)
+        val initialPaddingTop = headerInner.paddingTop
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
             val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
+            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
             insets
         }
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
+        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
 
-        findViewById<Button>(R.id.btn_create_class).setOnClickListener {
-            showCreateClassDialog()
-        }
+        val btnCreate = findViewById<View>(R.id.btn_create_class)
+        GabAIUtils.addSpringPressEffect(btnCreate) { showCreateClassDialog() }
 
         fetchAndDisplayClasses()
-
     }
     private fun showCreateClassDialog() {
         val layout = LinearLayout(this).apply {
@@ -132,16 +136,44 @@ class ManageClassesActivity : AppCompatActivity() {
                         className
                     }
 
-                    // Build the card
-                    val card = LinearLayout(this).apply {
-                        orientation = LinearLayout.HORIZONTAL
-                        setBackgroundResource(R.drawable.bg_card_quiz)
-                        setPadding(40, 40, 40, 40)
-                        gravity = android.view.Gravity.CENTER_VERTICAL
+                    // Build Bento Card
+                    val density = resources.displayMetrics.density
+                    val fontJakarta = try { androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_plus_jakarta_sans) } catch (_: Exception) { null }
+
+                    val card = com.google.android.material.card.MaterialCardView(this).apply {
+                        radius = 22 * density
+                        cardElevation = 0f
+                        strokeWidth = (1.5 * density).toInt()
+                        setStrokeColor(Color.parseColor("#E2E8F0"))
+                        setCardBackgroundColor(Color.WHITE)
+                        isClickable = true
+                        isFocusable = true
                         layoutParams = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
-                        ).apply { setMargins(0, 0, 0, 24) }
+                        ).apply { setMargins(0, 0, 0, (14 * density).toInt()) }
+                    }
+
+                    val rowLayout = LinearLayout(this).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        setPadding((16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt())
+                        gravity = android.view.Gravity.CENTER_VERTICAL
+                    }
+
+                    // Monogram squircle badge
+                    val monogram = TextView(this).apply {
+                        val gNum = gradeName.filter { it.isDigit() }
+                        val sChar = sectionName.firstOrNull()?.uppercaseChar() ?: 'C'
+                        text = if (gNum.isNotEmpty()) "$gNum$sChar" else "CL"
+                        textSize = 14f
+                        setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                        setTextColor(Color.parseColor(if (isAdviser) "#6366F1" else "#059669"))
+                        gravity = android.view.Gravity.CENTER
+                        setBackgroundResource(if (isAdviser) R.drawable.bg_bento_purple else R.drawable.bg_bento_mint)
+                        val sizePx = (44 * density).toInt()
+                        layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
+                            setMargins(0, 0, (14 * density).toInt(), 0)
+                        }
                     }
 
                     val textLayout = LinearLayout(this).apply {
@@ -150,53 +182,59 @@ class ManageClassesActivity : AppCompatActivity() {
                     }
 
                     val titleText = TextView(this).apply {
-                        text = displayTitle // 🟢 Uses the new forced-grade title
-                        textSize = 20f
-                        setTypeface(null, android.graphics.Typeface.BOLD)
-                        setTextColor(Color.BLACK)
+                        text = displayTitle
+                        textSize = 15.5f
+                        setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                        setTextColor(Color.parseColor("#0F172A"))
                     }
 
-                    val actionText = TextView(this).apply {
-                        val baseAction = if (isAdviser) "Tap to manage accounts ->" else "Tap to view roster ->"
-                        // 🟢 FIX: Explicitly print the Grade in the subtitle text as well!
-                        text = if (gradeName.isNotEmpty()) "$gradeName | $baseAction" else baseAction
-                        textSize = 14f
-                        setTextColor(Color.parseColor(if (isAdviser) "#6C5CE7" else "#636E72"))
-                        setPadding(0, 10, 0, 0)
+                    val pillRow = LinearLayout(this).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        setPadding(0, (4 * density).toInt(), 0, 0)
+                        gravity = android.view.Gravity.CENTER_VERTICAL
                     }
+
+                    val badgeText = TextView(this).apply {
+                        text = if (isAdviser) "Advisory Section" else "Subject Section"
+                        textSize = 10f
+                        setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                        setTextColor(Color.parseColor(if (isAdviser) "#6366F1" else "#059669"))
+                        setBackgroundResource(R.drawable.bg_pill_translucent)
+                        backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(if (isAdviser) "#EEF2FF" else "#ECFDF5"))
+                        setPadding((8 * density).toInt(), (2 * density).toInt(), (8 * density).toInt(), (2 * density).toInt())
+                    }
+                    pillRow.addView(badgeText)
 
                     textLayout.addView(titleText)
-                    textLayout.addView(actionText)
+                    textLayout.addView(pillRow)
 
-                    // ... (Keep the rest of the buttons and click listeners the same below this)
-
-                    // Extract the limits (defaulting to 3 and 10 if missing)
                     val maxSessions = doc.getLong("maxSessionsPerDay")?.toInt() ?: 3
                     val maxItems = doc.getLong("maxItemsPerSession")?.toInt() ?: 10
 
                     val btnEdit = ImageButton(this).apply {
-                        setImageResource(android.R.drawable.ic_menu_edit)
+                        setImageResource(R.drawable.ic_edit)
                         setBackgroundResource(android.R.color.transparent)
-                        setColorFilter(Color.parseColor("#0984E3"))
-                        setPadding(20, 20, 20, 20)
-                        // Pass the limits into the dialog!
+                        setColorFilter(Color.parseColor("#6366F1"))
+                        setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
                         setOnClickListener { showEditClassDialog(classId, gradeName, sectionName, maxSessions, maxItems) }
                     }
-                    if (!isAdviser) btnEdit.visibility = View.GONE // Hide edit for non-advisers
+                    if (!isAdviser) btnEdit.visibility = View.GONE
 
                     val btnDelete = ImageButton(this).apply {
-                        setImageResource(android.R.drawable.ic_menu_delete)
+                        setImageResource(R.drawable.ic_trash)
                         setBackgroundResource(android.R.color.transparent)
-                        setColorFilter(Color.parseColor("#D63031"))
-                        setPadding(20, 20, 20, 20)
+                        setColorFilter(Color.parseColor("#EF4444"))
+                        setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
                         setOnClickListener { confirmDeleteClass(classId, className, sectionName, gradeName, schoolId, isAdviser) }
                     }
 
-                    card.addView(textLayout)
-                    card.addView(btnEdit)
-                    card.addView(btnDelete)
+                    rowLayout.addView(monogram)
+                    rowLayout.addView(textLayout)
+                    rowLayout.addView(btnEdit)
+                    rowLayout.addView(btnDelete)
+                    card.addView(rowLayout)
 
-                    card.setOnClickListener {
+                    val launchAction = {
                         val intent = android.content.Intent(this, ClassDetailActivity::class.java).apply {
                             putExtra("CLASS_ID", classId)
                             putExtra("CLASS_NAME", className)
@@ -207,6 +245,8 @@ class ManageClassesActivity : AppCompatActivity() {
                         }
                         startActivity(intent)
                     }
+                    card.setOnClickListener { launchAction() }
+                    GabAIUtils.addSpringPressEffect(card) { launchAction() }
 
                     // Sort into the correct list
                     if (isAdviser) advisoryCards.add(card) else subjectCards.add(card)

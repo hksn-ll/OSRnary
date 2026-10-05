@@ -1,58 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Stitch.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:background="@drawable/bg_card_quiz"
-    android:padding="16dp"
     android:layout_marginBottom="12dp"
-    android:gravity="center_vertical"
-    android:elevation="2dp">
-
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_menu_agenda"
-        app:tint="#6C5CE7"
-        android:layout_marginEnd="16dp"/>
+    app:cardCornerRadius="22dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1.5dp"
+    app:strokeColor="#E2E8F0"
+    app:cardBackgroundColor="#FFFFFF"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/tv_folder_name"
-            android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <!-- Squircle Subject Icon Frame -->
+        <LinearLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_bento_purple"
+            android:gravity="center"
+            android:layout_marginEnd="14dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_folder_outline"
+                app:tint="#6366F1"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Subject Name"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"/>
-        <TextView
-            android:id="@+id/tv_folder_teacher"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_folder_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subject Name"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#0F172A"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tv_folder_teacher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Teacher Name"
+                android:textSize="13sp"
+                android:textColor="#64748B"
+                android:fontFamily="@font/font_nunito_sans"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btn_edit_folder"
+            android:contentDescription="@string/cd_edit"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@drawable/ic_edit"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#6366F1" />
+
+        <ImageButton
+            android:id="@+id/btn_delete_folder"
+            android:contentDescription="@string/cd_delete"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_trash"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#EF4444" />
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/btn_edit_folder"
-        android:contentDescription="@string/cd_edit"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_menu_edit"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="#0984E3"/>
-
-    <ImageButton
-        android:id="@+id/btn_delete_folder"
-        android:contentDescription="@string/cd_delete"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@android:drawable/ic_menu_delete"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="#D63031"/>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

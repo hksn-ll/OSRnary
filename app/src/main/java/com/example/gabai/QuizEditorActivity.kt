@@ -49,7 +49,22 @@ class QuizEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_quiz_editor)
+
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_quiz_editor)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_quiz_editor)
+        if (blurHeader != null && blurTarget != null) {
+            GabAIUtils.setupBlurView(blurHeader, blurTarget)
+        }
+
+        if (blurHeader != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
+                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
+                insets
+            }
+        }
 
         isWeeklyAssessment = intent.getBooleanExtra("IS_WEEKLY_ASSESSMENT", false)
         subjectId = intent.getStringExtra("SUBJECT_ID") ?: ""
@@ -69,10 +84,17 @@ class QuizEditorActivity : AppCompatActivity() {
         container = findViewById(R.id.questions_container)
         findViewById<EditText>(R.id.et_target_items).setText(targetItems.toString())
 
-        findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
-        findViewById<Button>(R.id.btn_add_manual).setOnClickListener { showManualAddDialog() }
-        findViewById<Button>(R.id.btn_add_ai).setOnClickListener { promptForAiGenerate() }
-        findViewById<Button>(R.id.btn_save_quiz).setOnClickListener { saveAndPublish() }
+        val btnBack = findViewById<ImageButton>(R.id.btn_back)
+        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
+
+        val btnAddManual = findViewById<View>(R.id.btn_add_manual)
+        GabAIUtils.addSpringPressEffect(btnAddManual) { showManualAddDialog() }
+
+        val btnAddAi = findViewById<View>(R.id.btn_add_ai)
+        GabAIUtils.addSpringPressEffect(btnAddAi) { promptForAiGenerate() }
+
+        val btnSaveQuiz = findViewById<View>(R.id.btn_save_quiz)
+        GabAIUtils.addSpringPressEffect(btnSaveQuiz) { saveAndPublish() }
 
         val cardMeta = findViewById<View>(R.id.card_assessment_meta)
         val etTitle = findViewById<EditText>(R.id.et_assessment_title)
@@ -88,7 +110,7 @@ class QuizEditorActivity : AppCompatActivity() {
             }
 
             findViewById<TextView>(R.id.tv_editor_title)?.text = "Weekly Assessment Builder"
-            findViewById<Button>(R.id.btn_save_quiz)?.text = "Publish to Class ➔"
+            (btnSaveQuiz as? TextView)?.text = "Publish to Class ➔"
 
             loadTeacherClasses()
         } else {

@@ -79,60 +79,66 @@ class ClassDetailActivity : AppCompatActivity() {
         grade = intent.getStringExtra("GRADE") ?: ""
         isAdviser = intent.getBooleanExtra("IS_ADVISER", false)
 
-        // 2. Setup Header
+        // 2. Setup Header & Blur
         findViewById<TextView>(R.id.tv_header_title).text = className
-        val header = findViewById<View>(R.id.detail_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 20, v.paddingRight, v.paddingBottom)
-            insets
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_class_detail)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_class_detail)
+        if (blurHeader != null && blurTarget != null) {
+            GabAIUtils.setupBlurView(blurHeader, blurTarget)
+        }
+
+        if (blurHeader != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
+                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
+                insets
+            }
         }
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 
-        val btnGenerate = findViewById<Button>(R.id.btn_generate_students)
-        val btnManageInitiation = findViewById<Button>(R.id.btn_manage_initiation)
+        val btnGenerate = findViewById<View>(R.id.btn_generate_students)
+        val btnManageInitiation = findViewById<View>(R.id.btn_manage_initiation)
+        val btnViewPerformance = findViewById<View>(R.id.btn_view_performance)
+        val btnCreateAssessment = findViewById<View>(R.id.btn_create_weekly_assessment)
+        val bottomActionContainer = findViewById<View>(R.id.bottom_action_container)
+        val tvLabelUnclaimed = findViewById<View>(R.id.tv_label_unclaimed)
 
         if (!isAdviser) {
-            btnGenerate.visibility = View.GONE
-            btnManageInitiation.visibility = View.GONE
-        } else {
-            btnManageInitiation.setOnClickListener { openInitiationSettings() }
-        }
-        btnGenerate.setOnClickListener { showGenerateStudentsDialog() }
-
-        // ---------------------------------------------------------
-        // 3. THE PERFORMANCE BUTTON BLOCK
-        // ---------------------------------------------------------
-        val btnViewPerformance = findViewById<Button>(R.id.btn_view_performance)
-
-        // Hide the button if they are just a subject teacher, not the adviser
-        if (!isAdviser) {
+            btnGenerate?.visibility = View.GONE
+            bottomActionContainer?.visibility = View.GONE
+            btnManageInitiation?.visibility = View.GONE
             btnViewPerformance?.visibility = View.GONE
+            tvLabelUnclaimed?.visibility = View.GONE
+        } else {
+            btnManageInitiation?.let { view ->
+                GabAIUtils.addSpringPressEffect(view) { openInitiationSettings() }
+            }
+            btnViewPerformance?.let { view ->
+                GabAIUtils.addSpringPressEffect(view) {
+                    val perfIntent = android.content.Intent(this, TeacherPerformanceActivity::class.java)
+                    perfIntent.putExtra("CLASS_ID", classId)
+                    perfIntent.putExtra("CLASS_NAME", className)
+                    perfIntent.putExtra("SECTION_NAME", sectionName)
+                    perfIntent.putExtra("SCHOOL_ID", schoolId)
+                    perfIntent.putExtra("GRADE", grade)
+                    startActivity(perfIntent)
+                }
+            }
         }
 
-        btnViewPerformance?.setOnClickListener {
-            // Using full path "android.content.Intent" so you don't need to import it manually!
-            val perfIntent = android.content.Intent(this, TeacherPerformanceActivity::class.java)
-            perfIntent.putExtra("CLASS_ID", classId)
-            perfIntent.putExtra("CLASS_NAME", className)
-            perfIntent.putExtra("SECTION_NAME", sectionName)
-            perfIntent.putExtra("SCHOOL_ID", schoolId)
-            perfIntent.putExtra("GRADE", grade)
-            startActivity(perfIntent)
+        btnCreateAssessment?.let { view ->
+            GabAIUtils.addSpringPressEffect(view) { showCreateAssessmentDialog() }
         }
-        // ---------------------------------------------------------
 
-        // 4. HIDE GENERATE BUTTON IF NOT ADVISER
-        if (!isAdviser) btnGenerate.visibility = View.GONE
+        btnGenerate?.let { view ->
+            GabAIUtils.addSpringPressEffect(view) { showGenerateStudentsDialog() }
+        }
 
         // 5. Load the students into the lists
         loadStudents()
 
-        // 6. Weekly Assessment Builder & Section Roster Assessment List
-        findViewById<View>(R.id.btn_create_weekly_assessment)?.setOnClickListener {
-            showCreateAssessmentDialog()
-        }
+        // 6. Section Roster Assessment List
         loadWeeklyAssessments()
     }
 
