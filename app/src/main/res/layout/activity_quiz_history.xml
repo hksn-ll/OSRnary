@@ -61,12 +61,13 @@
         android:layout_height="match_parent">
 
         <ScrollView
+            android:id="@+id/scroll_quiz_history"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
             android:clipToPadding="false"
             android:paddingHorizontal="16dp"
-            android:paddingTop="72dp"
+            android:paddingTop="88dp"
             android:paddingBottom="36dp">
 
             <LinearLayout

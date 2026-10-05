@@ -1,11 +1,11 @@
 {
-  "versionCode": 22,
-  "versionName": "0.4.8",
-  "minRequiredVersionCode": 22,
+  "versionCode": 23,
+  "versionName": "0.4.9",
+  "minRequiredVersionCode": 23,
   "forceUpdate": true,
-  "title": "Complete 10-Screen UI/UX Bento Redesign & Ergonomics (v0.4.8)",
-  "message": "Full ergonomic and visual modernization across student library, reader, and teacher administrative suites with Bento design, sticky blur headers, and streamlined workflows.",
+  "title": "Frosted Glass Blur, Inset Spacing & Acronym Cleanup (v0.4.9)",
+  "message": "Signature low-latency frosted blur rendering, dynamic status bar header inset clearing, section card avatar cleanup, and PDF thumbnail rendering fix.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.8/GabAI-v0.4.8.apk",
-  "changelog": "• Ergonomic Class Management: Eliminated bottom-stacked action buttons in Class Detail, introducing a 3-tile Bento Quick Actions Hub for instant access to Performance Analytics, Weekly Assessments, and Initiation Settings, leaving a single thumb-reachable '+ Generate Student Accounts' floating dock.\n• Immersive PDF Reader: Redesigned PDF Viewer with floating frosted HUD, live reading page indicator, and floating thumb-reach quiz launch dock.\n• Full Bento Library Suite: Modernized LibraryActivity, StudentSubjectActivity, TeacherLibraryActivity, and SubjectDetailActivity with Aurora mesh canvas, sticky FastBlurView headers, squircle monogram avatars, and zero-elevation Bento document cards.\n• Enhanced Quiz & Assessment Suite: Upgraded QuizEditorActivity and TeacherPerformanceActivity with Bento question cards, reordering controls, accuracy benchmark tiles, and cascade spring animations."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.9/GabAI-v0.4.9.apk",
+  "changelog": "• Frosted Glass Blur: Restored signature 12x hardware downsampled frosted acrylic blur on all top header navigation bars without background masking.\n• Dynamic Status-Bar Insets: Synchronously added top insets to scroll containers so header bars never overlap content titles (e.g. 'MY ACTIVE CLASSES').\n• Section Cleanups: Removed redundant monogram acronyms ('10C') from class cards.\n• PDF Thumbnails: Removed tint overlay to render clean crisp cover thumbnails in library lists."
 }

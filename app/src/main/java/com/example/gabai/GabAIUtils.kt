@@ -205,6 +205,36 @@ object GabAIUtils {
     }
 
     /**
+     * Synchronously applies window insets to both fixed frosted header and underlying scroll content.
+     * Prevents content (e.g. "MY ACTIVE CLASSES") from hiding behind status-bar padded header.
+     */
+    fun applyHeaderAndScrollInsets(
+        headerView: View?,
+        scrollView: View?,
+        extraBufferDp: Int = 12
+    ) {
+        if (headerView == null) return
+        val initialHeaderPaddingTop = headerView.paddingTop
+        val initialScrollPaddingTop = scrollView?.paddingTop ?: 0
+        val density = headerView.resources.displayMetrics.density
+        val extraBufferPx = (extraBufferDp * density).toInt()
+
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(headerView) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + initialHeaderPaddingTop, v.paddingRight, v.paddingBottom)
+            scrollView?.let { scroll ->
+                scroll.setPadding(
+                    scroll.paddingLeft,
+                    initialScrollPaddingTop + systemBars.top + extraBufferPx,
+                    scroll.paddingRight,
+                    scroll.paddingBottom
+                )
+            }
+            insets
+        }
+    }
+
+    /**
      * Preserves sharp foreground text and icons (avoids destructive RenderEffect blur on text).
      */
     fun applyFrostedGlass(view: View?, blurRadius: Float = 28f) {

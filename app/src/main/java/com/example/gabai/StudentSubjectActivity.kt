@@ -38,12 +38,8 @@ class StudentSubjectActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_subject_title).text = subjectName
 
         val headerInner = findViewById<View>(R.id.subject_header)
-        val initialPaddingTop = headerInner.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        val scrollContent = findViewById<View>(R.id.scroll_subject)
+        GabAIUtils.applyHeaderAndScrollInsets(headerInner, scrollContent, extraBufferDp = 16)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }
@@ -90,11 +86,14 @@ class StudentSubjectActivity : AppCompatActivity() {
                         try {
                             val decodedBytes = Base64.decode(thumbStr, Base64.DEFAULT)
                             val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                            imgThumb.imageTintList = null
                             imgThumb.setImageBitmap(bitmap)
                         } catch (_: Exception) {
+                            imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
                             imgThumb.setImageResource(R.drawable.ic_menu_book)
                         }
                     } else {
+                        imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
                         imgThumb.setImageResource(R.drawable.ic_menu_book)
                     }
 

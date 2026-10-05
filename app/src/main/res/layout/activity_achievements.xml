@@ -79,7 +79,7 @@
             android:fillViewport="true"
             android:clipToPadding="false"
             android:paddingHorizontal="20dp"
-            android:paddingTop="84dp"
+            android:paddingTop="96dp"
             android:paddingBottom="48dp"
             android:scrollbars="none">
 

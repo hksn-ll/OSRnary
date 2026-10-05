@@ -172,6 +172,42 @@ class FastBlurView @JvmOverloads constructor(
         }
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (target == null) {
+            post { autoFindTarget() }
+        }
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (target == null) {
+            autoFindTarget()
+        }
+    }
+
+    fun autoFindTarget() {
+        if (target != null) return
+        val root = rootView as? android.view.ViewGroup ?: return
+        val found = findBlurTargetRecursive(root)
+        if (found != null) {
+            setupWith(found, downsampleFactor, blurRadius, overlayColor)
+        }
+    }
+
+    private fun findBlurTargetRecursive(viewGroup: android.view.ViewGroup): FastBlurTarget? {
+        if (viewGroup is FastBlurTarget) return viewGroup
+        for (i in 0 until viewGroup.childCount) {
+            val child = viewGroup.getChildAt(i)
+            if (child is FastBlurTarget) return child
+            if (child is android.view.ViewGroup && child !is FastBlurView) {
+                val found = findBlurTargetRecursive(child)
+                if (found != null) return found
+            }
+        }
+        return null
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         target?.unregisterOverlay(this)
@@ -184,9 +220,24 @@ class FastBlurView @JvmOverloads constructor(
     }
 
     override fun draw(canvas: Canvas) {
-        val tgt = target
-        if (width <= 0 || height <= 0 || tgt == null) {
+        if (width <= 0 || height <= 0) {
             super.draw(canvas)
+            return
+        }
+
+        val tgt = target
+        if (tgt == null) {
+            if (overlayColor != Color.TRANSPARENT) {
+                canvas.drawColor(overlayColor)
+            }
+            background?.let { bg ->
+                bg.setBounds(0, 0, width, height)
+                bg.draw(canvas)
+            }
+            dispatchDraw(canvas)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                onDrawForeground(canvas)
+            }
             return
         }
 
@@ -234,7 +285,17 @@ class FastBlurView @JvmOverloads constructor(
             drawSoftwareBlur(canvas, tgt)
         }
 
-        super.draw(canvas)
+        // Draw overlay decorations / hairline border from background drawable
+        background?.let { bg ->
+            bg.setBounds(0, 0, width, height)
+            bg.draw(canvas)
+        }
+
+        // Draw child buttons, titles, and icons on top of the blur
+        dispatchDraw(canvas)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            onDrawForeground(canvas)
+        }
     }
 
     private fun drawSoftwareBlur(canvas: Canvas, tgt: FastBlurTarget) {

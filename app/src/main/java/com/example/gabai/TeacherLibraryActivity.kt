@@ -33,13 +33,9 @@ class TeacherLibraryActivity : AppCompatActivity() {
             GabAIUtils.setupBlurView(blurHeader, blurTarget)
         }
 
-        if (blurHeader != null) {
-            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
-                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
-                insets
-            }
-        }
+        val headerInner = findViewById<View>(R.id.lib_header)
+        val scrollContent = findViewById<View>(R.id.scroll_teacher_library)
+        GabAIUtils.applyHeaderAndScrollInsets(headerInner ?: blurHeader, scrollContent, extraBufferDp = 16)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }

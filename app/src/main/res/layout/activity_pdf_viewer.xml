@@ -6,12 +6,18 @@
     android:layout_height="match_parent"
     android:background="#0F172A">
 
-    <!-- Online PDF Viewer (fills the entire screen for immersion) -->
-    <com.github.barteksc.pdfviewer.PDFView
-        android:id="@+id/online_pdf_viewer"
+    <!-- Online PDF Viewer wrapped in FastBlurTarget for top bar backdrop blur -->
+    <com.example.gabai.FastBlurTarget
+        android:id="@+id/blur_target_pdf"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="match_parent">
+
+        <com.github.barteksc.pdfviewer.PDFView
+            android:id="@+id/online_pdf_viewer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </com.example.gabai.FastBlurTarget>
 
     <com.example.gabai.GabAiLoadingView
         android:id="@+id/pdf_loading_bar"
@@ -27,14 +33,15 @@
         android:id="@+id/blur_header_pdf"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="12dp"
+        android:background="@drawable/bg_glass_blur_top"
+        android:elevation="6dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/pdf_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_blur_top"
+            android:background="@android:color/transparent"
             android:paddingHorizontal="16dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"

@@ -58,13 +58,9 @@ class QuizEditorActivity : AppCompatActivity() {
             GabAIUtils.setupBlurView(blurHeader, blurTarget)
         }
 
-        if (blurHeader != null) {
-            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
-                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
-                insets
-            }
-        }
+        val headerInner = findViewById<View>(R.id.editor_header)
+        val scrollContent = findViewById<View>(R.id.scroll_quiz_editor)
+        GabAIUtils.applyHeaderAndScrollInsets(headerInner ?: blurHeader, scrollContent, extraBufferDp = 16)
 
         isWeeklyAssessment = intent.getBooleanExtra("IS_WEEKLY_ASSESSMENT", false)
         subjectId = intent.getStringExtra("SUBJECT_ID") ?: ""

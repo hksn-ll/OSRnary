@@ -21,13 +21,10 @@ class DailyQuestsActivity : AppCompatActivity() {
         val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_quests)
         GabAIUtils.setupBlurView(blurHeader, blurTarget)
 
-        // Insets handling for header
+        // Insets handling for header and scroll content
         val header = findViewById<View>(R.id.quests_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        val scrollContent = findViewById<View>(R.id.scroll_quests)
+        GabAIUtils.applyHeaderAndScrollInsets(header, scrollContent, extraBufferDp = 16)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         btnBack?.setOnClickListener {

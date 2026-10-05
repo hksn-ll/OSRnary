@@ -11,14 +11,15 @@
         android:id="@+id/blur_header_subject"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="12dp"
+        android:background="@drawable/bg_glass_blur_top"
+        android:elevation="6dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/subject_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_blur_top"
+            android:background="@android:color/transparent"
             android:paddingHorizontal="20dp"
             android:paddingTop="12dp"
             android:paddingBottom="14dp"
@@ -78,7 +79,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingHorizontal="20dp"
-            android:paddingTop="84dp"
+            android:paddingTop="96dp"
             android:paddingBottom="48dp"
             android:scrollbars="none">
 

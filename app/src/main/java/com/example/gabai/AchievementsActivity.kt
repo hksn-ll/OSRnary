@@ -39,12 +39,8 @@ class AchievementsActivity : AppCompatActivity() {
         GabAIUtils.setupBlurView(blurHeader, blurTarget)
 
         val headerInner = findViewById<View>(R.id.achievements_header)
-        val initialPaddingTop = headerInner.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        val scrollContent = findViewById<View>(R.id.scroll_achievements)
+        GabAIUtils.applyHeaderAndScrollInsets(headerInner, scrollContent, extraBufferDp = 16)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) {

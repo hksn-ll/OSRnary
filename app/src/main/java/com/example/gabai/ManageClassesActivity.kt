@@ -20,12 +20,8 @@ class ManageClassesActivity : AppCompatActivity() {
         GabAIUtils.setupBlurView(blurHeader, blurTarget)
 
         val headerInner = findViewById<View>(R.id.manage_header)
-        val initialPaddingTop = headerInner.paddingTop
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        val scrollContent = findViewById<View>(R.id.scroll_manage_classes)
+        GabAIUtils.applyHeaderAndScrollInsets(headerInner, scrollContent, extraBufferDp = 16)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }
@@ -160,22 +156,6 @@ class ManageClassesActivity : AppCompatActivity() {
                         gravity = android.view.Gravity.CENTER_VERTICAL
                     }
 
-                    // Monogram squircle badge
-                    val monogram = TextView(this).apply {
-                        val gNum = gradeName.filter { it.isDigit() }
-                        val sChar = sectionName.firstOrNull()?.uppercaseChar() ?: 'C'
-                        text = if (gNum.isNotEmpty()) "$gNum$sChar" else "CL"
-                        textSize = 14f
-                        setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
-                        setTextColor(Color.parseColor(if (isAdviser) "#6366F1" else "#059669"))
-                        gravity = android.view.Gravity.CENTER
-                        setBackgroundResource(if (isAdviser) R.drawable.bg_bento_purple else R.drawable.bg_bento_mint)
-                        val sizePx = (44 * density).toInt()
-                        layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
-                            setMargins(0, 0, (14 * density).toInt(), 0)
-                        }
-                    }
-
                     val textLayout = LinearLayout(this).apply {
                         orientation = LinearLayout.VERTICAL
                         layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -228,7 +208,6 @@ class ManageClassesActivity : AppCompatActivity() {
                         setOnClickListener { confirmDeleteClass(classId, className, sectionName, gradeName, schoolId, isAdviser) }
                     }
 
-                    rowLayout.addView(monogram)
                     rowLayout.addView(textLayout)
                     rowLayout.addView(btnEdit)
                     rowLayout.addView(btnDelete)

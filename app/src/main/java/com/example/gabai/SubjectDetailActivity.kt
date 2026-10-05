@@ -70,13 +70,9 @@ class SubjectDetailActivity : AppCompatActivity() {
             GabAIUtils.setupBlurView(blurHeader, blurTarget)
         }
 
-        if (blurHeader != null) {
-            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
-                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
-                insets
-            }
-        }
+        val headerInner = findViewById<View>(R.id.subject_header)
+        val scrollContent = findViewById<View>(R.id.scroll_subject_detail)
+        GabAIUtils.applyHeaderAndScrollInsets(headerInner ?: blurHeader, scrollContent, extraBufferDp = 16)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }
@@ -293,9 +289,16 @@ class SubjectDetailActivity : AppCompatActivity() {
                         try {
                             val decodedBytes = android.util.Base64.decode(thumbStr, android.util.Base64.DEFAULT)
                             val bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                            imgThumb.imageTintList = null
                             imgThumb.setImageBitmap(bitmap)
-                        } catch (e: Exception) { imgThumb.setImageResource(android.R.drawable.ic_menu_report_image) }
-                    } else imgThumb.setImageResource(android.R.drawable.ic_menu_report_image)
+                        } catch (e: Exception) {
+                            imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
+                            imgThumb.setImageResource(R.drawable.ic_menu_book)
+                        }
+                    } else {
+                        imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
+                        imgThumb.setImageResource(R.drawable.ic_menu_book)
+                    }
 
                     // 🟢 THE NEW LAUNCH LOGIC 🟢
                     GabAIUtils.addSpringPressEffect(row) {

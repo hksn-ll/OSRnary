@@ -87,13 +87,9 @@ class ClassDetailActivity : AppCompatActivity() {
             GabAIUtils.setupBlurView(blurHeader, blurTarget)
         }
 
-        if (blurHeader != null) {
-            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(blurHeader) { v, insets ->
-                val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-                v.setPadding(v.paddingLeft, systemBars.top + 14, v.paddingRight, 14)
-                insets
-            }
-        }
+        val headerInner = findViewById<View>(R.id.detail_header)
+        val scrollContent = findViewById<View>(R.id.scroll_class_detail)
+        GabAIUtils.applyHeaderAndScrollInsets(headerInner ?: blurHeader, scrollContent, extraBufferDp = 16)
 
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener { finish() }
 

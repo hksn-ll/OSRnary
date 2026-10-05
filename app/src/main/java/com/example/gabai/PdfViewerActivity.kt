@@ -52,6 +52,10 @@ class PdfViewerActivity : AppCompatActivity() {
         val isTeacher = intent.getBooleanExtra("IS_TEACHER", false)
         val materialId = intent.getStringExtra("MATERIAL_ID")
 
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_pdf)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_pdf)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
+
         val titleView = findViewById<TextView>(R.id.tv_pdf_title)
         titleView.text = title
 

@@ -31,11 +31,8 @@ class QuizHistoryActivity : AppCompatActivity() {
         GabAIUtils.setupBlurView(blurHeader, blurTarget)
 
         val header = findViewById<View>(R.id.history_header)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
-            insets
-        }
+        val scrollContent = findViewById<View>(R.id.scroll_quiz_history)
+        GabAIUtils.applyHeaderAndScrollInsets(header, scrollContent, extraBufferDp = 16)
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         btnBack?.setOnClickListener {
