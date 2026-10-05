@@ -26,8 +26,28 @@ class ProfileFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        val cachedRole = requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
-            .getString("cached_user_role", "student") ?: "student"
+        val prefs = requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        val cachedRole = prefs.getString("cached_user_role", "student") ?: "student"
+        val cachedFullName = prefs.getString("cached_full_name", "") ?: ""
+        val cachedFirstName = prefs.getString("cached_first_name", "") ?: ""
+        val cachedLastName = prefs.getString("cached_last_name", "") ?: ""
+
+        if (cachedFullName.isNotBlank()) {
+            binding.tvProfileName.text = cachedFullName
+            val initial = cachedFullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "G"
+            binding.tvAvatarMonogram.text = initial
+        } else if (cachedFirstName.isNotBlank()) {
+            val constructed = if (cachedLastName.isNotBlank()) "$cachedFirstName $cachedLastName" else cachedFirstName
+            binding.tvProfileName.text = constructed
+            binding.tvAvatarMonogram.text = cachedFirstName.firstOrNull()?.uppercaseChar()?.toString() ?: "G"
+        } else {
+            val fbName = FirebaseAuth.getInstance().currentUser?.displayName
+            if (!fbName.isNullOrBlank()) {
+                binding.tvProfileName.text = fbName
+                binding.tvAvatarMonogram.text = fbName.firstOrNull()?.uppercaseChar()?.toString() ?: "G"
+            }
+        }
+
         applyRoleVisibility(cachedRole)
 
         setupButtons()
@@ -178,16 +198,58 @@ class ProfileFragment : Fragment() {
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists() && _binding != null && isAdded) {
-                    val firstName = doc.getString("firstName") ?: ""
-                    val lastName = doc.getString("lastName") ?: ""
+                    val firstName = doc.getString("firstName")
+                        ?: doc.getString("first_name")
+                        ?: ""
+                    val lastName = doc.getString("lastName")
+                        ?: doc.getString("last_name")
+                        ?: ""
+                    val explicitName = doc.getString("name")
+                        ?: doc.getString("fullName")
+                        ?: doc.getString("displayName")
+                        ?: ""
                     val role = doc.getString("role") ?: "student"
                     val email = doc.getString("email") ?: FirebaseAuth.getInstance().currentUser?.email ?: ""
                     val sId = doc.getString("schoolId")
 
+                    val fullName = when {
+                        firstName.isNotBlank() && lastName.isNotBlank() -> "$firstName $lastName"
+                        firstName.isNotBlank() -> firstName
+                        explicitName.isNotBlank() -> explicitName
+                        lastName.isNotBlank() -> lastName
+                        else -> {
+                            val fbName = FirebaseAuth.getInstance().currentUser?.displayName
+                            if (!fbName.isNullOrBlank()) {
+                                fbName
+                            } else if (email.isNotBlank()) {
+                                email.substringBefore("@")
+                                    .replace(".", " ")
+                                    .replace("_", " ")
+                                    .split(" ")
+                                    .filter { it.isNotBlank() }
+                                    .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                            } else {
+                                if (role == "teacher") "Educator" else "Student Scholar"
+                            }
+                        }
+                    }
+
+                    binding.tvProfileName.text = fullName
+
                     val initial = firstName.firstOrNull()?.uppercaseChar()?.toString()
                         ?: lastName.firstOrNull()?.uppercaseChar()?.toString()
+                        ?: fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString()
                         ?: "G"
                     binding.tvAvatarMonogram.text = initial
+
+                    // Cache for zero-latency instant loading next time
+                    requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+                        .edit()
+                        .putString("cached_user_role", role)
+                        .putString("cached_first_name", firstName)
+                        .putString("cached_last_name", lastName)
+                        .putString("cached_full_name", fullName)
+                        .apply()
 
                     val displayEmail = if (email.endsWith("@gabai.app", ignoreCase = true)) {
                         email.substringBefore("@gabai.app")

@@ -1,11 +1,11 @@
 {
-  "versionCode": 23,
-  "versionName": "0.4.9",
-  "minRequiredVersionCode": 23,
+  "versionCode": 24,
+  "versionName": "0.4.10",
+  "minRequiredVersionCode": 24,
   "forceUpdate": true,
-  "title": "Frosted Glass Blur, Inset Spacing & Acronym Cleanup (v0.4.9)",
-  "message": "Signature low-latency frosted blur rendering, dynamic status bar header inset clearing, section card avatar cleanup, and PDF thumbnail rendering fix.",
+  "title": "Profile Identity Resolution & Instant Loading (v0.4.10)",
+  "message": "Resolves user identity display in Profile Fragment for both teachers and students, eliminating 'Loading Name...' with instant offline pre-caching.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.9/GabAI-v0.4.9.apk",
-  "changelog": "• Frosted Glass Blur: Restored signature 12x hardware downsampled frosted acrylic blur on all top header navigation bars without background masking.\n• Dynamic Status-Bar Insets: Synchronously added top insets to scroll containers so header bars never overlap content titles (e.g. 'MY ACTIVE CLASSES').\n• Section Cleanups: Removed redundant monogram acronyms ('10C') from class cards.\n• PDF Thumbnails: Removed tint overlay to render clean crisp cover thumbnails in library lists."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.10/GabAI-v0.4.10.apk",
+  "changelog": "• Profile Name Resolution: Fixed missing name view binding in ProfileFragment to display student/teacher full name with fallback resolution across firstName, first_name, displayName, and email handle.\n• Zero-Latency Identity Pre-warming: Pre-populates user name and avatar monogram directly from SharedPreferences and Firebase Auth.\n• Placeholder Cleanup: Removed static 'Loading Name...' placeholder from layout XML."
 }

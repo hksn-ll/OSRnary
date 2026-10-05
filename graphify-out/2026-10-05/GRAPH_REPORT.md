@@ -1,16 +1,16 @@
 # Graph Report - OSRnary  (2026-10-05)
 
 ## Corpus Check
-- 57 files · ~145,418 words
+- 60 files · ~148,193 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 819 nodes · 1624 edges · 41 communities (30 shown, 7 thin omitted)
+- 840 nodes · 1660 edges · 43 communities (31 shown, 7 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `304a2437`
+- Built from commit: `cd333855`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,14 +31,14 @@
 - Activity
 - TextOverlayView
 - ProfileFragment
-- TeacherLibraryActivity
-- SubjectDetailActivity
+- launch.ps1
+- GabAIUtils
 - HistoryActivity
 - GabAIDialogs
 - WeeklyAssessmentActivity
 - GabAiLoadingView
-- XPManager
-- FastBlurTarget
+- HomeFragment
+- FastBlurView
 - TeacherHomeFragment
 - FirebaseAuth
 - GabAIApp
@@ -50,8 +50,9 @@
 - ic_launcher-playstore (main)
 - ic_search_bubble (drawable)
 - DualStackHandler
+- seed_demo_accounts.py
 - ImageView
-- DailyQuestsActivity.kt
+- seed_demo_features.py
 
 ## God Nodes (most connected - your core abstractions)
 1. `OverviewActivity` - 33 edges
@@ -80,11 +81,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (41 total, 7 thin omitted)
+## Communities (43 total, 7 thin omitted)
 
 ### Community 0 - "Intent"
-Cohesion: 0.06
-Nodes (25): ActivityMainBinding, HomeFragment, Bundle, Fragment, LayoutInflater, View, ViewGroup, android (+17 more)
+Cohesion: 0.07
+Nodes (23): ActivityMainBinding, DailyQuestsActivity, AppCompatActivity, Bundle, android, AppCompatActivity, Bundle, Fragment (+15 more)
 
 ### Community 1 - "CameraActivity"
 Cohesion: 0.10
@@ -127,8 +128,8 @@ Cohesion: 0.13
 Nodes (11): AppCompatActivity, Bundle, DocumentSnapshot, OnBackPressedCallback, ProgressBar, TextView, View, QuizActivity (+3 more)
 
 ### Community 11 - "QuizEditorActivity"
-Cohesion: 0.11
-Nodes (12): CachedOverview, OverviewCache, ClassInfo, AppCompatActivity, Bundle, LinearLayout, TextView, QuizEditorActivity (+4 more)
+Cohesion: 0.15
+Nodes (8): CachedOverview, OverviewCache, ClassInfo, AppCompatActivity, Bundle, LinearLayout, TextView, QuizEditorActivity
 
 ### Community 12 - "PdfViewerActivity"
 Cohesion: 0.23
@@ -146,11 +147,11 @@ Nodes (14): DragMode, DRAG_END_HANDLE, DRAG_START_HANDLE, NONE, SELECTION, andro
 Cohesion: 0.21
 Nodes (8): Bundle, FirebaseFirestore, Fragment, LayoutInflater, View, ViewGroup, ProfileFragment, FragmentProfileBinding
 
-### Community 16 - "TeacherLibraryActivity"
-Cohesion: 0.42
-Nodes (3): AppCompatActivity, Bundle, TeacherLibraryActivity
+### Community 16 - "launch.ps1"
+Cohesion: 0.20
+Nodes (7): AppCompatActivity, Bundle, TeacherLibraryActivity, AppCompatActivity, Bundle, StudentStats, TeacherPerformanceActivity
 
-### Community 17 - "SubjectDetailActivity"
+### Community 17 - "GabAIUtils"
 Cohesion: 0.07
 Nodes (19): GabAIUtils, Activity, Context, ProgressBar, View, TextSpanClassification, TextSpanType, PHRASE (+11 more)
 
@@ -170,12 +171,12 @@ Nodes (10): AssessmentQuestion, AppCompatActivity, Bundle, Button, OnBackPressed
 Cohesion: 0.09
 Nodes (12): DevEasterEggActivity, OnSeekBarChangeListener, AppCompatActivity, Bundle, Button, FrameLayout, TextView, GabAiLoadingView (+4 more)
 
-### Community 22 - "XPManager"
-Cohesion: 0.39
-Nodes (3): Context, SharedPreferences, XPManager
+### Community 22 - "HomeFragment"
+Cohesion: 0.12
+Nodes (11): HomeFragment, Bundle, Fragment, LayoutInflater, View, ViewGroup, Context, SharedPreferences (+3 more)
 
-### Community 23 - "FastBlurTarget"
-Cohesion: 0.19
+### Community 23 - "FastBlurView"
+Cohesion: 0.17
 Nodes (7): FastBlurTarget, FastBlurView, android, Bitmap, Canvas, FrameLayout, View
 
 ### Community 24 - "TeacherHomeFragment"
@@ -183,8 +184,8 @@ Cohesion: 0.23
 Nodes (7): Bundle, Fragment, LayoutInflater, View, ViewGroup, TeacherHomeFragment, FragmentTeacherHomeBinding
 
 ### Community 25 - "FirebaseAuth"
-Cohesion: 0.11
-Nodes (14): AppCompatActivity, Bundle, LeaderboardActivity, AppCompatActivity, Bundle, View, LibraryActivity, AppCompatActivity (+6 more)
+Cohesion: 0.15
+Nodes (11): AppCompatActivity, Bundle, LeaderboardActivity, AppCompatActivity, Bundle, View, LibraryActivity, Context (+3 more)
 
 ### Community 27 - "gradlew"
 Cohesion: 0.83
@@ -194,33 +195,37 @@ Nodes (3): gradlew script, die(), warn()
 Cohesion: 1.00
 Nodes (3): Earthquakes: Movement of the Earth's Crust, Seismic Waves, Tectonic Plates and Fault Lines
 
-### Community 36 - "ImageView"
+### Community 36 - "seed_demo_accounts.py"
+Cohesion: 0.39
+Nodes (7): get_or_create_auth_user(), main(), Signs in or signs up a Firebase Auth user, returning (uid, idToken)., Sets/updates a Firestore document via REST API., set_firestore_document(), to_firestore_fields(), to_firestore_value()
+
+### Community 38 - "ImageView"
 Cohesion: 0.15
 Nodes (11): AchievementsActivity, Badge, AppCompatActivity, Bundle, AppCompatActivity, Bundle, QuizHistoryActivity, AppCompatActivity (+3 more)
 
-### Community 38 - "DailyQuestsActivity.kt"
-Cohesion: 0.48
-Nodes (3): DailyQuestsActivity, AppCompatActivity, Bundle
+### Community 39 - "seed_demo_features.py"
+Cohesion: 0.60
+Nodes (5): main(), set_firestore_document(), sign_in_user(), to_firestore_fields(), to_firestore_value()
 
 ## Knowledge Gaps
 - **13 isolated node(s):** `WORD`, `PHRASE`, `SENTENCE`, `IDLE`, `LOADING` (+8 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 85 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 88 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `GabAiLoadingView` connect `GabAiLoadingView` to `FavoritesActivity`, `HistoryActivity`, `SubjectDetailActivity`?**
-  _High betweenness centrality (0.088) - this node is a cross-community bridge._
-- **Why does `HomeFragment` connect `Intent` to `SubjectDetailActivity`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+- **Why does `GabAIUtils` connect `GabAIUtils` to `FastBlurView`?**
+  _High betweenness centrality (0.098) - this node is a cross-community bridge._
+- **Why does `GabAiLoadingView` connect `GabAiLoadingView` to `FavoritesActivity`, `HistoryActivity`, `GabAIUtils`?**
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
+- **Why does `HomeFragment` connect `HomeFragment` to `Intent`, `GabAIUtils`?**
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
 - **What connects `WORD`, `PHRASE`, `SENTENCE` to the rest of the system?**
   _13 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Intent` be split into smaller, more focused modules?**
-  _Cohesion score 0.06349206349206349 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06936026936026936 - nodes in this community are weakly interconnected._
 - **Should `CameraActivity` be split into smaller, more focused modules?**
   _Cohesion score 0.10416666666666667 - nodes in this community are weakly interconnected._
 - **Should `InitiationActivity` be split into smaller, more focused modules?**
   _Cohesion score 0.12878787878787878 - nodes in this community are weakly interconnected._
-- **Should `FloatingControlService` be split into smaller, more focused modules?**
-  _Cohesion score 0.10795454545454546 - nodes in this community are weakly interconnected._

@@ -54,7 +54,7 @@ class TeacherHomeFragment : Fragment() {
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
                 if (_binding != null && isAdded && doc.exists()) {
-                    val firstName = doc.getString("firstName") ?: ""
+                    val firstName = doc.getString("firstName") ?: doc.getString("first_name") ?: ""
                     val sId = doc.getString("schoolId")
                     val schoolName = SchoolRepository.getSchoolName(sId)
                     val joinCode = doc.getString("joinCode") ?: "N/A"

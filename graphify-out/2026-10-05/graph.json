@@ -4,17 +4,17 @@
   "graph": {},
   "nodes": [
     {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment",
-      "label": "HomeFragment",
+      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity",
+      "label": "DailyQuestsActivity",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "Intent",
       "file_type": "code",
-      "norm_label": "homefragment",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L21"
+      "norm_label": "dailyquestsactivity",
+      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
+      "source_location": "L12"
     },
     {
       "id": "app_src_main_java_com_example_gabai_mainactivity_mainactivity",
@@ -54,6 +54,19 @@
       "norm_label": "viewoutlineprovider",
       "source_file": "app/src/main/java/com/example/gabai/MainActivity.kt",
       "source_location": "L150"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity",
+      "label": "ProgressDashboardActivity",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "progressdashboardactivity",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L13"
     },
     {
       "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity",
@@ -225,32 +238,6 @@
       "source_location": "L25"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_studentstats",
-      "label": "StudentStats",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": "studentstats",
-      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L29"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_teacherperformanceactivity",
-      "label": "TeacherPerformanceActivity",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": "teacherperformanceactivity",
-      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L19"
-    },
-    {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity",
       "label": "PdfViewerActivity",
       "_callable": true,
@@ -413,11 +400,37 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": "teacherlibraryactivity",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
       "source_location": "L18"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_studentstats",
+      "label": "StudentStats",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": "studentstats",
+      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
+      "source_location": "L29"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_teacherperformanceactivity",
+      "label": "TeacherPerformanceActivity",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": "teacherperformanceactivity",
+      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
+      "source_location": "L19"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
@@ -426,7 +439,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "gabaiutils",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
@@ -439,11 +452,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "textspanclassification",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L405"
+      "source_location": "L435"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_textspantype",
@@ -452,11 +465,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "textspantype",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L399"
+      "source_location": "L429"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity",
@@ -465,7 +478,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "subjectdetailactivity",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
@@ -693,13 +706,26 @@
       "source_location": "L20"
     },
     {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment",
+      "label": "HomeFragment",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "homefragment",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L21"
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager",
       "label": "XPManager",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": "xpmanager",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -712,7 +738,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "fastblurtarget",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -725,7 +751,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "fastblurview",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -769,19 +795,6 @@
       "norm_label": "libraryactivity",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
       "source_location": "L21"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity",
-      "label": "ProgressDashboardActivity",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "FirebaseAuth",
-      "file_type": "code",
-      "norm_label": "progressdashboardactivity",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L13"
     },
     {
       "id": "app_src_main_java_com_example_gabai_questmanager_questmanager",
@@ -880,7 +893,7 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": "achievementsactivity",
@@ -893,7 +906,7 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": "badge",
@@ -906,7 +919,7 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": "quizhistoryactivity",
@@ -919,25 +932,12 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": "studentsubjectactivity",
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
       "source_location": "L23"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity",
-      "label": "DailyQuestsActivity",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "DailyQuestsActivity.kt",
-      "file_type": "code",
-      "norm_label": "dailyquestsactivity",
-      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L12"
     },
     {
       "id": "app_src_main_java_com_example_gabai_scanresultactivity_scanresultactivity",
@@ -1200,172 +1200,40 @@
       "source_location": "L278"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_extractcleanjoincode",
-      "label": ".extractCleanJoinCode()",
+      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity_loadquests",
+      "label": ".loadQuests()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "Intent",
       "file_type": "code",
-      "norm_label": ".extractcleanjoincode()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L344"
+      "norm_label": ".loadquests()",
+      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
+      "source_location": "L63"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_joinclasswithcode",
-      "label": ".joinClassWithCode()",
+      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity_oncreate",
+      "label": ".onCreate()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "Intent",
       "file_type": "code",
-      "norm_label": ".joinclasswithcode()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L355"
+      "norm_label": ".oncreate()",
+      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
+      "source_location": "L14"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_loadactiveweeklyassessments",
-      "label": ".loadActiveWeeklyAssessments()",
+      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity_setupactions",
+      "label": ".setupActions()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "Intent",
       "file_type": "code",
-      "norm_label": ".loadactiveweeklyassessments()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L441"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_oncreateview",
-      "label": ".onCreateView()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".oncreateview()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L41"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_ondestroyview",
-      "label": ".onDestroyView()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".ondestroyview()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L547"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_onresume",
-      "label": ".onResume()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".onresume()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L75"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_onviewcreated",
-      "label": ".onViewCreated()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".onviewcreated()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L47"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_playentranceanimation",
-      "label": ".playEntranceAnimation()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".playentranceanimation()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L52"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_setquestrowstate",
-      "label": ".setQuestRowState()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".setquestrowstate()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L236"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_setupdashboard",
-      "label": ".setupDashboard()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".setupdashboard()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L80"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_showgrandunlockcelebration",
-      "label": ".showGrandUnlockCelebration()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".showgrandunlockcelebration()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L288"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_showjoinclassdialog",
-      "label": ".showJoinClassDialog()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".showjoinclassdialog()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L298"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_showquestdetailsdialog",
-      "label": ".showQuestDetailsDialog()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".showquestdetailsdialog()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L284"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_startgoogleqrscan",
-      "label": ".startGoogleQrScan()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": ".startgoogleqrscan()",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
-      "source_location": "L312"
+      "norm_label": ".setupactions()",
+      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
+      "source_location": "L46"
     },
     {
       "id": "app_src_main_java_com_example_gabai_mainactivity_mainactivity_applyroleui",
@@ -1546,6 +1414,42 @@
       "norm_label": ".updatebubbleui()",
       "source_file": "app/src/main/java/com/example/gabai/MainActivity.kt",
       "source_location": "L328"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_calculateanalytics",
+      "label": ".calculateAnalytics()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".calculateanalytics()",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L58"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_loadxpdata",
+      "label": ".loadXPData()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".loadxpdata()",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L45"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_oncreate",
+      "label": ".onCreate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": ".oncreate()",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L15"
     },
     {
       "id": "app_src_main_java_com_example_gabai_questdetailsactivity_questdetailsactivity_oncreate",
@@ -2145,7 +2049,7 @@
       "file_type": "code",
       "norm_label": ".addquestiontoui()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L221"
+      "source_location": "L217"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_generatemorequestions",
@@ -2157,7 +2061,7 @@
       "file_type": "code",
       "norm_label": ".generatemorequestions()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L451"
+      "source_location": "L447"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_loadinitialquestions",
@@ -2169,7 +2073,7 @@
       "file_type": "code",
       "norm_label": ".loadinitialquestions()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L204"
+      "source_location": "L200"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_loadteacherclasses",
@@ -2181,7 +2085,7 @@
       "file_type": "code",
       "norm_label": ".loadteacherclasses()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L141"
+      "source_location": "L137"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_loadteacherinfo",
@@ -2193,7 +2097,7 @@
       "file_type": "code",
       "norm_label": ".loadteacherinfo()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L130"
+      "source_location": "L126"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_oncreate",
@@ -2217,7 +2121,7 @@
       "file_type": "code",
       "norm_label": ".promptforaigenerate()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L424"
+      "source_location": "L420"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_saveandpublish",
@@ -2229,7 +2133,7 @@
       "file_type": "code",
       "norm_label": ".saveandpublish()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L501"
+      "source_location": "L497"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_scrolltobottom",
@@ -2241,7 +2145,7 @@
       "file_type": "code",
       "norm_label": ".scrolltobottom()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L417"
+      "source_location": "L413"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_showduedatepicker",
@@ -2253,7 +2157,7 @@
       "file_type": "code",
       "norm_label": ".showduedatepicker()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L180"
+      "source_location": "L176"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_showmanualadddialog",
@@ -2265,7 +2169,7 @@
       "file_type": "code",
       "norm_label": ".showmanualadddialog()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L296"
+      "source_location": "L292"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_updateduedatedisplay",
@@ -2277,7 +2181,7 @@
       "file_type": "code",
       "norm_label": ".updateduedatedisplay()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L199"
+      "source_location": "L195"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_updatequestionnumbers",
@@ -2289,31 +2193,7 @@
       "file_type": "code",
       "norm_label": ".updatequestionnumbers()",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L289"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_teacherperformanceactivity_loadperformancedata",
-      "label": ".loadPerformanceData()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": ".loadperformancedata()",
-      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L71"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_teacherperformanceactivity_oncreate",
-      "label": ".onCreate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": ".oncreate()",
-      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L38"
+      "source_location": "L285"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_checkexistingquizandproceed",
@@ -2325,7 +2205,7 @@
       "file_type": "code",
       "norm_label": ".checkexistingquizandproceed()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L241"
+      "source_location": "L245"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_confirmdelete",
@@ -2337,7 +2217,7 @@
       "file_type": "code",
       "norm_label": ".confirmdelete()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L514"
+      "source_location": "L518"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_generateinitialquizlocally",
@@ -2349,7 +2229,7 @@
       "file_type": "code",
       "norm_label": ".generateinitialquizlocally()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L287"
+      "source_location": "L291"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_loadpdfdocument",
@@ -2361,7 +2241,7 @@
       "file_type": "code",
       "norm_label": ".loadpdfdocument()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L168"
+      "source_location": "L172"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_managepdfaccess",
@@ -2373,7 +2253,7 @@
       "file_type": "code",
       "norm_label": ".managepdfaccess()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L347"
+      "source_location": "L351"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_oncreate",
@@ -2397,7 +2277,7 @@
       "file_type": "code",
       "norm_label": ".openquizeditor()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L333"
+      "source_location": "L337"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_promptforinitialquizgeneration",
@@ -2409,7 +2289,7 @@
       "file_type": "code",
       "norm_label": ".promptforinitialquizgeneration()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L265"
+      "source_location": "L269"
     },
     {
       "id": "app_src_main_java_com_example_gabai_pdfvieweractivity_pdfvieweractivity_promptrename",
@@ -2421,7 +2301,7 @@
       "file_type": "code",
       "norm_label": ".promptrename()",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L470"
+      "source_location": "L474"
     },
     {
       "id": "app_src_main_java_com_example_gabai_githubupdatehelper_githubupdatehelper_checkupdate",
@@ -2981,11 +2861,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": ".confirmdelete()",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L146"
+      "source_location": "L142"
     },
     {
       "id": "app_src_main_java_com_example_gabai_teacherlibraryactivity_teacherlibraryactivity_deletesubjectandcontents",
@@ -2993,11 +2873,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": ".deletesubjectandcontents()",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L162"
+      "source_location": "L158"
     },
     {
       "id": "app_src_main_java_com_example_gabai_teacherlibraryactivity_teacherlibraryactivity_loadfolders",
@@ -3005,11 +2885,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": ".loadfolders()",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L58"
+      "source_location": "L54"
     },
     {
       "id": "app_src_main_java_com_example_gabai_teacherlibraryactivity_teacherlibraryactivity_oncreate",
@@ -3017,7 +2897,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": ".oncreate()",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
@@ -3029,11 +2909,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": ".showfolderdialog()",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L124"
+      "source_location": "L120"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_teacherperformanceactivity_loadperformancedata",
+      "label": ".loadPerformanceData()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": ".loadperformancedata()",
+      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
+      "source_location": "L67"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_teacherperformanceactivity_oncreate",
+      "label": ".onCreate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": ".oncreate()",
+      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
+      "source_location": "L38"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_addspringpresseffect",
@@ -3041,11 +2945,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".addspringpresseffect()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L220"
+      "source_location": "L250"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_animatecascade",
@@ -3053,11 +2957,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".animatecascade()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L293"
+      "source_location": "L323"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_animateprogress",
@@ -3065,11 +2969,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".animateprogress()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L317"
+      "source_location": "L347"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyfrostedglass",
@@ -3077,11 +2981,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".applyfrostedglass()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L210"
+      "source_location": "L240"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyhardwaremaxrefreshrate",
@@ -3089,11 +2993,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".applyhardwaremaxrefreshrate()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L386"
+      "source_location": "L416"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyheaderandscrollinsets",
+      "label": ".applyHeaderAndScrollInsets()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "GabAIUtils",
+      "file_type": "code",
+      "norm_label": ".applyheaderandscrollinsets()",
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L211"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_classifycontextlabel",
@@ -3101,11 +3017,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".classifycontextlabel()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L463"
+      "source_location": "L493"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_classifytextspan",
@@ -3113,11 +3029,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".classifytextspan()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L419"
+      "source_location": "L449"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_formatfloatingpillsnackbar",
@@ -3125,11 +3041,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".formatfloatingpillsnackbar()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L349"
+      "source_location": "L379"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_hidegloballoading",
@@ -3137,7 +3053,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".hidegloballoading()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
@@ -3149,23 +3065,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".performhaptic()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L333"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_setupblurview",
-      "label": ".setupBlurView()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "SubjectDetailActivity",
-      "file_type": "code",
-      "norm_label": ".setupblurview()",
-      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L194"
+      "source_location": "L363"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_showgloballoading",
@@ -3173,7 +3077,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".showgloballoading()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
@@ -3185,7 +3089,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".showsnackbar()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
@@ -3197,11 +3101,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".showundosnackbar()",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L340"
+      "source_location": "L370"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_deletefilefromdriveanddatabase",
@@ -3209,11 +3113,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".deletefilefromdriveanddatabase()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L321"
+      "source_location": "L324"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_extracttextfromuri",
@@ -3221,11 +3125,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".extracttextfromuri()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L189"
+      "source_location": "L185"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_generatequizpool",
@@ -3233,11 +3137,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".generatequizpool()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L201"
+      "source_location": "L197"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_generatethumbnail",
@@ -3245,11 +3149,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".generatethumbnail()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L352"
+      "source_location": "L355"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_loadpdfs",
@@ -3257,11 +3161,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".loadpdfs()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L260"
+      "source_location": "L256"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_managepdfaccess",
@@ -3269,11 +3173,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".managepdfaccess()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L413"
+      "source_location": "L416"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_oncreate",
@@ -3281,7 +3185,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".oncreate()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
@@ -3293,11 +3197,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".promptforpdftitle()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L102"
+      "source_location": "L98"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_renamepdfindriveanddatabase",
@@ -3305,11 +3209,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".renamepdfindriveanddatabase()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L381"
+      "source_location": "L384"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_resetuploadui",
@@ -3317,11 +3221,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".resetuploadui()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L253"
+      "source_location": "L249"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_savetofirestore",
@@ -3329,11 +3233,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".savetofirestore()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L222"
+      "source_location": "L218"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity_subjectdetailactivity_uploadpdftodrive",
@@ -3341,11 +3245,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": ".uploadpdftodrive()",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L125"
+      "source_location": "L121"
     },
     {
       "id": "app_src_main_java_com_example_gabai_historyactivity_historyactivity_formatdate",
@@ -4308,12 +4212,180 @@
       "source_location": "L203"
     },
     {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_extractcleanjoincode",
+      "label": ".extractCleanJoinCode()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".extractcleanjoincode()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L344"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_joinclasswithcode",
+      "label": ".joinClassWithCode()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".joinclasswithcode()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L355"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_loadactiveweeklyassessments",
+      "label": ".loadActiveWeeklyAssessments()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".loadactiveweeklyassessments()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L441"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_oncreateview",
+      "label": ".onCreateView()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".oncreateview()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L41"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_ondestroyview",
+      "label": ".onDestroyView()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".ondestroyview()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L547"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_onresume",
+      "label": ".onResume()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".onresume()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L75"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_onviewcreated",
+      "label": ".onViewCreated()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".onviewcreated()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L47"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_playentranceanimation",
+      "label": ".playEntranceAnimation()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".playentranceanimation()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L52"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_setquestrowstate",
+      "label": ".setQuestRowState()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".setquestrowstate()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L236"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_setupdashboard",
+      "label": ".setupDashboard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".setupdashboard()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L80"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_showgrandunlockcelebration",
+      "label": ".showGrandUnlockCelebration()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".showgrandunlockcelebration()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L288"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_showjoinclassdialog",
+      "label": ".showJoinClassDialog()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".showjoinclassdialog()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L298"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_showquestdetailsdialog",
+      "label": ".showQuestDetailsDialog()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".showquestdetailsdialog()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L284"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_homefragment_startgoogleqrscan",
+      "label": ".startGoogleQrScan()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": ".startgoogleqrscan()",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L312"
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_xpmanager_xpmanager_addxp",
       "label": ".addXP()",
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".addxp()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4325,7 +4397,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".canearnxp()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4337,7 +4409,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".getlevel()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4349,7 +4421,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".getmaxxpforlevel()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4361,7 +4433,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".getprefs()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4373,7 +4445,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".getxp()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4385,7 +4457,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".setonboarded()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4397,7 +4469,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": ".syncfromfirestore()",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -4409,7 +4481,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".dispatchdraw()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4421,7 +4493,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".invalidateoverlays()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4433,7 +4505,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".onattachedtowindow()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4445,7 +4517,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".ondescendantinvalidated()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4457,7 +4529,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".ondetachedfromwindow()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4469,7 +4541,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".onlayout()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4481,7 +4553,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".registeroverlay()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4493,11 +4565,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".unregisteroverlay()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
       "source_location": "L42"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_autofindtarget",
+      "label": ".autoFindTarget()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "FastBlurView",
+      "file_type": "code",
+      "norm_label": ".autofindtarget()",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L189"
     },
     {
       "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_draw",
@@ -4505,11 +4589,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".draw()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L186"
+      "source_location": "L222"
     },
     {
       "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_drawsoftwareblur",
@@ -4517,11 +4601,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".drawsoftwareblur()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L240"
+      "source_location": "L301"
     },
     {
       "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_fastboxblur",
@@ -4529,11 +4613,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".fastboxblur()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L285"
+      "source_location": "L346"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_findblurtargetrecursive",
+      "label": ".findBlurTargetRecursive()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "FastBlurView",
+      "file_type": "code",
+      "norm_label": ".findblurtargetrecursive()",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L198"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onattachedtowindow",
+      "label": ".onAttachedToWindow()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "FastBlurView",
+      "file_type": "code",
+      "norm_label": ".onattachedtowindow()",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L175"
     },
     {
       "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_ondetachedfromwindow",
@@ -4541,11 +4649,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".ondetachedfromwindow()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L175"
+      "source_location": "L211"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onlayout",
+      "label": ".onLayout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "FastBlurView",
+      "file_type": "code",
+      "norm_label": ".onlayout()",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L182"
     },
     {
       "id": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_setupwith",
@@ -4553,7 +4673,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".setupwith()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -4565,11 +4685,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": ".updaterendereffect()",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
       "source_location": "L167"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_setupblurview",
+      "label": ".setupBlurView()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "FastBlurView",
+      "file_type": "code",
+      "norm_label": ".setupblurview()",
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L194"
     },
     {
       "id": "app_src_main_java_com_example_gabai_teacherhomefragment_teacherhomefragment_launchperformanceforclass",
@@ -4677,7 +4809,7 @@
       "file_type": "code",
       "norm_label": ".loadleaderboard()",
       "source_file": "app/src/main/java/com/example/gabai/LeaderboardActivity.kt",
-      "source_location": "L43"
+      "source_location": "L39"
     },
     {
       "id": "app_src_main_java_com_example_gabai_leaderboardactivity_leaderboardactivity_oncreate",
@@ -4701,7 +4833,7 @@
       "file_type": "code",
       "norm_label": ".addfolderview()",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L115"
+      "source_location": "L111"
     },
     {
       "id": "app_src_main_java_com_example_gabai_libraryactivity_libraryactivity_loadassignedmaterials",
@@ -4713,7 +4845,7 @@
       "file_type": "code",
       "norm_label": ".loadassignedmaterials()",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L53"
+      "source_location": "L49"
     },
     {
       "id": "app_src_main_java_com_example_gabai_libraryactivity_libraryactivity_oncreate",
@@ -4737,43 +4869,7 @@
       "file_type": "code",
       "norm_label": ".showemptystate()",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L141"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_calculateanalytics",
-      "label": ".calculateAnalytics()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "FirebaseAuth",
-      "file_type": "code",
-      "norm_label": ".calculateanalytics()",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L62"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_loadxpdata",
-      "label": ".loadXPData()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "FirebaseAuth",
-      "file_type": "code",
-      "norm_label": ".loadxpdata()",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L49"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_progressdashboardactivity_oncreate",
-      "label": ".onCreate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "FirebaseAuth",
-      "file_type": "code",
-      "norm_label": ".oncreate()",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L15"
+      "source_location": "L137"
     },
     {
       "id": "app_src_main_java_com_example_gabai_questmanager_questmanager_addprogress",
@@ -4893,7 +4989,7 @@
       "file_type": "code",
       "norm_label": ".confirmdeleteclass()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L425"
+      "source_location": "L404"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_fetchanddisplayclasses",
@@ -4905,7 +5001,7 @@
       "file_type": "code",
       "norm_label": ".fetchanddisplayclasses()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L99"
+      "source_location": "L95"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_generatestudentaccounts",
@@ -4917,7 +5013,7 @@
       "file_type": "code",
       "norm_label": ".generatestudentaccounts()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L709"
+      "source_location": "L688"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_oncreate",
@@ -4941,7 +5037,7 @@
       "file_type": "code",
       "norm_label": ".saveclasstofirestore()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L475"
+      "source_location": "L454"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_showclassrosterdialog",
@@ -4953,7 +5049,7 @@
       "file_type": "code",
       "norm_label": ".showclassrosterdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L542"
+      "source_location": "L521"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_showcreateclassdialog",
@@ -4965,7 +5061,7 @@
       "file_type": "code",
       "norm_label": ".showcreateclassdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L38"
+      "source_location": "L34"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_showeditclassdialog",
@@ -4977,7 +5073,7 @@
       "file_type": "code",
       "norm_label": ".showeditclassdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L295"
+      "source_location": "L274"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_showgeneratestudentsdialog",
@@ -4989,7 +5085,7 @@
       "file_type": "code",
       "norm_label": ".showgeneratestudentsdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L690"
+      "source_location": "L669"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_showjoincodeinstructiondialog",
@@ -5001,7 +5097,7 @@
       "file_type": "code",
       "norm_label": ".showjoincodeinstructiondialog()",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L752"
+      "source_location": "L731"
     },
     {
       "id": "app_src_test_java_com_example_gabai_exampleunittest_exampleunittest_addition_iscorrect",
@@ -5052,23 +5148,83 @@
       "source_location": "L12"
     },
     {
+      "id": "scripts_seed_demo_accounts_get_or_create_auth_user",
+      "label": "get_or_create_auth_user()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "seed_demo_accounts.py",
+      "file_type": "code",
+      "norm_label": "get_or_create_auth_user()",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L33"
+    },
+    {
+      "id": "scripts_seed_demo_accounts_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "seed_demo_accounts.py",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L89"
+    },
+    {
+      "id": "scripts_seed_demo_accounts_set_firestore_document",
+      "label": "set_firestore_document()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "seed_demo_accounts.py",
+      "file_type": "code",
+      "norm_label": "set_firestore_document()",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L70"
+    },
+    {
+      "id": "scripts_seed_demo_accounts_to_firestore_fields",
+      "label": "to_firestore_fields()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "seed_demo_accounts.py",
+      "file_type": "code",
+      "norm_label": "to_firestore_fields()",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L30"
+    },
+    {
+      "id": "scripts_seed_demo_accounts_to_firestore_value",
+      "label": "to_firestore_value()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 36,
+      "community_name": "seed_demo_accounts.py",
+      "file_type": "code",
+      "norm_label": "to_firestore_value()",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L13"
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_achievementsactivity_achievementsactivity_loadbadges",
       "label": ".loadBadges()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".loadbadges()",
       "source_file": "app/src/main/java/com/example/gabai/AchievementsActivity.kt",
-      "source_location": "L57"
+      "source_location": "L53"
     },
     {
       "id": "app_src_main_java_com_example_gabai_achievementsactivity_achievementsactivity_oncreate",
       "label": ".onCreate()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".oncreate()",
@@ -5080,19 +5236,19 @@
       "label": ".loadQuizHistory()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".loadquizhistory()",
       "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L49"
+      "source_location": "L46"
     },
     {
       "id": "app_src_main_java_com_example_gabai_quizhistoryactivity_quizhistoryactivity_oncreate",
       "label": ".onCreate()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".oncreate()",
@@ -5104,31 +5260,31 @@
       "label": ".showReviewDialog()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".showreviewdialog()",
       "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L207"
+      "source_location": "L204"
     },
     {
       "id": "app_src_main_java_com_example_gabai_studentsubjectactivity_studentsubjectactivity_loadpdfs",
       "label": ".loadPdfs()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".loadpdfs()",
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L54"
+      "source_location": "L50"
     },
     {
       "id": "app_src_main_java_com_example_gabai_studentsubjectactivity_studentsubjectactivity_oncreate",
       "label": ".onCreate()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".oncreate()",
@@ -5140,48 +5296,72 @@
       "label": ".showEmptyState()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
+      "community": 38,
       "community_name": "ImageView",
       "file_type": "code",
       "norm_label": ".showemptystate()",
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L123"
+      "source_location": "L122"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity_loadquests",
-      "label": ".loadQuests()",
+      "id": "scripts_seed_demo_features_main",
+      "label": "main()",
       "_callable": true,
       "_origin": "ast",
-      "community": 38,
-      "community_name": "DailyQuestsActivity.kt",
+      "community": 39,
+      "community_name": "seed_demo_features.py",
       "file_type": "code",
-      "norm_label": ".loadquests()",
-      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L66"
+      "norm_label": "main()",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L53"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity_oncreate",
-      "label": ".onCreate()",
+      "id": "scripts_seed_demo_features_set_firestore_document",
+      "label": "set_firestore_document()",
       "_callable": true,
       "_origin": "ast",
-      "community": 38,
-      "community_name": "DailyQuestsActivity.kt",
+      "community": 39,
+      "community_name": "seed_demo_features.py",
       "file_type": "code",
-      "norm_label": ".oncreate()",
-      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L14"
+      "norm_label": "set_firestore_document()",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L38"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_dailyquestsactivity_setupactions",
-      "label": ".setupActions()",
+      "id": "scripts_seed_demo_features_sign_in_user",
+      "label": "sign_in_user()",
       "_callable": true,
       "_origin": "ast",
-      "community": 38,
-      "community_name": "DailyQuestsActivity.kt",
+      "community": 39,
+      "community_name": "seed_demo_features.py",
       "file_type": "code",
-      "norm_label": ".setupactions()",
-      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L49"
+      "norm_label": "sign_in_user()",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L31"
+    },
+    {
+      "id": "scripts_seed_demo_features_to_firestore_fields",
+      "label": "to_firestore_fields()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "seed_demo_features.py",
+      "file_type": "code",
+      "norm_label": "to_firestore_fields()",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L28"
+    },
+    {
+      "id": "scripts_seed_demo_features_to_firestore_value",
+      "label": "to_firestore_value()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "seed_demo_features.py",
+      "file_type": "code",
+      "norm_label": "to_firestore_value()",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L11"
     },
     {
       "id": "app_src_main_java_com_example_gabai_scanresultactivity_scanresultactivity_hideinstructionhud",
@@ -5386,6 +5566,18 @@
       "norm_label": ".updatebottomcard()",
       "source_file": "app/src/main/java/com/example/gabai/ScanResultActivity.kt",
       "source_location": "L234"
+    },
+    {
+      "id": "scripts_generate_demo_pdf_create_sample_pdf",
+      "label": "create_sample_pdf()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 40,
+      "community_name": "generate_demo_pdf.py",
+      "file_type": "code",
+      "norm_label": "create_sample_pdf()",
+      "source_file": "scripts/generate_demo_pdf.py",
+      "source_location": "L3"
     },
     {
       "id": "app_src_main_java_com_example_gabai_floatingcontrolservice_floatingcontrolservice_captureandscan",
@@ -5841,7 +6033,7 @@
       "file_type": "code",
       "norm_label": ".confirmdelete()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L448"
+      "source_location": "L444"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_extracttextfromuri",
@@ -5853,7 +6045,7 @@
       "file_type": "code",
       "norm_label": ".extracttextfromuri()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L780"
+      "source_location": "L776"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_generatestudentaccounts",
@@ -5865,7 +6057,7 @@
       "file_type": "code",
       "norm_label": ".generatestudentaccounts()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L343"
+      "source_location": "L339"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_getfilenamefromuri",
@@ -5877,7 +6069,7 @@
       "file_type": "code",
       "norm_label": ".getfilenamefromuri()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L794"
+      "source_location": "L790"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_handleassessmentpdfselected",
@@ -5889,7 +6081,7 @@
       "file_type": "code",
       "norm_label": ".handleassessmentpdfselected()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L691"
+      "source_location": "L687"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_loadstudents",
@@ -5901,7 +6093,7 @@
       "file_type": "code",
       "norm_label": ".loadstudents()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L145"
+      "source_location": "L141"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_loadweeklyassessments",
@@ -5913,7 +6105,7 @@
       "file_type": "code",
       "norm_label": ".loadweeklyassessments()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L805"
+      "source_location": "L801"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_oncreate",
@@ -5937,7 +6129,7 @@
       "file_type": "code",
       "norm_label": ".openinitiationsettings()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L466"
+      "source_location": "L462"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_promptforinitiationpdftitle",
@@ -5949,7 +6141,7 @@
       "file_type": "code",
       "norm_label": ".promptforinitiationpdftitle()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L563"
+      "source_location": "L559"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_promptuploadassessmentpdf",
@@ -5961,7 +6153,7 @@
       "file_type": "code",
       "norm_label": ".promptuploadassessmentpdf()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L677"
+      "source_location": "L673"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showcreateassessmentdialog",
@@ -5973,7 +6165,7 @@
       "file_type": "code",
       "norm_label": ".showcreateassessmentdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L656"
+      "source_location": "L652"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showeditstudentdialog",
@@ -5985,7 +6177,7 @@
       "file_type": "code",
       "norm_label": ".showeditstudentdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L384"
+      "source_location": "L380"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showgeneratestudentsdialog",
@@ -5997,7 +6189,7 @@
       "file_type": "code",
       "norm_label": ".showgeneratestudentsdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L324"
+      "source_location": "L320"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showinitiationdialogui",
@@ -6009,7 +6201,7 @@
       "file_type": "code",
       "norm_label": ".showinitiationdialogui()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L485"
+      "source_location": "L481"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_uploadinitiationpdftodrive",
@@ -6021,7 +6213,7 @@
       "file_type": "code",
       "norm_label": ".uploadinitiationpdftodrive()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L586"
+      "source_location": "L582"
     },
     {
       "id": "app_src_main_java_com_example_gabai_overviewactivity_overviewactivity_applyttslocale",
@@ -6587,68 +6779,35 @@
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_homefragment",
-      "label": "HomeFragment.kt",
+      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity",
+      "label": "DailyQuestsActivity.kt",
       "_origin": "ast",
       "community": 0,
       "community_name": "Intent",
       "file_type": "code",
-      "norm_label": "homefragment.kt",
-      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "norm_label": "dailyquestsactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
       "source_location": "L1"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_homefragment_kt_bundle",
+      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_kt_appcompatactivity",
+      "label": "AppCompatActivity",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "appcompatactivity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_kt_bundle",
       "label": "Bundle",
       "_origin": "ast",
       "community": 0,
       "community_name": "Intent",
       "file_type": "code",
       "norm_label": "bundle",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_kt_fragment",
-      "label": "Fragment",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "fragment",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_kt_layoutinflater",
-      "label": "LayoutInflater",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "layoutinflater",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_kt_view",
-      "label": "View",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "view",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_homefragment_kt_viewgroup",
-      "label": "ViewGroup",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "viewgroup",
       "source_file": "",
       "source_location": ""
     },
@@ -6730,6 +6889,39 @@
       "source_location": ""
     },
     {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity",
+      "label": "ProgressDashboardActivity.kt",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "progressdashboardactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_appcompatactivity",
+      "label": "AppCompatActivity",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "appcompatactivity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_bundle",
+      "label": "Bundle",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "Intent",
+      "file_type": "code",
+      "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_questdetailsactivity",
       "label": "QuestDetailsActivity.kt",
       "_origin": "ast",
@@ -6796,17 +6988,6 @@
       "source_location": ""
     },
     {
-      "id": "fragmenthomebinding",
-      "label": "FragmentHomeBinding",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "fragmenthomebinding",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "intent",
       "label": "Intent",
       "_origin": "ast",
@@ -6814,17 +6995,6 @@
       "community_name": "Intent",
       "file_type": "code",
       "norm_label": "intent",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "listenerregistration",
-      "label": "ListenerRegistration",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Intent",
-      "file_type": "code",
-      "norm_label": "listenerregistration",
       "source_file": "",
       "source_location": ""
     },
@@ -7071,17 +7241,6 @@
       "source_location": ""
     },
     {
-      "id": "admin_portal_launch",
-      "label": "launch.ps1",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": "launch.ps1",
-      "source_file": "admin-portal/launch.ps1",
-      "source_location": "L1"
-    },
-    {
       "id": "app_src_main_java_com_example_gabai_overviewcache",
       "label": "OverviewCache.kt",
       "_origin": "ast",
@@ -7144,39 +7303,6 @@
       "community_name": "QuizEditorActivity",
       "file_type": "code",
       "norm_label": "textview",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity",
-      "label": "TeacherPerformanceActivity.kt",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": "teacherperformanceactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_kt_appcompatactivity",
-      "label": "AppCompatActivity",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": "appcompatactivity",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_kt_bundle",
-      "label": "Bundle",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "QuizEditorActivity",
-      "file_type": "code",
-      "norm_label": "bundle",
       "source_file": "",
       "source_location": ""
     },
@@ -7588,11 +7714,22 @@
       "source_location": ""
     },
     {
+      "id": "admin_portal_launch",
+      "label": "launch.ps1",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": "launch.ps1",
+      "source_file": "admin-portal/launch.ps1",
+      "source_location": "L1"
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_teacherlibraryactivity",
       "label": "TeacherLibraryActivity.kt",
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": "teacherlibraryactivity.kt",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
@@ -7603,7 +7740,7 @@
       "label": "AppCompatActivity",
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": "appcompatactivity",
       "source_file": "",
@@ -7614,7 +7751,40 @@
       "label": "Bundle",
       "_origin": "ast",
       "community": 16,
-      "community_name": "TeacherLibraryActivity",
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity",
+      "label": "TeacherPerformanceActivity.kt",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": "teacherperformanceactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_kt_appcompatactivity",
+      "label": "AppCompatActivity",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
+      "file_type": "code",
+      "norm_label": "appcompatactivity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_teacherperformanceactivity_kt_bundle",
+      "label": "Bundle",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "launch.ps1",
       "file_type": "code",
       "norm_label": "bundle",
       "source_file": "",
@@ -7625,7 +7795,7 @@
       "label": "GabAIUtils.kt",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "gabaiutils.kt",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
@@ -7636,7 +7806,7 @@
       "label": "Activity",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "activity",
       "source_file": "",
@@ -7647,7 +7817,7 @@
       "label": "Context",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "context",
       "source_file": "",
@@ -7658,7 +7828,7 @@
       "label": "ProgressBar",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "progressbar",
       "source_file": "",
@@ -7669,7 +7839,7 @@
       "label": "View",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "view",
       "source_file": "",
@@ -7680,40 +7850,40 @@
       "label": "PHRASE",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "phrase",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L401"
+      "source_location": "L431"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_textspantype_sentence",
       "label": "SENTENCE",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "sentence",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L402"
+      "source_location": "L432"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiutils_textspantype_word",
       "label": "WORD",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "word",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L400"
+      "source_location": "L430"
     },
     {
       "id": "app_src_main_java_com_example_gabai_subjectdetailactivity",
       "label": "SubjectDetailActivity.kt",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "subjectdetailactivity.kt",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
@@ -7724,7 +7894,7 @@
       "label": "AppCompatActivity",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "appcompatactivity",
       "source_file": "",
@@ -7735,7 +7905,7 @@
       "label": "Bundle",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "bundle",
       "source_file": "",
@@ -7746,7 +7916,7 @@
       "label": "Button",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "button",
       "source_file": "",
@@ -7757,7 +7927,7 @@
       "label": "LinearLayout",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "linearlayout",
       "source_file": "",
@@ -7768,7 +7938,7 @@
       "label": "ProgressBar",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "progressbar",
       "source_file": "",
@@ -7779,7 +7949,7 @@
       "label": "TextView",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "textview",
       "source_file": "",
@@ -7790,7 +7960,7 @@
       "label": "Uri",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "uri",
       "source_file": "",
@@ -7801,7 +7971,7 @@
       "label": "Snackbar",
       "_origin": "ast",
       "community": 17,
-      "community_name": "SubjectDetailActivity",
+      "community_name": "GabAIUtils",
       "file_type": "code",
       "norm_label": "snackbar",
       "source_file": "",
@@ -8303,11 +8473,77 @@
       "source_location": ""
     },
     {
+      "id": "app_src_main_java_com_example_gabai_homefragment",
+      "label": "HomeFragment.kt",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "homefragment.kt",
+      "source_file": "app/src/main/java/com/example/gabai/HomeFragment.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_kt_bundle",
+      "label": "Bundle",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_kt_fragment",
+      "label": "Fragment",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "fragment",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_kt_layoutinflater",
+      "label": "LayoutInflater",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "layoutinflater",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_kt_view",
+      "label": "View",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "view",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_homefragment_kt_viewgroup",
+      "label": "ViewGroup",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "viewgroup",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "app_src_main_java_com_example_gabai_xpmanager",
       "label": "XPManager.kt",
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": "xpmanager.kt",
       "source_file": "app/src/main/java/com/example/gabai/XPManager.kt",
@@ -8318,7 +8554,7 @@
       "label": "Context",
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": "context",
       "source_file": "",
@@ -8329,9 +8565,31 @@
       "label": "SharedPreferences",
       "_origin": "ast",
       "community": 22,
-      "community_name": "XPManager",
+      "community_name": "HomeFragment",
       "file_type": "code",
       "norm_label": "sharedpreferences",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "fragmenthomebinding",
+      "label": "FragmentHomeBinding",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "fragmenthomebinding",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "listenerregistration",
+      "label": "ListenerRegistration",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "HomeFragment",
+      "file_type": "code",
+      "norm_label": "listenerregistration",
       "source_file": "",
       "source_location": ""
     },
@@ -8340,7 +8598,7 @@
       "label": "FastBlurView.kt",
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "fastblurview.kt",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
@@ -8351,7 +8609,7 @@
       "label": "android",
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "android",
       "source_file": "",
@@ -8362,7 +8620,7 @@
       "label": "Bitmap",
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "bitmap",
       "source_file": "",
@@ -8373,7 +8631,7 @@
       "label": "Canvas",
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "canvas",
       "source_file": "",
@@ -8384,7 +8642,7 @@
       "label": "FrameLayout",
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "framelayout",
       "source_file": "",
@@ -8395,7 +8653,7 @@
       "label": "View",
       "_origin": "ast",
       "community": 23,
-      "community_name": "FastBlurTarget",
+      "community_name": "FastBlurView",
       "file_type": "code",
       "norm_label": "view",
       "source_file": "",
@@ -8552,39 +8810,6 @@
       "community_name": "FirebaseAuth",
       "file_type": "code",
       "norm_label": "view",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity",
-      "label": "ProgressDashboardActivity.kt",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "FirebaseAuth",
-      "file_type": "code",
-      "norm_label": "progressdashboardactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_appcompatactivity",
-      "label": "AppCompatActivity",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "FirebaseAuth",
-      "file_type": "code",
-      "norm_label": "appcompatactivity",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_progressdashboardactivity_kt_bundle",
-      "label": "Bundle",
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "FirebaseAuth",
-      "file_type": "code",
-      "norm_label": "bundle",
       "source_file": "",
       "source_location": ""
     },
@@ -8825,114 +9050,37 @@
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_achievementsactivity",
-      "label": "AchievementsActivity.kt",
+      "id": "scripts_seed_demo_accounts",
+      "label": "seed_demo_accounts.py",
       "_origin": "ast",
       "community": 36,
-      "community_name": "ImageView",
+      "community_name": "seed_demo_accounts.py",
       "file_type": "code",
-      "norm_label": "achievementsactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/AchievementsActivity.kt",
+      "norm_label": "seed_demo_accounts.py",
+      "source_file": "scripts/seed_demo_accounts.py",
       "source_location": "L1"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_achievementsactivity_kt_appcompatactivity",
-      "label": "AppCompatActivity",
+      "id": "scripts_seed_demo_accounts_rationale_34",
+      "label": "Signs in or signs up a Firebase Auth user, returning (uid, idToken).",
       "_origin": "ast",
       "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "appcompatactivity",
-      "source_file": "",
-      "source_location": ""
+      "community_name": "seed_demo_accounts.py",
+      "file_type": "rationale",
+      "norm_label": "signs in or signs up a firebase auth user, returning (uid, idtoken).",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L34"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_achievementsactivity_kt_bundle",
-      "label": "Bundle",
+      "id": "scripts_seed_demo_accounts_rationale_71",
+      "label": "Sets/updates a Firestore document via REST API.",
       "_origin": "ast",
       "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "bundle",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_quizhistoryactivity",
-      "label": "QuizHistoryActivity.kt",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "quizhistoryactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_quizhistoryactivity_kt_appcompatactivity",
-      "label": "AppCompatActivity",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "appcompatactivity",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_quizhistoryactivity_kt_bundle",
-      "label": "Bundle",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "bundle",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_studentsubjectactivity",
-      "label": "StudentSubjectActivity.kt",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "studentsubjectactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_studentsubjectactivity_kt_appcompatactivity",
-      "label": "AppCompatActivity",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "appcompatactivity",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_src_main_java_com_example_gabai_studentsubjectactivity_kt_bundle",
-      "label": "Bundle",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "bundle",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "imageview",
-      "label": "ImageView",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ImageView",
-      "file_type": "code",
-      "norm_label": "imageview",
-      "source_file": "",
-      "source_location": ""
+      "community_name": "seed_demo_accounts.py",
+      "file_type": "rationale",
+      "norm_label": "sets/updates a firestore document via rest api.",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L71"
     },
     {
       "id": "deploy_wireless",
@@ -8946,37 +9094,125 @@
       "source_location": "L1"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity",
-      "label": "DailyQuestsActivity.kt",
+      "id": "app_src_main_java_com_example_gabai_achievementsactivity",
+      "label": "AchievementsActivity.kt",
       "_origin": "ast",
       "community": 38,
-      "community_name": "DailyQuestsActivity.kt",
+      "community_name": "ImageView",
       "file_type": "code",
-      "norm_label": "dailyquestsactivity.kt",
-      "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
+      "norm_label": "achievementsactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/AchievementsActivity.kt",
       "source_location": "L1"
     },
     {
-      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_kt_appcompatactivity",
+      "id": "app_src_main_java_com_example_gabai_achievementsactivity_kt_appcompatactivity",
       "label": "AppCompatActivity",
       "_origin": "ast",
       "community": 38,
-      "community_name": "DailyQuestsActivity.kt",
+      "community_name": "ImageView",
       "file_type": "code",
       "norm_label": "appcompatactivity",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "app_src_main_java_com_example_gabai_dailyquestsactivity_kt_bundle",
+      "id": "app_src_main_java_com_example_gabai_achievementsactivity_kt_bundle",
       "label": "Bundle",
       "_origin": "ast",
       "community": 38,
-      "community_name": "DailyQuestsActivity.kt",
+      "community_name": "ImageView",
       "file_type": "code",
       "norm_label": "bundle",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_quizhistoryactivity",
+      "label": "QuizHistoryActivity.kt",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "ImageView",
+      "file_type": "code",
+      "norm_label": "quizhistoryactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_quizhistoryactivity_kt_appcompatactivity",
+      "label": "AppCompatActivity",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "ImageView",
+      "file_type": "code",
+      "norm_label": "appcompatactivity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_quizhistoryactivity_kt_bundle",
+      "label": "Bundle",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "ImageView",
+      "file_type": "code",
+      "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_studentsubjectactivity",
+      "label": "StudentSubjectActivity.kt",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "ImageView",
+      "file_type": "code",
+      "norm_label": "studentsubjectactivity.kt",
+      "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_studentsubjectactivity_kt_appcompatactivity",
+      "label": "AppCompatActivity",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "ImageView",
+      "file_type": "code",
+      "norm_label": "appcompatactivity",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_src_main_java_com_example_gabai_studentsubjectactivity_kt_bundle",
+      "label": "Bundle",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "ImageView",
+      "file_type": "code",
+      "norm_label": "bundle",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "imageview",
+      "label": "ImageView",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "ImageView",
+      "file_type": "code",
+      "norm_label": "imageview",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "scripts_seed_demo_features",
+      "label": "seed_demo_features.py",
+      "_origin": "ast",
+      "community": 39,
+      "community_name": "seed_demo_features.py",
+      "file_type": "code",
+      "norm_label": "seed_demo_features.py",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L1"
     },
     {
       "id": "app_src_main_java_com_example_gabai_scanresultactivity",
@@ -9043,6 +9279,17 @@
       "norm_label": "ontouchlistener",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "scripts_generate_demo_pdf",
+      "label": "generate_demo_pdf.py",
+      "_origin": "ast",
+      "community": 40,
+      "community_name": "generate_demo_pdf.py",
+      "file_type": "code",
+      "norm_label": "generate_demo_pdf.py",
+      "source_file": "scripts/generate_demo_pdf.py",
+      "source_location": "L1"
     },
     {
       "id": "app_src_main_java_com_example_gabai_floatingcontrolservice",
@@ -9691,7 +9938,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AchievementsActivity.kt",
-      "source_location": "L177",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -9703,7 +9950,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AchievementsActivity.kt",
-      "source_location": "L65",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -9715,7 +9962,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AchievementsActivity.kt",
-      "source_location": "L54",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -10123,7 +10370,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L460",
+      "source_location": "L456",
       "weight": 1.0
     },
     {
@@ -10135,7 +10382,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L345",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -10147,7 +10394,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L692",
+      "source_location": "L688",
       "weight": 1.0
     },
     {
@@ -10159,7 +10406,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L697",
+      "source_location": "L693",
       "weight": 1.0
     },
     {
@@ -10171,7 +10418,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L754",
+      "source_location": "L750",
       "weight": 1.0
     },
     {
@@ -10183,7 +10430,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L230",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -10195,7 +10442,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L231",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -10207,7 +10454,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L853",
+      "source_location": "L849",
       "weight": 1.0
     },
     {
@@ -10219,7 +10466,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L115",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -10231,7 +10478,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L131",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -10243,7 +10490,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L135",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
@@ -10255,7 +10502,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L139",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -10267,7 +10514,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L142",
+      "source_location": "L138",
       "weight": 1.0
     },
     {
@@ -10279,7 +10526,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L478",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -10291,7 +10538,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L581",
+      "source_location": "L577",
       "weight": 1.0
     },
     {
@@ -10303,7 +10550,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L672",
+      "source_location": "L668",
       "weight": 1.0
     },
     {
@@ -10315,7 +10562,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L337",
+      "source_location": "L333",
       "weight": 1.0
     },
     {
@@ -10327,7 +10574,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L637",
+      "source_location": "L633",
       "weight": 1.0
     },
     {
@@ -10339,7 +10586,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L38",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -10351,7 +10598,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L39",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -10363,7 +10610,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L52",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -10428,6 +10675,18 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget_onattachedtowindow",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onattachedtowindow",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget_onattachedtowindow",
       "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget_invalidateoverlays",
       "relation": "calls",
       "_origin": "ast",
@@ -10452,6 +10711,18 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget_onlayout",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onlayout",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget_onlayout",
       "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget_invalidateoverlays",
       "relation": "calls",
       "_origin": "ast",
@@ -10463,6 +10734,42 @@
       "weight": 1.0
     },
     {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_autofindtarget",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_findblurtargetrecursive",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L192",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_autofindtarget",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_setupwith",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L194",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_draw",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget_dispatchdraw",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
       "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_draw",
       "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_drawsoftwareblur",
       "relation": "calls",
@@ -10471,7 +10778,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L234",
+      "source_location": "L285",
       "weight": 1.0
     },
     {
@@ -10483,7 +10790,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L248",
+      "source_location": "L309",
       "weight": 1.0
     },
     {
@@ -10495,7 +10802,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L269",
+      "source_location": "L330",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onattachedtowindow",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_autofindtarget",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L178",
       "weight": 1.0
     },
     {
@@ -10507,7 +10826,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L177",
+      "source_location": "L213",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onlayout",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_autofindtarget",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -11299,7 +11630,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L233",
+      "source_location": "L263",
       "weight": 1.0
     },
     {
@@ -11311,7 +11642,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L450",
+      "source_location": "L480",
       "weight": 1.0
     },
     {
@@ -11335,7 +11666,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L345",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
@@ -12127,7 +12458,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/LeaderboardActivity.kt",
-      "source_location": "L40",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -12139,7 +12470,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L128",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -12151,7 +12482,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L72",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -12163,7 +12494,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L94",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -12175,7 +12506,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L43",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -12415,7 +12746,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L219",
+      "source_location": "L199",
       "weight": 1.0
     },
     {
@@ -12427,7 +12758,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L228",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -12439,7 +12770,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L34",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -12451,7 +12782,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L36",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -12463,7 +12794,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L513",
+      "source_location": "L492",
       "weight": 1.0
     },
     {
@@ -12475,7 +12806,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L588",
+      "source_location": "L567",
       "weight": 1.0
     },
     {
@@ -12487,7 +12818,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L91",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -12499,7 +12830,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L703",
+      "source_location": "L682",
       "weight": 1.0
     },
     {
@@ -13123,7 +13454,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L253",
+      "source_location": "L257",
       "weight": 1.0
     },
     {
@@ -13135,7 +13466,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L256",
+      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -13147,7 +13478,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L322",
+      "source_location": "L326",
       "weight": 1.0
     },
     {
@@ -13159,7 +13490,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L397",
+      "source_location": "L401",
       "weight": 1.0
     },
     {
@@ -13171,7 +13502,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L120",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -13183,7 +13514,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L122",
+      "source_location": "L126",
       "weight": 1.0
     },
     {
@@ -13195,7 +13526,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L123",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -13207,7 +13538,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L165",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -13219,7 +13550,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L85",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -13231,7 +13562,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L90",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
@@ -13243,7 +13574,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L334",
+      "source_location": "L338",
       "weight": 1.0
     },
     {
@@ -13255,7 +13586,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L282",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -13387,7 +13718,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L37",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -13399,7 +13730,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L40",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -13411,7 +13742,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L41",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -13975,7 +14306,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L253",
+      "source_location": "L249",
       "weight": 1.0
     },
     {
@@ -13987,7 +14318,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L488",
+      "source_location": "L484",
       "weight": 1.0
     },
     {
@@ -13999,7 +14330,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L490",
+      "source_location": "L486",
       "weight": 1.0
     },
     {
@@ -14011,7 +14342,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L214",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -14023,7 +14354,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L155",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -14035,7 +14366,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L106",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -14047,7 +14378,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L109",
+      "source_location": "L105",
       "weight": 1.0
     },
     {
@@ -14059,7 +14390,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L115",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -14071,7 +14402,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L123",
+      "source_location": "L119",
       "weight": 1.0
     },
     {
@@ -14083,7 +14414,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L124",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -14095,7 +14426,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L91",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -14107,7 +14438,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L94",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -14119,7 +14450,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L97",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -14131,7 +14462,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L446",
+      "source_location": "L442",
       "weight": 1.0
     },
     {
@@ -14143,7 +14474,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L189",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -14155,7 +14486,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L297",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -14167,7 +14498,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L347",
+      "source_location": "L343",
       "weight": 1.0
     },
     {
@@ -14179,7 +14510,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L407",
+      "source_location": "L403",
       "weight": 1.0
     },
     {
@@ -14191,7 +14522,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L409",
+      "source_location": "L405",
       "weight": 1.0
     },
     {
@@ -14203,7 +14534,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L124",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -14215,7 +14546,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L192",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -14227,7 +14558,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L46",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -14515,7 +14846,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L103",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -14527,7 +14858,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L71",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -14539,7 +14870,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L51",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -14551,7 +14882,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L341",
+      "source_location": "L344",
       "weight": 1.0
     },
     {
@@ -14563,7 +14894,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L302",
+      "source_location": "L305",
       "weight": 1.0
     },
     {
@@ -14575,7 +14906,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L474",
+      "source_location": "L477",
       "weight": 1.0
     },
     {
@@ -14587,7 +14918,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L489",
+      "source_location": "L492",
       "weight": 1.0
     },
     {
@@ -14599,7 +14930,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L93",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -14611,7 +14942,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L120",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -14623,7 +14954,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L403",
+      "source_location": "L406",
       "weight": 1.0
     },
     {
@@ -14635,7 +14966,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L240",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -14647,7 +14978,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L244",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -14659,7 +14990,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L140",
+      "source_location": "L136",
       "weight": 1.0
     },
     {
@@ -14671,7 +15002,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L146",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -14683,7 +15014,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L176",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -14695,7 +15026,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L183",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -14791,7 +15122,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L156",
+      "source_location": "L152",
       "weight": 1.0
     },
     {
@@ -14803,7 +15134,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L105",
+      "source_location": "L101",
       "weight": 1.0
     },
     {
@@ -14815,7 +15146,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L110",
+      "source_location": "L106",
       "weight": 1.0
     },
     {
@@ -14827,7 +15158,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L68",
+      "source_location": "L64",
       "weight": 1.0
     },
     {
@@ -14839,7 +15170,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L99",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -14851,7 +15182,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L48",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -14863,7 +15194,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L50",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -14875,7 +15206,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L126",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -14887,7 +15218,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L68",
+      "source_location": "L64",
       "weight": 1.0
     },
     {
@@ -15335,6 +15666,102 @@
       "weight": 1.0
     },
     {
+      "source": "scripts_seed_demo_accounts_main",
+      "target": "scripts_seed_demo_accounts_get_or_create_auth_user",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts_main",
+      "target": "scripts_seed_demo_accounts_set_firestore_document",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts_set_firestore_document",
+      "target": "scripts_seed_demo_accounts_to_firestore_fields",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts_to_firestore_fields",
+      "target": "scripts_seed_demo_accounts_to_firestore_value",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features_main",
+      "target": "scripts_seed_demo_features_sign_in_user",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features_main",
+      "target": "scripts_seed_demo_features_set_firestore_document",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features_set_firestore_document",
+      "target": "scripts_seed_demo_features_to_firestore_fields",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features_to_firestore_fields",
+      "target": "scripts_seed_demo_features_to_firestore_value",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
       "source": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity",
       "target": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_promptforinitiationpdftitle",
       "relation": "method",
@@ -15343,7 +15770,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L563",
+      "source_location": "L559",
       "weight": 1.0
     },
     {
@@ -15355,7 +15782,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L691",
+      "source_location": "L687",
       "weight": 1.0
     },
     {
@@ -15415,7 +15842,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L102",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -16351,7 +16778,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L293",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -20131,7 +20558,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L780",
+      "source_location": "L776",
       "weight": 1.0
     },
     {
@@ -20143,7 +20570,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L794",
+      "source_location": "L790",
       "weight": 1.0
     },
     {
@@ -20155,7 +20582,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L691",
+      "source_location": "L687",
       "weight": 1.0
     },
     {
@@ -20179,7 +20606,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L563",
+      "source_location": "L559",
       "weight": 1.0
     },
     {
@@ -20191,7 +20618,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L586",
+      "source_location": "L582",
       "weight": 1.0
     },
     {
@@ -20311,7 +20738,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L186",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -20323,7 +20750,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L240",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -20335,7 +20762,19 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L285",
+      "source_location": "L346",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_findblurtargetrecursive",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_kt_android",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -20707,7 +21146,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L220",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -20719,7 +21158,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L317",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -20731,7 +21170,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L210",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -20743,7 +21182,19 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L386",
+      "source_location": "L416",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyheaderandscrollinsets",
+      "target": "app_src_main_java_com_example_gabai_gabaiutils_kt_view",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -20755,7 +21206,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L349",
+      "source_location": "L379",
       "weight": 1.0
     },
     {
@@ -20767,7 +21218,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L349",
+      "source_location": "L379",
       "weight": 1.0
     },
     {
@@ -20791,7 +21242,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L333",
+      "source_location": "L363",
       "weight": 1.0
     },
     {
@@ -20851,7 +21302,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L340",
+      "source_location": "L370",
       "weight": 1.0
     },
     {
@@ -21547,7 +21998,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L168",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -21559,7 +22010,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L168",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -21571,7 +22022,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L168",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -21583,7 +22034,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L168",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -21607,7 +22058,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L470",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -21847,7 +22298,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L180",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -21859,7 +22310,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L199",
+      "source_location": "L195",
       "weight": 1.0
     },
     {
@@ -21991,7 +22442,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L189",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -22003,7 +22454,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L352",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -22027,7 +22478,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L102",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -22039,7 +22490,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L125",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -22283,6 +22734,18 @@
       "weight": 1.0
     },
     {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_findblurtargetrecursive",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurtarget",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "return_type",
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
       "source": "app_src_main_java_com_example_gabai_favoritesactivity_favoritesadapter_oncreateviewholder",
       "target": "app_src_main_java_com_example_gabai_favoritesactivity_kt_recyclerview",
       "relation": "references",
@@ -22363,7 +22826,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L115",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -22458,7 +22921,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L400",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -22469,7 +22932,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L401",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
@@ -22480,7 +22943,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L402",
+      "source_location": "L432",
       "weight": 1.0
     },
     {
@@ -22898,7 +23361,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L399",
+      "source_location": "L429",
       "weight": 1.0
     },
     {
@@ -22909,7 +23372,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L405",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -23603,6 +24066,127 @@
       "confidence_score": 1.0,
       "source_file": "gradlew",
       "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_demo_pdf",
+      "target": "scripts_generate_demo_pdf_create_sample_pdf",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/generate_demo_pdf.py",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts",
+      "target": "scripts_seed_demo_accounts_to_firestore_value",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts",
+      "target": "scripts_seed_demo_accounts_to_firestore_fields",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts",
+      "target": "scripts_seed_demo_accounts_get_or_create_auth_user",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts",
+      "target": "scripts_seed_demo_accounts_set_firestore_document",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts",
+      "target": "scripts_seed_demo_accounts_main",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features",
+      "target": "scripts_seed_demo_features_to_firestore_value",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features",
+      "target": "scripts_seed_demo_features_to_firestore_fields",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features",
+      "target": "scripts_seed_demo_features_sign_in_user",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features",
+      "target": "scripts_seed_demo_features_set_firestore_document",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_features",
+      "target": "scripts_seed_demo_features_main",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_features.py",
+      "source_location": "L53",
       "weight": 1.0
     },
     {
@@ -24372,7 +24956,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AchievementsActivity.kt",
-      "source_location": "L57",
+      "source_location": "L53",
       "weight": 1.0
     },
     {
@@ -24658,7 +25242,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L145",
+      "source_location": "L141",
       "weight": 1.0
     },
     {
@@ -24669,7 +25253,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L324",
+      "source_location": "L320",
       "weight": 1.0
     },
     {
@@ -24680,7 +25264,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L343",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -24691,7 +25275,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L384",
+      "source_location": "L380",
       "weight": 1.0
     },
     {
@@ -24702,7 +25286,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L448",
+      "source_location": "L444",
       "weight": 1.0
     },
     {
@@ -24713,7 +25297,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L466",
+      "source_location": "L462",
       "weight": 1.0
     },
     {
@@ -24724,7 +25308,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L485",
+      "source_location": "L481",
       "weight": 1.0
     },
     {
@@ -24735,7 +25319,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L586",
+      "source_location": "L582",
       "weight": 1.0
     },
     {
@@ -24746,7 +25330,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L656",
+      "source_location": "L652",
       "weight": 1.0
     },
     {
@@ -24768,7 +25352,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L677",
+      "source_location": "L673",
       "weight": 1.0
     },
     {
@@ -24779,7 +25363,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L780",
+      "source_location": "L776",
       "weight": 1.0
     },
     {
@@ -24790,7 +25374,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L794",
+      "source_location": "L790",
       "weight": 1.0
     },
     {
@@ -24801,7 +25385,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L805",
+      "source_location": "L801",
       "weight": 1.0
     },
     {
@@ -24823,7 +25407,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L49",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -24834,7 +25418,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt",
-      "source_location": "L66",
+      "source_location": "L63",
       "weight": 1.0
     },
     {
@@ -25037,7 +25621,7 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview",
-      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_ondetachedfromwindow",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onattachedtowindow",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -25048,13 +25632,57 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_onlayout",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_autofindtarget",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_findblurtargetrecursive",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview",
+      "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_ondetachedfromwindow",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
+      "source_location": "L211",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_fastblurview_fastblurview",
       "target": "app_src_main_java_com_example_gabai_fastblurview_fastblurview_draw",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L186",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -25065,7 +25693,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L240",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -25076,7 +25704,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/FastBlurView.kt",
-      "source_location": "L285",
+      "source_location": "L346",
       "weight": 1.0
     },
     {
@@ -25719,24 +26347,13 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
-      "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyfrostedglass",
+      "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyheaderandscrollinsets",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L210",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
-      "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_addspringpresseffect",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L220",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -25752,13 +26369,35 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
+      "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyfrostedglass",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
+      "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_addspringpresseffect",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L250",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
       "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_animatecascade",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L293",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -25769,7 +26408,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L317",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -25780,7 +26419,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L333",
+      "source_location": "L363",
       "weight": 1.0
     },
     {
@@ -25791,7 +26430,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L340",
+      "source_location": "L370",
       "weight": 1.0
     },
     {
@@ -25802,18 +26441,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L349",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
-      "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyhardwaremaxrefreshrate",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L386",
+      "source_location": "L379",
       "weight": 1.0
     },
     {
@@ -25829,13 +26457,24 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
+      "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_applyhardwaremaxrefreshrate",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
+      "source_location": "L416",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils",
       "target": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_classifytextspan",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L419",
+      "source_location": "L449",
       "weight": 1.0
     },
     {
@@ -25846,7 +26485,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/GabAIUtils.kt",
-      "source_location": "L463",
+      "source_location": "L493",
       "weight": 1.0
     },
     {
@@ -26517,7 +27156,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/LeaderboardActivity.kt",
-      "source_location": "L43",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -26528,7 +27167,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L115",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -26539,7 +27178,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L141",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -26561,7 +27200,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/LibraryActivity.kt",
-      "source_location": "L53",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -26737,7 +27376,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L295",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -26748,7 +27387,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L38",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -26759,7 +27398,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L425",
+      "source_location": "L404",
       "weight": 1.0
     },
     {
@@ -26770,7 +27409,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L475",
+      "source_location": "L454",
       "weight": 1.0
     },
     {
@@ -26781,7 +27420,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L542",
+      "source_location": "L521",
       "weight": 1.0
     },
     {
@@ -26792,7 +27431,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L690",
+      "source_location": "L669",
       "weight": 1.0
     },
     {
@@ -26803,7 +27442,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L709",
+      "source_location": "L688",
       "weight": 1.0
     },
     {
@@ -26814,7 +27453,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L752",
+      "source_location": "L731",
       "weight": 1.0
     },
     {
@@ -26825,7 +27464,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ManageClassesActivity.kt",
-      "source_location": "L99",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -27375,7 +28014,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L168",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -27386,7 +28025,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L241",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -27397,7 +28036,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L265",
+      "source_location": "L269",
       "weight": 1.0
     },
     {
@@ -27408,7 +28047,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L287",
+      "source_location": "L291",
       "weight": 1.0
     },
     {
@@ -27419,7 +28058,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L333",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -27430,7 +28069,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L347",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -27452,7 +28091,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L470",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -27463,7 +28102,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/PdfViewerActivity.kt",
-      "source_location": "L514",
+      "source_location": "L518",
       "weight": 1.0
     },
     {
@@ -27595,7 +28234,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L49",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -27606,7 +28245,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ProgressDashboardActivity.kt",
-      "source_location": "L62",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -27980,7 +28619,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L130",
+      "source_location": "L126",
       "weight": 1.0
     },
     {
@@ -27991,7 +28630,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L141",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -28002,7 +28641,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L180",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -28013,7 +28652,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L199",
+      "source_location": "L195",
       "weight": 1.0
     },
     {
@@ -28024,7 +28663,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L204",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -28035,7 +28674,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L221",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -28046,7 +28685,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L289",
+      "source_location": "L285",
       "weight": 1.0
     },
     {
@@ -28057,7 +28696,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L296",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -28068,7 +28707,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L417",
+      "source_location": "L413",
       "weight": 1.0
     },
     {
@@ -28079,7 +28718,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L424",
+      "source_location": "L420",
       "weight": 1.0
     },
     {
@@ -28090,7 +28729,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L451",
+      "source_location": "L447",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity",
+      "target": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_saveandpublish",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
+      "source_location": "L497",
       "weight": 1.0
     },
     {
@@ -28105,17 +28755,6 @@
       "weight": 1.0
     },
     {
-      "source": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity",
-      "target": "app_src_main_java_com_example_gabai_quizeditoractivity_quizeditoractivity_saveandpublish",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L501",
-      "weight": 1.0
-    },
-    {
       "source": "app_src_main_java_com_example_gabai_quizhistoryactivity_quizhistoryactivity",
       "target": "app_src_main_java_com_example_gabai_quizhistoryactivity_quizhistoryactivity_showreviewdialog",
       "relation": "method",
@@ -28123,7 +28762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L207",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -28145,7 +28784,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/QuizHistoryActivity.kt",
-      "source_location": "L49",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -28453,7 +29092,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L123",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -28475,7 +29114,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt",
-      "source_location": "L54",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -28486,7 +29125,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L125",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -28497,7 +29136,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L189",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -28508,7 +29147,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L201",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -28519,7 +29158,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L222",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -28530,7 +29169,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L253",
+      "source_location": "L249",
       "weight": 1.0
     },
     {
@@ -28541,7 +29180,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L260",
+      "source_location": "L256",
       "weight": 1.0
     },
     {
@@ -28552,7 +29191,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L321",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -28563,7 +29202,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L352",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -28574,7 +29213,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L381",
+      "source_location": "L384",
       "weight": 1.0
     },
     {
@@ -28585,7 +29224,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt",
-      "source_location": "L413",
+      "source_location": "L416",
       "weight": 1.0
     },
     {
@@ -28695,7 +29334,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L124",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -28706,7 +29345,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L146",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -28717,7 +29356,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L162",
+      "source_location": "L158",
       "weight": 1.0
     },
     {
@@ -28739,7 +29378,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/TeacherLibraryActivity.kt",
-      "source_location": "L58",
+      "source_location": "L54",
       "weight": 1.0
     },
     {
@@ -28761,7 +29400,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/TeacherPerformanceActivity.kt",
-      "source_location": "L71",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -29172,6 +29811,28 @@
       "weight": 1.0
     },
     {
+      "source": "scripts_seed_demo_accounts_rationale_34",
+      "target": "scripts_seed_demo_accounts_get_or_create_auth_user",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_seed_demo_accounts_rationale_71",
+      "target": "scripts_seed_demo_accounts_set_firestore_document",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/seed_demo_accounts.py",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
       "source": "app_src_main_java_com_example_gabai_gabaiutils_gabaiutils_showgloballoading",
       "target": "app_src_main_java_com_example_gabai_gabailoadingview_gabailoadingview",
       "relation": "calls",
@@ -29252,7 +29913,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/QuizEditorActivity.kt",
-      "source_location": "L519",
+      "source_location": "L515",
       "weight": 1.0
     },
     {
@@ -29290,5 +29951,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "304a2437c28012886c21369c22203ee5c80ae29e"
+  "built_at_commit": "cd333855daa7d83109d9a0a5d3a1ecfb93970c0c"
 }

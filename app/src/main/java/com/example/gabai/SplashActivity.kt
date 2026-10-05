@@ -75,15 +75,30 @@ class SplashActivity : AppCompatActivity() {
                     if (doc.exists()) {
                         val role = doc.getString("role") ?: "student"
                         val firstName = doc.getString("firstName") ?: doc.getString("first_name") ?: ""
+                        val lastName = doc.getString("lastName") ?: doc.getString("last_name") ?: ""
+                        val explicitName = doc.getString("name") ?: doc.getString("fullName") ?: ""
+                        val fullName = when {
+                            firstName.isNotBlank() && lastName.isNotBlank() -> "$firstName $lastName"
+                            firstName.isNotBlank() -> firstName
+                            explicitName.isNotBlank() -> explicitName
+                            else -> ""
+                        }
                         preloadedRole = role
                         prefs.edit()
                             .putString("cached_user_role", role)
                             .putString("cached_first_name", firstName)
+                            .putString("cached_last_name", lastName)
+                            .putString("cached_full_name", fullName)
                             .apply()
                     } else {
                         // User account deleted or uninitialized
                         FirebaseAuth.getInstance().signOut()
-                        prefs.edit().remove("cached_user_role").remove("cached_first_name").apply()
+                        prefs.edit()
+                            .remove("cached_user_role")
+                            .remove("cached_first_name")
+                            .remove("cached_last_name")
+                            .remove("cached_full_name")
+                            .apply()
                         preloadedRole = null
                     }
                     isAuthCheckDone = true
