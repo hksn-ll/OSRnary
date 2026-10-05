@@ -13,13 +13,25 @@ class DailyQuestsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_daily_quests)
 
+        // Setup Frosted Header Backdrop Blur
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_quests)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_quests)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
+
+        // Insets handling for header
         val header = findViewById<View>(R.id.quests_header)
-        GabAIUtils.applyFrostedGlass(header, 28f)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
+            insets
+        }
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
-        GabAIUtils.addSpringPressEffect(btnBack) {
+        btnBack?.setOnClickListener {
+            GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
             finish()
         }
 

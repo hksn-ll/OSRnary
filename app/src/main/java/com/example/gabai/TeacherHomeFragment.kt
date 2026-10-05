@@ -43,7 +43,7 @@ class TeacherHomeFragment : Fragment() {
             binding.btnViewPerformance,
             binding.btnCreateClassQuick
         )
-        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 35L, startDelayOffset = 300L)
+        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 30L, startDelayOffset = 180L)
     }
 
     private fun loadEducatorProfileAndMetrics() {

@@ -22,8 +22,17 @@ class LeaderboardActivity : AppCompatActivity() {
         GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_leaderboard)
 
-        val header = findViewById<View>(R.id.leaderboard_header)
-        GabAIUtils.applyFrostedGlass(header, 28f)
+        val blurHeader = findViewById<io.alterac.blurkit.FastBlurView>(R.id.blur_header_leaderboard)
+        val blurTarget = findViewById<io.alterac.blurkit.FastBlurTarget>(R.id.blur_target_leaderboard)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
+
+        val headerInner = findViewById<View>(R.id.leaderboard_header)
+        val initialPaddingTop = headerInner.paddingTop
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
+            insets
+        }
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }

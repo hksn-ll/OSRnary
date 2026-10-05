@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -13,7 +14,11 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.card.MaterialCardView
+import io.alterac.blurkit.FastBlurTarget
+import io.alterac.blurkit.FastBlurView
 
 class AchievementsActivity : AppCompatActivity() {
 
@@ -28,11 +33,20 @@ class AchievementsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        GabAIUtils.applyHardwareMaxRefreshRate(this)
+        GabAIUtils.enableHardwareRefreshRate(this)
         setContentView(R.layout.activity_achievements)
 
-        val header = findViewById<View>(R.id.achievements_header)
-        GabAIUtils.applyFrostedGlass(header, 28f)
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_achievements)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_achievements)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
+
+        val headerInner = findViewById<View>(R.id.achievements_header)
+        val initialPaddingTop = headerInner.paddingTop
+        ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
+            insets
+        }
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) {
@@ -55,7 +69,7 @@ class AchievementsActivity : AppCompatActivity() {
                 "Complete your onboarding initiation and reach Level 2.",
                 currentLevel >= 2,
                 R.drawable.ic_badge_check,
-                "#5341CD",
+                "#6366F1",
                 "Requires Level 2"
             ),
             Badge(
@@ -63,7 +77,7 @@ class AchievementsActivity : AppCompatActivity() {
                 "Maintain a 3-Day active learning streak.",
                 currentStreak >= 3,
                 R.drawable.ic_star_filled,
-                "#F59E0B",
+                "#E11D48",
                 "Requires 3-Day Streak"
             ),
             Badge(
@@ -119,10 +133,10 @@ class AchievementsActivity : AppCompatActivity() {
 
         for (badge in badges) {
             val card = MaterialCardView(this).apply {
-                radius = 18 * density
-                cardElevation = 1 * density
-                setStrokeColor(Color.parseColor(if (badge.isUnlocked) "#EDF2F7" else "#F1F5F9"))
-                strokeWidth = (1 * density).toInt()
+                radius = 22 * density
+                cardElevation = 0f
+                setStrokeColor(Color.parseColor(if (badge.isUnlocked) "#E2E8F0" else "#F1F5F9"))
+                strokeWidth = (1.5 * density).toInt()
                 setCardBackgroundColor(Color.WHITE)
 
                 val params = GridLayout.LayoutParams().apply {
@@ -133,26 +147,38 @@ class AchievementsActivity : AppCompatActivity() {
                 }
                 layoutParams = params
 
-                alpha = if (badge.isUnlocked) 1.0f else 0.6f
+                alpha = if (badge.isUnlocked) 1.0f else 0.55f
             }
 
             val content = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER_HORIZONTAL
-                setPadding((14 * density).toInt(), (18 * density).toInt(), (14 * density).toInt(), (18 * density).toInt())
+                setPadding((16 * density).toInt(), (20 * density).toInt(), (16 * density).toInt(), (20 * density).toInt())
             }
 
-            // Circular Icon Badge
+            // Squircle Bento Icon Badge Frame (48dp x 48dp)
             val iconFrame = LinearLayout(this).apply {
                 gravity = Gravity.CENTER
-                setBackgroundResource(if (badge.isUnlocked) R.drawable.bg_bento_purple else R.drawable.bg_pill_translucent)
-                val sizePx = (52 * density).toInt()
+                setBackgroundResource(
+                    if (badge.isUnlocked) {
+                        when (badge.colorHex) {
+                            "#10B981" -> R.drawable.bg_bento_mint
+                            "#E11D48" -> R.drawable.bg_bento_rose
+                            "#6366F1" -> R.drawable.bg_bento_lavender
+                            "#8B5CF6" -> R.drawable.bg_bento_purple
+                            else -> R.drawable.bg_bento_purple
+                        }
+                    } else {
+                        R.drawable.bg_pill_translucent
+                    }
+                )
+                val sizePx = (48 * density).toInt()
                 layoutParams = LinearLayout.LayoutParams(sizePx, sizePx)
             }
 
             val icon = ImageView(this).apply {
                 setImageResource(badge.iconResId)
-                val padPx = (12 * density).toInt()
+                val padPx = (11 * density).toInt()
                 setPadding(padPx, padPx, padPx, padPx)
                 setColorFilter(Color.parseColor(if (badge.isUnlocked) badge.colorHex else "#94A3B8"))
             }
@@ -164,23 +190,28 @@ class AchievementsActivity : AppCompatActivity() {
                 setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
                 setTextColor(Color.parseColor(if (badge.isUnlocked) "#0F172A" else "#64748B"))
                 gravity = Gravity.CENTER
-                setPadding(0, (10 * density).toInt(), 0, 0)
+                setPadding(0, (12 * density).toInt(), 0, 0)
                 maxLines = 2
             }
 
             val tvStatusPill = TextView(this).apply {
                 text = if (badge.isUnlocked) "UNLOCKED" else "LOCKED"
-                textSize = 10f
+                textSize = 9.5f
                 setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
-                letterSpacing = 0.05f
-                setTextColor(Color.parseColor(if (badge.isUnlocked) "#10B981" else "#94A3B8"))
+                letterSpacing = 0.06f
+                setTextColor(Color.parseColor(if (badge.isUnlocked) "#059669" else "#94A3B8"))
                 setBackgroundResource(R.drawable.bg_pill_translucent)
-                setPadding((8 * density).toInt(), (3 * density).toInt(), (8 * density).toInt(), (3 * density).toInt())
+                if (badge.isUnlocked) {
+                    backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+                } else {
+                    backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
+                }
+                setPadding((10 * density).toInt(), (4 * density).toInt(), (10 * density).toInt(), (4 * density).toInt())
                 val pillParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    setMargins(0, (8 * density).toInt(), 0, 0)
+                    setMargins(0, (10 * density).toInt(), 0, 0)
                 }
                 layoutParams = pillParams
             }
@@ -190,8 +221,8 @@ class AchievementsActivity : AppCompatActivity() {
             content.addView(tvStatusPill)
             card.addView(content)
 
-            // Click Dialog
-            card.setOnClickListener {
+            // Spring press feedback on card
+            GabAIUtils.addSpringPressEffect(card) {
                 GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
                 GabAIDialogs.showNoticeDialog(
                     context = this,

@@ -4,365 +4,442 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app_aurora">
+    android:background="@drawable/bg_app_aurora"
+    android:fitsSystemWindows="true">
 
-    <!-- Frosted Top Bar Header -->
-    <LinearLayout
-        android:id="@+id/quests_header"
+    <!-- ================================================================= -->
+    <!-- FROSTED COMPACT TOP HEADER                                        -->
+    <!-- ================================================================= -->
+    <com.example.gabai.FastBlurView
+        android:id="@+id/blur_header_quests"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_glass_top_bar"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="42dp"
-        android:paddingBottom="16dp"
+        android:background="@drawable/bg_glass_blur_top"
+        android:elevation="6dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:contentDescription="@string/cd_back"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_btn_frosted_circle"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="#161D1F" />
-
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="14dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DAILY REWARDS"
-                android:textColor="#5341CD"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.08" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quests &amp; Streaks"
-                android:textColor="#161D1F"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/font_plus_jakarta_sans" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        android:clipToPadding="false"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/quests_header"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <LinearLayout
-            android:id="@+id/quests_container"
+            android:id="@+id/quests_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
 
-            <!-- Streak Bento Hero Card -->
-            <LinearLayout
-                android:id="@+id/card_streak"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card_bento"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="20dp"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🔥"
-                    android:textSize="44sp"
-                    android:layout_marginEnd="16dp" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_streak_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0 Day Streak!"
-                        android:textColor="#D35400"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Complete any daily quest to keep your fire alive"
-                        android:textColor="#5A6472"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-                </LinearLayout>
-            </LinearLayout>
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cd_back"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/text_primary" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/tv_header_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="TODAY'S MISSIONS"
-                android:textColor="#5341CD"
-                android:textSize="12sp"
-                android:textStyle="bold"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
                 android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.08"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Quest 1: Quiz Session -->
-            <LinearLayout
-                android:id="@+id/card_quest_quiz"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card_bento"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginBottom="14dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:gravity="center"
-                        android:text="⚡"
-                        android:textSize="20sp"
-                        android:background="@drawable/bg_glass_chip"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Memory Master"
-                            android:textColor="#161D1F"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                        <TextView
-                            android:id="@+id/tv_quest_quiz_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="Complete 1 Quiz Session (0/1)"
-                            android:textColor="#5A6472"
-                            android:textSize="13sp"
-                            android:fontFamily="@font/font_plus_jakarta_sans" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/prog_quest_quiz"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="14dp"
-                    android:max="1"
-                    android:progress="0"
-                    android:progressTint="#5341CD" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_action_quiz"
-                    android:layout_width="wrap_content"
-                    android:layout_height="38dp"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="#5341CD"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:text="Launch Quiz ➔"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="19dp" />
-            </LinearLayout>
-
-            <!-- Quest 2: Save Words -->
-            <LinearLayout
-                android:id="@+id/card_quest_save"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card_bento"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginBottom="14dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:gravity="center"
-                        android:text="⭐"
-                        android:textSize="20sp"
-                        android:background="@drawable/bg_glass_chip"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Word Collector"
-                            android:textColor="#161D1F"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                        <TextView
-                            android:id="@+id/tv_quest_save_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="Save 2 Words to Favorites (0/2)"
-                            android:textColor="#5A6472"
-                            android:textSize="13sp"
-                            android:fontFamily="@font/font_plus_jakarta_sans" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/prog_quest_save"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="14dp"
-                    android:max="2"
-                    android:progress="0"
-                    android:progressTint="#E67E22" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_action_save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="38dp"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="#E67E22"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:text="View Favorites ➔"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="19dp" />
-            </LinearLayout>
-
-            <!-- Quest 3: Read Material -->
-            <LinearLayout
-                android:id="@+id/card_quest_read"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card_bento"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_marginBottom="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:gravity="center"
-                        android:text="📖"
-                        android:textSize="20sp"
-                        android:background="@drawable/bg_glass_chip"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="The Scholar"
-                            android:textColor="#161D1F"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                        <TextView
-                            android:id="@+id/tv_quest_read_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="Open 1 Reading Material (0/1)"
-                            android:textColor="#5A6472"
-                            android:textSize="13sp"
-                            android:fontFamily="@font/font_plus_jakarta_sans" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/prog_quest_read"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="14dp"
-                    android:max="1"
-                    android:progress="0"
-                    android:progressTint="#00B894" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_action_read"
-                    android:layout_width="wrap_content"
-                    android:layout_height="38dp"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="#00B894"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:text="Open Library ➔"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="19dp" />
-            </LinearLayout>
-
+                android:text="Daily Quests"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
-    </ScrollView>
+    </com.example.gabai.FastBlurView>
+
+    <!-- ================================================================= -->
+    <!-- SCROLLABLE LIST CONTENT (Wrapped in FastBlurTarget)               -->
+    <!-- ================================================================= -->
+    <com.example.gabai.FastBlurTarget
+        android:id="@+id/blur_target_quests"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="72dp"
+            android:paddingBottom="36dp">
+
+            <LinearLayout
+                android:id="@+id/quests_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 1. Streak Bento Hero Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_streak"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#FED7AA"
+                    app:cardBackgroundColor="#FFF7ED">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                        <FrameLayout
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_bento_orange"
+                            android:layout_marginEnd="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="🔥"
+                                android:textSize="24sp" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_streak_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="0 Day Streak!"
+                                android:textColor="#C2410C"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:text="Complete any daily quest to keep your fire alive."
+                                android:textColor="#9A3412"
+                                android:textSize="12.5sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Section Title -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.08"
+                    android:text="TODAY'S MISSIONS"
+                    android:textColor="#5341CD"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- 2. Quest 1: Quiz Session -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_quest_quiz"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_bento_purple"
+                                android:layout_marginEnd="14dp">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_school"
+                                    app:tint="#5341CD"
+                                    android:contentDescription="@null" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/font_plus_jakarta_sans"
+                                    android:text="Memory Master"
+                                    android:textColor="#0F172A"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_quest_quiz_status"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/font_nunito_sans"
+                                    android:text="Complete 1 Quiz Session (0/1)"
+                                    android:textColor="#64748B"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/prog_quest_quiz"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="14dp"
+                            android:max="1"
+                            android:progress="0"
+                            android:progressTint="#5341CD" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_action_quiz"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="12dp"
+                            android:backgroundTint="#5341CD"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Launch Quiz ➔"
+                            android:textAllCaps="false"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="20dp"
+                            app:elevation="0dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 3. Quest 2: Save Words -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_quest_save"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_bento_orange"
+                                android:layout_marginEnd="14dp">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_star_filled"
+                                    app:tint="#D97706"
+                                    android:contentDescription="@null" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/font_plus_jakarta_sans"
+                                    android:text="Word Collector"
+                                    android:textColor="#0F172A"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_quest_save_status"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/font_nunito_sans"
+                                    android:text="Save 2 Words to Favorites (0/2)"
+                                    android:textColor="#64748B"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/prog_quest_save"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="14dp"
+                            android:max="2"
+                            android:progress="0"
+                            android:progressTint="#D97706" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_action_save"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="12dp"
+                            android:backgroundTint="#D97706"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="View Favorites ➔"
+                            android:textAllCaps="false"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="20dp"
+                            app:elevation="0dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 4. Quest 3: Read Material -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_quest_read"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <FrameLayout
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_bento_mint"
+                                android:layout_marginEnd="14dp">
+
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_menu_book"
+                                    app:tint="#059669"
+                                    android:contentDescription="@null" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/font_plus_jakarta_sans"
+                                    android:text="The Scholar"
+                                    android:textColor="#0F172A"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_quest_read_status"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:fontFamily="@font/font_nunito_sans"
+                                    android:text="Open 1 Reading Material (0/1)"
+                                    android:textColor="#64748B"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/prog_quest_read"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="14dp"
+                            android:max="1"
+                            android:progress="0"
+                            android:progressTint="#059669" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_action_read"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="12dp"
+                            android:backgroundTint="#059669"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Open Library ➔"
+                            android:textAllCaps="false"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="20dp"
+                            app:elevation="0dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </ScrollView>
+    </com.example.gabai.FastBlurTarget>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

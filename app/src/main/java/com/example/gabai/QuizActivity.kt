@@ -33,7 +33,8 @@ class QuizActivity : AppCompatActivity() {
 
     // --- Data Model for Pre-Generated Questions ---
     data class QuizQuestionItem(
-        val docSnapshot: DocumentSnapshot,
+        val docId: String = "",
+        val interval: Int = 1,
         val word: String,
         val question: String,
         val options: List<String>,
@@ -99,6 +100,16 @@ class QuizActivity : AppCompatActivity() {
         initializeQuizSession()
     }
 
+    override fun onPause() {
+        super.onPause()
+        saveCurrentSession()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        saveCurrentSession()
+    }
+
     private fun bindViews() {
         quizHeader = findViewById(R.id.quiz_header)
         tvComboStreak = findViewById(R.id.tv_combo_streak)
@@ -162,16 +173,233 @@ class QuizActivity : AppCompatActivity() {
             return
         }
 
+        saveCurrentSession()
         GabAIDialogs.showConfirmDialog(
             context = this,
             title = "Leave Quiz Session?",
-            message = "Your current recall streak and progress for this session will be lost.",
-            confirmText = "Leave",
+            message = "Your session progress is safely saved. You can leave and continue anytime right where you left off!",
+            confirmText = "Leave & Save",
             cancelText = "Keep Playing",
-            isDestructive = true,
-            badgeIcon = "🏃‍♂️",
-            onConfirm = { finish() }
+            isDestructive = false,
+            badgeIcon = "💾",
+            onConfirm = {
+                saveCurrentSession()
+                finish()
+            }
         )
+    }
+
+    // ========================================================================
+    // PERSISTENCE ENGINE: SAVE, RESTORE, AND CLEAR QUIZ SESSIONS
+    // ========================================================================
+    private fun saveCurrentSession() {
+        val userId = auth.currentUser?.uid ?: return
+        val resultView = findViewById<View>(R.id.result_view)
+        if (resultView.visibility == View.VISIBLE || (quizQueue.isEmpty() && currentActiveItem == null)) {
+            clearSavedSession(userId)
+            return
+        }
+
+        try {
+            val prefs = getSharedPreferences("quiz_session_prefs", MODE_PRIVATE)
+            val sessionJson = org.json.JSONObject()
+            sessionJson.put("userId", userId)
+            sessionJson.put("timestamp", System.currentTimeMillis())
+            sessionJson.put("totalQuestionsInSession", totalQuestionsInSession)
+            sessionJson.put("currentQuestionIndex", currentQuestionIndex)
+            sessionJson.put("score", score)
+            sessionJson.put("totalAttempts", totalAttempts)
+            sessionJson.put("comboStreak", comboStreak)
+            sessionJson.put("maxComboStreak", maxComboStreak)
+
+            currentActiveItem?.let { item ->
+                val activeObj = org.json.JSONObject().apply {
+                    put("docId", item.docId)
+                    put("interval", item.interval)
+                    put("word", item.word)
+                    put("question", item.question)
+                    put("correct", item.correct)
+                    put("explanation", item.explanation)
+                    val optsArr = org.json.JSONArray()
+                    item.options.forEach { optsArr.put(it) }
+                    put("options", optsArr)
+                }
+                sessionJson.put("currentActiveItem", activeObj)
+            }
+
+            val queueArr = org.json.JSONArray()
+            for (item in quizQueue) {
+                val qObj = org.json.JSONObject().apply {
+                    put("docId", item.docId)
+                    put("interval", item.interval)
+                    put("word", item.word)
+                    put("question", item.question)
+                    put("correct", item.correct)
+                    put("explanation", item.explanation)
+                    val optsArr = org.json.JSONArray()
+                    item.options.forEach { optsArr.put(it) }
+                    put("options", optsArr)
+                }
+                queueArr.put(qObj)
+            }
+            sessionJson.put("quizQueue", queueArr)
+
+            val resultsArr = org.json.JSONArray()
+            for (res in sessionResults) {
+                val rObj = org.json.JSONObject()
+                res.forEach { (k, v) -> rObj.put(k, v) }
+                resultsArr.put(rObj)
+            }
+            sessionJson.put("sessionResults", resultsArr)
+
+            prefs.edit().putString("active_session_$userId", sessionJson.toString()).apply()
+        } catch (_: Exception) {}
+    }
+
+    private fun restoreSavedSession(userId: String): Boolean {
+        try {
+            val prefs = getSharedPreferences("quiz_session_prefs", MODE_PRIVATE)
+            val jsonStr = prefs.getString("active_session_$userId", null) ?: return false
+            val sessionJson = org.json.JSONObject(jsonStr)
+
+            val sessionUserId = sessionJson.optString("userId", "")
+            if (sessionUserId != userId) return false
+
+            val timestamp = sessionJson.optLong("timestamp", 0L)
+            if (System.currentTimeMillis() - timestamp > 24 * 60 * 60 * 1000L) {
+                clearSavedSession(userId)
+                return false
+            }
+
+            totalQuestionsInSession = sessionJson.optInt("totalQuestionsInSession", 0)
+            currentQuestionIndex = sessionJson.optInt("currentQuestionIndex", 0)
+            score = sessionJson.optInt("score", 0)
+            totalAttempts = sessionJson.optInt("totalAttempts", 0)
+            comboStreak = sessionJson.optInt("comboStreak", 0)
+            maxComboStreak = sessionJson.optInt("maxComboStreak", 0)
+
+            sessionResults.clear()
+            val resArr = sessionJson.optJSONArray("sessionResults")
+            if (resArr != null) {
+                for (i in 0 until resArr.length()) {
+                    val obj = resArr.getJSONObject(i)
+                    val map = mutableMapOf<String, Any>()
+                    val keys = obj.keys()
+                    while (keys.hasNext()) {
+                        val key = keys.next()
+                        map[key] = obj.get(key)
+                    }
+                    sessionResults.add(map)
+                }
+            }
+
+            quizQueue.clear()
+            val queueArr = sessionJson.optJSONArray("quizQueue")
+            if (queueArr != null) {
+                for (i in 0 until queueArr.length()) {
+                    val qObj = queueArr.getJSONObject(i)
+                    val optsArr = qObj.getJSONArray("options")
+                    val opts = mutableListOf<String>()
+                    for (k in 0 until optsArr.length()) {
+                        opts.add(optsArr.getString(k))
+                    }
+                    quizQueue.add(
+                        QuizQuestionItem(
+                            docId = qObj.optString("docId", ""),
+                            interval = qObj.optInt("interval", 1),
+                            word = qObj.optString("word", ""),
+                            question = qObj.optString("question", ""),
+                            options = opts,
+                            correct = qObj.optString("correct", ""),
+                            explanation = qObj.optString("explanation", "")
+                        )
+                    )
+                }
+            }
+
+            val activeObj = sessionJson.optJSONObject("currentActiveItem")
+            if (activeObj != null) {
+                val optsArr = activeObj.getJSONArray("options")
+                val opts = mutableListOf<String>()
+                for (k in 0 until optsArr.length()) {
+                    opts.add(optsArr.getString(k))
+                }
+                currentActiveItem = QuizQuestionItem(
+                    docId = activeObj.optString("docId", ""),
+                    interval = activeObj.optInt("interval", 1),
+                    word = activeObj.optString("word", ""),
+                    question = activeObj.optString("question", ""),
+                    options = opts,
+                    correct = activeObj.optString("correct", ""),
+                    explanation = activeObj.optString("explanation", "")
+                )
+            } else if (quizQueue.isNotEmpty()) {
+                currentActiveItem = quizQueue.removeAt(0)
+            }
+
+            if (currentActiveItem == null && quizQueue.isEmpty()) {
+                clearSavedSession(userId)
+                return false
+            }
+
+            displayActiveRestoredQuestion()
+            GabAIUtils.showSnackbar(this, "Resumed saved quiz session (Item $currentQuestionIndex of $totalQuestionsInSession) 🔄")
+            return true
+        } catch (e: Exception) {
+            clearSavedSession(userId)
+            return false
+        }
+    }
+
+    private fun displayActiveRestoredQuestion() {
+        val item = currentActiveItem ?: return
+
+        tvProgressCounter.text = "Question $currentQuestionIndex of $totalQuestionsInSession"
+        val pct = (currentQuestionIndex * 100) / totalQuestionsInSession.coerceAtLeast(1)
+        tvProgressPercent.text = "$pct%"
+        progressQuiz.max = totalQuestionsInSession
+        progressQuiz.progress = currentQuestionIndex
+
+        if (comboStreak >= 2) {
+            tvComboStreak.text = "🔥 ${comboStreak}x Combo"
+            tvComboStreak.visibility = View.VISIBLE
+        } else {
+            tvComboStreak.visibility = View.GONE
+        }
+
+        cardExplanation.visibility = View.GONE
+        btnNextQuestion.visibility = View.GONE
+        resetOptionButtonStyles()
+
+        questionText.text = item.question
+
+        for (i in optionButtons.indices) {
+            if (i < item.options.size) {
+                val opt = item.options[i]
+                val letter = ('A' + i)
+                optionButtons[i].visibility = View.VISIBLE
+                optionButtons[i].isEnabled = true
+                optionButtons[i].text = "$letter)  $opt"
+                optionButtons[i].setOnClickListener {
+                    checkAnswer(opt, optionButtons[i], item)
+                }
+            } else {
+                optionButtons[i].visibility = View.GONE
+            }
+        }
+
+        optionsContainer.visibility = View.VISIBLE
+        startTime = System.currentTimeMillis()
+    }
+
+    private fun clearSavedSession(userId: String?) {
+        if (userId == null) return
+        try {
+            getSharedPreferences("quiz_session_prefs", MODE_PRIVATE)
+                .edit()
+                .remove("active_session_$userId")
+                .apply()
+        } catch (_: Exception) {}
     }
 
     // ========================================================================
@@ -179,6 +407,10 @@ class QuizActivity : AppCompatActivity() {
     // ========================================================================
     private fun initializeQuizSession() {
         val userId = auth.currentUser?.uid ?: return
+
+        if (restoreSavedSession(userId)) {
+            return
+        }
 
         questionText.text = "Fetching teacher settings..."
         optionsContainer.visibility = View.GONE
@@ -316,27 +548,34 @@ class QuizActivity : AppCompatActivity() {
                 }
 
                 val prompt = """
-                    You are an expert linguistics engine generating cloze (fill-in-the-blank) tests for Grade 10 students.
-                    Generate exactly ${docs.size} cloze questions, one for each target word provided below:
+                    You are an expert pedagogical assessment designer creating high-school-level vocabulary challenge questions for Grade 10 students.
+                    Generate exactly ${docs.size} UNAMBIGUOUS multiple-choice questions, one for each target word provided below:
 
                     $itemsSpec
 
-                    RULES FOR EACH QUESTION:
-                    1. SENTENCE: Create a clear, high-school-level sentence using the context. Replace the target word with exactly 7 underscores: "_______".
-                    2. OPTIONS: Exactly 4 options. Exactly ONE option MUST be the correct target word in the exact grammatical form needed.
-                    3. DISTRACTORS: Three plausible distractors sharing the exact same part of speech and grammatical form.
-                    4. CORRECT: The exact string of the correct option.
-                    5. EXPLANATION: A concise 1-2 sentence educational insight explaining why the correct word fits best and clarifying nuance.
+                    CRITICAL UNAMBIGUITY & CLUE-LOCKING DIRECTIVES:
+                    1. CONTEXT-CLUE CONSTRAINT (NO AMBIGUITY):
+                       The question sentence MUST contain a definitive context clue — such as an explicit contrast (e.g., "unlike...", "instead of...", "whereas..."), an explicit cause-and-effect relationship (e.g., "because...", "consequently..."), or an explicit functional definition — that makes the target word the SINGLE, UNIQUELY LOGICAL answer.
+                       NEVER generate generic sentences like "She had great _______" or "The results were _______" where multiple choices could fit. The surrounding sentence must strictly lock in the target word.
+                       Replace the target word in the sentence with exactly 7 underscores: "_______".
+
+                    2. DISTINCT & PLAUSIBLE DISTRACTORS:
+                       Provide exactly 4 options: exactly ONE is the correct target word (in its exact grammatical form), and THREE are distractors.
+                       Distractors MUST share the exact same part of speech and grammatical form (tense, plurality, affixes) as the correct answer.
+                       However, their meanings must contextually contradict the sentence clues, making them unambiguously wrong to a student who understands the words.
+
+                    3. CLEAR EDUCATIONAL EXPLANATION:
+                       In "explanation", explicitly point out the clue in the sentence and explain why the correct word is the only option that logically satisfies the context.
 
                     CRITICAL: Output ONLY a valid JSON array of objects. No markdown backticks outside the JSON, no preamble, no commentary.
                     JSON Format:
                     [
                       {
                         "itemIndex": 1,
-                        "question": "Sentence with _______",
+                        "question": "Sentence with contextual clue and _______.",
                         "options": ["choice1", "choice2", "choice3", "choice4"],
                         "correct": "choice1",
-                        "explanation": "Clear educational insight."
+                        "explanation": "Clear educational insight referencing the sentence context clue."
                       }
                     ]
                 """.trimIndent()
@@ -372,7 +611,8 @@ class QuizActivity : AppCompatActivity() {
 
                     quizQueue.add(
                         QuizQuestionItem(
-                            docSnapshot = docs[i],
+                            docId = docs[i].id,
+                            interval = docs[i].getLong("interval")?.toInt() ?: 1,
                             word = docs[i].getString("word") ?: correct,
                             question = q,
                             options = shuffledOpts,
@@ -386,6 +626,7 @@ class QuizActivity : AppCompatActivity() {
 
                 totalQuestionsInSession = quizQueue.size
                 currentQuestionIndex = 0
+                saveCurrentSession()
                 displayNextQuestion()
 
             } catch (e: Exception) {
@@ -452,6 +693,7 @@ class QuizActivity : AppCompatActivity() {
 
             optionsContainer.visibility = View.VISIBLE
             startTime = System.currentTimeMillis()
+            saveCurrentSession()
         }
     }
 
@@ -514,7 +756,7 @@ class QuizActivity : AppCompatActivity() {
             score++
             comboStreak++
             if (comboStreak > maxComboStreak) maxComboStreak = comboStreak
-            updateSRSMetadata(item.docSnapshot, true, responseTime)
+            updateSRSMetadata(item.docId, item.interval, true, responseTime)
 
             // Mint green success styling
             selectedBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
@@ -536,7 +778,7 @@ class QuizActivity : AppCompatActivity() {
         } else {
             comboStreak = 0
             tvComboStreak.visibility = View.GONE
-            updateSRSMetadata(item.docSnapshot, false, responseTime)
+            updateSRSMetadata(item.docId, item.interval, false, responseTime)
             GabAIUtils.performHaptic(selectedBtn, HapticFeedbackConstants.REJECT)
 
             // Rose red error styling on selected button
@@ -557,6 +799,9 @@ class QuizActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Save progress immediately after evaluating answer
+        saveCurrentSession()
 
         // 3. Reveal Educational Insight Pill
         tvExplanation.text = item.explanation
@@ -580,10 +825,9 @@ class QuizActivity : AppCompatActivity() {
     // ========================================================================
     // SPACED REPETITION MATH
     // ========================================================================
-    private fun updateSRSMetadata(doc: DocumentSnapshot, isCorrect: Boolean, latency: Long) {
+    private fun updateSRSMetadata(docId: String, currentInterval: Int, isCorrect: Boolean, latency: Long) {
         val userId = auth.currentUser?.uid ?: return
-        val docId = doc.id
-        val currentInterval = doc.getLong("interval")?.toInt() ?: 1
+        if (docId.isBlank()) return
         val newInterval: Int
         val nextReviewDate: Long
 
@@ -613,6 +857,7 @@ class QuizActivity : AppCompatActivity() {
     // FINISH AND SAVE SESSION WITH EDUCATIONAL INSIGHTS
     // ========================================================================
     private fun showFinalResults() {
+        clearSavedSession(auth.currentUser?.uid)
         if (XPManager.canEarnXP(this)) {
             XPManager.addXP(this, 20)
         }

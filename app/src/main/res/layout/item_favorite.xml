@@ -2,14 +2,21 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_favorite_root"
+    style="@style/Widget.Material3.CardView.Filled"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
+    app:cardCornerRadius="22dp"
+    app:cardElevation="0dp"
     app:cardBackgroundColor="#FFFFFF"
     app:strokeColor="#EDF2F7"
-    app:strokeWidth="1dp">
+    app:strokeWidth="1dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:id="@+id/item_click_area"
@@ -17,48 +24,86 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true">
+        android:clickable="false"
+        android:focusable="false">
 
-        <!-- Header Row: Word Title Pill & Trash Button -->
+        <!-- Top Row: Title / POS / Date + Trash Button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:clickable="false"
+            android:focusable="false">
 
-            <TextView
-                android:id="@+id/fav_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:text="Vocabulary Word"
-                android:textColor="#1E1B4B"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <TextView
-                android:id="@+id/fav_pos_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_pos_pill"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:paddingHorizontal="7dp"
-                android:paddingVertical="2dp"
-                android:text="NOUN"
-                android:textColor="#5341CD"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
-            <View
+            <!-- Title & Metadata -->
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:clickable="false"
+                android:focusable="false">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:clickable="false"
+                    android:focusable="false">
+
+                    <TextView
+                        android:id="@+id/fav_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:maxLines="1"
+                        android:textColor="#0F172A"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:clickable="false"
+                        android:focusable="false"
+                        tools:text="Vocabulary" />
+
+                    <TextView
+                        android:id="@+id/fav_pos_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_pos_pill"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:textColor="#4F46E5"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:clickable="false"
+                        android:focusable="false"
+                        tools:text="NOUN" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/fav_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:textColor="#94A3B8"
+                    android:textSize="11.5sp"
+                    android:clickable="false"
+                    android:focusable="false"
+                    tools:text="Oct 4, 2026" />
+            </LinearLayout>
+
+            <com.example.gabai.GabAiLoadingView
+                android:id="@+id/fav_card_loading"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="6dp"
+                android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/btn_remove_fav"
@@ -76,70 +121,58 @@
             android:id="@+id/fav_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
             android:fontFamily="@font/font_nunito_sans"
-            android:textColor="#475569"
-            android:textSize="13sp"
             android:lineSpacingExtra="2dp"
             android:maxLines="3"
-            android:ellipsize="end" />
+            android:textColor="#475569"
+            android:textSize="13.5sp"
+            android:clickable="false"
+            android:focusable="false"
+            tools:text="Definition text here..." />
 
         <!-- In-Sentence Role Container -->
         <LinearLayout
             android:id="@+id/fav_role_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="#F8FAFC"
-            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_pos_pill"
+            android:backgroundTint="#F8FAFC"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:paddingHorizontal="10dp"
             android:paddingVertical="6dp"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/fav_in_sentence_role"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/font_nunito_sans"
-                android:textColor="#475569"
-                android:textSize="12sp"
-                android:lineSpacingExtra="1dp"
-                android:maxLines="2"
-                android:ellipsize="end" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/fav_preview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-
-        <!-- Footer Action Link -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false"
+            tools:visibility="visible">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/font_plus_jakarta_sans"
-                android:text="Tap to explore AI overview"
-                android:textColor="#5341CD"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:text="ROLE: "
+                android:textColor="#6366F1"
+                android:textSize="10.5sp"
+                android:textStyle="bold"
+                android:clickable="false"
+                android:focusable="false" />
 
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_arrow_back"
-                android:rotation="180"
-                app:tint="#5341CD" />
+            <TextView
+                android:id="@+id/fav_in_sentence_role"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:fontFamily="@font/font_nunito_sans"
+                android:maxLines="1"
+                android:textColor="#64748B"
+                android:textSize="12sp"
+                android:clickable="false"
+                android:focusable="false"
+                tools:text="Direct object" />
         </LinearLayout>
-
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

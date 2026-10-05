@@ -29,13 +29,11 @@
             android:textStyle="bold"
             tools:text="Why does this process require sunlight?" />
 
-        <ProgressBar
+        <com.example.gabai.GabAiLoadingView
             android:id="@+id/progress_question"
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_marginStart="8dp"
-            android:indeterminateTint="#6C5CE7"
             android:visibility="gone" />
 
         <ImageView

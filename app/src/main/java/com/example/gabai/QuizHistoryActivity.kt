@@ -21,13 +21,25 @@ class QuizHistoryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_quiz_history)
 
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_quiz_history)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_quiz_history)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
+
         val header = findViewById<View>(R.id.history_header)
-        GabAIUtils.applyFrostedGlass(header, 28f)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
+            insets
+        }
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
-        GabAIUtils.addSpringPressEffect(btnBack) { finish() }
+        btnBack?.setOnClickListener {
+            GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+            finish()
+        }
 
         loadQuizHistory()
     }
@@ -66,6 +78,7 @@ class QuizHistoryActivity : AppCompatActivity() {
                 }
 
                 val cardViews = mutableListOf<View>()
+                val density = resources.displayMetrics.density
 
                 for (doc in snapshots.documents) {
                     val timestamp = doc.getLong("timestamp") ?: 0L
@@ -75,29 +88,90 @@ class QuizHistoryActivity : AppCompatActivity() {
 
                     val items = doc.get("items") as? List<Map<String, Any>> ?: listOf()
 
-                    val card = LinearLayout(this).apply {
-                        orientation = LinearLayout.VERTICAL
-                        setBackgroundResource(R.drawable.bg_glass_card_bento)
-                        setPadding(44, 40, 44, 40)
+                    val card = com.google.android.material.card.MaterialCardView(this).apply {
+                        radius = 20 * density
+                        cardElevation = 0f
+                        strokeWidth = (1 * density).toInt()
+                        strokeColor = Color.parseColor("#EDF2F7")
+                        setCardBackgroundColor(Color.WHITE)
                         layoutParams = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
-                        ).apply { setMargins(0, 0, 0, 28) }
+                        ).apply { setMargins(0, 0, 0, (14 * density).toInt()) }
+                    }
+
+                    val contentLayout = LinearLayout(this).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding((18 * density).toInt(), (18 * density).toInt(), (18 * density).toInt(), (18 * density).toInt())
+                    }
+
+                    // Top Row: Squircle Icon, Date, Score Pill
+                    val topRow = LinearLayout(this).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = android.view.Gravity.CENTER_VERTICAL
+                    }
+
+                    val iconFrame = FrameLayout(this).apply {
+                        setBackgroundResource(R.drawable.bg_bento_purple)
+                        val sizePx = (40 * density).toInt()
+                        layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
+                            setMargins(0, 0, (12 * density).toInt(), 0)
+                        }
+                    }
+
+                    val iconView = ImageView(this).apply {
+                        setImageResource(R.drawable.ic_school)
+                        setColorFilter(Color.parseColor("#5341CD"))
+                        val pad = (9 * density).toInt()
+                        setPadding(pad, pad, pad, pad)
+                        layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+                    }
+                    iconFrame.addView(iconView)
+
+                    val textCol = LinearLayout(this).apply {
+                        orientation = LinearLayout.VERTICAL
+                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                     }
 
                     val dateTitle = TextView(this).apply {
                         text = dateString
                         textSize = 15f
                         setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
-                        setTextColor(Color.parseColor("#161D1F"))
+                        setTextColor(Color.parseColor("#0F172A"))
                     }
 
-                    val scoreText = TextView(this).apply {
-                        text = "Score: $score / $attempts"
-                        textSize = 14f
+                    val scoreSubtitle = TextView(this).apply {
+                        text = "Score: $score / $attempts items"
+                        textSize = 12.5f
                         setTypeface(fontJakarta ?: typeface, Typeface.NORMAL)
-                        setTextColor(Color.parseColor("#5A6472"))
-                        setPadding(0, 6, 0, 12)
+                        setTextColor(Color.parseColor("#64748B"))
+                    }
+
+                    textCol.addView(dateTitle)
+                    textCol.addView(scoreSubtitle)
+
+                    val scorePill = TextView(this).apply {
+                        text = if (attempts > 0) "${((score.toFloat() / attempts) * 100).toInt()}%" else "Done"
+                        textSize = 11f
+                        setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                        setBackgroundResource(R.drawable.bg_pill_translucent)
+                        val isHigh = score.toFloat() / attempts.coerceAtLeast(1) >= 0.75f
+                        setTextColor(Color.parseColor(if (isHigh) "#059669" else "#5341CD"))
+                        setPadding((10 * density).toInt(), (4 * density).toInt(), (10 * density).toInt(), (4 * density).toInt())
+                    }
+
+                    topRow.addView(iconFrame)
+                    topRow.addView(textCol)
+                    topRow.addView(scorePill)
+
+                    // Bottom Row: Review Action
+                    val actionRow = LinearLayout(this).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = android.view.Gravity.CENTER_VERTICAL
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply { setMargins(0, (12 * density).toInt(), 0, 0) }
                     }
 
                     val actionText = TextView(this).apply {
@@ -106,10 +180,11 @@ class QuizHistoryActivity : AppCompatActivity() {
                         setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
                         setTextColor(Color.parseColor("#5341CD"))
                     }
+                    actionRow.addView(actionText)
 
-                    card.addView(dateTitle)
-                    card.addView(scoreText)
-                    card.addView(actionText)
+                    contentLayout.addView(topRow)
+                    contentLayout.addView(actionRow)
+                    card.addView(contentLayout)
 
                     GabAIUtils.addSpringPressEffect(card) {
                         showReviewDialog(dateString, score, attempts, items)

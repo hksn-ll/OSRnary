@@ -28,8 +28,6 @@
         <activity
             android:name=".OverviewActivity"
             android:screenOrientation="portrait"
-            android:taskAffinity="com.example.gabai.scanner"
-            android:excludeFromRecents="true"
             android:exported="false" />
         <activity
             android:name=".ScanResultActivity"
@@ -58,6 +56,7 @@
         <activity android:name=".QuizActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".InitiationActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".QuestDetailsActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".DevEasterEggActivity" android:screenOrientation="portrait" android:exported="true" />
 
         <service
             android:name=".FloatingControlService"

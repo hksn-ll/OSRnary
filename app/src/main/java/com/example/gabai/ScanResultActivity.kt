@@ -36,6 +36,14 @@ class ScanResultActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         hideSystemBars()
+        val btnAnalyze = findViewById<android.view.View>(R.id.btn_analyze_action)
+        if (btnAnalyze is android.widget.Button) {
+            btnAnalyze.isEnabled = true
+            if (currentSelectedText.isNotBlank()) {
+                val classification = GabAIUtils.classifyTextSpan(currentSelectedText)
+                btnAnalyze.text = classification.actionButtonLabel
+            }
+        }
         // Always try to hide it when this screen is open
         val intent = android.content.Intent(this, FloatingControlService::class.java)
         intent.action = "ACTION_HIDE"
@@ -260,11 +268,7 @@ class ScanResultActivity : AppCompatActivity() {
                 }
             }
             GabAIUtils.TextSpanType.SENTENCE -> {
-                title.text = if (classification.cleanText.length > 40) {
-                    classification.cleanText.take(40).trim() + "..."
-                } else {
-                    classification.cleanText
-                }
+                title.text = classification.cleanText
                 title.textSize = 16f
                 body.text = "\"$text\""
             }
@@ -320,10 +324,7 @@ class ScanResultActivity : AppCompatActivity() {
                         v.y = event.rawY + dY
                     }
                     android.view.MotionEvent.ACTION_UP -> {
-                        // If it was a click, open the new screen!
-                        if (isClick) {
-                            openOverviewScreen()
-                        }
+                        // Card dragging finished; do not trigger overview on card background tap
                     }
                     else -> return false
                 }
@@ -332,7 +333,20 @@ class ScanResultActivity : AppCompatActivity() {
         })
     }
 
+    private var lastOverviewLaunchTime = 0L
+
     private fun openOverviewScreen() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastOverviewLaunchTime < 1000) return
+        lastOverviewLaunchTime = now
+
+        val btnAnalyze = findViewById<android.view.View>(R.id.btn_analyze_action)
+        if (btnAnalyze is android.widget.Button) {
+            btnAnalyze.isEnabled = false
+            btnAnalyze.text = "Loading..."
+        }
+        GabAIUtils.performHaptic(btnAnalyze, android.view.HapticFeedbackConstants.CONFIRM)
+
         if (currentSelectedText.isNotEmpty()) {
             val intent = android.content.Intent(this, OverviewActivity::class.java)
             intent.putExtra("SELECTED_TEXT", currentSelectedText)

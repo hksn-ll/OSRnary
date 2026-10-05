@@ -16,14 +16,20 @@ class QuestDetailsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_quest_details)
 
-        // Fix Status Bar overlap for the dark header
+        // Fix Status Bar overlap for the frosted header
         val header = findViewById<View>(R.id.quest_header)
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
             val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top + 30, v.paddingRight, v.paddingBottom)
+            v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
             insets
+        }
+
+        findViewById<View>(R.id.btn_back)?.setOnClickListener {
+            GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+            finish()
         }
 
         val btnAction = findViewById<Button>(R.id.btn_action_read)

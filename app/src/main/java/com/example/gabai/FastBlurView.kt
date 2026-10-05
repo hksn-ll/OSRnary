@@ -31,6 +31,7 @@ class FastBlurTarget @JvmOverloads constructor(
     } else null
 
     private val overlays = ArrayList<FastBlurView>(2)
+    private var scrollListener: android.view.ViewTreeObserver.OnScrollChangedListener? = null
 
     fun registerOverlay(overlay: FastBlurView) {
         if (!overlays.contains(overlay)) {
@@ -40,6 +41,39 @@ class FastBlurTarget @JvmOverloads constructor(
 
     fun unregisterOverlay(overlay: FastBlurView) {
         overlays.remove(overlay)
+    }
+
+    fun invalidateOverlays() {
+        for (i in 0 until overlays.size) {
+            overlays[i].invalidate()
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (scrollListener == null) {
+            scrollListener = android.view.ViewTreeObserver.OnScrollChangedListener {
+                invalidateOverlays()
+            }
+            viewTreeObserver.addOnScrollChangedListener(scrollListener)
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        scrollListener?.let {
+            if (viewTreeObserver.isAlive) {
+                viewTreeObserver.removeOnScrollChangedListener(it)
+            }
+            scrollListener = null
+        }
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (changed) {
+            invalidateOverlays()
+        }
     }
 
     override fun dispatchDraw(canvas: Canvas) {
@@ -61,9 +95,12 @@ class FastBlurTarget @JvmOverloads constructor(
 
     override fun onDescendantInvalidated(child: View, descendant: View) {
         super.onDescendantInvalidated(child, descendant)
-        for (i in 0 until overlays.size) {
-            overlays[i].invalidate()
-        }
+        // CRITICAL PERFORMANCE GUARD:
+        // Do NOT invalidate frosted glass overlays when descendant child views animate
+        // (e.g. card spring press, ripple effects, text cursor blinks).
+        // Descendant child animations in the content body do not alter the frosted glass
+        // under the fixed top header and bottom nav bars.
+        // Re-rendering software blur on Android 11 during animations completely locks the main thread.
     }
 }
 
@@ -236,7 +273,6 @@ class FastBlurView @JvmOverloads constructor(
         // Render the blurred bitmap scaled up to fit this view with bilinear interpolation
         canvas.save()
         canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
-        canvas.save()
         canvas.scale(width.toFloat() / scaledW, height.toFloat() / scaledH)
         canvas.drawBitmap(bmp, 0f, 0f, filterPaint)
         canvas.restore()
@@ -244,7 +280,6 @@ class FastBlurView @JvmOverloads constructor(
         if (overlayColor != Color.TRANSPARENT) {
             canvas.drawColor(overlayColor)
         }
-        canvas.restore()
     }
 
     private fun fastBoxBlur(bitmap: Bitmap, radius: Int) {

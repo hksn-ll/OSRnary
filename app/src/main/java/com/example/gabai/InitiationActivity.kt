@@ -62,9 +62,22 @@ class InitiationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_initiation)
 
         PDFBoxResourceLoader.init(applicationContext)
+
+        val header = findViewById<View>(R.id.header_container)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(header) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
+            insets
+        }
+
+        findViewById<View>(R.id.btn_back)?.setOnClickListener {
+            GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+            finish()
+        }
 
         findViewById<Button>(R.id.btn_take_quiz).setOnClickListener {
             generateQuizFromPdf(currentStep)

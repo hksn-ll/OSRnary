@@ -28,6 +28,7 @@
             <!-- 1. GREETING SECTION                                       -->
             <!-- ========================================================= -->
             <LinearLayout
+                android:id="@+id/container_greeting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

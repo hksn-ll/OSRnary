@@ -7,12 +7,13 @@
 
     <!-- Skeleton Card 1 -->
     <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp"
         app:strokeColor="#EDF2F7"
         app:strokeWidth="1dp">
 
@@ -46,10 +47,9 @@
                     android:layout_height="1dp"
                     android:layout_weight="1" />
 
-                <ProgressBar
+                <com.example.gabai.GabAiLoadingView
                     android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:indeterminateTint="#5341CD" />
+                    android:layout_height="22dp" />
             </LinearLayout>
 
             <!-- Snippet Lines -->
@@ -79,12 +79,13 @@
 
     <!-- Skeleton Card 2 -->
     <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="2dp"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp"
         app:strokeColor="#EDF2F7"
         app:strokeWidth="1dp">
 

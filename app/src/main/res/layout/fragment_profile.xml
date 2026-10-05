@@ -344,17 +344,32 @@
                                     app:tint="#00B894"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_stat_words_mastered"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_stat_words_mastered"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_stat_words_mastered"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#00B894"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View
@@ -417,17 +432,32 @@
                                     app:tint="#5341CD"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_stat_accuracy"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0%"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_stat_accuracy"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0%"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_stat_accuracy"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#5341CD"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View
@@ -497,17 +527,32 @@
                                     app:tint="#E11D48"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_stat_quizzes_taken"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_stat_quizzes_taken"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_stat_quizzes_taken"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#E11D48"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View
@@ -570,17 +615,32 @@
                                     app:tint="#D97706"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_stat_streak"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0d"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_stat_streak"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0d"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_stat_streak"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#D97706"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View
@@ -660,17 +720,32 @@
                                     app:tint="#5341CD"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_teacher_stat_classes"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_teacher_stat_classes"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_teacher_stat_classes"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#5341CD"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View
@@ -733,17 +808,32 @@
                                     app:tint="#00B894"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_teacher_stat_students"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_teacher_stat_students"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_teacher_stat_students"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#00B894"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View
@@ -813,17 +903,32 @@
                                     app:tint="#E11D48"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_teacher_stat_materials"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_teacher_stat_materials"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_teacher_stat_materials"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#E11D48"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View
@@ -886,17 +991,32 @@
                                     app:tint="#6C5CE7"
                                     android:contentDescription="@null" />
 
-                                <TextView
-                                    android:id="@+id/tv_teacher_stat_quizzes"
+                                <FrameLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:gravity="end"
-                                    android:text="0"
-                                    android:textColor="#161D1F"
-                                    android:textSize="20sp"
-                                    android:fontFamily="@font/font_plus_jakarta_sans"
-                                    android:textStyle="bold" />
+                                    android:layout_weight="1">
+
+                                    <TextView
+                                        android:id="@+id/tv_teacher_stat_quizzes"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:text="0"
+                                        android:textColor="#161D1F"
+                                        android:textSize="20sp"
+                                        android:fontFamily="@font/font_plus_jakarta_sans"
+                                        android:textStyle="bold"
+                                        android:visibility="gone" />
+
+                                    <ProgressBar
+                                        android:id="@+id/loading_teacher_stat_quizzes"
+                                        style="?android:attr/progressBarStyleSmall"
+                                        android:layout_width="18dp"
+                                        android:layout_height="18dp"
+                                        android:layout_gravity="end|center_vertical"
+                                        android:indeterminateTint="#6C5CE7"
+                                        android:visibility="visible" />
+                                </FrameLayout>
                             </LinearLayout>
 
                             <View

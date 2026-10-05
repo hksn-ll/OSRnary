@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0A0E1A"
+    android:orientation="vertical">
+
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:background="#121829">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#FFFFFF"
+            android:contentDescription="Back" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🛠️ Developer Component Lab"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Easter Egg: Micro-Loader Testing Suite"
+                android:textColor="#94A3B8"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_fps_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_tag_k12"
+            android:backgroundTint="#1E1B4B"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:text="60 FPS"
+            android:textColor="#00F5D4"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Primary Stage Container -->
+            <FrameLayout
+                android:id="@+id/stage_container"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:background="@drawable/bg_card_stitch_white"
+                android:backgroundTint="#0F172A">
+
+                <com.example.gabai.GabAiLoadingView
+                    android:id="@+id/dev_loading_view"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center" />
+
+                <TextView
+                    android:id="@+id/tv_angle_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="12dp"
+                    android:text="Auto Playing (1.4s cycle)"
+                    android:textColor="#38BDF8"
+                    android:textSize="12sp"
+                    android:fontFamily="monospace" />
+            </FrameLayout>
+
+            <!-- Playback Controls -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:background="#1E293B"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Angle Scrubber (0° - 180°)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btn_play_entrance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="✨ Entrance"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="10dp"
+                        android:backgroundTint="#0EA5E9" />
+
+                    <Button
+                        android:id="@+id/btn_play_pause"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="6dp"
+                        android:text="Pause"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="10dp"
+                        android:backgroundTint="#5341CD" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seek_scrubber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:max="180"
+                    android:progress="0"
+                    android:thumbTint="#00F5D4"
+                    android:progressTint="#00F5D4" />
+            </LinearLayout>
+
+            <!-- Pace Selection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Cycle Speed"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_speed_slow"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Slow (2.2s)"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="0dp"
+                    android:backgroundTint="#334155" />
+
+                <Button
+                    android:id="@+id/btn_speed_norm"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Normal (1.4s)"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="0dp"
+                    android:backgroundTint="#5341CD" />
+
+                <Button
+                    android:id="@+id/btn_speed_fast"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Brisk (0.85s)"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="0dp"
+                    android:backgroundTint="#334155" />
+            </LinearLayout>
+
+            <!-- Size Selection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Display Size"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_size_micro"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="56dp"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="0dp"
+                    android:backgroundTint="#334155" />
+
+                <Button
+                    android:id="@+id/btn_size_compact"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="84dp"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="0dp"
+                    android:backgroundTint="#334155" />
+
+                <Button
+                    android:id="@+id/btn_size_std"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="112dp"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="0dp"
+                    android:backgroundTint="#5341CD" />
+
+                <Button
+                    android:id="@+id/btn_size_hero"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="160dp"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="0dp"
+                    android:backgroundTint="#334155" />
+            </LinearLayout>
+
+            <!-- Background Canvas Preview -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Container Background Preview"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_bg_dark"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Dark Canvas"
+                    android:textSize="11sp"
+                    android:backgroundTint="#5341CD" />
+
+                <Button
+                    android:id="@+id/btn_bg_light"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Light Canvas"
+                    android:textSize="11sp"
+                    android:backgroundTint="#334155" />
+
+                <Button
+                    android:id="@+id/btn_bg_aurora"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Aurora Splash"
+                    android:textSize="11sp"
+                    android:backgroundTint="#334155" />
+            </LinearLayout>
+
+            <!-- Simulated Real App Scenarios -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Simulate In-App Loading Overlays"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_test_global_overlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="🚀 Test Global Overlay (GabAIUtils) - 3s"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold"
+                    android:backgroundTint="#5341CD" />
+
+                <Button
+                    android:id="@+id/btn_test_ai_quiz"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:text="📖 Test AI Quiz Generation Simulation"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:backgroundTint="#1E293B" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

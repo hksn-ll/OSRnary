@@ -25,8 +25,21 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         isAntiAlias = true
     }
 
-    private val handlePaint = Paint().apply {
+    private val cursorLinePaint = Paint().apply {
+        color = Color.rgb(83, 65, 205) // Deep GabAI Indigo (#5341CD)
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        isAntiAlias = true
+    }
+
+    private val pinPaint = Paint().apply {
         color = Color.rgb(83, 65, 205) // Deep GabAI Indigo (#5341CD) for handles
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+
+    private val pinDotPaint = Paint().apply {
+        color = Color.WHITE
         style = Paint.Style.FILL
         isAntiAlias = true
     }
@@ -183,19 +196,21 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                     val last = max(startIndex, endIndex)
                     val startBox = allWords[first].rect
                     val endBox = allWords[last].rect
-                    val handleRadius = 36f * density
+                    val r = 8f * density
+                    val cursorExt = 2f * density
+                    val handleTouchRadius = 38f * density
 
-                    val startHandleX = startBox.left
-                    val startHandleY = startBox.bottom + (10f * density)
-                    if (kotlin.math.hypot(x - startHandleX, y - startHandleY) <= handleRadius) {
+                    val startHandleX = startBox.left - r
+                    val startHandleY = startBox.bottom + cursorExt + r
+                    if (kotlin.math.hypot(x - startHandleX, y - startHandleY) <= handleTouchRadius) {
                         currentDragMode = DragMode.DRAG_START_HANDLE
                         performHapticTick()
                         return true
                     }
 
-                    val endHandleX = endBox.right
-                    val endHandleY = endBox.bottom + (10f * density)
-                    if (kotlin.math.hypot(x - endHandleX, y - endHandleY) <= handleRadius) {
+                    val endHandleX = endBox.right + r
+                    val endHandleY = endBox.bottom + cursorExt + r
+                    if (kotlin.math.hypot(x - endHandleX, y - endHandleY) <= handleTouchRadius) {
                         currentDragMode = DragMode.DRAG_END_HANDLE
                         performHapticTick()
                         return true
@@ -228,15 +243,35 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                 if (nearest != -1) {
                     when (currentDragMode) {
                         DragMode.DRAG_START_HANDLE -> {
-                            if (nearest != startIndex) {
-                                startIndex = nearest
+                            if (nearest <= endIndex) {
+                                if (nearest != startIndex) {
+                                    startIndex = nearest
+                                    performHapticTick()
+                                    invalidate()
+                                }
+                            } else {
+                                // Dragged past the end handle: seamlessly flip roles
+                                val oldEnd = endIndex
+                                startIndex = oldEnd
+                                endIndex = nearest
+                                currentDragMode = DragMode.DRAG_END_HANDLE
                                 performHapticTick()
                                 invalidate()
                             }
                         }
                         DragMode.DRAG_END_HANDLE -> {
-                            if (nearest != endIndex) {
-                                endIndex = nearest
+                            if (nearest >= startIndex) {
+                                if (nearest != endIndex) {
+                                    endIndex = nearest
+                                    performHapticTick()
+                                    invalidate()
+                                }
+                            } else {
+                                // Dragged before the start handle: seamlessly flip roles
+                                val oldStart = startIndex
+                                endIndex = oldStart
+                                startIndex = nearest
+                                currentDragMode = DragMode.DRAG_START_HANDLE
                                 performHapticTick()
                                 invalidate()
                             }
@@ -307,16 +342,31 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
                 canvas.drawRoundRect(box, 10f * density, 10f * density, boxStrokePaint)
             }
 
-            // Draw interactive grab handles at start and end
             val startBox = allWords[first].rect
             val endBox = allWords[last].rect
-            val handleOffsetY = 8f * density
-            val handleRadius = 11f * density
 
-            // Start Handle (Left side)
-            canvas.drawCircle(startBox.left, startBox.bottom + handleOffsetY, handleRadius, handlePaint)
-            // End Handle (Right side)
-            canvas.drawCircle(endBox.right, endBox.bottom + handleOffsetY, handleRadius, handlePaint)
+            cursorLinePaint.strokeWidth = 2.5f * density
+            val cursorExt = 2f * density
+
+            // 1. Draw vertical selection edge cursor lines at start & end boundaries
+            canvas.drawLine(
+                startBox.left,
+                startBox.top - cursorExt,
+                startBox.left,
+                startBox.bottom + cursorExt,
+                cursorLinePaint
+            )
+            canvas.drawLine(
+                endBox.right,
+                endBox.top - cursorExt,
+                endBox.right,
+                endBox.bottom + cursorExt,
+                cursorLinePaint
+            )
+
+            // 2. Draw native teardrop cursor pin pointers pointing directly up to the cursor lines
+            drawLeftPin(canvas, startBox.left, startBox.bottom + cursorExt)
+            drawRightPin(canvas, endBox.right, endBox.bottom + cursorExt)
 
         } else if (allWords.isNotEmpty()) {
             // Idle State: Subtle pulsating detected-word pills
@@ -333,22 +383,47 @@ class TextOverlayView(context: Context, attrs: AttributeSet?) : View(context, at
         }
     }
 
+    private fun drawLeftPin(canvas: Canvas, tipX: Float, tipY: Float) {
+        val r = 8f * density
+        val path = Path().apply {
+            moveTo(tipX, tipY)
+            lineTo(tipX, tipY + r)
+            arcTo(tipX - (2f * r), tipY, tipX, tipY + (2f * r), 0f, 270f, false)
+            lineTo(tipX, tipY)
+            close()
+        }
+        canvas.drawPath(path, pinPaint)
+        canvas.drawCircle(tipX - r, tipY + r, 2.2f * density, pinDotPaint)
+    }
+
+    private fun drawRightPin(canvas: Canvas, tipX: Float, tipY: Float) {
+        val r = 8f * density
+        val path = Path().apply {
+            moveTo(tipX, tipY)
+            lineTo(tipX + r, tipY)
+            arcTo(tipX, tipY, tipX + (2f * r), tipY + (2f * r), 270f, 270f, false)
+            lineTo(tipX, tipY)
+            close()
+        }
+        canvas.drawPath(path, pinPaint)
+        canvas.drawCircle(tipX + r, tipY + r, 2.2f * density, pinDotPaint)
+    }
+
     // Helper: Find nearest word with line-aware projection
     private fun findNearestWordIndex(x: Float, y: Float, maxDistance: Float = 60f * density): Int {
         if (allWords.isEmpty()) return -1
 
-        val touchPadding = 24f * density
-
-        // 1. Direct hit test with generous touch padding
+        // 1. Direct bounding box hit test.
+        // If the tap lands inside any word box, that word wins immediately.
+        // This completely prevents adjacent words from stealing hits when words are close together.
         for (i in allWords.indices) {
-            val r = allWords[i].rect
-            if (x >= r.left - touchPadding && x <= r.right + touchPadding &&
-                y >= r.top - touchPadding && y <= r.bottom + touchPadding) {
+            if (allWords[i].rect.contains(x, y)) {
                 return i
             }
         }
 
-        // 2. Nearest word projection (weighted to prefer words on the same horizontal line)
+        // 2. Nearest word projection if tapping in margin or inter-word gap.
+        // Weighted Euclidean distance prioritizing words on the same horizontal line.
         var bestIndex = -1
         var minScore = Float.MAX_VALUE
 

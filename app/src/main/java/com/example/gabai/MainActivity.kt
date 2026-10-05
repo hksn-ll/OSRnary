@@ -437,6 +437,8 @@ class MainActivity : AppCompatActivity() {
 
     // Caching fragment switcher (preserves state, view hierarchy, and scroll position)
     private var activeFragment: Fragment? = null
+    private var inFlightOutgoingFragment: Fragment? = null
+    private var inFlightOutgoingView: View? = null
 
     private fun applyRoleUi(role: String) {
         // GabAI frosted glass header is always visible for both Student and Teacher!
@@ -466,6 +468,20 @@ class MainActivity : AppCompatActivity() {
         applyRoleUi(role)
         val targetTag = if (role == "teacher") "teacher_home" else "student_home"
         showFragmentByTag(targetTag)
+
+        // Pre-inflate ProfileFragment in the background so opening Profile tab is instantaneous (0ms cold-start lag)
+        val fm = supportFragmentManager
+        if (fm.findFragmentByTag("profile") == null) {
+            binding.root.post {
+                if (!isFinishing && !isDestroyed && fm.findFragmentByTag("profile") == null) {
+                    val profile = ProfileFragment()
+                    fm.beginTransaction()
+                        .add(R.id.fragment_container, profile, "profile")
+                        .hide(profile)
+                        .commitAllowingStateLoss()
+                }
+            }
+        }
     }
 
     private fun showFragmentByTag(tag: String) {
@@ -482,6 +498,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (activeFragment === target && target.isAdded && target.isVisible) return
+
+        // 1. Instantly settle and clean up any in-flight transition to prevent overlapping or stranded views
+        inFlightOutgoingView?.let { v ->
+            v.animate()?.cancel()
+            v.translationX = 0f
+            v.alpha = 1f
+            v.translationZ = 0f
+            v.visibility = View.GONE
+        }
+        inFlightOutgoingFragment?.let { f ->
+            if (f !== target && f.isAdded) {
+                fm.beginTransaction().hide(f).commitNowAllowingStateLoss()
+            }
+        }
+        inFlightOutgoingFragment = null
+        inFlightOutgoingView = null
 
         val currentTag = activeFragment?.tag
         val currentIndex = if (currentTag == "profile") 1 else 0
@@ -506,7 +538,7 @@ class MainActivity : AppCompatActivity() {
         val incomingView = target.view
         if (incomingView != null) {
             incomingView.animate()?.cancel()
-            incomingView.bringToFront()
+            incomingView.animate()?.setStartDelay(0L)
 
             if (isDirectional && outgoingView != null) {
                 val isMovingRight = targetIndex > currentIndex
@@ -514,41 +546,48 @@ class MainActivity : AppCompatActivity() {
                 val enterStartX = if (isMovingRight) slideOffset else -slideOffset
                 val exitEndX = if (isMovingRight) -slideOffset else slideOffset
 
-                // Hold incoming view ready and hidden until outgoing dissolves
+                inFlightOutgoingFragment = outgoingFragment
+                inFlightOutgoingView = outgoingView
+
+                // 1. Keep incoming view GONE during outgoing dissolution to guarantee ZERO double-exposure overlap
+                incomingView.visibility = View.GONE
                 incomingView.translationX = enterStartX
                 incomingView.alpha = 0f
-                incomingView.visibility = View.INVISIBLE
 
-                // 1. Outgoing view dissolves out cleanly first (130ms) to eliminate double-exposure overlap
                 outgoingView.animate()
+                    ?.setStartDelay(0L)
                     ?.translationX(exitEndX)
                     ?.alpha(0f)
-                    ?.setDuration(130)
-                    ?.setInterpolator(AccelerateInterpolator(1.5f))
+                    ?.setDuration(90)
+                    ?.setInterpolator(AccelerateInterpolator(1.4f))
                     ?.withEndAction {
-                        if (activeFragment !== outgoingFragment && !isFinishing && !isDestroyed) {
+                        if (activeFragment === target && !isFinishing && !isDestroyed) {
                             outgoingView.visibility = View.GONE
+                            outgoingView.translationX = 0f
+                            outgoingView.alpha = 1f
                             if (outgoingFragment.isAdded) {
                                 fm.beginTransaction().hide(outgoingFragment).commitNowAllowingStateLoss()
                             }
-                            outgoingView.translationX = 0f
-                            outgoingView.alpha = 1f
+
+                            // 2. Outgoing is completely dissolved. Now incoming glides in directionally
+                            incomingView.visibility = View.VISIBLE
+                            incomingView.animate()
+                                ?.setStartDelay(0L)
+                                ?.translationX(0f)
+                                ?.alpha(1f)
+                                ?.setDuration(140)
+                                ?.setInterpolator(DecelerateInterpolator(1.4f))
+                                ?.withEndAction {
+                                    binding.blurTargetMain.invalidateOverlays()
+                                    if (inFlightOutgoingView === outgoingView) {
+                                        inFlightOutgoingView = null
+                                        inFlightOutgoingFragment = null
+                                    }
+                                }
+                                ?.start()
                         }
                     }
                     ?.start()
-
-                // 2. Incoming view glides in gracefully with relaxed, deliberate pacing (260ms)
-                incomingView.postDelayed({
-                    if (activeFragment === target && !isFinishing && !isDestroyed) {
-                        incomingView.visibility = View.VISIBLE
-                        incomingView.animate()
-                            ?.translationX(0f)
-                            ?.alpha(1f)
-                            ?.setDuration(260)
-                            ?.setInterpolator(DecelerateInterpolator(1.5f))
-                            ?.start()
-                    }
-                }, 100)
             } else {
                 incomingView.translationX = 0f
                 incomingView.alpha = 1f
@@ -556,6 +595,7 @@ class MainActivity : AppCompatActivity() {
                 if (outgoingFragment != null && outgoingFragment !== target && outgoingFragment.isAdded) {
                     fm.beginTransaction().hide(outgoingFragment).commitNowAllowingStateLoss()
                 }
+                binding.blurTargetMain.invalidateOverlays()
             }
         }
     }

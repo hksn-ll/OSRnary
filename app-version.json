@@ -1,11 +1,11 @@
 {
-  "versionCode": 20,
-  "versionName": "0.4.6",
-  "minRequiredVersionCode": 20,
+  "versionCode": 21,
+  "versionName": "0.4.7",
+  "minRequiredVersionCode": 21,
   "forceUpdate": true,
-  "title": "Zero-Inset Tactile Dialogs & Shadow Elimination (v0.4.6)",
-  "message": "Polished GabAI with eliminated Material3 button shadows, zero-inset tactile action buttons, and refined dialog boundaries.",
+  "title": "Crash-Proof Quiz Persistence & Bento UI Modernization (v0.4.7)",
+  "message": "Persistent crash-proof quiz sessions, modern Bento question cards, and unified glassmorphic UI across all student and challenge screens.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.6/GabAI-v0.4.6.apk",
-  "changelog": "• Eliminated Cheap Button Shadows: Stripped Material3 default elevation shadows and stateListAnimator artifacts\n• Zero-Inset Tactile Dialogs: Disabled default vertical insets for clean, flush touch targets\n• Slate-Defined Secondary Buttons: Crisp 1.5dp border stroke and high-contrast Slate-700 typography\n• Universal Dialog Refinement: Consistent tactile response across confirmation, input, QR, and class management modals"
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.7/GabAI-v0.4.7.apk",
+  "changelog": "• Crash-Proof Quiz Persistence: Quiz progress is continuously auto-saved to SharedPreferences. Exiting the app or experiencing a crash allows seamless resumption right where you left off without wasting attempts or AI generations.\n• Premium Bento Question Card: Redesigned the quiz question view into a modern Bento card with 0dp elevation, crisp 1.5dp borders, 24dp squircle corners, question type pill badges, and context clue guidance.\n• Unified Glassmorphic Headers: Standardized sticky FastBlurView headers with real-time backdrop blur, insets support, and borderless navigation across Leaderboard, Daily Quests, Quest Details, Initiation, Quiz History, Progress Dashboard, and Achievements.\n• Bento Card Overhauls: Replaced cheap 1dp material card elevations in Achievements, Daily Quests, and Progress Dashboard with modern Bento squircle cards, squircle icon frames, and tactile spring feedback."
 }

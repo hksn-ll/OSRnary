@@ -10,9 +10,14 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.gabai.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.tasks.await
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
@@ -29,6 +34,28 @@ class ProfileFragment : Fragment() {
         loadUserData()
 
         binding.tvAppVersionLabel.text = "v${BuildConfig.VERSION_NAME}"
+
+        var devEasterEggTaps = 0
+        var lastDevTapTime = 0L
+        binding.tvAppVersionLabel.setOnClickListener {
+            val now = System.currentTimeMillis()
+            if (now - lastDevTapTime > 2000L) {
+                devEasterEggTaps = 0
+            }
+            lastDevTapTime = now
+            devEasterEggTaps++
+
+            val ctx = context ?: return@setOnClickListener
+            if (devEasterEggTaps >= 5) {
+                devEasterEggTaps = 0
+                android.widget.Toast.makeText(ctx, "🛠️ Welcome to Developer Component Lab!", android.widget.Toast.LENGTH_SHORT).show()
+                startActivity(android.content.Intent(ctx, DevEasterEggActivity::class.java))
+            } else if (devEasterEggTaps >= 2) {
+                val remaining = 5 - devEasterEggTaps
+                android.widget.Toast.makeText(ctx, "$remaining more taps to open Developer Lab", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding.rowCheckUpdate.setOnClickListener {
             val act = activity ?: return@setOnClickListener
             GitHubUpdateHelper.checkUpdate(act, forceShow = true) {}
@@ -72,38 +99,21 @@ class ProfileFragment : Fragment() {
 
         val viewsToAnimate = if (isTeacher) {
             listOfNotNull(
-                binding.headerProfile,
                 binding.cardUserIdentity,
-                binding.headerProfileStats,
-                binding.cardTeacherStatClasses,
-                binding.cardTeacherStatStudents,
-                binding.cardTeacherStatMaterials,
-                binding.cardTeacherStatQuizzes,
-                binding.headerTeacherShortcuts,
-                binding.btnTeacherProfileClasses,
-                binding.btnTeacherProfileLibrary,
-                binding.headerPreferences,
+                binding.llTeacherStatsContainer,
+                binding.llTeacherShortcutsContainer,
                 binding.cardPreferences
             )
         } else {
             listOfNotNull(
-                binding.headerProfile,
                 binding.cardUserIdentity,
-                binding.headerProfileStats,
-                binding.cardStatWordsMastered,
-                binding.cardStatAccuracy,
-                binding.cardStatQuizzesTaken,
-                binding.cardStatStreak,
-                binding.headerStudentHubs,
-                binding.btnProfileProgress,
-                binding.btnProfileBadges,
-                binding.btnProfileLeaderboard,
-                binding.btnProfileFavorites,
-                binding.headerPreferences,
+                binding.llStudentStatsContainer,
+                binding.llStudentHubsContainer,
                 binding.cardPreferences
             )
         }
-        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 35L, startDelayOffset = 180L)
+
+        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 25L, startDelayOffset = 0L)
     }
 
     private fun applyRoleVisibility(role: String) {
@@ -162,6 +172,9 @@ class ProfileFragment : Fragment() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
+        binding.tvProfileGrade.text = "Grade: ..."
+        binding.tvProfileSection.text = "Section: ..."
+
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists() && _binding != null && isAdded) {
@@ -176,9 +189,12 @@ class ProfileFragment : Fragment() {
                         ?: "G"
                     binding.tvAvatarMonogram.text = initial
 
-                    val fullName = "$firstName $lastName".trim()
-                    binding.tvProfileName.text = if (fullName.isNotEmpty()) fullName else "Learner"
-                    binding.tvProfileEmail.text = email
+                    val displayEmail = if (email.endsWith("@gabai.app", ignoreCase = true)) {
+                        email.substringBefore("@gabai.app")
+                    } else {
+                        email
+                    }
+                    binding.tvProfileEmail.text = displayEmail
                     binding.tvProfileRoleBadge.text = role.uppercase()
 
                     val schoolName = SchoolRepository.getSchoolName(sId)
@@ -206,8 +222,19 @@ class ProfileFragment : Fragment() {
                         // Load Educator Stats
                         loadTeacherStats(uid, db)
                     } else {
-                        binding.tvProfileSection.text = "Section: ${doc.getString("section") ?: "N/A"}"
-                        binding.tvProfileGrade.text = "Grade: ${doc.getString("grade") ?: "N/A"}"
+                        val rawSection = doc.getString("section")?.trim() ?: ""
+                        binding.tvProfileSection.text = when {
+                            rawSection.startsWith("Section", ignoreCase = true) -> rawSection
+                            rawSection.isNotBlank() && rawSection != "N/A" -> "Section: $rawSection"
+                            else -> "Section: -"
+                        }
+
+                        val rawGrade = doc.getString("grade")?.trim() ?: ""
+                        binding.tvProfileGrade.text = when {
+                            rawGrade.startsWith("Grade", ignoreCase = true) -> rawGrade
+                            rawGrade.isNotBlank() && rawGrade != "N/A" -> "Grade $rawGrade"
+                            else -> "Grade: -"
+                        }
 
                         setupLanguageDropdown()
 
@@ -231,6 +258,11 @@ class ProfileFragment : Fragment() {
             .get()
             .addOnSuccessListener { snapshots ->
                 if (_binding != null && isAdded) {
+                    binding.loadingTeacherStatClasses.visibility = View.GONE
+                    binding.loadingTeacherStatStudents.visibility = View.GONE
+                    binding.tvTeacherStatClasses.visibility = View.VISIBLE
+                    binding.tvTeacherStatStudents.visibility = View.VISIBLE
+
                     binding.tvTeacherStatClasses.text = snapshots.size().toString()
 
                     var totalStudents = 0
@@ -241,6 +273,16 @@ class ProfileFragment : Fragment() {
                     binding.tvTeacherStatStudents.text = totalStudents.toString()
                 }
             }
+            .addOnFailureListener {
+                if (_binding != null && isAdded) {
+                    binding.loadingTeacherStatClasses.visibility = View.GONE
+                    binding.loadingTeacherStatStudents.visibility = View.GONE
+                    binding.tvTeacherStatClasses.visibility = View.VISIBLE
+                    binding.tvTeacherStatStudents.visibility = View.VISIBLE
+                    binding.tvTeacherStatClasses.text = "0"
+                    binding.tvTeacherStatStudents.text = "0"
+                }
+            }
 
         // Materials Uploaded
         db.collection("library_materials")
@@ -248,7 +290,16 @@ class ProfileFragment : Fragment() {
             .get()
             .addOnSuccessListener { snapshots ->
                 if (_binding != null && isAdded) {
+                    binding.loadingTeacherStatMaterials.visibility = View.GONE
+                    binding.tvTeacherStatMaterials.visibility = View.VISIBLE
                     binding.tvTeacherStatMaterials.text = snapshots.size().toString()
+                }
+            }
+            .addOnFailureListener {
+                if (_binding != null && isAdded) {
+                    binding.loadingTeacherStatMaterials.visibility = View.GONE
+                    binding.tvTeacherStatMaterials.visibility = View.VISIBLE
+                    binding.tvTeacherStatMaterials.text = "0"
                 }
             }
 
@@ -258,7 +309,16 @@ class ProfileFragment : Fragment() {
             .get()
             .addOnSuccessListener { snapshots ->
                 if (_binding != null && isAdded) {
+                    binding.loadingTeacherStatQuizzes.visibility = View.GONE
+                    binding.tvTeacherStatQuizzes.visibility = View.VISIBLE
                     binding.tvTeacherStatQuizzes.text = snapshots.size().toString()
+                }
+            }
+            .addOnFailureListener {
+                if (_binding != null && isAdded) {
+                    binding.loadingTeacherStatQuizzes.visibility = View.GONE
+                    binding.tvTeacherStatQuizzes.visibility = View.VISIBLE
+                    binding.tvTeacherStatQuizzes.text = "0"
                 }
             }
     }
@@ -266,45 +326,106 @@ class ProfileFragment : Fragment() {
     private fun loadLifetimeStats(uid: String, db: FirebaseFirestore) {
         val ctx = context ?: return
 
-        // 1. Study Streak
+        // 1. Study Streak (Instant from local SharedPreferences)
         val streak = QuestManager.getStreak(ctx)
+        binding.loadingStatStreak.visibility = View.GONE
+        binding.tvStatStreak.visibility = View.VISIBLE
         binding.tvStatStreak.text = "${streak}d"
 
-        // 2. Words Mastered (spaced repetition interval >= 4)
-        db.collection("users").document(uid).collection("history")
-            .whereGreaterThanOrEqualTo("interval", 4)
-            .get()
-            .addOnSuccessListener { qs ->
-                if (_binding != null && isAdded) {
-                    binding.tvStatWordsMastered.text = qs.size().toString()
-                }
-            }
+        // Instant render from local cache if available (0ms freeze)
+        val prefs = ctx.getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        val cachedWords = prefs.getString("cached_words_mastered_$uid", null)
+        val cachedQuizzes = prefs.getString("cached_quizzes_taken_$uid", null)
+        val cachedAccuracy = prefs.getString("cached_quiz_accuracy_$uid", null)
 
-        // 3. Quizzes Taken & Overall Accuracy
-        db.collection("users").document(uid).collection("quiz_history")
-            .get()
-            .addOnSuccessListener { qs ->
-                if (_binding != null && isAdded) {
-                    val count = qs.size()
-                    binding.tvStatQuizzesTaken.text = count.toString()
+        if (cachedWords != null) {
+            binding.loadingStatWordsMastered.visibility = View.GONE
+            binding.tvStatWordsMastered.visibility = View.VISIBLE
+            binding.tvStatWordsMastered.text = cachedWords
+        }
+        if (cachedQuizzes != null && cachedAccuracy != null) {
+            binding.loadingStatQuizzesTaken.visibility = View.GONE
+            binding.loadingStatAccuracy.visibility = View.GONE
+            binding.tvStatQuizzesTaken.visibility = View.VISIBLE
+            binding.tvStatAccuracy.visibility = View.VISIBLE
+            binding.tvStatQuizzesTaken.text = cachedQuizzes
+            binding.tvStatAccuracy.text = cachedAccuracy
+        }
+
+        // Run heavy Firestore queries & deserialization strictly on background Dispatchers.IO
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // 2. Words Mastered (spaced repetition interval >= 4)
+                val wordsCount = try {
+                    val qs = db.collection("users").document(uid).collection("history")
+                        .whereGreaterThanOrEqualTo("interval", 4)
+                        .get().await()
+                    qs.size().toString()
+                } catch (_: Exception) {
+                    cachedWords ?: "0"
+                }
+
+                // 3. Quizzes Taken & Overall Accuracy
+                val (quizzesCount, accuracyPct) = try {
+                    val quizDocs = db.collection("users").document(uid).collection("quiz_history")
+                        .get().await()
+                    val count = quizDocs.size()
                     if (count > 0) {
                         var totalScore = 0.0
                         var totalPossible = 0.0
-                        for (d in qs.documents) {
-                            val score = d.getDouble("score") ?: 0.0
-                            val total = d.getDouble("totalQuestions") ?: d.getDouble("total") ?: 0.0
+                        for (d in quizDocs.documents) {
+                            val score = d.getDouble("finalScore")
+                                ?: d.getLong("finalScore")?.toDouble()
+                                ?: d.getDouble("score")
+                                ?: d.getLong("score")?.toDouble()
+                                ?: 0.0
+
+                            val total = d.getDouble("totalAttempts")
+                                ?: d.getLong("totalAttempts")?.toDouble()
+                                ?: d.getDouble("totalQuestions")
+                                ?: d.getLong("totalQuestions")?.toDouble()
+                                ?: d.getDouble("total")
+                                ?: d.getLong("total")?.toDouble()
+                                ?: 0.0
+
                             if (total > 0) {
                                 totalScore += score
                                 totalPossible += total
                             }
                         }
-                        val accuracyPct = if (totalPossible > 0) ((totalScore / totalPossible) * 100).toInt() else 0
-                        binding.tvStatAccuracy.text = "$accuracyPct%"
+                        val acc = if (totalPossible > 0) ((totalScore / totalPossible) * 100).toInt() else 0
+                        Pair(count.toString(), "$acc%")
                     } else {
-                        binding.tvStatAccuracy.text = "0%"
+                        Pair("0", "0%")
+                    }
+                } catch (_: Exception) {
+                    Pair(cachedQuizzes ?: "0", cachedAccuracy ?: "0%")
+                }
+
+                // Update disk cache
+                prefs.edit()
+                    .putString("cached_words_mastered_$uid", wordsCount)
+                    .putString("cached_quizzes_taken_$uid", quizzesCount)
+                    .putString("cached_quiz_accuracy_$uid", accuracyPct)
+                    .apply()
+
+                // Update UI on Main thread without dropping a frame
+                withContext(Dispatchers.Main) {
+                    if (_binding != null && isAdded) {
+                        binding.loadingStatWordsMastered.visibility = View.GONE
+                        binding.tvStatWordsMastered.visibility = View.VISIBLE
+                        binding.tvStatWordsMastered.text = wordsCount
+
+                        binding.loadingStatQuizzesTaken.visibility = View.GONE
+                        binding.loadingStatAccuracy.visibility = View.GONE
+                        binding.tvStatQuizzesTaken.visibility = View.VISIBLE
+                        binding.tvStatAccuracy.visibility = View.VISIBLE
+                        binding.tvStatQuizzesTaken.text = quizzesCount
+                        binding.tvStatAccuracy.text = accuracyPct
                     }
                 }
-            }
+            } catch (_: Exception) {}
+        }
     }
 
     private fun setupLanguageDropdown() {

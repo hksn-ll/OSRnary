@@ -4,9 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -27,16 +31,11 @@ object GabAIUtils {
         val rootView = activity?.findViewById<View>(android.R.id.content) ?: return
 
         val snackbar = Snackbar.make(rootView, message, Snackbar.LENGTH_LONG)
-
-        // Force the text to allow up to 20 lines
-        val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        textView.maxLines = 20
-        textView.textSize = 14f
-
+        formatFloatingPillSnackbar(snackbar, rootView.context)
         snackbar.show()
     }
 
-    // 2. THE INVISIBLE MINI PROGRESS BAR WITH STATUS TEXT
+    // 2. THE BRAND GLOBAL LOADING OVERLAY WITH SPRING ENTRANCE
     fun showGlobalLoading(context: Context?, message: String = "Loading...") {
         if (context == null) return
 
@@ -48,54 +47,112 @@ object GabAIUtils {
         val rootLayout = activity?.findViewById<ViewGroup>(android.R.id.content) ?: return
 
         // Prevent adding multiple loading bars if tapped twice, but update the text!
-        if (rootLayout.findViewWithTag<View>("gabai_global_loader") != null) {
-            val container = rootLayout.findViewWithTag<FrameLayout>("gabai_global_loader")
-            val tv = container?.findViewWithTag<TextView>("gabai_global_loader_text")
+        val existingContainer = rootLayout.findViewWithTag<FrameLayout>("gabai_global_loader")
+        if (existingContainer != null) {
+            val tv = existingContainer.findViewWithTag<TextView>("gabai_global_loader_text")
             tv?.text = message
             return
         }
 
-        // Create a transparent background that blocks touches while loading
+        val density = activity.resources.displayMetrics.density
+        val screenWidth = activity.resources.displayMetrics.widthPixels
+        val cardWidth = (screenWidth * 0.82f).toInt().coerceIn((260 * density).toInt(), (340 * density).toInt())
+
+        // 1. Light translucent backdrop scrim with touch blocking
         val container = FrameLayout(activity).apply {
             tag = "gabai_global_loader"
-            setBackgroundColor(Color.parseColor("#99000000")) // Darker overlay for text readability
+            setBackgroundColor(Color.parseColor("#590F172A")) // 35% translucent dimming
             isClickable = true
             isFocusable = true
+            alpha = 0f
         }
 
-        val innerLayout = LinearLayout(activity).apply {
+        // 2. Elevated Light Mode card container with generous horizontal breathing room (no text clipping)
+        val cardLayout = LinearLayout(activity).apply {
+            tag = "gabai_global_loader_card"
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding((28 * density).toInt(), (28 * density).toInt(), (28 * density).toInt(), (24 * density).toInt())
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#FFFFFFFF")) // Clean elevated white card
+                cornerRadius = 28 * density
+                setStroke((1.5f * density).toInt(), Color.parseColor("#E2E8F0")) // Modern crisp border
+            }
+            elevation = 16 * density
             layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
+                cardWidth,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER
             )
+            scaleX = 0.60f
+            scaleY = 0.60f
+            alpha = 0f
         }
 
-        // Create the purple spinner
-        val progressBar = ProgressBar(activity).apply {
-            indeterminateTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6C5CE7"))
+        // 3. Brand animated logo loader VERY BIG (112dp x 112dp)
+        val loaderSizePx = (112 * density).toInt()
+        val loadingView = GabAiLoadingView(activity).apply {
+            layoutParams = LinearLayout.LayoutParams(loaderSizePx, loaderSizePx).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
         }
 
-        // Create the status text
+        // 4. Status text with MATCH_PARENT width, centered, multi-line capable (no word cutting)
         val statusText = TextView(activity).apply {
             tag = "gabai_global_loader_text"
             text = message
-            setTextColor(Color.WHITE)
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(0, 24, 0, 0)
+            setTextColor(Color.parseColor("#0F172A")) // Deep dark slate high-contrast typography
+            textSize = 15f
+            typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
             gravity = Gravity.CENTER
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+            setPadding((4 * density).toInt(), (18 * density).toInt(), (4 * density).toInt(), 0)
+            maxLines = 4
+            isSingleLine = false
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
+            translationY = 18 * density
+            alpha = 0f
         }
 
-        innerLayout.addView(progressBar)
-        innerLayout.addView(statusText)
+        cardLayout.addView(loadingView)
+        cardLayout.addView(statusText)
+        container.addView(cardLayout)
 
-        container.addView(innerLayout)
-
-        // Inject it over everything!
+        // Inject over root view
         rootLayout.addView(container, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+        // ENTRANCE ANIMATION:
+        // A. Fade in background scrim
+        container.animate()
+            .alpha(1f)
+            .setDuration(220)
+            .start()
+
+        // B. Spring entrance for the central loader card
+        cardLayout.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .alpha(1f)
+            .setDuration(400)
+            .setInterpolator(OvershootInterpolator(1.3f))
+            .start()
+
+        // C. Logo pop entrance
+        loadingView.playEntranceAnimation()
+
+        // D. Status text glides up smoothly into place
+        statusText.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setStartDelay(100)
+            .setDuration(340)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
     }
 
     fun hideGlobalLoading(context: Context?) {
@@ -106,10 +163,24 @@ object GabAIUtils {
         }
 
         val rootLayout = activity?.findViewById<ViewGroup>(android.R.id.content) ?: return
-        val loader = rootLayout.findViewWithTag<View>("gabai_global_loader")
-        if (loader != null) {
-            rootLayout.removeView(loader)
-        }
+        val loader = rootLayout.findViewWithTag<View>("gabai_global_loader") ?: return
+        val card = loader.findViewWithTag<View>("gabai_global_loader_card")
+
+        // Smooth exit animation
+        card?.animate()
+            ?.scaleX(0.85f)
+            ?.scaleY(0.85f)
+            ?.alpha(0f)
+            ?.setDuration(180)
+            ?.start()
+
+        loader.animate()
+            .alpha(0f)
+            .setDuration(220)
+            .withEndAction {
+                rootLayout.removeView(loader)
+            }
+            .start()
     }
 
     // =========================================================================
@@ -144,38 +215,71 @@ object GabAIUtils {
 
     /**
      * Bouncy tactile touch feedback (Spring compression & overshoot rebound).
+     * Instantaneous 0ms touch reaction with snappy mechanical pop.
      */
     fun addSpringPressEffect(view: View?, onClick: (() -> Unit)? = null) {
         if (view == null) return
+        var startX = 0f
+        var startY = 0f
+        var isClickAllowed = true
+
         view.setOnTouchListener { v, event ->
-            when (event.action) {
+            when (event.actionMasked) {
                 android.view.MotionEvent.ACTION_DOWN -> {
+                    startX = event.rawX
+                    startY = event.rawY
+                    isClickAllowed = true
+                    v.parent?.requestDisallowInterceptTouchEvent(true)
+                    performHaptic(v, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    v.animate().cancel()
                     v.animate()
-                        .scaleX(0.96f)
-                        .scaleY(0.96f)
-                        .alpha(0.92f)
-                        .setDuration(100)
+                        .setStartDelay(0L)
+                        .scaleX(0.94f)
+                        .scaleY(0.94f)
+                        .setDuration(50)
                         .setInterpolator(android.view.animation.DecelerateInterpolator())
                         .start()
                 }
+                android.view.MotionEvent.ACTION_MOVE -> {
+                    val dx = Math.abs(event.rawX - startX)
+                    val dy = Math.abs(event.rawY - startY)
+                    val slop = android.view.ViewConfiguration.get(v.context).scaledTouchSlop
+                    if (dx > slop || dy > slop) {
+                        isClickAllowed = false
+                        v.parent?.requestDisallowInterceptTouchEvent(false)
+                        v.animate().cancel()
+                        v.animate()
+                            .setStartDelay(0L)
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .setDuration(100)
+                            .start()
+                    }
+                }
                 android.view.MotionEvent.ACTION_UP -> {
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
+                    v.animate().cancel()
                     v.animate()
+                        .setStartDelay(0L)
                         .scaleX(1.0f)
                         .scaleY(1.0f)
-                        .alpha(1.0f)
                         .setDuration(180)
-                        .setInterpolator(android.view.animation.OvershootInterpolator(1.4f))
-                        .withEndAction {
-                            onClick?.invoke() ?: v.performClick()
-                        }
+                        .setInterpolator(android.view.animation.OvershootInterpolator(2.2f))
                         .start()
+
+                    if (isClickAllowed) {
+                        performHaptic(v, android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                        onClick?.invoke() ?: v.performClick()
+                    }
                 }
                 android.view.MotionEvent.ACTION_CANCEL -> {
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
+                    v.animate().cancel()
                     v.animate()
+                        .setStartDelay(0L)
                         .scaleX(1.0f)
                         .scaleY(1.0f)
-                        .alpha(1.0f)
-                        .setDuration(140)
+                        .setDuration(100)
                         .start()
                 }
             }
@@ -186,17 +290,23 @@ object GabAIUtils {
     /**
      * Staggered cascade entrance animation for cards/items.
      */
-    fun animateCascade(views: List<View>, baseDelay: Long = 35L, startDelayOffset: Long = 300L) {
-        views.forEachIndexed { index, view ->
+    fun animateCascade(views: List<View>, baseDelay: Long = 30L, startDelayOffset: Long = 0L) {
+        val visibleViews = views.filter { it.visibility == View.VISIBLE }
+        visibleViews.forEachIndexed { index, view ->
+            val density = view.resources.displayMetrics.density
+            val liftPx = 32f * density
             view.animate().cancel()
             view.alpha = 0f
-            view.translationY = 56f
+            view.translationY = liftPx
             view.animate()
                 .alpha(1f)
                 .translationY(0f)
                 .setStartDelay(startDelayOffset + (index * baseDelay))
-                .setDuration(380)
-                .setInterpolator(android.view.animation.DecelerateInterpolator(1.8f))
+                .setDuration(340)
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f))
+                .withEndAction {
+                    view.animate().setStartDelay(0L)
+                }
                 .start()
         }
     }
@@ -231,8 +341,43 @@ object GabAIUtils {
         if (view == null) return
         val snackbar = Snackbar.make(view, message, 4000)
             .setAction(actionText) { onUndo() }
-            .setActionTextColor(Color.parseColor("#5341CD"))
+            .setActionTextColor(Color.parseColor("#A5B4FC"))
+        formatFloatingPillSnackbar(snackbar, view.context)
         snackbar.show()
+    }
+
+    private fun formatFloatingPillSnackbar(snackbar: Snackbar, ctx: Context) {
+        val sView = snackbar.view
+        sView.setBackgroundResource(R.drawable.bg_snackbar_floating)
+
+        // Make it float above navigation bar with 16dp horizontal and 24dp bottom margins
+        val density = ctx.resources.displayMetrics.density
+        val marginH = (16 * density).toInt()
+        val marginB = (24 * density).toInt()
+
+        val params = sView.layoutParams
+        if (params is ViewGroup.MarginLayoutParams) {
+            params.setMargins(marginH, 0, marginH, marginB)
+            sView.layoutParams = params
+        }
+
+        sView.elevation = 10f * density
+
+        // Customize the text view to support multi-line text cleanly
+        val textView = sView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView.maxLines = 20
+        textView.textSize = 13.5f
+        textView.setTextColor(Color.parseColor("#F8FAFC"))
+        textView.setLineSpacing(0f, 1.25f)
+        try {
+            val typeface = androidx.core.content.res.ResourcesCompat.getFont(ctx, R.font.font_plus_jakarta_sans)
+            if (typeface != null) textView.typeface = typeface
+        } catch (_: Exception) {}
+
+        // Action button styling
+        val actionView = sView.findViewById<TextView>(com.google.android.material.R.id.snackbar_action)
+        actionView.textSize = 13.5f
+        actionView.typeface = android.graphics.Typeface.DEFAULT_BOLD
     }
 
     /**

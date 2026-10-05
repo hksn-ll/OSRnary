@@ -4,290 +4,382 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_app_aurora">
+    android:background="@drawable/bg_app_aurora"
+    android:fitsSystemWindows="true">
 
-    <!-- Frosted Top Bar Header -->
-    <LinearLayout
-        android:id="@+id/progress_header"
+    <!-- ================================================================= -->
+    <!-- FROSTED COMPACT TOP HEADER                                        -->
+    <!-- ================================================================= -->
+    <com.example.gabai.FastBlurView
+        android:id="@+id/blur_header_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_glass_top_bar"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="42dp"
-        android:paddingBottom="16dp"
+        android:background="@drawable/bg_glass_blur_top"
+        android:elevation="6dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:contentDescription="@string/cd_back"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_btn_frosted_circle"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="#161D1F" />
-
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="14dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ACADEMIC ANALYTICS"
-                android:textColor="#5341CD"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.08" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Progress &amp; Mastery"
-                android:textColor="#161D1F"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/font_plus_jakarta_sans" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        android:clipToPadding="false"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/progress_header"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <LinearLayout
+            android:id="@+id/progress_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
 
-            <!-- Gamification Bento Hero Card (Level & XP) -->
-            <LinearLayout
-                android:id="@+id/card_rank"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card_bento"
-                android:orientation="vertical"
-                android:padding="22dp"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="CURRENT RANK"
-                        android:textColor="#5341CD"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:letterSpacing="0.08" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_glass_chip"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="⭐ Active Learner"
-                        android:textColor="#5341CD"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tv_level"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Level 1"
-                    android:textColor="#161D1F"
-                    android:textSize="32sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                <TextView
-                    android:id="@+id/tv_xp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="0 / 100 XP to next level"
-                    android:textColor="#5A6472"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                <ProgressBar
-                    android:id="@+id/progress_xp"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_marginTop="14dp"
-                    android:max="100"
-                    android:progress="0"
-                    android:progressTint="#5341CD" />
-            </LinearLayout>
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cd_back"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/text_primary" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/tv_header_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="PERFORMANCE METRICS"
-                android:textColor="#5341CD"
-                android:textSize="12sp"
-                android:textStyle="bold"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
                 android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.08"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Stats Grid -->
-            <LinearLayout
-                android:id="@+id/layout_stats_grid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginBottom="16dp">
-
-                <!-- Words Mastered Card -->
-                <LinearLayout
-                    android:id="@+id/card_words_mastered"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_glass_card_bento"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:id="@+id/tv_words_mastered"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="#00B894"
-                        android:textSize="32sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Words\nMastered"
-                        android:textAlignment="center"
-                        android:textColor="#5A6472"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-                </LinearLayout>
-
-                <!-- Accuracy Card -->
-                <LinearLayout
-                    android:id="@+id/card_accuracy"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_glass_card_bento"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:id="@+id/tv_accuracy"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0%"
-                        android:textColor="#0984E3"
-                        android:textSize="32sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Quiz\nAccuracy"
-                        android:textAlignment="center"
-                        android:textColor="#5A6472"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Quiz History CTA Card -->
-            <LinearLayout
-                android:id="@+id/card_quiz_history"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_glass_card_bento"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="20dp"
-                android:layout_marginBottom="24dp">
-
-                <TextView
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:gravity="center"
-                    android:text="📋"
-                    android:textSize="22sp"
-                    android:background="@drawable/bg_btn_frosted_circle"
-                    android:layout_marginEnd="14dp" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Quiz Session History"
-                        android:textColor="#161D1F"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Review past scores, correct answers, and dates"
-                        android:textColor="#5A6472"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
-                </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_chevron_right_white"
-                    app:tint="#5341CD" />
-            </LinearLayout>
-
+                android:text="Progress &amp; Mastery"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
-    </ScrollView>
+    </com.example.gabai.FastBlurView>
+
+    <!-- ================================================================= -->
+    <!-- SCROLLABLE LIST CONTENT (Wrapped in FastBlurTarget)               -->
+    <!-- ================================================================= -->
+    <com.example.gabai.FastBlurTarget
+        android:id="@+id/blur_target_progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="72dp"
+            android:paddingBottom="36dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 1. Level & XP Hero Bento Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_rank"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@android:color/transparent">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_hero_xp_gradient"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/bg_level_pill"
+                                    android:paddingHorizontal="10dp"
+                                    android:paddingVertical="4dp"
+                                    android:text="CURRENT RANK"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="11sp"
+                                    android:fontFamily="@font/font_plus_jakarta_sans"
+                                    android:textStyle="bold"
+                                    android:letterSpacing="0.08" />
+
+                                <View
+                                    android:layout_width="0dp"
+                                    android:layout_height="1dp"
+                                    android:layout_weight="1" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/bg_level_pill"
+                                    android:paddingHorizontal="10dp"
+                                    android:paddingVertical="4dp"
+                                    android:text="⭐ Active Learner"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="11.5sp"
+                                    android:fontFamily="@font/font_plus_jakarta_sans"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tv_level"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:text="Level 1"
+                                android:textColor="#FFFFFF"
+                                android:textSize="30sp"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                            <TextView
+                                android:id="@+id/tv_xp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="0 / 100 XP to next level"
+                                android:textColor="#E4DFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/font_nunito_sans" />
+
+                            <ProgressBar
+                                android:id="@+id/progress_xp"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="8dp"
+                                android:layout_marginTop="14dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressDrawable="@drawable/bg_progress_mint" />
+                        </LinearLayout>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Section Title -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PERFORMANCE METRICS"
+                    android:textColor="#5341CD"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.08"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- 2. Stats Grid -->
+                <LinearLayout
+                    android:id="@+id/layout_stats_grid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- Words Mastered Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_words_mastered"
+                        style="@style/Widget.Material3.CardView.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#EDF2F7"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="18dp">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_bento_mint"
+                                android:layout_marginBottom="10dp">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_school"
+                                    app:tint="#059669"
+                                    android:contentDescription="@null" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tv_words_mastered"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#059669"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Words Mastered"
+                                android:textAlignment="center"
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Accuracy Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_accuracy"
+                        style="@style/Widget.Material3.CardView.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#EDF2F7"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="18dp">
+
+                            <FrameLayout
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:background="@drawable/bg_bento_purple"
+                                android:layout_marginBottom="10dp">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_insights"
+                                    app:tint="#5341CD"
+                                    android:contentDescription="@null" />
+                            </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/tv_accuracy"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0%"
+                                android:textColor="#5341CD"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Quiz Accuracy"
+                                android:textAlignment="center"
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- 3. Quiz History Navigation Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_quiz_history"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#EDF2F7"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="18dp">
+
+                        <FrameLayout
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_bento_purple"
+                            android:layout_marginEnd="14dp">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_task_alt"
+                                app:tint="#5341CD"
+                                android:contentDescription="@null" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="Quiz Session History"
+                                android:textColor="#0F172A"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:text="Review past scores, correct answers, and dates"
+                                android:textColor="#64748B"
+                                android:textSize="12.5sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right_white"
+                            app:tint="#64748B"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </ScrollView>
+    </com.example.gabai.FastBlurTarget>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

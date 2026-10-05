@@ -58,6 +58,8 @@ class OverviewActivity : AppCompatActivity() {
     private var selectionTypeLabel: String = "Word"
     private lateinit var tts: TextToSpeech
     private var isTtsReady = false
+    private var isTtsInitializing = false
+    private var pendingTtsAction: (() -> Unit)? = null
 
     // TTS Play / Pause / Resume State
     private enum class TtsPlaybackState { IDLE, LOADING, PLAYING, PAUSED }
@@ -75,13 +77,8 @@ class OverviewActivity : AppCompatActivity() {
     private var curatedCaption: String = ""
     private var currentVisualTerm: String = ""
     private var defaultVisualQuery: String = ""
-    private var activeVisualMode: VisualMode = VisualMode.OVERVIEW
     private var isVisualFeasible: Boolean = true
     private var isCuratedWikipediaActive: Boolean = false
-
-    private enum class VisualMode {
-        OVERVIEW, REAL_WORLD, DIAGRAMS
-    }
 
     private fun updateFullscreenButtonVisibility() {
         val btnFullscreen = findViewById<ImageButton>(R.id.btn_fullscreen_visual)
@@ -123,7 +120,6 @@ class OverviewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_overview)
         WebView.setWebContentsDebuggingEnabled(true)
 
@@ -134,6 +130,11 @@ class OverviewActivity : AppCompatActivity() {
             v.setPadding(v.paddingLeft, systemBars.top + 12, v.paddingRight, v.paddingBottom)
             insets
         }
+
+        // Setup Frosted Header Backdrop Blur
+        val blurHeader = findViewById<FastBlurView>(R.id.blur_header_overview)
+        val blurTarget = findViewById<FastBlurTarget>(R.id.blur_target_overview)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
 
         // Back button navigation
         findViewById<ImageButton>(R.id.btn_back)?.setOnClickListener {
@@ -157,74 +158,32 @@ class OverviewActivity : AppCompatActivity() {
         // Configure Hero Context Card
         configureHeroContextCard(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence, hasEnclosingContext)
 
-        // Initialize Text-To-Speech
-        tts = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                isTtsReady = true
-                tts.setSpeechRate(1.0f)
-                tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                    override fun onStart(utteranceId: String?) {
-                        runOnUiThread {
-                            if (utteranceId == "EXPLANATION_UTTERANCE") {
-                                ttsExplanationState = TtsPlaybackState.PLAYING
-                                updateExplanationAudioUi(TtsPlaybackState.PLAYING)
-                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
-                                findViewById<ProgressBar>(R.id.progress_tts_selected)?.visibility = View.GONE
-                            }
-                        }
-                    }
-
-                    override fun onDone(utteranceId: String?) {
-                        runOnUiThread {
-                            if (utteranceId == "EXPLANATION_UTTERANCE") {
-                                ttsExplanationState = TtsPlaybackState.IDLE
-                                lastCharOffset = 0
-                                currentUtteranceOffset = 0
-                                updateExplanationAudioUi(TtsPlaybackState.IDLE)
-                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
-                                findViewById<ProgressBar>(R.id.progress_tts_selected)?.visibility = View.GONE
-                            }
-                        }
-                    }
-
-                    @Deprecated("Deprecated in Java")
-                    override fun onError(utteranceId: String?) {
-                        runOnUiThread {
-                            if (utteranceId == "EXPLANATION_UTTERANCE") {
-                                ttsExplanationState = TtsPlaybackState.IDLE
-                                lastCharOffset = 0
-                                currentUtteranceOffset = 0
-                                updateExplanationAudioUi(TtsPlaybackState.IDLE)
-                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
-                                findViewById<ProgressBar>(R.id.progress_tts_selected)?.visibility = View.GONE
-                            }
-                        }
-                    }
-
-                    override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
-                        if (utteranceId == "EXPLANATION_UTTERANCE") {
-                            lastCharOffset = currentUtteranceOffset + start
-                        }
-                    }
-                })
-            }
-        }
-
-        // Setup audio buttons
+        // Setup audio buttons (immediate visual loading feedback on click + eager pre-warming)
         findViewById<View>(R.id.btn_speak_word)?.setOnClickListener {
             stopExplanationAudioIfPlaying()
-            speakWithDetection(scannedText, "WORD_UTTERANCE")
+            findViewById<View>(R.id.progress_tts_selected)?.visibility = View.VISIBLE
+            ensureTts { speakWithDetection(scannedText, "WORD_UTTERANCE") }
         }
 
         findViewById<View>(R.id.btn_speak_sentence)?.setOnClickListener {
             stopExplanationAudioIfPlaying()
-            speakWithDetection(surroundingSentence, "SENTENCE_UTTERANCE")
+            findViewById<View>(R.id.progress_tts_selected)?.visibility = View.VISIBLE
+            ensureTts { speakWithDetection(surroundingSentence, "SENTENCE_UTTERANCE") }
         }
 
         findViewById<ImageButton>(R.id.btn_speak_explanation)?.setOnClickListener {
             val audioText = if (lastExplanationAudioText.isNotEmpty()) lastExplanationAudioText else lastAiResult
-            toggleExplanationPlayback(audioText)
+            if (ttsExplanationState != TtsPlaybackState.PLAYING) {
+                updateExplanationAudioUi(TtsPlaybackState.LOADING)
+            }
+            ensureTts { toggleExplanationPlayback(audioText) }
         }
+
+        // Eagerly pre-warm TextToSpeech and ML Kit LanguageIdentifier non-blocking in background
+        ensureTts {}
+        try {
+            LanguageIdentification.getClient().identifyLanguage("warmup")
+        } catch (_: Exception) {}
 
         // Favorite button
         val favoriteBtn = findViewById<ImageButton>(R.id.btn_favorite)
@@ -350,28 +309,25 @@ class OverviewActivity : AppCompatActivity() {
             )
             populateRelatedQuestions(preloadedQuestions, scannedText, surroundingSentence)
 
-            // Feasibility Gating for Preloaded Item
-            val isGrammarWord = isGrammaticalStopWordOrSentence(scannedText, isSentence) ||
-                    preloadedPos.equals("CONJUNCTION", ignoreCase = true) ||
-                    preloadedPos.equals("PREPOSITION", ignoreCase = true) ||
-                    preloadedPos.equals("ADVERB", ignoreCase = true) ||
-                    preloadedPos.equals("PRONOUN", ignoreCase = true) ||
-                    preloadedPos.equals("INTERJECTION", ignoreCase = true)
-            isVisualFeasible = !isGrammarWord
+            // Feasibility Gating for Preloaded Item: Keep visuals collapsed to prevent heavy background WebView loading
+            isVisualFeasible = false
+            findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
 
-            val visualQuery = buildDeterministicVisualQuery(scannedText, surroundingSentence, isSentence)
-            defaultVisualQuery = visualQuery
-            currentVisualTerm = if (isSingleWord || isPhrase) {
-                scannedText.trim()
-            } else {
-                extractCoreSubject(surroundingSentence)
-            }
-
-            if (isVisualFeasible) {
-                setupVisualContainer(currentVisualTerm, defaultVisualQuery)
-            } else {
-                findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
-            }
+            // Cache preloaded explanation to avoid re-querying Gemini
+            OverviewCache.put(
+                scannedText,
+                surroundingSentence,
+                OverviewCache.CachedOverview(
+                    targetWord = scannedText,
+                    phonetics = lastPhonetics,
+                    partOfSpeech = lastPartOfSpeech,
+                    definition = lastAiResult,
+                    inSentenceRole = lastInSentenceRole,
+                    isVisualFeasible = isVisualFeasible,
+                    visualSearchTerm = currentVisualTerm,
+                    relatedQuestions = preloadedQuestions
+                )
+            )
 
             // Trigger Detail Quest progress
             val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -380,23 +336,9 @@ class OverviewActivity : AppCompatActivity() {
                     .update("quests_completed", FieldValue.arrayUnion("detail"))
             }
         } else if (scannedText.isNotEmpty()) {
-            // Initial heuristic check (Gemini will confirm or refine feasibility)
-            val isGrammarWord = isGrammaticalStopWordOrSentence(scannedText, isSentence)
-            isVisualFeasible = !isGrammarWord
-
-            val visualQuery = buildDeterministicVisualQuery(scannedText, surroundingSentence, isSentence)
-            defaultVisualQuery = visualQuery
-            currentVisualTerm = if (isSingleWord || isPhrase) {
-                scannedText.trim()
-            } else {
-                extractCoreSubject(surroundingSentence)
-            }
-
-            if (isVisualFeasible) {
-                setupVisualContainer(currentVisualTerm, defaultVisualQuery)
-            } else {
-                findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
-            }
+            // Smart visual context: initially hidden, only displayed if Gemini or cache verifies feasibility
+            isVisualFeasible = false
+            findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
 
             // Generate AI Overview and Question Prompts
             generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
@@ -414,22 +356,28 @@ class OverviewActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (::tts.isInitialized) {
+        if (::tts.isInitialized && isTtsReady) {
             tts.stop()
-        }
-        val isEnabled = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).getBoolean("bubble_enabled", false)
-        if (isEnabled) {
-            val intent = android.content.Intent(this, FloatingControlService::class.java)
-            intent.action = "ACTION_SHOW"
-            startService(intent)
         }
     }
 
     override fun onDestroy() {
         if (::tts.isInitialized) {
             tts.stop()
-            tts.shutdown()
+            Thread {
+                try {
+                    tts.shutdown()
+                } catch (_: Exception) {}
+            }.start()
         }
+        try {
+            webView?.let { wv ->
+                (wv.parent as? ViewGroup)?.removeView(wv)
+                wv.stopLoading()
+                wv.destroy()
+            }
+            webView = null
+        } catch (_: Exception) {}
         super.onDestroy()
     }
 
@@ -606,17 +554,30 @@ class OverviewActivity : AppCompatActivity() {
         }
     }
 
+    private var webView: WebView? = null
+
+    private fun getOrCreateWebView(): WebView {
+        val existing = webView
+        if (existing != null) return existing
+        val container = findViewById<FrameLayout>(R.id.webview_container)
+        val wv = WebView(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        }
+        container?.addView(wv)
+        webView = wv
+        return wv
+    }
+
     private fun setupVisualContainer(term: String, fallbackQuery: String) {
         val visualsContainer = findViewById<View>(R.id.visuals_container)
-        val chipDiagram = findViewById<TextView>(R.id.chip_diagram)
-        val chipMicroscopic = findViewById<TextView>(R.id.chip_microscopic)
-        val chipProcess = findViewById<TextView>(R.id.chip_process)
         val btnFullscreen = findViewById<ImageButton>(R.id.btn_fullscreen_visual)
         val ivDiagram = findViewById<ImageView>(R.id.iv_curated_diagram)
-        val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
         val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
-        val imageWebView = findViewById<WebView>(R.id.image_webview)
-        val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
+        val webviewContainer = findViewById<FrameLayout>(R.id.webview_container)
+        val progressVisual = findViewById<View>(R.id.progress_visual)
 
         isCuratedWikipediaActive = false
         updateFullscreenButtonVisibility()
@@ -629,7 +590,7 @@ class OverviewActivity : AppCompatActivity() {
         visualsContainer?.visibility = View.VISIBLE
         progressVisual?.visibility = View.VISIBLE
         curatedContainer?.visibility = View.GONE
-        imageWebView?.visibility = View.GONE
+        webviewContainer?.visibility = View.GONE
 
         // Lightbox trigger: only active when curatedBitmap != null
         btnFullscreen?.setOnClickListener {
@@ -643,87 +604,8 @@ class OverviewActivity : AppCompatActivity() {
             }
         }
 
-        // Chip Clicks
-        chipDiagram?.setOnClickListener {
-            activeVisualMode = VisualMode.OVERVIEW
-            if (chipMicroscopic != null && chipProcess != null) {
-                updateChipStyle(chipDiagram, listOf(chipMicroscopic, chipProcess))
-            }
-            if (curatedBitmap != null) {
-                isCuratedWikipediaActive = true
-                updateFullscreenButtonVisibility()
-                tvBadge?.text = "ENCYCLOPEDIA"
-                curatedContainer?.visibility = View.VISIBLE
-                imageWebView?.visibility = View.GONE
-                progressVisual?.visibility = View.GONE
-                visualsContainer?.visibility = View.VISIBLE
-            } else {
-                isCuratedWikipediaActive = false
-                updateFullscreenButtonVisibility()
-                if (isVisualFeasible) {
-                    tvBadge?.text = "WEB VISUALS"
-                    curatedContainer?.visibility = View.GONE
-                    imageWebView?.visibility = View.VISIBLE
-                    progressVisual?.visibility = View.GONE
-                    visualsContainer?.visibility = View.VISIBLE
-                    if (imageWebView != null) loadGoogleImages(imageWebView, fallbackQuery)
-                } else {
-                    visualsContainer?.visibility = View.GONE
-                }
-            }
-        }
-
-        chipMicroscopic?.setOnClickListener {
-            activeVisualMode = VisualMode.REAL_WORLD
-            isCuratedWikipediaActive = false
-            updateFullscreenButtonVisibility()
-            if (chipDiagram != null && chipProcess != null) {
-                updateChipStyle(chipMicroscopic, listOf(chipDiagram, chipProcess))
-            }
-            if (isVisualFeasible) {
-                tvBadge?.text = "REAL-WORLD"
-                curatedContainer?.visibility = View.GONE
-                imageWebView?.visibility = View.VISIBLE
-                progressVisual?.visibility = View.GONE
-                visualsContainer?.visibility = View.VISIBLE
-                val realWorldQuery = "$term real world photo example"
-                if (imageWebView != null) loadGoogleImages(imageWebView, realWorldQuery)
-            } else {
-                visualsContainer?.visibility = View.GONE
-            }
-        }
-
-        chipProcess?.setOnClickListener {
-            activeVisualMode = VisualMode.DIAGRAMS
-            isCuratedWikipediaActive = false
-            updateFullscreenButtonVisibility()
-            if (chipDiagram != null && chipMicroscopic != null) {
-                updateChipStyle(chipProcess, listOf(chipDiagram, chipMicroscopic))
-            }
-            if (isVisualFeasible) {
-                tvBadge?.text = "DIAGRAMS & CHARTS"
-                curatedContainer?.visibility = View.GONE
-                imageWebView?.visibility = View.VISIBLE
-                progressVisual?.visibility = View.GONE
-                visualsContainer?.visibility = View.VISIBLE
-                val diagramQuery = "$term diagram chart infographic"
-                if (imageWebView != null) loadGoogleImages(imageWebView, diagramQuery)
-            } else {
-                visualsContainer?.visibility = View.GONE
-            }
-        }
-
         // Fetch curated diagram asynchronously
         fetchCuratedDiagram(term, fallbackQuery)
-    }
-
-    private fun updateChipStyle(selected: TextView, others: List<TextView>) {
-        selected.setBackgroundResource(R.drawable.bg_chip_selected)
-        selected.setTextColor(Color.WHITE)
-        for (other in others) {
-            other.setBackgroundResource(R.drawable.bg_chip_unselected)
-            other.setTextColor(Color.parseColor("#475569"))
-        }
     }
 
     private fun fetchCuratedDiagram(term: String, fallbackQuery: String) {
@@ -798,8 +680,8 @@ class OverviewActivity : AppCompatActivity() {
                                     val ivDiagram = findViewById<ImageView>(R.id.iv_curated_diagram)
                                     val tvCaption = findViewById<TextView>(R.id.tv_diagram_caption)
                                     val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
-                                    val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
-                                    val imageWebView = findViewById<WebView>(R.id.image_webview)
+                                    val progressVisual = findViewById<View>(R.id.progress_visual)
+                                    val webviewContainer = findViewById<FrameLayout>(R.id.webview_container)
                                     val visualsContainer = findViewById<View>(R.id.visuals_container)
 
                                     progressVisual?.visibility = View.GONE
@@ -807,13 +689,11 @@ class OverviewActivity : AppCompatActivity() {
                                     tvCaption?.text = curatedCaption
                                     visualsContainer?.visibility = View.VISIBLE
 
-                                    if (activeVisualMode == VisualMode.OVERVIEW) {
-                                        isCuratedWikipediaActive = true
-                                        updateFullscreenButtonVisibility()
-                                        tvBadge?.text = "ENCYCLOPEDIA"
-                                        curatedContainer?.visibility = View.VISIBLE
-                                        imageWebView?.visibility = View.GONE
-                                    }
+                                    isCuratedWikipediaActive = true
+                                    updateFullscreenButtonVisibility()
+                                    tvBadge?.text = "ENCYCLOPEDIA"
+                                    curatedContainer?.visibility = View.VISIBLE
+                                    webviewContainer?.visibility = View.GONE
                                 }
                                 return@launch
                             }
@@ -836,9 +716,9 @@ class OverviewActivity : AppCompatActivity() {
         isCuratedWikipediaActive = false
         updateFullscreenButtonVisibility()
 
-        val progressVisual = findViewById<ProgressBar>(R.id.progress_visual)
+        val progressVisual = findViewById<View>(R.id.progress_visual)
         val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
-        val imageWebView = findViewById<WebView>(R.id.image_webview)
+        val webviewContainer = findViewById<FrameLayout>(R.id.webview_container)
         val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
         val visualsContainer = findViewById<View>(R.id.visuals_container)
 
@@ -848,17 +728,16 @@ class OverviewActivity : AppCompatActivity() {
         // Feasibility Gate: Only load web images if the concept is genuinely visually feasible!
         if (!isVisualFeasible) {
             visualsContainer?.visibility = View.GONE
-            imageWebView?.visibility = View.GONE
+            webviewContainer?.visibility = View.GONE
             return
         }
 
         visualsContainer?.visibility = View.VISIBLE
-        imageWebView?.visibility = View.VISIBLE
+        webviewContainer?.visibility = View.VISIBLE
         tvBadge?.text = "WEB VISUALS"
 
-        if (imageWebView != null) {
-            loadGoogleImages(imageWebView, query)
-        }
+        val wv = getOrCreateWebView()
+        loadGoogleImages(wv, query)
     }
 
     private fun showFullscreenLightbox(bitmap: Bitmap?, title: String?, caption: String?) {
@@ -1024,13 +903,79 @@ class OverviewActivity : AppCompatActivity() {
         val inSentenceLabel = findViewById<TextView>(R.id.tv_in_sentence_label)
         val inSentenceTextView = findViewById<TextView>(R.id.tv_in_sentence)
         val inSentenceContainer = findViewById<View>(R.id.ll_in_sentence_container)
+        val markwon = Markwon.create(this)
+
+        // 0. Check in-memory OverviewCache immediately to avoid duplicate Gemini token consumption and zero-latency display
+        val cached = OverviewCache.get(inputText, surroundingSentence)
+        if (cached != null) {
+            loadingContainer?.visibility = View.GONE
+            errorContainer?.visibility = View.GONE
+            resultContainer?.visibility = View.VISIBLE
+
+            lastAiResult = cached.definition
+            lastPartOfSpeech = cached.partOfSpeech
+            lastPhonetics = cached.phonetics
+            lastInSentenceRole = cached.inSentenceRole
+            lastExplanationAudioText = if (lastInSentenceRole.isNotEmpty()) "${cached.definition}. $lastInSentenceRole" else cached.definition
+
+            if (isSentence) {
+                targetWordView?.text = "Sentence Breakdown"
+                targetWordView?.textSize = 16f
+                phoneticsView?.visibility = View.GONE
+                posView?.text = if (cached.partOfSpeech.isNotEmpty()) cached.partOfSpeech else "ANALYSIS"
+            } else if (isPhrase) {
+                targetWordView?.text = inputText
+                targetWordView?.textSize = 22f
+                if (cached.phonetics.isNotEmpty()) {
+                    phoneticsView?.text = cached.phonetics
+                    phoneticsView?.visibility = View.VISIBLE
+                } else {
+                    phoneticsView?.visibility = View.GONE
+                }
+                posView?.text = if (cached.partOfSpeech.isNotEmpty()) cached.partOfSpeech else "PHRASE"
+            } else {
+                targetWordView?.text = inputText
+                targetWordView?.textSize = 22f
+                if (cached.phonetics.isNotEmpty()) {
+                    phoneticsView?.text = cached.phonetics
+                    phoneticsView?.visibility = View.VISIBLE
+                } else {
+                    phoneticsView?.visibility = View.GONE
+                }
+                posView?.text = cached.partOfSpeech
+            }
+
+            markwon.setMarkdown(definitionTextView, cached.definition)
+
+            val isAllSelected = isSentence || inputText.trim().equals(surroundingSentence.trim(), ignoreCase = true)
+            if (!isAllSelected && cached.inSentenceRole.isNotEmpty()) {
+                inSentenceLabel?.text = if (isSentence) "SENTENCE ROLE IN CONTEXT" else if (isPhrase) "PHRASE ROLE IN THIS SENTENCE" else "WORD ROLE IN THIS SENTENCE"
+                inSentenceTextView?.text = cached.inSentenceRole
+                inSentenceContainer?.visibility = View.VISIBLE
+            } else {
+                inSentenceContainer?.visibility = View.GONE
+            }
+
+            populateRelatedQuestions(cached.relatedQuestions, inputText, surroundingSentence)
+
+            isVisualFeasible = cached.isVisualFeasible && !isSentence && cached.visualSearchTerm.isNotBlank()
+            val visualsContainer = findViewById<View>(R.id.visuals_container)
+            if (!isVisualFeasible) {
+                if (curatedBitmap == null) {
+                    visualsContainer?.visibility = View.GONE
+                }
+            } else {
+                currentVisualTerm = cached.visualSearchTerm.trim()
+                defaultVisualQuery = "$currentVisualTerm diagram"
+                setupVisualContainer(currentVisualTerm, defaultVisualQuery)
+            }
+            return
+        }
 
         loadingContainer?.visibility = View.VISIBLE
         startSkeletonPulse()
         errorContainer?.visibility = View.GONE
         resultContainer?.visibility = View.GONE
-
-        val markwon = Markwon.create(this)
 
         lifecycleScope.launch {
             try {
@@ -1263,19 +1208,16 @@ class OverviewActivity : AppCompatActivity() {
                 populateRelatedQuestions(relatedQuestions, inputText, surroundingSentence)
 
                 // Apply Dynamic Visual Feasibility Gate based on AI Evaluation
-                isVisualFeasible = isAiVisuallyFeasible && !isSentence
+                isVisualFeasible = isAiVisuallyFeasible && !isSentence && visualSearchTerm.isNotBlank()
                 val visualsContainer = findViewById<View>(R.id.visuals_container)
                 if (!isVisualFeasible) {
                     if (curatedBitmap == null) {
                         visualsContainer?.visibility = View.GONE
                     }
                 } else {
-                    val refinedTerm = if (visualSearchTerm.isNotEmpty()) visualSearchTerm else currentVisualTerm
-                    if (refinedTerm.isNotEmpty() && refinedTerm != currentVisualTerm && curatedBitmap == null) {
-                        currentVisualTerm = refinedTerm
-                        defaultVisualQuery = "$refinedTerm diagram"
-                        setupVisualContainer(currentVisualTerm, defaultVisualQuery)
-                    }
+                    currentVisualTerm = visualSearchTerm.trim()
+                    defaultVisualQuery = "$currentVisualTerm diagram"
+                    setupVisualContainer(currentVisualTerm, defaultVisualQuery)
                 }
 
                 // Save to History with actual enclosing sentence as originalContext and grammatical metadata
@@ -1286,6 +1228,22 @@ class OverviewActivity : AppCompatActivity() {
                     partOfSpeech = partOfSpeech,
                     phonetics = phonetics,
                     inSentenceRole = if (isAllSelected) "" else inSentenceRole
+                )
+
+                // Cache response in memory to eliminate duplicate Gemini token calls
+                OverviewCache.put(
+                    inputText,
+                    surroundingSentence,
+                    OverviewCache.CachedOverview(
+                        targetWord = inputText,
+                        phonetics = phonetics,
+                        partOfSpeech = partOfSpeech,
+                        definition = definition,
+                        inSentenceRole = if (isAllSelected) "" else inSentenceRole,
+                        isVisualFeasible = isAiVisuallyFeasible,
+                        visualSearchTerm = visualSearchTerm,
+                        relatedQuestions = relatedQuestions
+                    )
                 )
 
             } catch (e: Exception) {
@@ -1329,7 +1287,7 @@ class OverviewActivity : AppCompatActivity() {
             val itemView = inflater.inflate(R.layout.item_related_question, questionsContainer, false)
             val tvTitle = itemView.findViewById<TextView>(R.id.tv_question_title)
             val ivChevron = itemView.findViewById<ImageView>(R.id.iv_question_chevron)
-            val progressBar = itemView.findViewById<ProgressBar>(R.id.progress_question)
+            val progressBar = itemView.findViewById<View>(R.id.progress_question)
             val answerContainer = itemView.findViewById<View>(R.id.ll_answer_container)
             val tvAnswer = itemView.findViewById<TextView>(R.id.tv_question_answer)
 
@@ -1504,7 +1462,7 @@ class OverviewActivity : AppCompatActivity() {
     // =========================================================================
     private fun updateExplanationAudioUi(state: TtsPlaybackState) {
         val btn = findViewById<ImageButton>(R.id.btn_speak_explanation)
-        val progress = findViewById<ProgressBar>(R.id.progress_tts_explanation)
+        val progress = findViewById<View>(R.id.progress_tts_explanation)
         when (state) {
             TtsPlaybackState.LOADING -> {
                 progress?.visibility = View.VISIBLE
@@ -1528,10 +1486,86 @@ class OverviewActivity : AppCompatActivity() {
         }
     }
 
-    private fun speakWithDetection(text: String, utteranceId: String) {
-        if (!isTtsReady || text.isEmpty()) return
+    private fun ensureTts(onReady: () -> Unit) {
+        if (isTtsReady && ::tts.isInitialized) {
+            onReady()
+            return
+        }
+        pendingTtsAction = onReady
+        if (isTtsInitializing) return
+        isTtsInitializing = true
 
-        val loader = findViewById<ProgressBar>(R.id.progress_tts_selected)
+        tts = TextToSpeech(this) { status ->
+            isTtsInitializing = false
+            if (status == TextToSpeech.SUCCESS) {
+                isTtsReady = true
+                tts.setSpeechRate(1.0f)
+                tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        runOnUiThread {
+                            if (utteranceId == "EXPLANATION_UTTERANCE") {
+                                ttsExplanationState = TtsPlaybackState.PLAYING
+                                updateExplanationAudioUi(TtsPlaybackState.PLAYING)
+                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
+                                findViewById<View>(R.id.progress_tts_selected)?.visibility = View.GONE
+                            }
+                        }
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        runOnUiThread {
+                            if (utteranceId == "EXPLANATION_UTTERANCE") {
+                                ttsExplanationState = TtsPlaybackState.IDLE
+                                lastCharOffset = 0
+                                currentUtteranceOffset = 0
+                                updateExplanationAudioUi(TtsPlaybackState.IDLE)
+                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
+                                findViewById<View>(R.id.progress_tts_selected)?.visibility = View.GONE
+                            }
+                        }
+                    }
+
+                    @Deprecated("Deprecated in Java")
+                    override fun onError(utteranceId: String?) {
+                        runOnUiThread {
+                            if (utteranceId == "EXPLANATION_UTTERANCE") {
+                                ttsExplanationState = TtsPlaybackState.IDLE
+                                lastCharOffset = 0
+                                currentUtteranceOffset = 0
+                                updateExplanationAudioUi(TtsPlaybackState.IDLE)
+                            } else if (utteranceId == "WORD_UTTERANCE" || utteranceId == "SENTENCE_UTTERANCE") {
+                                findViewById<View>(R.id.progress_tts_selected)?.visibility = View.GONE
+                            }
+                        }
+                    }
+
+                    override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+                        if (utteranceId == "EXPLANATION_UTTERANCE") {
+                            lastCharOffset = currentUtteranceOffset + start
+                        }
+                    }
+                })
+                runOnUiThread {
+                    val act = pendingTtsAction
+                    pendingTtsAction = null
+                    act?.invoke()
+                }
+            } else {
+                runOnUiThread {
+                    findViewById<View>(R.id.progress_tts_selected)?.visibility = View.GONE
+                    updateExplanationAudioUi(TtsPlaybackState.IDLE)
+                }
+            }
+        }
+    }
+
+    private fun speakWithDetection(text: String, utteranceId: String) {
+        if (!isTtsReady || !::tts.isInitialized || text.isEmpty()) {
+            findViewById<View>(R.id.progress_tts_selected)?.visibility = View.GONE
+            return
+        }
+
+        val loader = findViewById<View>(R.id.progress_tts_selected)
         loader?.visibility = View.VISIBLE
 
         val languageIdentifier = LanguageIdentification.getClient()
@@ -1561,7 +1595,7 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     private fun stopExplanationAudioIfPlaying() {
-        if (!isTtsReady) return
+        if (!isTtsReady || !::tts.isInitialized) return
         if (ttsExplanationState != TtsPlaybackState.IDLE) {
             tts.stop()
             ttsExplanationState = TtsPlaybackState.IDLE
@@ -1572,7 +1606,7 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     private fun toggleExplanationPlayback(text: String) {
-        if (!isTtsReady || text.isEmpty()) return
+        if (!isTtsReady || !::tts.isInitialized || text.isEmpty()) return
 
         when (ttsExplanationState) {
             TtsPlaybackState.LOADING -> {

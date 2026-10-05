@@ -52,9 +52,9 @@ class HomeFragment : Fragment() {
     fun playEntranceAnimation() {
         if (_binding == null || !isAdded) return
         val viewsToAnimate = listOfNotNull(
-            binding.tvGreetingTitle,
+            binding.containerGreeting,
             binding.cardHeroXp,
-            binding.questBoardContainer,
+            binding.questBoardContainer.takeIf { it.visibility == View.VISIBLE },
             binding.sectionWeeklyAssessments.takeIf { it.visibility == View.VISIBLE },
             binding.headerYourJourney,
             binding.btnLearningProgress,
@@ -69,7 +69,7 @@ class HomeFragment : Fragment() {
             binding.btnFavs,
             binding.btnHistory
         )
-        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 35L, startDelayOffset = 300L)
+        GabAIUtils.animateCascade(viewsToAnimate, baseDelay = 30L, startDelayOffset = 180L)
     }
 
     override fun onResume() {

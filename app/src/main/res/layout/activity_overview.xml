@@ -11,61 +11,73 @@
     <!-- ================================================================= -->
     <!-- NATIVE HEADER TOOLBAR                                             -->
     <!-- ================================================================= -->
-    <LinearLayout
-        android:id="@+id/header_container"
+    <com.example.gabai.FastBlurView
+        android:id="@+id/blur_header_overview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:elevation="2dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
+        android:background="@drawable/bg_glass_blur_top"
+        android:elevation="6dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Go Back"
-            android:padding="8dp"
-            android:src="@drawable/ic_arrow_back"
-            app:tint="@color/text_primary" />
-
-        <TextView
-            android:id="@+id/tv_header_title"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/header_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:fontFamily="@font/font_plus_jakarta_sans"
-            android:text="AI Overview"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
 
-        <ImageButton
-            android:id="@+id/btn_favorite"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Save to favorites"
-            android:padding="8dp"
-            android:src="@drawable/ic_star_outline"
-            app:tint="#F1C40F" />
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Go Back"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/tv_header_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="AI Overview"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_favorite"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Save to favorites"
+                android:padding="8dp"
+                android:src="@drawable/ic_star_outline"
+                app:tint="#F1C40F" />
+        </LinearLayout>
+    </com.example.gabai.FastBlurView>
 
     <!-- ================================================================= -->
-    <!-- SCROLLABLE CONTENT BODY                                           -->
+    <!-- SCROLLABLE CONTENT BODY (Wrapped in FastBlurTarget)               -->
     <!-- ================================================================= -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_content"
+    <com.example.gabai.FastBlurTarget
+        android:id="@+id/blur_target_overview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_container">
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="68dp"
+            android:paddingBottom="48dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -123,12 +135,10 @@
                             android:layout_height="1dp"
                             android:layout_weight="1" />
 
-                        <ProgressBar
+                        <com.example.gabai.GabAiLoadingView
                             android:id="@+id/progress_tts_selected"
-                            style="?android:attr/progressBarStyleSmall"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:indeterminateTint="#FFFFFF"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
                             android:visibility="gone" />
                     </LinearLayout>
 
@@ -267,10 +277,9 @@
                                 android:layout_height="1dp"
                                 android:layout_weight="1" />
 
-                            <ProgressBar
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:indeterminateTint="#5341CD" />
+                            <com.example.gabai.GabAiLoadingView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp" />
                         </LinearLayout>
 
                         <View
@@ -462,13 +471,11 @@
                                     tools:text="/ˈklɔːr.ə.plæst/" />
                             </LinearLayout>
 
-                            <ProgressBar
+                            <com.example.gabai.GabAiLoadingView
                                 android:id="@+id/progress_tts_explanation"
-                                style="?android:attr/progressBarStyleSmall"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
                                 android:layout_margin="8dp"
-                                android:indeterminateTint="#6C5CE7"
                                 android:visibility="gone" />
 
 
@@ -640,61 +647,6 @@
                             app:tint="#64748B" />
                     </LinearLayout>
 
-                    <!-- Perspective Filter Chips (Universal for Literature, History, Science, Math, etc.) -->
-                    <LinearLayout
-                        android:id="@+id/ll_visual_chips"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="10dp">
-
-                        <TextView
-                            android:id="@+id/chip_diagram"
-                            android:layout_width="wrap_content"
-                            android:layout_height="32dp"
-                            android:background="@drawable/bg_chip_selected"
-                            android:gravity="center"
-                            android:paddingHorizontal="14dp"
-                            android:text="Overview"
-                            android:textColor="#FFFFFF"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/font_plus_jakarta_sans"
-                            android:textStyle="bold"
-                            android:clickable="true"
-                            android:focusable="true" />
-
-                        <TextView
-                            android:id="@+id/chip_microscopic"
-                            android:layout_width="wrap_content"
-                            android:layout_height="32dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:gravity="center"
-                            android:paddingHorizontal="14dp"
-                            android:text="Real-World"
-                            android:textColor="#475569"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/font_plus_jakarta_sans"
-                            android:textStyle="bold"
-                            android:clickable="true"
-                            android:focusable="true" />
-
-                        <TextView
-                            android:id="@+id/chip_process"
-                            android:layout_width="wrap_content"
-                            android:layout_height="32dp"
-                            android:layout_marginStart="8dp"
-                            android:background="@drawable/bg_chip_unselected"
-                            android:gravity="center"
-                            android:paddingHorizontal="14dp"
-                            android:text="Diagrams &amp; Charts"
-                            android:textColor="#475569"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/font_plus_jakarta_sans"
-                            android:textStyle="bold"
-                            android:clickable="true"
-                            android:focusable="true" />
-                    </LinearLayout>
 
                     <!-- Card Frame with Curated Diagram ImageView and fallback WebView -->
                     <com.google.android.material.card.MaterialCardView
@@ -712,13 +664,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent">
 
-                            <!-- Web search view (used when in search mode or fallback) -->
-                            <WebView
-                                android:id="@+id/image_webview"
+                            <!-- Web search container (lazily created only if fallback web search is needed) -->
+                            <FrameLayout
+                                android:id="@+id/webview_container"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:visibility="gone" />
-
                             <!-- Native Curated Diagram Layout -->
                             <LinearLayout
                                 android:id="@+id/container_curated_diagram"
@@ -770,13 +721,11 @@
                                 </LinearLayout>
                             </LinearLayout>
 
-                            <ProgressBar
+                            <com.example.gabai.GabAiLoadingView
                                 android:id="@+id/progress_visual"
-                                style="?android:attr/progressBarStyleSmall"
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
                                 android:layout_gravity="center"
-                                android:indeterminateTint="#6C5CE7"
                                 android:visibility="gone" />
                         </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -786,5 +735,6 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+    </com.example.gabai.FastBlurTarget>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

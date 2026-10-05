@@ -15,9 +15,19 @@ class ProgressDashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_progress_dashboard)
+        GabAIUtils.enableHardwareRefreshRate(this)
 
-        val header = findViewById<View>(R.id.progress_header)
-        GabAIUtils.applyFrostedGlass(header, 28f)
+        val blurHeader = findViewById<io.alterac.blurkit.FastBlurView>(R.id.blur_header_progress)
+        val blurTarget = findViewById<io.alterac.blurkit.FastBlurTarget>(R.id.blur_target_progress)
+        GabAIUtils.setupBlurView(blurHeader, blurTarget)
+
+        val headerInner = findViewById<View>(R.id.progress_header)
+        val initialPaddingTop = headerInner.paddingTop
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(headerInner) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top + initialPaddingTop, v.paddingRight, v.paddingBottom)
+            insets
+        }
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }

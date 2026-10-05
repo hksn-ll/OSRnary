@@ -31,6 +31,18 @@ class SplashActivity : AppCompatActivity() {
             logoView.startChoreography()
         }
 
+        var splashDevTaps = 0
+        logoView?.setOnClickListener {
+            splashDevTaps++
+            if (splashDevTaps >= 5) {
+                splashDevTaps = 0
+                hasProceeded = true
+                android.widget.Toast.makeText(this, "🛠️ Opening Developer Component Lab!", android.widget.Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, DevEasterEggActivity::class.java))
+                finish()
+            }
+        }
+
         // Staggered typography entrance coordinated with logo choreography
         tvTitle?.animate()
             ?.alpha(1f)

@@ -96,7 +96,7 @@ class PdfViewerActivity : AppCompatActivity() {
             popup.show()
         }
 
-        val progressBar = findViewById<ProgressBar>(R.id.pdf_loading_bar)
+        val progressBar = findViewById<View>(R.id.pdf_loading_bar)
         val pdfView = findViewById<PDFView>(R.id.online_pdf_viewer)
         val pageIndicator = findViewById<TextView>(R.id.tv_page_indicator)
 
@@ -133,7 +133,7 @@ class PdfViewerActivity : AppCompatActivity() {
         savedPage: Int,
         pdfPrefKey: String,
         prefs: android.content.SharedPreferences,
-        progressBar: ProgressBar,
+        progressBar: View,
         pdfView: PDFView,
         pageIndicator: TextView
     ) {
