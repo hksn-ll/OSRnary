@@ -116,11 +116,95 @@ $gradleCmd = ".\gradlew.bat"
 if (-not (Test-Path $gradleCmd)) {
     $gradleCmd = "./gradlew"
 }
-& $gradleCmd assembleDebug
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[!] Build failed! Please resolve compilation errors above." -ForegroundColor Red
-    exit $LASTEXITCODE
+$errorLogPath = Join-Path $PSScriptRoot "build-error.log"
+$rawLogPath = Join-Path $PSScriptRoot "gradle-build.log"
+
+if (Test-Path $errorLogPath) { Remove-Item $errorLogPath -Force }
+if (Test-Path $rawLogPath) { Remove-Item $rawLogPath -Force }
+
+$prevErrorAction = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+
+# Stream Gradle output live to terminal while capturing for error analysis
+& $gradleCmd assembleDebug 2>&1 | Tee-Object -FilePath $rawLogPath
+$buildExitCode = $LASTEXITCODE
+
+$ErrorActionPreference = $prevErrorAction
+
+if ($buildExitCode -ne 0) {
+    Write-Host "`n==========================================" -ForegroundColor Red
+    Write-Host "       [!] GRADLE BUILD FAILED [!]" -ForegroundColor Red
+    Write-Host "==========================================" -ForegroundColor Red
+
+    # Extract compiler errors, unresolved references, and failure details
+    $extractedErrors = @()
+    if (Test-Path $rawLogPath) {
+        $allLines = Get-Content $rawLogPath
+        $inFailureSection = $false
+
+        foreach ($line in $allLines) {
+            $trimmed = $line.Trim()
+            if ($trimmed -match "^e:\s+" -or 
+                $trimmed -match "(?i)error:" -or 
+                $trimmed -match "(?i)compilation error" -or 
+                $trimmed -match "(?i)unresolved reference" -or 
+                $trimmed -match "^\*\s+What went wrong:" -or 
+                $trimmed -match "^\*\s+Try:") {
+                $extractedErrors += $trimmed
+            } elseif ($trimmed -match "^FAILURE:") {
+                $inFailureSection = $true
+                $extractedErrors += $trimmed
+            } elseif ($inFailureSection) {
+                $extractedErrors += $trimmed
+                if ($trimmed -match "^\*\s+Get more help at") {
+                    $inFailureSection = $false
+                }
+            }
+        }
+    }
+
+    # Write clean, structured diagnostic report for AI analysis
+    $report = @()
+    $report += "======================================================================"
+    $report += "GABAI BUILD FAILURE DIAGNOSTIC REPORT"
+    $report += "Timestamp : $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+    $report += "Exit Code : $buildExitCode"
+    $report += "Command   : $gradleCmd assembleDebug"
+    $report += "======================================================================"
+    $report += ""
+    $report += "--- EXTRACTED COMPILER & BUILD ERRORS ---"
+    if ($extractedErrors.Count -gt 0) {
+        $report += $extractedErrors
+    } else {
+        $report += "(No specific regex matches found. See full log below.)"
+    }
+    $report += ""
+    $report += "--- FULL BUILD LOG OUTPUT ---"
+    if (Test-Path $rawLogPath) {
+        $report += Get-Content $rawLogPath
+    }
+
+    $report | Out-File -FilePath $errorLogPath -Encoding utf8
+
+    Write-Host "`n[!] Error report saved to: $errorLogPath" -ForegroundColor Yellow
+    Write-Host "[!] Extracted Error Summary:" -ForegroundColor Yellow
+    if ($extractedErrors.Count -gt 0) {
+        $extractedErrors | Select-Object -First 15 | ForEach-Object { Write-Host "   $_" -ForegroundColor Red }
+        if ($extractedErrors.Count -gt 15) {
+            Write-Host "   ... and $($extractedErrors.Count - 15) more lines (see build-error.log)" -ForegroundColor DarkGray
+        }
+    } else {
+        Write-Host "   (Check build-error.log for full output)" -ForegroundColor Red
+    }
+
+    Write-Host "`n--> TIP: Tell Antigravity: 'Build failed, please check build-error.log and fix it.'" -ForegroundColor Cyan
+    Write-Host "==========================================`n" -ForegroundColor Red
+
+    exit $buildExitCode
+} else {
+    # Clean up raw log on successful build
+    if (Test-Path $rawLogPath) { Remove-Item $rawLogPath -Force }
 }
 
 # 5. Find generated debug APK
