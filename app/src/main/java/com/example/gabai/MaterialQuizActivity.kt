@@ -257,8 +257,8 @@ class MaterialQuizActivity : AppCompatActivity() {
 
         val qData = quizList[currentQuizIndex]
         findViewById<TextView>(R.id.question_text).text = qData.question
-        findViewById<TextView>(R.id.tv_bento_quiz_type)?.text = "READING COMPREHENSION"
-        findViewById<TextView>(R.id.tv_bento_quiz_question_num)?.text = "QUESTION ${currentQuizIndex + 1}"
+        findViewById<TextView>(R.id.tv_question_badge)?.text = "READING COMPREHENSION"
+        findViewById<TextView>(R.id.tv_question_step_hint)?.text = "QUESTION ${currentQuizIndex + 1}"
         findViewById<TextView>(R.id.tv_progress_counter)?.text = "Question ${currentQuizIndex + 1} of ${quizList.size}"
         val pct = ((currentQuizIndex + 1) * 100) / quizList.size.coerceAtLeast(1)
         findViewById<TextView>(R.id.tv_progress_percent)?.text = "$pct%"
