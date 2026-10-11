@@ -2,7 +2,6 @@ package com.example.gabai
 
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -402,38 +401,6 @@ class FloatingControlService : Service() {
             try {
                 image.close()
             } catch (_: Exception) {}
-        }
-    }
-
-    private fun scanText(bitmap: Bitmap) {
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-        val image = InputImage.fromBitmap(bitmap, 0)
-
-        recognizer.process(image)
-            .addOnSuccessListener { visionText ->
-                showResultDialog(visionText.text)
-            }
-            .addOnFailureListener { e ->
-                GabAIUtils.showSnackbar(this, "Scan Failed: ${e.message}")
-            }
-    }
-
-    private fun showResultDialog(text: String) {
-        Handler(Looper.getMainLooper()).post {
-            val dialog = AlertDialog.Builder(applicationContext)
-                .setTitle("Scanned Text")
-                .setMessage(text.ifEmpty { "No text found on screen." })
-                .setPositiveButton("Copy") { _, _ ->
-                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                    val clip = android.content.ClipData.newPlainText("Scanned Text", text)
-                    clipboard.setPrimaryClip(clip)
-                    GabAIUtils.showSnackbar(this, "Copied!")
-                }
-                .setNegativeButton("Close", null)
-                .create()
-
-            dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-            dialog.show()
         }
     }
 

@@ -73,8 +73,18 @@ object QuestManager {
         }
     }
 
+    private const val KEY_LAST_SYSTEM_TIME = "last_system_time"
+
     private fun checkAndResetDaily(context: Context) {
         val prefs = getPrefs(context)
+        val nowMs = System.currentTimeMillis()
+        val lastSavedTime = prefs.getLong(KEY_LAST_SYSTEM_TIME, 0L)
+        if (nowMs < lastSavedTime) {
+            // System clock was rewound backwards; prevent tampering
+            return
+        }
+        prefs.edit().putLong(KEY_LAST_SYSTEM_TIME, nowMs).apply()
+
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val lastDate = prefs.getString(KEY_LAST_DATE, "")
 
@@ -130,7 +140,8 @@ object QuestManager {
             val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
             val lastStreakDate = prefs.getString(KEY_LAST_STREAK_DATE, "")
 
-            if (today != lastStreakDate) {
+            val daysDiff = if (lastStreakDate.isNullOrEmpty()) 1 else getDaysDifference(today, lastStreakDate)
+            if (today != lastStreakDate && daysDiff >= 1) {
                 // First task of the day extends streak
                 val currentStreak = prefs.getInt(KEY_STREAK, 0)
                 val newStreak = currentStreak + 1

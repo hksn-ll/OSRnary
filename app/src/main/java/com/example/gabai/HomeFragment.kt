@@ -436,40 +436,64 @@ class HomeFragment : Fragment() {
 
                     val studentSection = studentDoc.getString("section") ?: ""
                     val studentGrade = studentDoc.getString("grade") ?: ""
-                    val fullClassName = "$studentGrade - $studentSection"
 
-                    // Check if this class already exists for this specific teacher
+                    if (studentGrade.isEmpty() || studentSection.isEmpty()) {
+                        GabAIUtils.hideGlobalLoading(requireContext())
+                        GabAIDialogs.showNoticeDialog(
+                            context = requireContext(),
+                            title = "Incomplete Profile ⚠️",
+                            message = "Your account is missing grade or section information. Please contact your class adviser to set up your section first.",
+                            buttonText = "Understood",
+                            badgeIcon = "⚠️"
+                        )
+                        return@addOnSuccessListener
+                    }
+
+                    val fullClassName = "$studentGrade - $studentSection"
+                    val teacherName = teacherDoc.getString("name") ?: "Teacher"
+
+                    // Check if this class already exists for this section in the school
                     db.collection("classes")
                         .whereEqualTo("schoolId", studentSchoolId)
                         .whereEqualTo("className", fullClassName)
-                        .whereArrayContains("teacherIds", teacherId)
                         .get()
                         .addOnSuccessListener { classSnaps ->
+                            GabAIUtils.hideGlobalLoading(requireContext())
                             if (classSnaps.isEmpty) {
-                                // Create the class link for the teacher AND ADD STUDENT
-                                val classData = hashMapOf(
-                                    "className" to fullClassName,
-                                    "grade" to studentGrade,
-                                    "section" to studentSection,
-                                    "teacherId" to teacherId, // Owner
-                                    "teacherIds" to listOf(teacherId),
-                                    "schoolId" to studentSchoolId,
-                                    "isAdviser" to false, // Least Privilege Flag!
-                                    "joinedStudents" to listOf(uid),
-                                    "createdAt" to System.currentTimeMillis()
+                                // Strictly reject: Students NEVER create classrooms
+                                GabAIDialogs.showNoticeDialog(
+                                    context = requireContext(),
+                                    title = "Classroom Not Found 🏫",
+                                    message = "Your class adviser has not created section '$fullClassName' yet. Please ask your class adviser to create this section before joining subject classes.",
+                                    buttonText = "Understood",
+                                    badgeIcon = "🏫"
                                 )
-                                db.collection("classes").add(classData).addOnSuccessListener {
-                                    GabAIUtils.hideGlobalLoading(requireContext())
-                                    GabAIUtils.showSnackbar(requireContext(), "Successfully joined class!")
-                                }
                             } else {
-                                // Class exists, just update the array with the student!
-                                val classDocId = classSnaps.documents[0].id
+                                val classDoc = classSnaps.documents[0]
+                                val classDocId = classDoc.id
+                                val joinedList = classDoc.get("joinedStudents") as? List<*> ?: emptyList<Any>()
+                                val teacherIds = classDoc.get("teacherIds") as? List<*> ?: emptyList<Any>()
+
+                                val alreadyStudentJoined = joinedList.contains(uid)
+                                val alreadyTeacherLinked = teacherIds.contains(teacherId)
+
+                                if (alreadyStudentJoined && alreadyTeacherLinked) {
+                                    GabAIUtils.showSnackbar(requireContext(), "You are already enrolled in $teacherName's class for $fullClassName!")
+                                    return@addOnSuccessListener
+                                }
+
+                                val updates = hashMapOf<String, Any>(
+                                    "teacherIds" to com.google.firebase.firestore.FieldValue.arrayUnion(teacherId),
+                                    "joinedStudents" to com.google.firebase.firestore.FieldValue.arrayUnion(uid)
+                                )
+
                                 db.collection("classes").document(classDocId)
-                                    .update("joinedStudents", com.google.firebase.firestore.FieldValue.arrayUnion(uid))
+                                    .update(updates)
                                     .addOnSuccessListener {
-                                        GabAIUtils.hideGlobalLoading(requireContext())
-                                        GabAIUtils.showSnackbar(requireContext(), "Successfully joined class!")
+                                        GabAIUtils.showSnackbar(requireContext(), "Successfully joined $teacherName's class for $fullClassName! 🎉")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        GabAIUtils.showSnackbar(requireContext(), "Failed to join: ${e.message}")
                                     }
                             }
                         }

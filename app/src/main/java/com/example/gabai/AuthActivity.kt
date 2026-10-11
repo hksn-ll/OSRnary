@@ -11,10 +11,14 @@ import android.transition.TransitionManager
 import android.view.View
 import android.view.autofill.AutofillManager
 import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.gabai.databinding.ActivityAuthBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AuthActivity : AppCompatActivity() {
@@ -199,7 +203,7 @@ class AuthActivity : AppCompatActivity() {
                 binding.etLoginEmail.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS)
             }
 
-            binding.tvForgotPassword.visibility = View.GONE
+            binding.tvForgotPassword.visibility = View.VISIBLE
             binding.containerStudentNote.visibility = View.VISIBLE
             binding.tvGoToRegister.visibility = View.GONE
             binding.rbStudent.isChecked = true
@@ -334,7 +338,25 @@ class AuthActivity : AppCompatActivity() {
                         db.collection("users").document(user.uid).get()
                             .addOnSuccessListener { doc ->
                                 if (doc.exists()) {
-                                    navigateToMain("student")
+                                    val role = doc.getString("role") ?: "student"
+                                    if (role != "student") {
+                                        auth.signOut()
+                                        toggleLoading(false)
+                                        showErrorDialog("Access Denied", "This portal login is exclusively for students.")
+                                        showLogin()
+                                        return@addOnSuccessListener
+                                    }
+
+                                    val mustChange = doc.getBoolean("mustChangePassword") ?: false
+                                    if (mustChange) {
+                                        toggleLoading(false)
+                                        showForcePasswordChangeDialog(user, user.uid) {
+                                            navigateToMain("student")
+                                        }
+                                    } else {
+                                        toggleLoading(false)
+                                        navigateToMain("student")
+                                    }
                                 } else {
                                     // Account was deleted by the Adviser
                                     user.delete()
@@ -356,7 +378,8 @@ class AuthActivity : AppCompatActivity() {
                     db.collection("pending_students").document(inputId).get()
                         .addOnSuccessListener { doc ->
                             if (doc.exists() && doc.getString("password") == pass) {
-                                val studentData = doc.data ?: return@addOnSuccessListener
+                                val studentData = doc.data?.toMutableMap() ?: return@addOnSuccessListener
+                                studentData["mustChangePassword"] = true
 
                                 auth.createUserWithEmailAndPassword(fakeEmail, pass).addOnCompleteListener { claimTask ->
                                     if (claimTask.isSuccessful) {
@@ -367,7 +390,14 @@ class AuthActivity : AppCompatActivity() {
                                             // 2. Delete temporary document so it cannot be claimed again
                                             doc.reference.delete()
                                             toggleLoading(false)
-                                            navigateToMain("student")
+                                            val claimedUser = auth.currentUser
+                                            if (claimedUser != null) {
+                                                showForcePasswordChangeDialog(claimedUser, newUid) {
+                                                    navigateToMain("student")
+                                                }
+                                            } else {
+                                                navigateToMain("student")
+                                            }
                                         }
                                     } else {
                                         toggleLoading(false)
@@ -486,6 +516,17 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun showForgotPasswordDialog() {
+        if (selectedRole == "student") {
+            GabAIDialogs.showNoticeDialog(
+                context = this,
+                title = "Student Password Recovery",
+                message = "Student accounts do not use email resets.\n\nPlease ask your Teacher or Class Adviser to reset your password to a temporary passkey from Class Management.",
+                buttonText = "Understood",
+                badgeIcon = "👨‍🏫"
+            )
+            return
+        }
+
         GabAIDialogs.showInputDialog(
             context = this,
             title = "Reset Password",
@@ -497,6 +538,95 @@ class AuthActivity : AppCompatActivity() {
                 sendPasswordReset(email)
             }
         )
+    }
+
+    private fun showForcePasswordChangeDialog(user: FirebaseUser, uid: String, onComplete: () -> Unit) {
+        val density = resources.displayMetrics.density
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, (8 * density).toInt(), 0, (8 * density).toInt())
+        }
+
+        val etNewPass = EditText(this).apply {
+            hint = "Enter new password (min. 6 chars)"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding((16 * density).toInt(), (14 * density).toInt(), (16 * density).toInt(), (14 * density).toInt())
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#A0AEC0"))
+            textSize = 14f
+        }
+
+        val etConfirmPass = EditText(this).apply {
+            hint = "Confirm new password"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding((16 * density).toInt(), (14 * density).toInt(), (16 * density).toInt(), (14 * density).toInt())
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#A0AEC0"))
+            textSize = 14f
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = (12 * density).toInt()
+            }
+            layoutParams = params
+        }
+
+        container.addView(etNewPass)
+        container.addView(etConfirmPass)
+
+        var forceDialog: android.app.Dialog? = null
+        forceDialog = GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Create New Password",
+            subtitle = "For your account security, you must update your temporary password before accessing GabAI.",
+            customView = container,
+            confirmText = "Update & Continue",
+            cancelText = "Sign Out",
+            badgeIcon = "🔑",
+            onConfirm = { dialog ->
+                val newPass = etNewPass.text.toString().trim()
+                val confirmPass = etConfirmPass.text.toString().trim()
+
+                if (newPass.length < 6) {
+                    GabAIUtils.showSnackbar(this, "Password must be at least 6 characters")
+                    return@showCustomDialog
+                }
+                if (newPass != confirmPass) {
+                    GabAIUtils.showSnackbar(this, "Passwords do not match")
+                    return@showCustomDialog
+                }
+
+                toggleLoading(true)
+                user.updatePassword(newPass).addOnCompleteListener { updateTask ->
+                    if (updateTask.isSuccessful) {
+                        db.collection("users").document(uid).update(
+                            mapOf(
+                                "mustChangePassword" to false,
+                                "tempPassword" to FieldValue.delete()
+                            )
+                        ).addOnCompleteListener {
+                            toggleLoading(false)
+                            dialog.dismiss()
+                            GabAIUtils.showSnackbar(this, "Password updated successfully! Welcome! 🎉")
+                            onComplete()
+                        }
+                    } else {
+                        toggleLoading(false)
+                        GabAIUtils.showSnackbar(this, updateTask.exception?.localizedMessage ?: "Failed to update password")
+                    }
+                }
+            },
+            onCancel = { dialog ->
+                auth.signOut()
+                dialog.dismiss()
+                showLogin()
+            }
+        )
+        forceDialog.setCancelable(false)
+        forceDialog.setCanceledOnTouchOutside(false)
     }
 
     private fun sendPasswordReset(email: String) {

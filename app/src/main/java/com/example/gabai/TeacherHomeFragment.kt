@@ -93,19 +93,25 @@ class TeacherHomeFragment : Fragment() {
                     val classCount = snapshots.size()
                     binding.tvMetricClasses.text = classCount.toString()
 
-                    var totalStudents = 0
+                    val uniqueStudentIds = mutableSetOf<String>()
                     var hasAdvisoryClass = false
+                    val advisorySections = mutableListOf<Pair<String, String>>() // (grade, section)
+
                     for (doc in snapshots.documents) {
                         val joined = doc.get("joinedStudents") as? List<*>
-                        totalStudents += joined?.size ?: 0
+                        joined?.filterIsInstance<String>()?.forEach { uniqueStudentIds.add(it) }
 
-                        val isAdviser = doc.getBoolean("isAdviser") ?: true
+                        val isAdviserDoc = doc.getBoolean("isAdviser") ?: true
                         val teacherId = doc.getString("teacherId") ?: ""
-                        if (isAdviser && (teacherId == uid || teacherId.isEmpty())) {
+                        if (isAdviserDoc && (teacherId == uid || teacherId.isEmpty())) {
                             hasAdvisoryClass = true
+                            val sec = doc.getString("section") ?: ""
+                            val grd = doc.getString("grade") ?: ""
+                            if (sec.isNotEmpty()) {
+                                advisorySections.add(grd to sec)
+                            }
                         }
                     }
-                    binding.tvMetricStudents.text = totalStudents.toString()
 
                     val shouldShow = !hasAdvisoryClass
                     if (binding.btnCreateClassQuick.visibility != (if (shouldShow) View.VISIBLE else View.GONE)) {
@@ -113,6 +119,30 @@ class TeacherHomeFragment : Fragment() {
                         if (shouldShow) {
                             GabAIUtils.animateCascade(listOf(binding.btnCreateClassQuick), baseDelay = 0L, startDelayOffset = 0L)
                         }
+                    }
+
+                    if (advisorySections.isNotEmpty()) {
+                        // Also include automatic advisory homeroom learners from the school roster
+                        db.collection("users").document(uid).get().addOnSuccessListener { teacherDoc ->
+                            val schoolId = teacherDoc.getString("schoolId") ?: ""
+                            db.collection("users")
+                                .whereEqualTo("role", "student")
+                                .whereEqualTo("schoolId", schoolId)
+                                .get()
+                                .addOnSuccessListener { userSnaps ->
+                                    if (_binding == null || !isAdded) return@addOnSuccessListener
+                                    for (uDoc in userSnaps.documents) {
+                                        val uSec = uDoc.getString("section") ?: ""
+                                        val uGrd = uDoc.getString("grade") ?: ""
+                                        if (advisorySections.any { (grd, sec) -> sec.equals(uSec, ignoreCase = true) && (grd.isEmpty() || grd.equals(uGrd, ignoreCase = true)) }) {
+                                            uniqueStudentIds.add(uDoc.id)
+                                        }
+                                    }
+                                    binding.tvMetricStudents.text = uniqueStudentIds.size.toString()
+                                }
+                        }
+                    } else {
+                        binding.tvMetricStudents.text = uniqueStudentIds.size.toString()
                     }
                 }
             }

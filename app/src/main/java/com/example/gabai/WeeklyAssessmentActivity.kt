@@ -556,38 +556,57 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             "submittedAt" to System.currentTimeMillis()
         )
 
-        db.collection("assessment_submissions").add(submissionData)
-            .addOnSuccessListener {
-                // 2. Save to user's quiz_history
-                val historyData = hashMapOf(
-                    "quizType" to "weekly_assessment",
-                    "assessmentId" to assessmentId,
-                    "title" to assessmentTitle,
-                    "finalScore" to score,
-                    "totalAttempts" to total,
-                    "xpEarned" to xpEarned,
-                    "isPassed" to isPassed,
-                    "timestamp" to System.currentTimeMillis(),
-                    "items" to submissionItems
-                )
-                db.collection("users").document(uid).collection("quiz_history").add(historyData)
+        // 1. Save to assessment_submissions with deterministic ID to prevent duplicate submissions & XP exploits
+        val submissionDocId = "${assessmentId}_${uid}"
+        val submissionRef = db.collection("assessment_submissions").document(submissionDocId)
 
-                // 3. Award XP only if passed
-                if (isPassed) {
-                    if (XPManager.canEarnXP(this)) {
-                        XPManager.addXP(this, xpEarned)
+        submissionRef.get().addOnSuccessListener { priorDoc ->
+            val isFirstSubmission = !priorDoc.exists()
+
+            submissionRef.set(submissionData)
+                .addOnSuccessListener {
+                    // 2. Save to user's quiz_history
+                    val historyData = hashMapOf(
+                        "quizType" to "weekly_assessment",
+                        "assessmentId" to assessmentId,
+                        "title" to assessmentTitle,
+                        "finalScore" to score,
+                        "totalAttempts" to total,
+                        "xpEarned" to if (isFirstSubmission) xpEarned else 0,
+                        "isPassed" to isPassed,
+                        "timestamp" to System.currentTimeMillis(),
+                        "items" to submissionItems
+                    )
+                    db.collection("users").document(uid).collection("quiz_history").add(historyData)
+
+                    // 3. Award XP only if passed and on first submission
+                    if (isPassed && isFirstSubmission) {
+                        if (XPManager.canEarnXP(this)) {
+                            XPManager.addXP(this, xpEarned)
+                        }
+                        QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
                     }
-                    QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
-                }
 
-                clearSavedSession()
-                GabAIUtils.hideGlobalLoading(this)
-                showResultsView(score, total, percentage, submissionItems)
-            }
-            .addOnFailureListener { e ->
-                GabAIUtils.hideGlobalLoading(this)
-                GabAIUtils.showSnackbar(this, "Failed to submit: ${e.message}")
-            }
+                    clearSavedSession()
+                    GabAIUtils.hideGlobalLoading(this)
+                    showResultsView(score, total, percentage, submissionItems)
+                }
+                .addOnFailureListener { e ->
+                    GabAIUtils.hideGlobalLoading(this)
+                    GabAIUtils.showSnackbar(this, "Failed to submit: ${e.message}")
+                }
+        }.addOnFailureListener {
+            submissionRef.set(submissionData)
+                .addOnSuccessListener {
+                    clearSavedSession()
+                    GabAIUtils.hideGlobalLoading(this)
+                    showResultsView(score, total, percentage, submissionItems)
+                }
+                .addOnFailureListener { e ->
+                    GabAIUtils.hideGlobalLoading(this)
+                    GabAIUtils.showSnackbar(this, "Failed to submit: ${e.message}")
+                }
+        }
     }
 
     private fun showResultsView(

@@ -39,11 +39,23 @@ class PdfViewerActivity : AppCompatActivity() {
 
     private var totalPdfPages = 1
     private var currentPdfPage = 0
+    private var hasAwardedReadingQuest = false
+    private val readingDwellHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val readingDwellRunnable = Runnable {
+        awardReadingQuestIfEligible()
+    }
+
+    private fun awardReadingQuestIfEligible() {
+        if (!hasAwardedReadingQuest && !isFinishing && !isDestroyed) {
+            hasAwardedReadingQuest = true
+            QuestManager.addProgress(this, QuestManager.QUEST_READ)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GabAIUtils.applyHardwareMaxRefreshRate(this)
-        QuestManager.addProgress(this, QuestManager.QUEST_READ)
+        readingDwellHandler.postDelayed(readingDwellRunnable, 30000L) // 30s dwell requirement
         PDFBoxResourceLoader.init(applicationContext) // Required for local AI Text Extraction
         setContentView(R.layout.activity_pdf_viewer)
 
@@ -186,6 +198,13 @@ class PdfViewerActivity : AppCompatActivity() {
 
                 val finalFile = if (cachedFile.exists() && cachedFile.length() > 0) {
                     cachedFile
+                } else if (pdfUrl.startsWith("asset://")) {
+                    val assetName = pdfUrl.removePrefix("asset://")
+                    val tempFile = File.createTempFile("asset_pdf", ".pdf", cacheDir)
+                    assets.open(assetName).use { input ->
+                        tempFile.outputStream().use { output -> input.copyTo(output) }
+                    }
+                    if (tempFile.renameTo(cachedFile)) cachedFile else tempFile
                 } else {
                     val input = URL(pdfUrl).openStream()
                     val tempFile = File.createTempFile("temp_pdf", ".pdf", cacheDir)
@@ -213,6 +232,9 @@ class PdfViewerActivity : AppCompatActivity() {
                             prefs.edit().putInt(pdfPrefKey, page).apply()
                             pageIndicator.text = "${page + 1} / $pageCount"
                             pageIndicator.visibility = View.VISIBLE
+                            if (page > 0) {
+                                awardReadingQuestIfEligible()
+                            }
                         }
                         .onLoad { nbPages ->
                             totalPdfPages = nbPages
@@ -555,6 +577,7 @@ class PdfViewerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        readingDwellHandler.removeCallbacks(readingDwellRunnable)
         try {
             findViewById<PDFView>(R.id.online_pdf_viewer)?.recycle()
         } catch (_: Exception) {

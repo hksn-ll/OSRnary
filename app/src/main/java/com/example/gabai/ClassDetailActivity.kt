@@ -51,6 +51,13 @@ class ClassDetailActivity : AppCompatActivity() {
     private val driveApiUrl = GabAIApp.DRIVE_API_URL
     private var activeDialog: Dialog? = null
 
+    // Search in student roster
+    private var studentSearchQuery = ""
+    private val pendingItemViews = mutableListOf<Pair<View, String>>()
+    private val activeItemViews = mutableListOf<Pair<View, String>>()
+    private var pendingHeaderView: View? = null
+    private var activeHeaderView: View? = null
+
     // --- WEEKLY ASSESSMENT VARIABLES ---
     private var selectedGeminiFocus: String = "Standard Comprehensive (Balanced concepts & applications)"
 
@@ -135,11 +142,52 @@ class ClassDetailActivity : AppCompatActivity() {
             GabAIUtils.addSpringPressEffect(view) { showGenerateStudentsDialog() }
         }
 
+        setupStudentSearch()
+
         // 5. Load the students into the lists
         loadStudents()
 
         // 6. Section Roster Assessment List
         loadWeeklyAssessments()
+    }
+
+    private fun setupStudentSearch() {
+        val etSearch = findViewById<EditText>(R.id.et_search_class_students) ?: return
+        val btnClear = findViewById<ImageButton>(R.id.btn_clear_search_class_students) ?: return
+
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                studentSearchQuery = s?.toString()?.trim() ?: ""
+                btnClear.visibility = if (studentSearchQuery.isNotEmpty()) View.VISIBLE else View.GONE
+                applyStudentSearchFilter()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        GabAIUtils.addSpringPressEffect(btnClear) {
+            etSearch.setText("")
+        }
+    }
+
+    private fun applyStudentSearchFilter() {
+        var visiblePending = 0
+        for ((view, name) in pendingItemViews) {
+            val matches = studentSearchQuery.isEmpty() || name.contains(studentSearchQuery, ignoreCase = true)
+            view.visibility = if (matches) View.VISIBLE else View.GONE
+            if (matches) visiblePending++
+        }
+        pendingHeaderView?.visibility = if (studentSearchQuery.isEmpty() || visiblePending > 0) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.tv_label_unclaimed)?.visibility = if (isAdviser && (studentSearchQuery.isEmpty() || visiblePending > 0)) View.VISIBLE else View.GONE
+
+        var visibleActive = 0
+        for ((view, name) in activeItemViews) {
+            val matches = studentSearchQuery.isEmpty() || name.contains(studentSearchQuery, ignoreCase = true)
+            view.visibility = if (matches) View.VISIBLE else View.GONE
+            if (matches) visibleActive++
+        }
+        activeHeaderView?.visibility = if (studentSearchQuery.isEmpty() || visibleActive > 0) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.tv_label_active)?.visibility = if (studentSearchQuery.isEmpty() || visibleActive > 0) View.VISIBLE else View.GONE
     }
 
     private fun loadStudents() {
@@ -164,8 +212,10 @@ class ClassDetailActivity : AppCompatActivity() {
                     .addSnapshotListener { snapshots, error ->
                         if (error != null || snapshots == null) return@addSnapshotListener
                         pendingContainer.removeAllViews()
+                        pendingItemViews.clear()
 
                         if (snapshots.isEmpty) {
+                            pendingHeaderView = null
                             pendingContainer.addView(TextView(this).apply { text = "No pending accounts." })
                         } else {
                             val headerLayout = LinearLayout(this).apply {
@@ -206,7 +256,9 @@ class ClassDetailActivity : AppCompatActivity() {
                             }
                             headerLayout.addView(headerTitle)
                             headerLayout.addView(btnCopyAll)
+                            pendingHeaderView = headerLayout
                             pendingContainer.addView(headerLayout)
+
                             for (doc in snapshots) {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
@@ -232,8 +284,11 @@ class ClassDetailActivity : AppCompatActivity() {
 
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password) }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }
+
+                                pendingItemViews.add(view to fullName)
                                 pendingContainer.addView(view)
                             }
+                            applyStudentSearchFilter()
                         }
                     }
 
@@ -246,8 +301,10 @@ class ClassDetailActivity : AppCompatActivity() {
                     .addSnapshotListener { snapshots, error ->
                         if (error != null || snapshots == null) return@addSnapshotListener
                         activeContainer.removeAllViews()
+                        activeItemViews.clear()
 
                         if (snapshots.isEmpty) {
+                            activeHeaderView = null
                             activeContainer.addView(TextView(this).apply { text = "No active students." })
                         } else {
                             val pendingPhotos = snapshots.documents.filter { it.getString("photoStatus") == "pending" }
@@ -265,12 +322,15 @@ class ClassDetailActivity : AppCompatActivity() {
                                 }
                             }
 
-                            activeContainer.addView(TextView(this).apply {
+                            val activeHeaderLabel = TextView(this).apply {
                                 text = "Active Students"
                                 setTypeface(null, android.graphics.Typeface.BOLD)
                                 setTextColor(Color.DKGRAY)
                                 setPadding(0, 20, 0, 10)
-                            })
+                            }
+                            activeHeaderView = activeHeaderLabel
+                            activeContainer.addView(activeHeaderLabel)
+
                             for (doc in snapshots) {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
@@ -291,8 +351,11 @@ class ClassDetailActivity : AppCompatActivity() {
                                 view.setOnClickListener { openStudentProfile(doc) }
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "") }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, false, fullName) }
+
+                                activeItemViews.add(view to fullName)
                                 activeContainer.addView(view)
                             }
+                            applyStudentSearchFilter()
                         }
                     }
 
@@ -303,6 +366,7 @@ class ClassDetailActivity : AppCompatActivity() {
             else {
                 // Completely hide the Pending Accounts container
                 pendingContainer.visibility = View.GONE
+                pendingItemViews.clear()
 
                 db.collection("users")
                     .whereEqualTo("role", "student")
@@ -312,11 +376,13 @@ class ClassDetailActivity : AppCompatActivity() {
                     .addSnapshotListener { snapshots, error ->
                         if (error != null || snapshots == null) return@addSnapshotListener
                         activeContainer.removeAllViews()
+                        activeItemViews.clear()
 
                         // GATEKEEPER: Only allow students in the joinedStudents array
                         val activeDocs = snapshots.documents.filter { joinedStudents.contains(it.id) }
 
                         if (activeDocs.isEmpty()) {
+                            activeHeaderView = null
                             activeContainer.addView(TextView(this).apply { text = "No students have joined using your code yet." })
                         } else {
                             val pendingPhotos = activeDocs.filter { it.getString("photoStatus") == "pending" }
@@ -334,12 +400,15 @@ class ClassDetailActivity : AppCompatActivity() {
                                 }
                             }
 
-                            activeContainer.addView(TextView(this).apply {
+                            val activeHeaderLabel = TextView(this).apply {
                                 text = "Students Joined"
                                 setTypeface(null, android.graphics.Typeface.BOLD)
                                 setTextColor(Color.DKGRAY)
                                 setPadding(0, 0, 0, 10)
-                            })
+                            }
+                            activeHeaderView = activeHeaderLabel
+                            activeContainer.addView(activeHeaderLabel)
+
                             for (doc in activeDocs) {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
@@ -363,8 +432,10 @@ class ClassDetailActivity : AppCompatActivity() {
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).visibility = View.GONE
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).visibility = View.GONE
 
+                                activeItemViews.add(view to fullName)
                                 activeContainer.addView(view)
                             }
+                            applyStudentSearchFilter()
                         }
                     }
             }
@@ -409,6 +480,7 @@ class ClassDetailActivity : AppCompatActivity() {
                 "lastName" to lastName,
                 "username" to username,
                 "password" to password,
+                "mustChangePassword" to true,
                 "role" to "student",
                 "section" to sectionName,
                 "grade" to grade,
@@ -463,6 +535,19 @@ class ClassDetailActivity : AppCompatActivity() {
             layout.addView(etPass)
         }
 
+        val btnResetPass = com.google.android.material.button.MaterialButton(this).apply {
+            text = "Reset to Temporary Password 🔑"
+            textSize = 13f
+            setTextColor(Color.parseColor("#5341CD"))
+            setBackgroundColor(Color.parseColor("#EEF2FF"))
+            cornerRadius = (14 * resources.displayMetrics.density).toInt()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = (16 * resources.displayMetrics.density).toInt() }
+        }
+        layout.addView(btnResetPass)
+
         GabAIDialogs.showCustomDialog(
             context = this,
             title = "Edit Student",
@@ -491,7 +576,44 @@ class ClassDetailActivity : AppCompatActivity() {
                 db.collection(collection).document(docId).update(updates)
                     .addOnSuccessListener { GabAIUtils.showSnackbar(this, "Updated successfully") }
             }
+        ).also { activeDialog ->
+            btnResetPass.setOnClickListener {
+                activeDialog.dismiss()
+                resetStudentTemporaryPassword(docId, isPending, currentFullName)
+            }
+        }
+    }
+
+    private fun resetStudentTemporaryPassword(docId: String, isPending: Boolean, studentName: String) {
+        val tempPass = "gab" + (1000..9999).random()
+        val collection = if (isPending) "pending_students" else "users"
+        val updates = mutableMapOf<String, Any>(
+            "password" to tempPass,
+            "mustChangePassword" to true
         )
+        if (!isPending) {
+            updates["tempPassword"] = tempPass
+        }
+
+        db.collection(collection).document(docId).update(updates)
+            .addOnSuccessListener {
+                GabAIDialogs.showNoticeDialog(
+                    context = this,
+                    title = "Temporary Password",
+                    message = "Temporary credentials for $studentName:\n\nPassword: $tempPass\n\nWhen $studentName signs in, they will be required to set their own permanent password.",
+                    buttonText = "Copy & Close",
+                    badgeIcon = "🔑",
+                    onAction = {
+                        val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val clip = android.content.ClipData.newPlainText("Temporary Password", tempPass)
+                        clipboard.setPrimaryClip(clip)
+                        GabAIUtils.showSnackbar(this, "Copied temporary password: $tempPass 📋")
+                    }
+                )
+            }
+            .addOnFailureListener { e ->
+                GabAIUtils.showSnackbar(this, "Failed to reset password: ${e.message}")
+            }
     }
 
     // DELETE

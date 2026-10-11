@@ -20,9 +20,12 @@ import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -34,6 +37,16 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var pendingBubbleLaunchCallback: (() -> Unit)? = null
+
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            startActivity(Intent(this, CameraActivity::class.java))
+        } else {
+            GabAIUtils.showSnackbar(this, "Camera permission is required to scan text. 📷")
+        }
+    }
 
     private val screenCaptureLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -100,6 +113,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         val userRole = intent.getStringExtra("USER_ROLE")
+        val cachedRole = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            .getString("cached_user_role", null)
+
         if (userRole != null) {
             loadDashboard(userRole)
             // Background verification of account status to catch deleted accounts or role shifts
@@ -107,6 +123,20 @@ class MainActivity : AppCompatActivity() {
                 .get().addOnSuccessListener { doc ->
                     if (!doc.exists()) {
                         showAccountDeletedDialog()
+                    }
+                }
+        } else if (cachedRole != null) {
+            // 🟢 ZERO-LATENCY INSTANT LAUNCH (Eliminates placeholder loading flickers)
+            loadDashboard(cachedRole)
+            FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
+                .get().addOnSuccessListener { doc ->
+                    if (!doc.exists()) {
+                        showAccountDeletedDialog()
+                        return@addOnSuccessListener
+                    }
+                    val remoteRole = doc.getString("role") ?: "student"
+                    if (remoteRole != cachedRole) {
+                        loadDashboard(remoteRole)
                     }
                 }
         } else {
@@ -125,10 +155,7 @@ class MainActivity : AppCompatActivity() {
                     loadDashboard(role)
                 }.addOnFailureListener {
                     GabAIUtils.hideGlobalLoading(this)
-                    val cachedRole = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
-                        .getString("cached_user_role", "student") ?: "student"
-                    loadDashboard(cachedRole)
-                    GabAIUtils.showSnackbar(this, "Operating offline. Check connection to sync.")
+                    GabAIUtils.showSnackbar(this, "Unable to sync with server. Please check your internet connection.")
                 }
         }
 
@@ -171,10 +198,14 @@ class MainActivity : AppCompatActivity() {
         }
         syncBubbleButtonState()
 
-        // Wire elevated center circular scanner button with haptic feedback
+        // Wire elevated center circular scanner button with defensive permission check & haptic feedback
         GabAIUtils.addSpringPressEffect(binding.btnCenterScanner) {
             GabAIUtils.performHaptic(binding.btnCenterScanner)
-            startActivity(Intent(this, CameraActivity::class.java))
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                startActivity(Intent(this, CameraActivity::class.java))
+            } else {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
         }
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->

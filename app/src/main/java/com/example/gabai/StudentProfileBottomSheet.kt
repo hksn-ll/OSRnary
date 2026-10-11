@@ -138,10 +138,16 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
                 if (!isAdded) return@addOnSuccessListener
                 chipGroupWords.removeAllViews()
                 if (wordSnaps.isEmpty) {
-                    val defaultWords = listOf("cascade", "agile", "arid", "luminous")
-                    for (w in defaultWords) {
-                        addWordChip(chipGroupWords, w)
+                    val emptyChip = Chip(requireContext()).apply {
+                        text = "🌱 No mastered words yet"
+                        chipBackgroundColor = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
+                        chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#E2E8F0"))
+                        chipStrokeWidth = resources.displayMetrics.density * 1f
+                        setTextColor(Color.parseColor("#64748B"))
+                        textSize = 12f
+                        isClickable = false
                     }
+                    chipGroupWords.addView(emptyChip)
                 } else {
                     for (wDoc in wordSnaps.documents) {
                         val wordText = wDoc.getString("word")

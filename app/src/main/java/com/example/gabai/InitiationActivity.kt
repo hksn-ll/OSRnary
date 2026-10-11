@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.barteksc.pdfviewer.PDFView
@@ -52,7 +53,7 @@ class InitiationActivity : AppCompatActivity() {
     private val downloadedCustomFiles = mutableMapOf<Int, File>()
 
     private var materials = mutableListOf(
-        InitiationMaterial(false, "material1.pdf", "Material 1")
+        InitiationMaterial(false, "deped_phil_iri_diagnostic.pdf", "Phil-IRI Diagnostic Reading")
     )
 
     // Setup Gemini
@@ -75,10 +76,35 @@ class InitiationActivity : AppCompatActivity() {
             insets
         }
 
+        val handleBack = {
+            val quizContainer = findViewById<View>(R.id.quiz_container)
+            if (quizContainer?.visibility == View.VISIBLE) {
+                GabAIDialogs.showConfirmDialog(
+                    context = this,
+                    title = "Quit Assessment?",
+                    message = "Your quiz progress for this module will be lost. Are you sure you want to exit?",
+                    confirmText = "Exit Quiz",
+                    cancelText = "Continue Quiz",
+                    isDestructive = true,
+                    badgeIcon = "⚠️"
+                ) {
+                    finish()
+                }
+            } else {
+                finish()
+            }
+        }
+
         findViewById<View>(R.id.btn_back)?.setOnClickListener {
             GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
-            finish()
+            handleBack()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleBack()
+            }
+        })
 
         findViewById<Button>(R.id.btn_take_quiz).setOnClickListener {
             generateQuizFromPdf(currentStep)
@@ -217,25 +243,63 @@ class InitiationActivity : AppCompatActivity() {
         startService(android.content.Intent(this, FloatingControlService::class.java).apply { action = "ACTION_SHOW" })
     }
 
+    private fun getPhilIriDiagnosticQuestions(): List<GeneratedQuestion> {
+        return listOf(
+            GeneratedQuestion(
+                question = "What is the scientific name of the Philippine Eagle highlighted in the reading selection?",
+                options = listOf("Pithecophaga jefferyi", "Haliaeetus leucocephalus", "Aquila chrysaetos", "Spizaetus philippensis"),
+                correctIndex = 0
+            ),
+            GeneratedQuestion(
+                question = "The passage describes the Philippine Eagle as 'endemic' to the archipelago. What does 'endemic' mean?",
+                options = listOf("Migrating seasonally across continents", "Exclusively native and found only in a specific geographic region", "Introduced by human settlers", "Bred exclusively in domestic facilities"),
+                correctIndex = 1
+            ),
+            GeneratedQuestion(
+                question = "Why do biologists consider the Philippine Eagle a vital 'ecological indicator' and apex predator?",
+                options = listOf("It feeds exclusively on agricultural grain crops", "Its presence signifies a healthy, balanced, and thriving rainforest ecosystem", "It displaces indigenous plants and shrubs", "It clears brush along lowland rivers"),
+                correctIndex = 1
+            ),
+            GeneratedQuestion(
+                question = "According to the passage, why is primary rainforest destruction especially devastating for eagle breeding?",
+                options = listOf("They only nest in high-altitude volcanic craters", "A single breeding pair requires up to 50 square miles of undisturbed virgin forest", "They cannot fly through stormy weather", "They nest exclusively in lowland grasslands"),
+                correctIndex = 1
+            ),
+            GeneratedQuestion(
+                question = "What primary message is conveyed regarding the conservation of the national bird?",
+                options = listOf("Encouraging commercial wildlife trophy hunting", "Defending our national bird is essential to protecting the rainforests that sustain future Filipino generations", "Eagles should be relocated exclusively to foreign zoos", "Forest protection should be left to international tourists"),
+                correctIndex = 1
+            )
+        )
+    }
+
     private fun generateQuizFromPdf(stepIndex: Int) {
         findViewById<LinearLayout>(R.id.reading_container).visibility = View.GONE
         findViewById<LinearLayout>(R.id.ai_loading_container).visibility = View.VISIBLE
-        findViewById<TextView>(R.id.tv_loading_text).text = "Checking database for quiz..."
+        findViewById<TextView>(R.id.tv_loading_text).text = "Loading initiation quiz..."
 
         startService(android.content.Intent(this, FloatingControlService::class.java).apply { action = "ACTION_HIDE" })
         val db = FirebaseFirestore.getInstance()
         val mat = materials[stepIndex]
 
-        // Unique ID based on the URL or the local file name
-        val docId = if (mat.isCustom) mat.pathOrUrl.hashCode().toString() else mat.pathOrUrl.replace(".", "_")
+        if (!mat.isCustom) {
+            // Standard Phil-IRI Diagnostic Assessment: 100% deterministic, zero network flakiness
+            val questions = getPhilIriDiagnosticQuestions().shuffled().take(targetQuizItems)
+            currentGeneratedQuestions = questions
+            currentQuizIndex = 0
+            currentScore = 0
+            showCurrentQuestion()
+            return
+        }
 
+        // Custom Teacher Material
+        val docId = mat.pathOrUrl.hashCode().toString()
         db.collection("initiation_quizzes").document(docId).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists() && doc.contains("quiz_json")) {
                     val savedJson = doc.getString("quiz_json") ?: "[]"
                     val jsonArray = JSONArray(savedJson)
 
-                    // If the teacher increased the quiz size, the cached version might be too small! Regenerate if needed.
                     if (jsonArray.length() >= targetQuizItems) {
                         findViewById<TextView>(R.id.tv_loading_text).text = "Quiz found! Starting..."
                         parseAndStartQuiz(savedJson)
@@ -243,7 +307,7 @@ class InitiationActivity : AppCompatActivity() {
                         generateAndCacheQuiz(stepIndex, docId, db)
                     }
                 } else {
-                    findViewById<TextView>(R.id.tv_loading_text).text = "First time setup:\nAI is reading the material..."
+                    findViewById<TextView>(R.id.tv_loading_text).text = "AI is preparing custom quiz..."
                     generateAndCacheQuiz(stepIndex, docId, db)
                 }
             }
@@ -277,9 +341,12 @@ class InitiationActivity : AppCompatActivity() {
                     }
                 }
 
-                if (pdfText.isEmpty()) {
-                    GabAIUtils.showSnackbar(this@InitiationActivity, "Could not read PDF.")
-                    loadStep(stepIndex)
+                if (pdfText.isBlank()) {
+                    GabAIUtils.showSnackbar(this@InitiationActivity, "Could not parse text. Loading standardized diagnostic questions.")
+                    currentGeneratedQuestions = getPhilIriDiagnosticQuestions().shuffled().take(targetQuizItems)
+                    currentQuizIndex = 0
+                    currentScore = 0
+                    showCurrentQuestion()
                     return@launch
                 }
 
@@ -314,8 +381,11 @@ class InitiationActivity : AppCompatActivity() {
                 parseAndStartQuiz(jsonStr)
 
             } catch (e: Exception) {
-                GabAIUtils.showSnackbar(this@InitiationActivity, "AI Error: ${e.message}")
-                loadStep(stepIndex)
+                GabAIUtils.showSnackbar(this@InitiationActivity, "AI generation unavailable. Loading standardized diagnostic questions.")
+                currentGeneratedQuestions = getPhilIriDiagnosticQuestions().shuffled().take(targetQuizItems)
+                currentQuizIndex = 0
+                currentScore = 0
+                showCurrentQuestion()
             }
         }
     }
@@ -370,8 +440,12 @@ class InitiationActivity : AppCompatActivity() {
         )
 
         for (i in buttons.indices) {
+            buttons[i].isEnabled = true
             buttons[i].text = questionData.options[i]
             buttons[i].setOnClickListener {
+                // Immediately disable all options to prevent multi-tap glitches
+                buttons.forEach { b -> b.isEnabled = false }
+
                 if (i == questionData.correctIndex) {
                     GabAIUtils.showSnackbar(this, "Correct! ✅")
                     currentScore++
@@ -380,14 +454,17 @@ class InitiationActivity : AppCompatActivity() {
                     GabAIUtils.showSnackbar(this, "Wrong! Answer: $correctText ❌")
                 }
 
-                currentQuizIndex++
-                if (currentQuizIndex < currentGeneratedQuestions.size) {
-                    showCurrentQuestion()
-                } else {
-                    scores[currentStep] = currentScore
-                    currentStep++
-                    loadStep(currentStep)
-                }
+                it.postDelayed({
+                    if (isFinishing || isDestroyed) return@postDelayed
+                    currentQuizIndex++
+                    if (currentQuizIndex < currentGeneratedQuestions.size) {
+                        showCurrentQuestion()
+                    } else {
+                        scores[currentStep] = currentScore
+                        currentStep++
+                        loadStep(currentStep)
+                    }
+                }, 400L)
             }
         }
     }

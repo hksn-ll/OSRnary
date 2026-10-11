@@ -2611,11 +2611,23 @@
       const alertBox = document.getElementById('provisionAlertBox');
       alertBox.classList.add('hidden');
 
-      // Cryptographically verify passkey via SHA-256 hash using native Web Crypto
+      // Cryptographically verify passkey via SHA-256 hash using native Web Crypto against Firestore config or secure fallback
       const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key));
       const keyHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-      if (keyHash !== DIVISION_MASTER_KEY_HASH) {
+      let authorized = false;
+      try {
+        const configDoc = await getDoc(doc(db, "system_config", "admin_keys"));
+        if (configDoc.exists() && configDoc.data().masterKeyHash) {
+          authorized = (keyHash === configDoc.data().masterKeyHash);
+        } else {
+          authorized = (keyHash === DIVISION_MASTER_KEY_HASH);
+        }
+      } catch (_) {
+        authorized = (keyHash === DIVISION_MASTER_KEY_HASH);
+      }
+
+      if (!authorized) {
         document.getElementById('provMasterKey').value = '';
         alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
         alertBox.textContent = "Unauthorized: Invalid Division Master Passkey.";
@@ -3645,6 +3657,7 @@
             level: 1,
             isApproved: true,
             is_onboarded: false,
+            mustChangePassword: true,
             quests_completed: [],
             createdAt: Date.now()
           });
@@ -3663,13 +3676,26 @@
     };
 
     window.resetStudentPassword = async function(username) {
-      const newPass = prompt(`Enter new password for student account "${username}":`, Math.random().toString(36).substring(2, 8));
+      const newPass = prompt(`Enter new temporary password for student account "${username}":`, Math.random().toString(36).substring(2, 8));
       if (newPass && newPass.trim().length >= 4) {
         try {
-          await updateDoc(doc(db, "pending_students", username), {
-            password: newPass.trim()
-          });
-          window.showToast(`Password updated for ${username}!`, "success");
+          const pDoc = await getDoc(doc(db, "pending_students", username));
+          if (pDoc.exists()) {
+            await updateDoc(doc(db, "pending_students", username), {
+              password: newPass.trim(),
+              mustChangePassword: true
+            });
+          } else {
+            const q = query(collection(db, "users"), where("username", "==", username));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+              await updateDoc(doc(db, "users", snap.docs[0].id), {
+                tempPassword: newPass.trim(),
+                mustChangePassword: true
+              });
+            }
+          }
+          window.showToast(`Temporary password set to "${newPass.trim()}". Student must update password upon login!`, "success");
         } catch (err) {
           console.error("Password reset error:", err);
           window.showToast("Failed to reset password: " + err.message, "error");

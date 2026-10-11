@@ -22,6 +22,9 @@ class TeacherLibraryActivity : AppCompatActivity() {
     private var teacherFullName: String = "Teacher"
     private val driveApiUrl = GabAIApp.DRIVE_API_URL
 
+    private var allFolders = listOf<com.google.firebase.firestore.DocumentSnapshot>()
+    private var currentSearchQuery = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GabAIUtils.applyHardwareMaxRefreshRate(this)
@@ -43,6 +46,7 @@ class TeacherLibraryActivity : AppCompatActivity() {
         val btnCreate = findViewById<View>(R.id.btn_create_folder)
         GabAIUtils.addSpringPressEffect(btnCreate) { showFolderDialog(null, "") }
 
+        setupSearch()
         loadFolders()
         if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener { doc ->
@@ -51,10 +55,27 @@ class TeacherLibraryActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSearch() {
+        val etSearch = findViewById<EditText>(R.id.et_search_folders) ?: return
+        val btnClear = findViewById<ImageButton>(R.id.btn_clear_search_folders) ?: return
+
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                currentSearchQuery = s?.toString()?.trim() ?: ""
+                btnClear.visibility = if (currentSearchQuery.isNotEmpty()) View.VISIBLE else View.GONE
+                renderFolderList()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        GabAIUtils.addSpringPressEffect(btnClear) {
+            etSearch.setText("")
+        }
+    }
+
     private fun loadFolders() {
         if (uid == null) return
-        val container = findViewById<LinearLayout>(R.id.folder_list_container)
-        val emptyCard = findViewById<View>(R.id.card_empty_subjects)
 
         // Query just the teacher's subjects and sort locally to bypass Firebase strict indexes
         db.collection("library_subjects")
@@ -67,54 +88,82 @@ class TeacherLibraryActivity : AppCompatActivity() {
 
                 if (snapshots == null) return@addSnapshotListener
 
-                container.removeAllViews()
-
-                if (snapshots.isEmpty) {
-                    emptyCard?.visibility = View.VISIBLE
-                    return@addSnapshotListener
-                } else {
-                    emptyCard?.visibility = View.GONE
-                }
-
                 // Sort locally for instant UI updates
-                val sortedDocs = snapshots.documents.sortedBy { it.getLong("timestamp") ?: 0L }
-                val rowViews = mutableListOf<View>()
-
-                for (doc in sortedDocs) {
-                    val subjectName = doc.getString("name") ?: "Unnamed Subject"
-                    val teacherName = doc.getString("teacherName") ?: "Teacher"
-                    val row = layoutInflater.inflate(R.layout.item_folder, container, false)
-                    row.findViewById<TextView>(R.id.tv_folder_name).text = subjectName
-
-                    val tvTeacher = row.findViewById<TextView>(R.id.tv_folder_teacher)
-                    if (tvTeacher != null) tvTeacher.text = "By: $teacherName"
-
-                    // EDIT
-                    val btnEdit = row.findViewById<ImageButton>(R.id.btn_edit_folder)
-                    btnEdit?.setOnClickListener {
-                        showFolderDialog(doc.id, subjectName)
-                    }
-
-                    // DELETE
-                    val btnDelete = row.findViewById<ImageButton>(R.id.btn_delete_folder)
-                    btnDelete?.setOnClickListener {
-                        confirmDelete(doc.id, subjectName)
-                    }
-
-                    // OPEN FOLDER
-                    GabAIUtils.addSpringPressEffect(row) {
-                        val intent = Intent(this, SubjectDetailActivity::class.java)
-                        intent.putExtra("SUBJECT_ID", doc.id)
-                        intent.putExtra("SUBJECT_NAME", subjectName)
-                        startActivity(intent)
-                    }
-
-                    container.addView(row)
-                    rowViews.add(row)
-                }
-
-                GabAIUtils.animateCascade(rowViews, 30L)
+                allFolders = snapshots.documents.sortedBy { it.getLong("timestamp") ?: 0L }
+                renderFolderList()
             }
+    }
+
+    private fun renderFolderList() {
+        val container = findViewById<LinearLayout>(R.id.folder_list_container) ?: return
+        val emptyCard = findViewById<View>(R.id.card_empty_subjects)
+        val noResultsCard = findViewById<View>(R.id.card_no_search_results)
+        val searchBox = findViewById<View>(R.id.card_search_folders)
+
+        container.removeAllViews()
+
+        if (allFolders.isEmpty()) {
+            emptyCard?.visibility = View.VISIBLE
+            noResultsCard?.visibility = View.GONE
+            searchBox?.visibility = View.GONE
+            return
+        }
+
+        emptyCard?.visibility = View.GONE
+        searchBox?.visibility = View.VISIBLE
+
+        val filtered = if (currentSearchQuery.isEmpty()) {
+            allFolders
+        } else {
+            allFolders.filter { doc ->
+                val name = doc.getString("name") ?: ""
+                name.contains(currentSearchQuery, ignoreCase = true)
+            }
+        }
+
+        if (filtered.isEmpty()) {
+            noResultsCard?.visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tv_no_search_subtitle)?.text = "No subjects matching \"$currentSearchQuery\""
+            return
+        }
+
+        noResultsCard?.visibility = View.GONE
+        val rowViews = mutableListOf<View>()
+
+        for (doc in filtered) {
+            val subjectName = doc.getString("name") ?: "Unnamed Subject"
+            val teacherName = doc.getString("teacherName") ?: "Teacher"
+            val row = layoutInflater.inflate(R.layout.item_folder, container, false)
+            row.findViewById<TextView>(R.id.tv_folder_name).text = subjectName
+
+            val tvTeacher = row.findViewById<TextView>(R.id.tv_folder_teacher)
+            if (tvTeacher != null) tvTeacher.text = "By: $teacherName"
+
+            // EDIT
+            val btnEdit = row.findViewById<ImageButton>(R.id.btn_edit_folder)
+            btnEdit?.setOnClickListener {
+                showFolderDialog(doc.id, subjectName)
+            }
+
+            // DELETE
+            val btnDelete = row.findViewById<ImageButton>(R.id.btn_delete_folder)
+            btnDelete?.setOnClickListener {
+                confirmDelete(doc.id, subjectName)
+            }
+
+            // OPEN FOLDER
+            GabAIUtils.addSpringPressEffect(row) {
+                val intent = Intent(this, SubjectDetailActivity::class.java)
+                intent.putExtra("SUBJECT_ID", doc.id)
+                intent.putExtra("SUBJECT_NAME", subjectName)
+                startActivity(intent)
+            }
+
+            container.addView(row)
+            rowViews.add(row)
+        }
+
+        GabAIUtils.animateCascade(rowViews, 25L)
     }
 
     private fun showFolderDialog(docId: String?, currentName: String) {

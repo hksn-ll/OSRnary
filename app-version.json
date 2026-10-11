@@ -1,11 +1,11 @@
 {
-  "versionCode": 28,
-  "versionName": "0.4.14",
-  "minRequiredVersionCode": 28,
+  "versionCode": 29,
+  "versionName": "0.4.15",
+  "minRequiredVersionCode": 29,
   "forceUpdate": true,
-  "title": "Drive Avatars, Multi-Screen Rosters & Stability Update (v0.4.14)",
-  "message": "Includes Google Drive avatar upload & caching, teacher photo moderation, student photo removal, rounded squircle avatars across all rosters, Help Center role filters, and A24 stability fixes.",
+  "title": "Universal Search, Batch Assignment & Roster Accuracy Update (v0.4.15)",
+  "message": "Includes real-time Bento search across library, materials, assignment picker, and performance rosters, Select All quick actions, homeroom learner counting fixes, and standalone DepEd Phil-IRI reading materials.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.14/GabAI-v0.4.14.apk",
-  "changelog": "• Google Drive Avatar Upload: Profile pictures upload directly to Google Drive with high-speed CDN streaming.\n• Zero-Latency Avatar Caching: Two-tier memory and disk caching eliminates placeholder loading flickers.\n• Visual Photo Moderation: Teachers can preview and zoom submitted student photos before approving.\n• Student Avatar Controls: Added option to remove/reset profile picture; locked teacher avatar editing.\n• Universal Squircle Avatars: Rounded borders applied across Profile, Class Roster, Section Roster, and Performance Analytics.\n• Role-Filtered Help Center: Student account locks to student guides; teachers retain access to all guides.\n• Samsung A24 Stability: Safely handles expired picker content URIs to prevent app crashes.\n• Instant Accessibility Screen Capture & Apprentice Quest Completion Banners."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.15/GabAI-v0.4.15.apk",
+  "changelog": "• Universal Real-Time Search: Instant Bento squircle search bar across Teacher Library, Subject Materials, Assignment Picker, Class Roster, and Student Mastery Performance.\n• Quick Batch Assignment: Added 'Select All' and 'Clear All' pill actions to the material access manager.\n• Accurate Learner Metrics: Fixed adviser dashboard metric so homeroom students are properly counted alongside joined subject students.\n• Zero-Latency Filtering: 100% in-memory filtering with 0ms delay and zero redundant database reads.\n• Standalone Official Phil-IRI & DepEd Reading Treasury Assets integrated.\n• Bug Fixes & Stability: Eliminated layout flicker and guaranteed crash-free execution."
 }

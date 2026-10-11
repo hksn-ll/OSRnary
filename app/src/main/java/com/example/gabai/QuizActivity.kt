@@ -1553,9 +1553,18 @@ class QuizActivity : AppCompatActivity() {
                 "finalScore" to score,
                 "totalAttempts" to totalAttempts,
                 "xpEarned" to totalXPEarned,
+                "maxComboStreak" to maxComboStreak,
                 "items" to sessionResults
             )
             db.collection("users").document(userId).collection("quiz_history").add(historyData)
+
+            // Cache highest combo locally and update user document
+            val quizPrefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+            val currentCachedMax = quizPrefs.getInt("cached_max_combo_$userId", 0)
+            if (maxComboStreak > currentCachedMax) {
+                quizPrefs.edit().putInt("cached_max_combo_$userId", maxComboStreak).apply()
+                db.collection("users").document(userId).update("highestRecallCombo", maxComboStreak)
+            }
         }
 
         optionsContainer.visibility = View.GONE

@@ -20,7 +20,13 @@ import org.json.JSONObject
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.gabai.databinding.FragmentProfileBinding
+import android.graphics.Color
+import android.text.InputType
+import android.widget.EditText
+import android.widget.LinearLayout
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,6 +72,33 @@ class ProfileFragment : Fragment() {
         val cachedPhotoStatus = prefs.getString("cached_user_photo_status", "none")
         if (!cachedPhotoUrl.isNullOrBlank() && (cachedRole == "teacher" || cachedPhotoStatus == "approved")) {
             GabAIUtils.loadAvatarImage(cachedPhotoUrl, binding.ivAvatarPhoto, binding.tvAvatarMonogram)
+        }
+
+        val cachedGrade = prefs.getString("cached_user_grade", null)
+        val cachedSection = prefs.getString("cached_user_section", null)
+        val cachedSchool = prefs.getString("cached_user_school", null)
+
+        if (!cachedGrade.isNullOrBlank()) {
+            binding.tvProfileGrade.text = cachedGrade
+        }
+        if (!cachedSection.isNullOrBlank()) {
+            binding.tvProfileSection.text = cachedSection
+        }
+        if (!cachedSchool.isNullOrBlank()) {
+            binding.tvProfileSchool.text = cachedSchool
+        }
+
+        val currentUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUid != null) {
+            val cachedMaxCombo = prefs.getInt("cached_max_combo_$currentUid", prefs.getInt("highest_recall_combo_$currentUid", 0))
+            val cachedQuizzes = prefs.getString("cached_quizzes_taken_$currentUid", "0")
+            val cachedAccuracy = prefs.getString("cached_quiz_accuracy_$currentUid", "0%")
+            val cachedStreak = QuestManager.getStreak(requireContext())
+
+            binding.tvStatMaxCombo.text = "${cachedMaxCombo}x"
+            binding.tvStatQuizzesTaken.text = cachedQuizzes
+            binding.tvStatAccuracy.text = cachedAccuracy
+            binding.tvStatStreak.text = "${cachedStreak}d"
         }
 
         applyRoleVisibility(cachedRole)
@@ -115,11 +148,11 @@ class ProfileFragment : Fragment() {
             val ctx = context ?: return@setOnClickListener
             if (devEasterEggTaps >= 5) {
                 devEasterEggTaps = 0
-                android.widget.Toast.makeText(ctx, "🛠️ Welcome to Developer Component Lab!", android.widget.Toast.LENGTH_SHORT).show()
+                GabAIUtils.showSnackbar(ctx, "🛠️ Welcome to Developer Component Lab!")
                 startActivity(android.content.Intent(ctx, DevEasterEggActivity::class.java))
             } else if (devEasterEggTaps >= 2) {
                 val remaining = 5 - devEasterEggTaps
-                android.widget.Toast.makeText(ctx, "$remaining more taps to open Developer Lab", android.widget.Toast.LENGTH_SHORT).show()
+                GabAIUtils.showSnackbar(ctx, "$remaining more taps to open Developer Lab")
             }
         }
 
@@ -134,6 +167,10 @@ class ProfileFragment : Fragment() {
         binding.rowCheckUpdate.setOnClickListener {
             val act = activity ?: return@setOnClickListener
             GitHubUpdateHelper.checkUpdate(act, forceShow = true) {}
+        }
+
+        GabAIUtils.addSpringPressEffect(binding.rowChangePassword) {
+            showChangePasswordDialog()
         }
 
         binding.btnLogout.setOnClickListener {
@@ -262,9 +299,6 @@ class ProfileFragment : Fragment() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
-        binding.tvProfileGrade.text = "Grade: ..."
-        binding.tvProfileSection.text = "Section: ..."
-
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists() && _binding != null && isAdded) {
@@ -377,18 +411,29 @@ class ProfileFragment : Fragment() {
                         loadTeacherStats(uid, db)
                     } else {
                         val rawSection = doc.getString("section")?.trim() ?: ""
-                        binding.tvProfileSection.text = when {
+                        val formattedSection = when {
                             rawSection.startsWith("Section", ignoreCase = true) -> rawSection
                             rawSection.isNotBlank() && rawSection != "N/A" -> "Section: $rawSection"
                             else -> "Section: -"
                         }
+                        binding.tvProfileSection.text = formattedSection
 
                         val rawGrade = doc.getString("grade")?.trim() ?: ""
-                        binding.tvProfileGrade.text = when {
+                        val formattedGrade = when {
                             rawGrade.startsWith("Grade", ignoreCase = true) -> rawGrade
                             rawGrade.isNotBlank() && rawGrade != "N/A" -> "Grade $rawGrade"
                             else -> "Grade: -"
                         }
+                        binding.tvProfileGrade.text = formattedGrade
+
+                        val formattedSchool = "School: $schoolName"
+                        binding.tvProfileSchool.text = formattedSchool
+
+                        requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                            .putString("cached_user_grade", formattedGrade)
+                            .putString("cached_user_section", formattedSection)
+                            .putString("cached_user_school", formattedSchool)
+                            .apply()
 
                         setupLanguageDropdown()
 
@@ -501,15 +546,14 @@ class ProfileFragment : Fragment() {
 
         // Instant render from local cache if available (0ms freeze)
         val prefs = ctx.getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
-        val cachedWords = prefs.getString("cached_words_mastered_$uid", null)
+        val cachedMaxCombo = prefs.getInt("cached_max_combo_$uid", prefs.getInt("highest_recall_combo_$uid", 0))
         val cachedQuizzes = prefs.getString("cached_quizzes_taken_$uid", null)
         val cachedAccuracy = prefs.getString("cached_quiz_accuracy_$uid", null)
 
-        if (cachedWords != null) {
-            binding.loadingStatWordsMastered.visibility = View.GONE
-            binding.tvStatWordsMastered.visibility = View.VISIBLE
-            binding.tvStatWordsMastered.text = cachedWords
-        }
+        binding.loadingStatMaxCombo.visibility = View.GONE
+        binding.tvStatMaxCombo.visibility = View.VISIBLE
+        binding.tvStatMaxCombo.text = "${cachedMaxCombo}x"
+
         if (cachedQuizzes != null && cachedAccuracy != null) {
             binding.loadingStatQuizzesTaken.visibility = View.GONE
             binding.loadingStatAccuracy.visibility = View.GONE
@@ -522,56 +566,62 @@ class ProfileFragment : Fragment() {
         // Run heavy Firestore queries & deserialization strictly on background Dispatchers.IO
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 2. Words Mastered (spaced repetition interval >= 4)
-                val wordsCount = try {
-                    val qs = db.collection("users").document(uid).collection("history")
-                        .whereGreaterThanOrEqualTo("interval", 4)
-                        .get().await()
-                    qs.size().toString()
-                } catch (_: Exception) {
-                    cachedWords ?: "0"
-                }
+                // 2. Fetch quiz history to compute Quizzes Taken, Accuracy, and Highest Combo
+                val quizDocs = db.collection("users").document(uid).collection("quiz_history")
+                    .get().await()
 
-                // 3. Quizzes Taken & Overall Accuracy
-                val (quizzesCount, accuracyPct) = try {
-                    val quizDocs = db.collection("users").document(uid).collection("quiz_history")
-                        .get().await()
-                    val count = quizDocs.size()
-                    if (count > 0) {
-                        var totalScore = 0.0
-                        var totalPossible = 0.0
-                        for (d in quizDocs.documents) {
-                            val score = d.getDouble("finalScore")
-                                ?: d.getLong("finalScore")?.toDouble()
-                                ?: d.getDouble("score")
-                                ?: d.getLong("score")?.toDouble()
-                                ?: 0.0
+                var peakCombo = cachedMaxCombo
+                val count = quizDocs.size()
+                var totalScore = 0.0
+                var totalPossible = 0.0
 
-                            val total = d.getDouble("totalAttempts")
-                                ?: d.getLong("totalAttempts")?.toDouble()
-                                ?: d.getDouble("totalQuestions")
-                                ?: d.getLong("totalQuestions")?.toDouble()
-                                ?: d.getDouble("total")
-                                ?: d.getLong("total")?.toDouble()
-                                ?: 0.0
+                for (d in quizDocs.documents) {
+                    val docMax = d.getLong("maxComboStreak")?.toInt() ?: 0
+                    if (docMax > peakCombo) {
+                        peakCombo = docMax
+                    }
 
-                            if (total > 0) {
-                                totalScore += score
-                                totalPossible += total
+                    // Also inspect items list if maxComboStreak wasn't stored explicitly
+                    val items = d.get("items") as? List<Map<String, Any>>
+                    if (items != null) {
+                        var run = 0
+                        for (item in items) {
+                            if (item["isCorrect"] == true) {
+                                run++
+                                if (run > peakCombo) peakCombo = run
+                            } else {
+                                run = 0
                             }
                         }
-                        val acc = if (totalPossible > 0) ((totalScore / totalPossible) * 100).toInt() else 0
-                        Pair(count.toString(), "$acc%")
-                    } else {
-                        Pair("0", "0%")
                     }
-                } catch (_: Exception) {
-                    Pair(cachedQuizzes ?: "0", cachedAccuracy ?: "0%")
+
+                    val score = d.getDouble("finalScore")
+                        ?: d.getLong("finalScore")?.toDouble()
+                        ?: d.getDouble("score")
+                        ?: d.getLong("score")?.toDouble()
+                        ?: 0.0
+
+                    val total = d.getDouble("totalAttempts")
+                        ?: d.getLong("totalAttempts")?.toDouble()
+                        ?: d.getDouble("totalQuestions")
+                        ?: d.getLong("totalQuestions")?.toDouble()
+                        ?: d.getDouble("total")
+                        ?: d.getLong("total")?.toDouble()
+                        ?: 0.0
+
+                    if (total > 0) {
+                        totalScore += score
+                        totalPossible += total
+                    }
                 }
+
+                val acc = if (totalPossible > 0) ((totalScore / totalPossible) * 100).toInt() else 0
+                val quizzesCount = count.toString()
+                val accuracyPct = "$acc%"
 
                 // Update disk cache
                 prefs.edit()
-                    .putString("cached_words_mastered_$uid", wordsCount)
+                    .putInt("cached_max_combo_$uid", peakCombo)
                     .putString("cached_quizzes_taken_$uid", quizzesCount)
                     .putString("cached_quiz_accuracy_$uid", accuracyPct)
                     .apply()
@@ -579,9 +629,9 @@ class ProfileFragment : Fragment() {
                 // Update UI on Main thread without dropping a frame
                 withContext(Dispatchers.Main) {
                     if (_binding != null && isAdded) {
-                        binding.loadingStatWordsMastered.visibility = View.GONE
-                        binding.tvStatWordsMastered.visibility = View.VISIBLE
-                        binding.tvStatWordsMastered.text = wordsCount
+                        binding.loadingStatMaxCombo.visibility = View.GONE
+                        binding.tvStatMaxCombo.visibility = View.VISIBLE
+                        binding.tvStatMaxCombo.text = "${peakCombo}x"
 
                         binding.loadingStatQuizzesTaken.visibility = View.GONE
                         binding.loadingStatAccuracy.visibility = View.GONE
@@ -764,6 +814,124 @@ class ProfileFragment : Fragment() {
                     GabAIUtils.showSnackbar(act, "Failed to remove photo: ${e.message}")
                 }
         }
+    }
+
+    private fun showChangePasswordDialog() {
+        val ctx = context ?: return
+        val user = FirebaseAuth.getInstance().currentUser ?: run {
+            GabAIUtils.showSnackbar(ctx, "Please log in again.")
+            return
+        }
+
+        val density = resources.displayMetrics.density
+        val container = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, (8 * density).toInt(), 0, (8 * density).toInt())
+        }
+
+        fun createStyledInput(hintText: String): EditText {
+            return EditText(ctx).apply {
+                hint = hintText
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                setBackgroundResource(R.drawable.bg_modern_input)
+                setPadding(
+                    (16 * density).toInt(),
+                    (14 * density).toInt(),
+                    (16 * density).toInt(),
+                    (14 * density).toInt()
+                )
+                setTextColor(Color.parseColor("#2D3436"))
+                setHintTextColor(Color.parseColor("#A0AEC0"))
+                textSize = 14f
+            }
+        }
+
+        val etCurrentPass = createStyledInput("Current Password")
+        val etNewPass = createStyledInput("New Password (min. 6 chars)").apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = (12 * density).toInt()
+            }
+        }
+        val etConfirmPass = createStyledInput("Confirm New Password").apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = (12 * density).toInt()
+            }
+        }
+
+        container.addView(etCurrentPass)
+        container.addView(etNewPass)
+        container.addView(etConfirmPass)
+
+        GabAIDialogs.showCustomDialog(
+            context = ctx,
+            title = "Change Password",
+            subtitle = "Enter your current password and desired new password.",
+            customView = container,
+            confirmText = "Update Password",
+            cancelText = "Cancel",
+            badgeIcon = "🔐",
+            onConfirm = { dialog ->
+                val current = etCurrentPass.text.toString().trim()
+                val newPass = etNewPass.text.toString().trim()
+                val confirm = etConfirmPass.text.toString().trim()
+
+                if (current.isEmpty()) {
+                    GabAIUtils.showSnackbar(ctx, "Please enter your current password")
+                    return@showCustomDialog
+                }
+                if (newPass.length < 6) {
+                    GabAIUtils.showSnackbar(ctx, "New password must be at least 6 characters")
+                    return@showCustomDialog
+                }
+                if (newPass != confirm) {
+                    GabAIUtils.showSnackbar(ctx, "New passwords do not match")
+                    return@showCustomDialog
+                }
+                if (current == newPass) {
+                    GabAIUtils.showSnackbar(ctx, "New password cannot be the same as current password")
+                    return@showCustomDialog
+                }
+
+                val email = user.email
+                if (email.isNullOrEmpty()) {
+                    GabAIUtils.showSnackbar(ctx, "Unable to verify email for re-authentication")
+                    return@showCustomDialog
+                }
+
+                val act = activity
+                if (act != null) GabAIUtils.showGlobalLoading(act, "Updating password...")
+                val credential = EmailAuthProvider.getCredential(email, current)
+                user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
+                    if (reauthTask.isSuccessful) {
+                        user.updatePassword(newPass).addOnCompleteListener { updateTask ->
+                            if (act != null) GabAIUtils.hideGlobalLoading(act)
+                            if (updateTask.isSuccessful) {
+                                FirebaseFirestore.getInstance().collection("users").document(user.uid)
+                                    .update(
+                                        mapOf(
+                                            "mustChangePassword" to false,
+                                            "tempPassword" to FieldValue.delete()
+                                        )
+                                    )
+                                dialog.dismiss()
+                                GabAIUtils.showSnackbar(ctx, "Password updated successfully! 🔐")
+                            } else {
+                                GabAIUtils.showSnackbar(ctx, updateTask.exception?.localizedMessage ?: "Failed to update password")
+                            }
+                        }
+                    } else {
+                        if (act != null) GabAIUtils.hideGlobalLoading(act)
+                        GabAIUtils.showSnackbar(ctx, "Incorrect current password. Please try again.")
+                    }
+                }
+            }
+        )
     }
 
     override fun onDestroyView() {

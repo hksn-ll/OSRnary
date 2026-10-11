@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,6 +42,8 @@ class SubjectDetailActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
     private var teacherFullName: String = "Teacher"
+    private var allMaterials = listOf<DocumentSnapshot>()
+    private var currentSearchQuery = ""
 
     private val driveApiUrl = GabAIApp.DRIVE_API_URL
 
@@ -86,11 +89,31 @@ class SubjectDetailActivity : AppCompatActivity() {
             pdfPickerLauncher.launch("application/pdf")
         }
 
+        setupSearch()
         loadPdfs()
         if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener { doc ->
                 teacherFullName = "${doc.getString("firstName")} ${doc.getString("lastName")}"
             }
+        }
+    }
+
+    private fun setupSearch() {
+        val etSearch = findViewById<EditText>(R.id.et_search_materials) ?: return
+        val btnClear = findViewById<ImageButton>(R.id.btn_clear_search_materials) ?: return
+
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                currentSearchQuery = s?.toString()?.trim() ?: ""
+                btnClear.visibility = if (currentSearchQuery.isNotEmpty()) View.VISIBLE else View.GONE
+                renderPdfList()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        GabAIUtils.addSpringPressEffect(btnClear) {
+            etSearch.setText("")
         }
     }
 
@@ -254,71 +277,98 @@ class SubjectDetailActivity : AppCompatActivity() {
     }
 
     private fun loadPdfs() {
-        val container = findViewById<LinearLayout>(R.id.pdf_list_container)
-        val emptyCard = findViewById<View>(R.id.card_empty_pdfs)
-
         db.collection("library_materials")
             .whereEqualTo("subjectId", subjectId)
             .addSnapshotListener { snapshots, e ->
                 if (e != null || snapshots == null) return@addSnapshotListener
-                container.removeAllViews()
-
-                if (snapshots.isEmpty) {
-                    emptyCard?.visibility = View.VISIBLE
-                    return@addSnapshotListener
-                } else {
-                    emptyCard?.visibility = View.GONE
-                }
-
-                val rowViews = mutableListOf<View>()
-
-                for (doc in snapshots) {
-                    val title = doc.getString("title") ?: "Document"
-                    val pdfUrl = doc.getString("pdfUrl") ?: ""
-                    val fileId = doc.getString("driveFileId") ?: ""
-                    val thumbStr = doc.getString("thumbnail") ?: ""
-                    val assignedSections = doc.get("assignedSections") as? List<String> ?: listOf()
-
-                    val row = layoutInflater.inflate(R.layout.item_pdf_document, container, false)
-                    row.findViewById<TextView>(R.id.tv_pdf_title).text = title
-                    row.findViewById<TextView>(R.id.tv_uploader_name)?.text = "Uploaded by: ${doc.getString("uploaderName") ?: "Unknown"}"
-
-                    // THUMBNAIL
-                    val imgThumb = row.findViewById<ImageView>(R.id.img_pdf_thumb)
-                    if (thumbStr.isNotEmpty()) {
-                        try {
-                            val decodedBytes = android.util.Base64.decode(thumbStr, android.util.Base64.DEFAULT)
-                            val bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-                            imgThumb.imageTintList = null
-                            imgThumb.setImageBitmap(bitmap)
-                        } catch (e: Exception) {
-                            imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
-                            imgThumb.setImageResource(R.drawable.ic_menu_book)
-                        }
-                    } else {
-                        imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
-                        imgThumb.setImageResource(R.drawable.ic_menu_book)
-                    }
-
-                    // 🟢 THE NEW LAUNCH LOGIC 🟢
-                    GabAIUtils.addSpringPressEffect(row) {
-                        val intent = Intent(this@SubjectDetailActivity, PdfViewerActivity::class.java).apply {
-                            putExtra("PDF_URL", pdfUrl)
-                            putExtra("PDF_TITLE", title)
-                            putExtra("MATERIAL_ID", doc.id)
-                            putExtra("DRIVE_FILE_ID", fileId)
-                            putExtra("IS_TEACHER", true)
-                            putStringArrayListExtra("ASSIGNED_SECTIONS", ArrayList(assignedSections))
-                        }
-                        startActivity(intent)
-                    }
-
-                    container.addView(row)
-                    rowViews.add(row)
-                }
-
-                GabAIUtils.animateCascade(rowViews, 30L)
+                allMaterials = snapshots.documents
+                renderPdfList()
             }
+    }
+
+    private fun renderPdfList() {
+        val container = findViewById<LinearLayout>(R.id.pdf_list_container) ?: return
+        val emptyCard = findViewById<View>(R.id.card_empty_pdfs)
+        val noResultsCard = findViewById<View>(R.id.card_no_search_materials)
+        val searchBox = findViewById<View>(R.id.card_search_materials)
+
+        container.removeAllViews()
+
+        if (allMaterials.isEmpty()) {
+            emptyCard?.visibility = View.VISIBLE
+            noResultsCard?.visibility = View.GONE
+            searchBox?.visibility = View.GONE
+            return
+        }
+
+        emptyCard?.visibility = View.GONE
+        searchBox?.visibility = View.VISIBLE
+
+        val filtered = if (currentSearchQuery.isEmpty()) {
+            allMaterials
+        } else {
+            allMaterials.filter { doc ->
+                val title = doc.getString("title") ?: ""
+                val uploader = doc.getString("uploaderName") ?: ""
+                title.contains(currentSearchQuery, ignoreCase = true) || uploader.contains(currentSearchQuery, ignoreCase = true)
+            }
+        }
+
+        if (filtered.isEmpty()) {
+            noResultsCard?.visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tv_no_search_materials_subtitle)?.text = "No materials matching \"$currentSearchQuery\""
+            return
+        }
+
+        noResultsCard?.visibility = View.GONE
+        val rowViews = mutableListOf<View>()
+
+        for (doc in filtered) {
+            val title = doc.getString("title") ?: "Document"
+            val pdfUrl = doc.getString("pdfUrl") ?: ""
+            val fileId = doc.getString("driveFileId") ?: ""
+            val thumbStr = doc.getString("thumbnail") ?: ""
+            val assignedSections = doc.get("assignedSections") as? List<String> ?: listOf()
+
+            val row = layoutInflater.inflate(R.layout.item_pdf_document, container, false)
+            row.findViewById<TextView>(R.id.tv_pdf_title).text = title
+            row.findViewById<TextView>(R.id.tv_uploader_name)?.text = "Uploaded by: ${doc.getString("uploaderName") ?: "Unknown"}"
+
+            // THUMBNAIL
+            val imgThumb = row.findViewById<ImageView>(R.id.img_pdf_thumb)
+            if (thumbStr.isNotEmpty()) {
+                try {
+                    val decodedBytes = android.util.Base64.decode(thumbStr, android.util.Base64.DEFAULT)
+                    val bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                    imgThumb.imageTintList = null
+                    imgThumb.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
+                    imgThumb.setImageResource(R.drawable.ic_menu_book)
+                }
+            } else {
+                imgThumb.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#6366F1"))
+                imgThumb.setImageResource(R.drawable.ic_menu_book)
+            }
+
+            // 🟢 THE NEW LAUNCH LOGIC 🟢
+            GabAIUtils.addSpringPressEffect(row) {
+                val intent = Intent(this@SubjectDetailActivity, PdfViewerActivity::class.java).apply {
+                    putExtra("PDF_URL", pdfUrl)
+                    putExtra("PDF_TITLE", title)
+                    putExtra("MATERIAL_ID", doc.id)
+                    putExtra("DRIVE_FILE_ID", fileId)
+                    putExtra("IS_TEACHER", true)
+                    putStringArrayListExtra("ASSIGNED_SECTIONS", ArrayList(assignedSections))
+                }
+                startActivity(intent)
+            }
+
+            container.addView(row)
+            rowViews.add(row)
+        }
+
+        GabAIUtils.animateCascade(rowViews, 25L)
     }
 
     private fun deleteFileFromDriveAndDatabase(docId: String, fileId: String) {
@@ -438,46 +488,175 @@ class SubjectDetailActivity : AppCompatActivity() {
                         .addOnSuccessListener { studentSnaps ->
                             val studentsByClass = mutableMapOf<String, MutableList<Map<String, String>>>()
 
-                            // 3. FLIPPED LOGIC: Match students ONLY if they used the Join Code
+                            // 3. Match students: Advisers get their homeroom section automatically; Subject Teachers get QR-joined students
                             for (classDoc in classSnaps.documents) {
                                 val className = classDoc.getString("className") ?: continue
+                                val classGrade = classDoc.getString("grade")?.trim() ?: ""
+                                val classSection = classDoc.getString("section")?.trim() ?: ""
+                                val ownerTeacherId = classDoc.getString("teacherId") ?: ""
+                                val isAdviser = (classDoc.getBoolean("isAdviser") == true && ownerTeacherId == uid)
                                 val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
 
-                                // If nobody joined this specific class yet, skip it
-                                if (joinedStudents.isEmpty()) continue
+                                // If ADVISER: Automatically match all students in the school with matching section & grade,
+                                // PLUS any students in joinedStudents!
+                                val matchedDocs = if (isAdviser) {
+                                    studentSnaps.documents.filter { doc ->
+                                        val sSec = doc.getString("section")?.trim() ?: ""
+                                        val sGrd = doc.getString("grade")?.trim() ?: ""
+                                        (sSec.equals(classSection, ignoreCase = true) && (classGrade.isEmpty() || sGrd.equals(classGrade, ignoreCase = true))) ||
+                                            joinedStudents.contains(doc.id)
+                                    }
+                                } else {
+                                    // If SUBJECT TEACHER: Only students who joined via QR/Join Code
+                                    studentSnaps.documents.filter { doc ->
+                                        joinedStudents.contains(doc.id)
+                                    }
+                                }
 
-                                for (studentId in joinedStudents) {
-                                    val studentDoc = studentSnaps.documents.find { it.id == studentId }
-                                    if (studentDoc != null) {
-                                        val fName = studentDoc.getString("firstName") ?: ""
-                                        val lName = studentDoc.getString("lastName") ?: ""
-                                        val studentData = mapOf("id" to studentId, "name" to "$fName $lName".trim())
+                                if (matchedDocs.isEmpty()) continue
 
-                                        if (!studentsByClass.containsKey(className)) {
-                                            studentsByClass[className] = mutableListOf()
-                                        }
+                                val sectionHeaderTitle = if (isAdviser) "$className (Advisory Section)" else "$className (Subject Section)"
+                                if (!studentsByClass.containsKey(sectionHeaderTitle)) {
+                                    studentsByClass[sectionHeaderTitle] = mutableListOf()
+                                }
 
-                                        // Prevent accidental duplicates
-                                        if (studentsByClass[className]?.none { it["id"] == studentId } == true) {
-                                            studentsByClass[className]?.add(studentData)
-                                        }
+                                for (studentDoc in matchedDocs) {
+                                    val studentId = studentDoc.id
+                                    val fName = studentDoc.getString("firstName") ?: ""
+                                    val lName = studentDoc.getString("lastName") ?: ""
+                                    val studentName = "$fName $lName".trim().ifEmpty { studentDoc.getString("username") ?: "Student" }
+                                    val studentData = mapOf("id" to studentId, "name" to studentName)
+
+                                    if (studentsByClass[sectionHeaderTitle]?.none { it["id"] == studentId } == true) {
+                                        studentsByClass[sectionHeaderTitle]?.add(studentData)
                                     }
                                 }
                             }
 
-                            // If no students were found in any joinedStudents array
+                            // If no students were found in any class
                             if (studentsByClass.isEmpty()) {
                                 GabAIUtils.hideGlobalLoading(this)
-                                GabAIUtils.showSnackbar(this, "No students have joined your classes yet.")
+                                GabAIUtils.showSnackbar(this, "No students found in your advisory or subject sections.")
                                 return@addOnSuccessListener
                             }
 
                             // 4. Build the UI
+                            val density = resources.displayMetrics.density
+                            val fontJakarta = try { androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_plus_jakarta_sans) } catch (_: Exception) { null }
+
                             val selectedStudentIds = currentlyAssigned.toMutableList()
                             val mainContainer = LinearLayout(this).apply {
                                 orientation = LinearLayout.VERTICAL
-                                setPadding(40, 20, 40, 20)
+                                setPadding(0, 0, 0, 0)
                             }
+
+                            // 1. Search Box for Students
+                            val searchBox = LinearLayout(this).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = android.view.Gravity.CENTER_VERTICAL
+                                setBackgroundResource(R.drawable.bg_modern_input)
+                                setPadding((14 * density).toInt(), (10 * density).toInt(), (14 * density).toInt(), (10 * density).toInt())
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).apply {
+                                    setMargins(0, 0, 0, (12 * density).toInt())
+                                }
+                            }
+
+                            val ivSearch = ImageView(this).apply {
+                                setImageResource(R.drawable.ic_search_modern)
+                                layoutParams = LinearLayout.LayoutParams((18 * density).toInt(), (18 * density).toInt()).apply {
+                                    marginEnd = (10 * density).toInt()
+                                }
+                                imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#64748B"))
+                            }
+
+                            val etSearchStudent = EditText(this).apply {
+                                hint = "Search student name..."
+                                setTextColor(Color.parseColor("#0F172A"))
+                                setHintTextColor(Color.parseColor("#94A3B8"))
+                                textSize = 13.5f
+                                setBackgroundResource(android.R.color.transparent)
+                                maxLines = 1
+                                inputType = android.text.InputType.TYPE_CLASS_TEXT
+                                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                            }
+
+                            val btnClearSearch = ImageButton(this).apply {
+                                setImageResource(R.drawable.ic_clear_circle)
+                                setBackgroundResource(android.R.color.transparent)
+                                imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#94A3B8"))
+                                visibility = View.GONE
+                                layoutParams = LinearLayout.LayoutParams((22 * density).toInt(), (22 * density).toInt())
+                            }
+                            btnClearSearch.setOnClickListener { etSearchStudent.setText("") }
+
+                            searchBox.addView(ivSearch)
+                            searchBox.addView(etSearchStudent)
+                            searchBox.addView(btnClearSearch)
+                            mainContainer.addView(searchBox)
+
+                            // 2. Select All / Deselect All Action Bar
+                            val actionBar = LinearLayout(this).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = android.view.Gravity.CENTER_VERTICAL
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).apply {
+                                    setMargins(0, 0, 0, (14 * density).toInt())
+                                }
+                            }
+
+                            val allStudentCheckboxes = mutableListOf<Pair<String, CheckBox>>() // (studentId, cb)
+                            val allSectionCheckboxes = mutableListOf<Pair<CheckBox, List<CheckBox>>>() // (sectionCb, childCbs)
+
+                            val btnSelectAll = TextView(this).apply {
+                                text = "✓ Select All"
+                                textSize = 12f
+                                setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                                setTextColor(Color.parseColor("#6366F1"))
+                                setBackgroundResource(R.drawable.bg_pill_translucent)
+                                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#EEF2FF"))
+                                setPadding((12 * density).toInt(), (6 * density).toInt(), (12 * density).toInt(), (6 * density).toInt())
+                            }
+
+                            val btnDeselectAll = TextView(this).apply {
+                                text = "✕ Clear All"
+                                textSize = 12f
+                                setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                                setTextColor(Color.parseColor("#64748B"))
+                                setBackgroundResource(R.drawable.bg_pill_translucent)
+                                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
+                                setPadding((12 * density).toInt(), (6 * density).toInt(), (12 * density).toInt(), (6 * density).toInt())
+                                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                                    marginStart = (8 * density).toInt()
+                                }
+                                layoutParams = lp
+                            }
+
+                            actionBar.addView(btnSelectAll)
+                            actionBar.addView(btnDeselectAll)
+                            mainContainer.addView(actionBar)
+
+                            GabAIUtils.addSpringPressEffect(btnSelectAll) {
+                                allStudentCheckboxes.forEach { (stId, cb) ->
+                                    cb.isChecked = true
+                                    if (!selectedStudentIds.contains(stId)) selectedStudentIds.add(stId)
+                                }
+                                allSectionCheckboxes.forEach { (secCb, _) -> secCb.isChecked = true }
+                            }
+
+                            GabAIUtils.addSpringPressEffect(btnDeselectAll) {
+                                allStudentCheckboxes.forEach { (_, cb) ->
+                                    cb.isChecked = false
+                                }
+                                selectedStudentIds.clear()
+                                allSectionCheckboxes.forEach { (secCb, _) -> secCb.isChecked = false }
+                            }
+
+                            val sectionContainers = mutableListOf<Triple<View, View, List<Pair<View, String>>>>() // (sectionHeader, listContainer, studentViews)
 
                             for ((className, students) in studentsByClass) {
                                 val sectionLayout = LinearLayout(this).apply {
@@ -490,16 +669,17 @@ class SubjectDetailActivity : AppCompatActivity() {
                                 sectionCheckbox.isChecked = students.all { selectedStudentIds.contains(it["id"]) }
 
                                 val sectionTitle = TextView(this).apply {
-                                    text = className // Shows "Grade 10 - Rizal", etc.
-                                    textSize = 18f
-                                    setTypeface(null, android.graphics.Typeface.BOLD)
-                                    setTextColor(Color.parseColor("#2D3436"))
+                                    text = className
+                                    textSize = 15.5f
+                                    setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                                    setTextColor(Color.parseColor("#0F172A"))
                                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                                 }
 
                                 val expandIcon = TextView(this).apply {
                                     text = "▼"
-                                    textSize = 16f
+                                    textSize = 14f
+                                    setTextColor(Color.parseColor("#64748B"))
                                     setPadding(20, 20, 20, 20)
                                 }
 
@@ -510,20 +690,25 @@ class SubjectDetailActivity : AppCompatActivity() {
 
                                 val studentListContainer = LinearLayout(this).apply {
                                     orientation = LinearLayout.VERTICAL
-                                    setPadding(60, 0, 0, 20)
+                                    setPadding((32 * density).toInt(), 0, 0, (12 * density).toInt())
                                     visibility = View.GONE
                                 }
 
                                 val studentCheckboxes = mutableListOf<CheckBox>()
+                                val studentItems = mutableListOf<Pair<View, String>>()
+
                                 for (student in students) {
-                                    // Skip malformed records instead of crashing on a missing id.
                                     val stId = student["id"] ?: continue
+                                    val stName = student["name"] ?: "Student"
                                     val stCb = CheckBox(this).apply {
-                                        text = student["name"]
-                                        textSize = 16f
+                                        text = stName
+                                        textSize = 14f
+                                        setTextColor(Color.parseColor("#334155"))
                                         isChecked = selectedStudentIds.contains(stId)
                                     }
                                     studentCheckboxes.add(stCb)
+                                    allStudentCheckboxes.add(stId to stCb)
+                                    studentItems.add(stCb to stName)
                                     studentListContainer.addView(stCb)
 
                                     stCb.setOnCheckedChangeListener { _, isChecked ->
@@ -539,6 +724,8 @@ class SubjectDetailActivity : AppCompatActivity() {
                                         }
                                     }
                                 }
+
+                                allSectionCheckboxes.add(sectionCheckbox to studentCheckboxes)
 
                                 sectionCheckbox.setOnCheckedChangeListener { _, isChecked ->
                                     studentCheckboxes.forEach { it.isChecked = isChecked }
@@ -558,11 +745,40 @@ class SubjectDetailActivity : AppCompatActivity() {
                                 expandIcon.setOnClickListener(toggleExpand)
 
                                 mainContainer.addView(studentListContainer)
+                                sectionContainers.add(Triple(sectionLayout, studentListContainer, studentItems))
+
                                 mainContainer.addView(View(this).apply {
-                                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2).apply { setMargins(0, 10, 0, 10) }
-                                    setBackgroundColor(Color.parseColor("#DFE6E9"))
+                                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (1 * density).toInt()).apply { setMargins(0, 8, 0, 8) }
+                                    setBackgroundColor(Color.parseColor("#EDF2F7"))
                                 })
                             }
+
+                            // Wire search listener to live-filter students across sections
+                            etSearchStudent.addTextChangedListener(object : android.text.TextWatcher {
+                                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                                    val query = s?.toString()?.trim() ?: ""
+                                    btnClearSearch.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
+
+                                    for ((secHeader, listContainer, studentItems) in sectionContainers) {
+                                        var hasVisibleStudents = false
+                                        for ((stView, stName) in studentItems) {
+                                            val matches = query.isEmpty() || stName.contains(query, ignoreCase = true)
+                                            stView.visibility = if (matches) View.VISIBLE else View.GONE
+                                            if (matches) hasVisibleStudents = true
+                                        }
+
+                                        if (query.isNotEmpty()) {
+                                            secHeader.visibility = if (hasVisibleStudents) View.VISIBLE else View.GONE
+                                            listContainer.visibility = if (hasVisibleStudents) View.VISIBLE else View.GONE
+                                        } else {
+                                            secHeader.visibility = View.VISIBLE
+                                            listContainer.visibility = View.GONE
+                                        }
+                                    }
+                                }
+                                override fun afterTextChanged(s: android.text.Editable?) {}
+                            })
 
                             GabAIUtils.hideGlobalLoading(this)
 

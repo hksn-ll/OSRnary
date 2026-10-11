@@ -231,7 +231,6 @@ class OverviewActivity : AppCompatActivity() {
                     isCurrentlyFavorite = true
                     favoriteBtn?.setImageResource(R.drawable.ic_star_filled)
                     GabAIUtils.performHaptic(favoriteBtn, android.view.HapticFeedbackConstants.CONFIRM)
-                    GabAIUtils.showSnackbar(this, "Saved $selectionTypeLabel to Favorites! ⭐")
                 }
             }
         }
@@ -1370,16 +1369,7 @@ class OverviewActivity : AppCompatActivity() {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
-        if (XPManager.canEarnXP(this)) {
-            val leveledUp = XPManager.addXP(this, 10)
-            if (leveledUp) {
-                GabAIUtils.showSnackbar(this, "LEVEL UP! You are now Level ${XPManager.getLevel(this)}! 🎉")
-            } else {
-                GabAIUtils.showSnackbar(this, "Saved! +10 XP gained")
-            }
-        } else {
-            GabAIUtils.showSnackbar(this, "Saved $selectionTypeLabel to Favorites! ⭐")
-        }
+        GabAIUtils.showSnackbar(this, "Saved $selectionTypeLabel to Favorites! ⭐")
 
         val favEntry = hashMapOf(
             "word" to word,

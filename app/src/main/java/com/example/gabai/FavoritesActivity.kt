@@ -367,6 +367,7 @@ class FavoritesActivity : AppCompatActivity() {
                     val removedItem = favoriteItems[pos]
                     favoriteItems.removeAt(pos)
                     notifyItemRemoved(pos)
+                    notifyItemRangeChanged(pos, favoriteItems.size - pos)
 
                     val docRef = db.collection("users").document(uid).collection("favorites").document(removedItem.docId)
                     docRef.delete().addOnSuccessListener {
@@ -378,6 +379,11 @@ class FavoritesActivity : AppCompatActivity() {
                                 }
                             }
                         }
+                    }.addOnFailureListener { e ->
+                        favoriteItems.add(pos, removedItem)
+                        notifyItemInserted(pos)
+                        notifyItemRangeChanged(pos, favoriteItems.size - pos)
+                        GabAIUtils.showSnackbar(this@FavoritesActivity, "Failed to remove item: ${e.message}")
                     }
 
                     if (favoriteItems.isEmpty()) {

@@ -3,7 +3,10 @@ package com.example.gabai
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -78,7 +81,9 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val classDoc = db.collection("classes").document(classId).get().await()
-                val isAdviser = classDoc.getBoolean("isAdviser") ?: false
+                val ownerTeacherId = classDoc.getString("teacherId") ?: ""
+                val currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                val isAdviser = (classDoc.getBoolean("isAdviser") == true && ownerTeacherId == currentUid)
                 val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
 
                 val studentSnaps = db.collection("users")
@@ -98,6 +103,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                 if (targetStudents.isEmpty()) {
                     withContext(Dispatchers.Main) {
                         GabAIUtils.hideGlobalLoading(this@TeacherPerformanceActivity)
+                        findViewById<View>(R.id.card_search_perf_students)?.visibility = View.GONE
                         container.addView(TextView(this@TeacherPerformanceActivity).apply {
                             text = "No students enrolled in this section yet."
                             textSize = 15f
@@ -161,6 +167,13 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
                     compiledStats.sortByDescending { it.averageScore }
 
+                    val searchCard = findViewById<View>(R.id.card_search_perf_students)
+                    val searchInput = findViewById<EditText>(R.id.et_search_perf_students)
+                    val btnClearSearch = findViewById<ImageButton>(R.id.btn_clear_search_perf_students)
+                    val noSearchCard = findViewById<View>(R.id.card_no_search_students)
+
+                    searchCard?.visibility = View.VISIBLE
+                    val studentCards = mutableListOf<Pair<StudentStats, View>>()
                     val rowViews = mutableListOf<View>()
 
                     for (student in compiledStats) {
@@ -273,6 +286,29 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
                         container.addView(card)
                         rowViews.add(card)
+                        studentCards.add(Pair(student, card))
+                    }
+
+                    searchInput?.addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            val q = s?.toString()?.trim()?.lowercase() ?: ""
+                            btnClearSearch?.visibility = if (q.isNotEmpty()) View.VISIBLE else View.GONE
+                            var matchCount = 0
+                            studentCards.forEach { (st, cardView) ->
+                                val match = q.isEmpty() || st.name.lowercase().contains(q)
+                                cardView.visibility = if (match) View.VISIBLE else View.GONE
+                                if (match) matchCount++
+                            }
+                            noSearchCard?.visibility = if (matchCount == 0 && q.isNotEmpty()) View.VISIBLE else View.GONE
+                        }
+                        override fun afterTextChanged(s: Editable?) {}
+                    })
+
+                    btnClearSearch?.let { btn ->
+                        GabAIUtils.addSpringPressEffect(btn) {
+                            searchInput?.setText("")
+                        }
                     }
 
                     GabAIUtils.animateCascade(rowViews, 30L)

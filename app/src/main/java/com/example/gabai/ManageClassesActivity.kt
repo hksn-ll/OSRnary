@@ -139,7 +139,8 @@ class ManageClassesActivity : AppCompatActivity() {
                     val gradeName = doc.getString("grade") ?: ""
                     val classId = doc.id
                     val schoolId = doc.getString("schoolId") ?: ""
-                    val isAdviser = doc.getBoolean("isAdviser") ?: true
+                    val ownerTeacherId = doc.getString("teacherId") ?: ""
+                    val isAdviser = (doc.getBoolean("isAdviser") == true && ownerTeacherId == uid)
 
                     // 🟢 FIX: Force the grade into the title if it's missing from old data
                     val displayTitle = if (gradeName.isNotEmpty() && !className.contains(gradeName)) {
@@ -478,14 +479,23 @@ class ManageClassesActivity : AppCompatActivity() {
                         .get().addOnSuccessListener { snaps ->
                             for (doc in snaps.documents) doc.reference.delete()
                         }
-                }
 
-                // Delete the class link from the dashboard
-                db.collection("classes").document(classId).delete()
-                    .addOnSuccessListener {
-                        GabAIUtils.hideGlobalLoading(this)
-                        GabAIUtils.showSnackbar(this, "Class removed successfully!")
-                    }
+                    // Delete the class doc completely
+                    db.collection("classes").document(classId).delete()
+                        .addOnSuccessListener {
+                            GabAIUtils.hideGlobalLoading(this)
+                            GabAIUtils.showSnackbar(this, "Class deleted successfully!")
+                        }
+                } else {
+                    // Subject teacher: Only unlink self from teacherIds
+                    val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                    db.collection("classes").document(classId)
+                        .update("teacherIds", com.google.firebase.firestore.FieldValue.arrayRemove(currentUid))
+                        .addOnSuccessListener {
+                            GabAIUtils.hideGlobalLoading(this)
+                            GabAIUtils.showSnackbar(this, "Class removed from your subject classes!")
+                        }
+                }
             }
         )
     }
@@ -593,8 +603,10 @@ class ManageClassesActivity : AppCompatActivity() {
 
         // 1. Fetch the class document to check privileges and see who joined
         db.collection("classes").document(classId).get().addOnSuccessListener { classDoc ->
-            val isAdviser = classDoc.getBoolean("isAdviser") ?: false
+            val ownerTeacherId = classDoc.getString("teacherId") ?: ""
+            val isAdviser = (classDoc.getBoolean("isAdviser") == true && ownerTeacherId == uid)
             val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
+            val grade = classDoc.getString("grade") ?: className.substringBefore("-").trim()
 
             // Only show the Generate button if they are the Adviser
             if (isAdviser) {
@@ -602,7 +614,7 @@ class ManageClassesActivity : AppCompatActivity() {
                     text = "Generate Student Accounts"
                     setTextColor(Color.WHITE)
                     setBackgroundResource(R.drawable.bg_btn_modern_primary)
-                    setOnClickListener { showGenerateStudentsDialog(className, targetSection, classId, schoolId) }
+                    setOnClickListener { showGenerateStudentsDialog(className, targetSection, classId, schoolId, grade) }
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         (resources.displayMetrics.density * 48).toInt()
@@ -810,7 +822,7 @@ class ManageClassesActivity : AppCompatActivity() {
         }
     }
 
-    private fun showGenerateStudentsDialog(className: String, sectionName: String, classId: String, schoolId: String) {
+    private fun showGenerateStudentsDialog(className: String, sectionName: String, classId: String, schoolId: String, grade: String) {
         GabAIDialogs.showInputDialog(
             context = this,
             title = "Add Students to $className",
@@ -823,13 +835,13 @@ class ManageClassesActivity : AppCompatActivity() {
             onConfirm = { namesText ->
                 if (namesText.isNotEmpty()) {
                     val namesList = namesText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    generateStudentAccounts(namesList, sectionName, classId, schoolId)
+                    generateStudentAccounts(namesList, sectionName, classId, schoolId, grade)
                 }
             }
         )
     }
 
-    private fun generateStudentAccounts(names: List<String>, sectionName: String, classId: String, schoolId: String) {
+    private fun generateStudentAccounts(names: List<String>, sectionName: String, classId: String, schoolId: String, grade: String) {
         val db = FirebaseFirestore.getInstance()
         var completedCount = 0
 
@@ -850,7 +862,9 @@ class ManageClassesActivity : AppCompatActivity() {
                 "lastName" to lastName,
                 "username" to username,
                 "password" to password,
+                "mustChangePassword" to true,
                 "role" to "student",
+                "grade" to grade,
                 "section" to sectionName,
                 "schoolId" to schoolId,
                 "current_xp" to 0,

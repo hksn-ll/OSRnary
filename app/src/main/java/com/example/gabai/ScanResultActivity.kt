@@ -201,6 +201,20 @@ class ScanResultActivity : AppCompatActivity() {
 
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
+                if (visionText.text.isBlank()) {
+                    stopOrFadeLaserSweep()
+                    hideInstructionHud()
+                    GabAIDialogs.showNoticeDialog(
+                        context = this,
+                        title = "No Text Detected",
+                        message = "We couldn't detect readable text in this capture. Please ensure the text is well-lit, in focus, and clear.",
+                        buttonText = "Try Again",
+                        badgeIcon = "🔍",
+                        onAction = { finish() }
+                    )
+                    return@addOnSuccessListener
+                }
+
                 imageView.post {
                     overlay.setTextResult(visionText, bitmap.width, bitmap.height, imageView.width, imageView.height)
                 }
@@ -216,6 +230,18 @@ class ScanResultActivity : AppCompatActivity() {
                     stopOrFadeLaserSweep()
                     updateBottomCard(selectedText, surroundingSentence)
                 }
+            }
+            .addOnFailureListener { e ->
+                stopOrFadeLaserSweep()
+                hideInstructionHud()
+                GabAIDialogs.showNoticeDialog(
+                    context = this,
+                    title = "Recognition Error",
+                    message = "Could not process image text: ${e.localizedMessage ?: "Unknown error"}. Please try capturing again.",
+                    buttonText = "Retake",
+                    badgeIcon = "⚠️",
+                    onAction = { finish() }
+                )
             }
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.result_card)
         makeDraggable(card)

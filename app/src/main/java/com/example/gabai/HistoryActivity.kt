@@ -422,6 +422,7 @@ class HistoryActivity : AppCompatActivity() {
                     val removedItem = historyItems[pos]
                     historyItems.removeAt(pos)
                     notifyItemRemoved(pos)
+                    notifyItemRangeChanged(pos, historyItems.size - pos)
 
                     val docRef = db.collection("users").document(uid).collection("history").document(removedItem.docId)
                     docRef.delete().addOnSuccessListener {
@@ -433,6 +434,11 @@ class HistoryActivity : AppCompatActivity() {
                                 }
                             }
                         }
+                    }.addOnFailureListener { e ->
+                        historyItems.add(pos, removedItem)
+                        notifyItemInserted(pos)
+                        notifyItemRangeChanged(pos, historyItems.size - pos)
+                        GabAIUtils.showSnackbar(this@HistoryActivity, "Failed to remove item: ${e.message}")
                     }
 
                     if (historyItems.isEmpty()) {
