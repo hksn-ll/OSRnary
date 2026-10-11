@@ -192,11 +192,23 @@ class QuizActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         try {
-            val intent = Intent(this, FloatingControlService::class.java).apply {
-                action = "ACTION_SHOW"
+            val isBubbleEnabled = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+                .getBoolean("bubble_enabled", false)
+            if (isBubbleEnabled && FloatingControlService.isRunning) {
+                val intent = Intent(this, FloatingControlService::class.java).apply {
+                    action = "ACTION_SHOW"
+                }
+                startService(intent)
             }
-            startService(intent)
         } catch (_: Exception) {}
+    }
+
+    private fun navigateBackToHome() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+        finish()
     }
 
     private fun bindViews() {
@@ -258,11 +270,11 @@ class QuizActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_restart).setOnClickListener {
-            finish()
+            navigateBackToHome()
         }
 
         findViewById<Button>(R.id.btn_exit).setOnClickListener {
-            finish()
+            navigateBackToHome()
         }
 
         findViewById<Button>(R.id.btn_quiz_history)?.setOnClickListener {
@@ -404,8 +416,8 @@ class QuizActivity : AppCompatActivity() {
         val scoreText = findViewById<TextView>(R.id.final_score_text)
         scoreText.visibility = View.VISIBLE
         scoreText.text = getString(R.string.error_load_settings_failed)
-        btnRestart.text = getString(R.string.action_retry)
-        btnRestart.setOnClickListener { finish() }
+        btnRestart.text = "Back to Home"
+        btnRestart.setOnClickListener { navigateBackToHome() }
         resultView.visibility = View.VISIBLE
     }
 
@@ -444,8 +456,8 @@ class QuizActivity : AppCompatActivity() {
                     scoreText.text = "Great job today!\n\nYou've completed all $maxSessionsPerDay daily practice sessions.\n\nYour practice energy refills tomorrow at 12:00 AM so your memory can consolidate!"
                     xpSummary.visibility = View.GONE
                     resultView.visibility = View.VISIBLE
-                    btnRestart.text = "Return to Dashboard"
-                    btnRestart.setOnClickListener { finish() }
+                    btnRestart.text = "Back to Home"
+                    btnRestart.setOnClickListener { navigateBackToHome() }
                 } else {
                     loadWordsForSession(userId)
                 }
@@ -499,8 +511,8 @@ class QuizActivity : AppCompatActivity() {
                             "Keep reading, exploring, and scanning words to build your vocabulary deck!"
                     xpSummary.visibility = View.GONE
                     resultView.visibility = View.VISIBLE
-                    btnRestart.text = "Return to Reading"
-                    btnRestart.setOnClickListener { finish() }
+                    btnRestart.text = "Back to Home"
+                    btnRestart.setOnClickListener { navigateBackToHome() }
                 } else {
                     val targetDocs = eligibleDocs.take(maxItemsPerSession)
                     sessionDocSnapshots.clear()
@@ -1590,8 +1602,8 @@ class QuizActivity : AppCompatActivity() {
         tvXpDetails.text = "Base: +$baseXP XP • Combos: +$comboXP XP • Bonuses: +$bonusXP XP"
 
         val btnRestart = findViewById<Button>(R.id.btn_restart)
-        btnRestart.text = "Return to Dashboard"
-        btnRestart.setOnClickListener { finish() }
+        btnRestart.text = "Back to Home"
+        btnRestart.setOnClickListener { navigateBackToHome() }
 
         resultView.visibility = View.VISIBLE
     }

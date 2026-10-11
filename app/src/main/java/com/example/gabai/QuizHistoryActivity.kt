@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
@@ -180,6 +181,9 @@ class QuizHistoryActivity : AppCompatActivity() {
                         setPadding((18 * density).toInt(), (18 * density).toInt(), (18 * density).toInt(), (18 * density).toInt())
                     }
 
+                    val quizType = doc.getString("quizType") ?: "recall"
+                    val isMaterialQuiz = (quizType == "material")
+
                     // Top Row: Squircle Icon, Date, Score & XP Pills
                     val topRow = LinearLayout(this).apply {
                         orientation = LinearLayout.HORIZONTAL
@@ -187,7 +191,7 @@ class QuizHistoryActivity : AppCompatActivity() {
                     }
 
                     val iconFrame = FrameLayout(this).apply {
-                        setBackgroundResource(R.drawable.bg_bento_purple)
+                        setBackgroundResource(if (isMaterialQuiz) R.drawable.bg_bento_mint else R.drawable.bg_bento_purple)
                         val sizePx = (42 * density).toInt()
                         layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
                             setMargins(0, 0, (12 * density).toInt(), 0)
@@ -195,8 +199,8 @@ class QuizHistoryActivity : AppCompatActivity() {
                     }
 
                     val iconView = ImageView(this).apply {
-                        setImageResource(R.drawable.ic_school)
-                        setColorFilter(Color.parseColor("#5341CD"))
+                        setImageResource(if (isMaterialQuiz) R.drawable.ic_menu_book else R.drawable.ic_school)
+                        setColorFilter(Color.parseColor(if (isMaterialQuiz) "#00875A" else "#5341CD"))
                         val pad = (10 * density).toInt()
                         setPadding(pad, pad, pad, pad)
                         layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
@@ -216,7 +220,7 @@ class QuizHistoryActivity : AppCompatActivity() {
                     }
 
                     val scoreSubtitle = TextView(this).apply {
-                        text = "$score / $totalQuestions Questions Correct"
+                        text = if (isMaterialQuiz) "$score / $totalQuestions Questions • Reading Material" else "$score / $totalQuestions Questions Correct"
                         textSize = 12.5f
                         setTypeface(fontJakarta ?: typeface, Typeface.NORMAL)
                         setTextColor(Color.parseColor("#64748B"))
@@ -266,17 +270,21 @@ class QuizHistoryActivity : AppCompatActivity() {
 
                     // Mechanics Tags Row
                     val mechanicsSet = mutableSetOf<String>()
-                    for (item in items) {
-                        val m = item["mechanic"] as? String ?: "CLOZE"
-                        when (m) {
-                            "CLOZE" -> mechanicsSet.add("✏️ Cloze")
-                            "CONTEXT_MEANING", "DETECTIVE" -> mechanicsSet.add("🔍 Context")
-                            "IMPOSTOR" -> mechanicsSet.add("👾 Glitch")
-                            "GRAMMAR_LANDMINE", "LANDMINE" -> mechanicsSet.add("💣 Defusal")
-                            "RAPID_MATCH" -> mechanicsSet.add("⚡ Rapid")
+                    if (isMaterialQuiz) {
+                        mechanicsSet.add("📖 Reading Comprehension")
+                    } else {
+                        for (item in items) {
+                            val m = item["mechanic"] as? String ?: "CLOZE"
+                            when (m) {
+                                "CLOZE" -> mechanicsSet.add("✏️ Cloze")
+                                "CONTEXT_MEANING", "DETECTIVE" -> mechanicsSet.add("🔍 Context")
+                                "IMPOSTOR" -> mechanicsSet.add("👾 Glitch")
+                                "GRAMMAR_LANDMINE", "LANDMINE" -> mechanicsSet.add("💣 Defusal")
+                                "RAPID_MATCH" -> mechanicsSet.add("⚡ Rapid")
+                            }
                         }
+                        if (mechanicsSet.isEmpty()) mechanicsSet.add("✏️ Cloze")
                     }
-                    if (mechanicsSet.isEmpty()) mechanicsSet.add("✏️ Cloze")
 
                     val mechRow = LinearLayout(this).apply {
                         orientation = LinearLayout.HORIZONTAL
@@ -331,6 +339,29 @@ class QuizHistoryActivity : AppCompatActivity() {
                     container.addView(card)
                     cardViews.add(card)
                 }
+
+                // Bento Back to Home Navigation Button at Bottom
+                val btnBackHome = com.google.android.material.button.MaterialButton(this).apply {
+                    text = "Back to Home 🏠"
+                    textSize = 14f
+                    setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                    setTextColor(Color.WHITE)
+                    setBackgroundColor(Color.parseColor("#5341CD"))
+                    cornerRadius = (16 * density).toInt()
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (50 * density).toInt()
+                    ).apply { setMargins(0, (14 * density).toInt(), 0, (24 * density).toInt()) }
+                }
+                GabAIUtils.addSpringPressEffect(btnBackHome) {
+                    val intent = Intent(this@QuizHistoryActivity, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
+                    finish()
+                }
+                container.addView(btnBackHome)
+                cardViews.add(btnBackHome)
 
                 GabAIUtils.animateCascade(cardViews, 35L)
             }

@@ -80,6 +80,10 @@ class StudentSubjectActivity : AppCompatActivity() {
                     val row = layoutInflater.inflate(R.layout.item_pdf_document, container, false)
                     row.findViewById<TextView>(R.id.tv_pdf_title).text = title
                     row.findViewById<TextView>(R.id.tv_uploader_name)?.text = "Uploaded by: $uploader"
+                    row.findViewById<TextView>(R.id.tv_quiz_badge)?.apply {
+                        visibility = if (hasQuiz) View.VISIBLE else View.GONE
+                        text = "QUIZ READY ⚡"
+                    }
 
                     val imgThumb = row.findViewById<ImageView>(R.id.img_pdf_thumb)
                     if (thumbStr.isNotEmpty()) {

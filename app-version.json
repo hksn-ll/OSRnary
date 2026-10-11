@@ -1,11 +1,11 @@
 {
-  "versionCode": 29,
-  "versionName": "0.4.15",
-  "minRequiredVersionCode": 29,
+  "versionCode": 30,
+  "versionName": "0.4.16",
+  "minRequiredVersionCode": 30,
   "forceUpdate": true,
-  "title": "Universal Search, Batch Assignment & Roster Accuracy Update (v0.4.15)",
-  "message": "Includes real-time Bento search across library, materials, assignment picker, and performance rosters, Select All quick actions, homeroom learner counting fixes, and standalone DepEd Phil-IRI reading materials.",
+  "title": "Bento Material UI & Navigation Overhaul (v0.4.16)",
+  "message": "Includes modern Bento squircle cards for library materials, eliminated unexpected floating bubble overlay triggers, and unified Back to Home navigation across all quiz flows.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.15/GabAI-v0.4.15.apk",
-  "changelog": "• Universal Real-Time Search: Instant Bento squircle search bar across Teacher Library, Subject Materials, Assignment Picker, Class Roster, and Student Mastery Performance.\n• Quick Batch Assignment: Added 'Select All' and 'Clear All' pill actions to the material access manager.\n• Accurate Learner Metrics: Fixed adviser dashboard metric so homeroom students are properly counted alongside joined subject students.\n• Zero-Latency Filtering: 100% in-memory filtering with 0ms delay and zero redundant database reads.\n• Standalone Official Phil-IRI & DepEd Reading Treasury Assets integrated.\n• Bug Fixes & Stability: Eliminated layout flicker and guaranteed crash-free execution."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.16/GabAI-v0.4.16.apk",
+  "changelog": "• Premium Bento Squircle Cards: Complete redesign of learning material cards with 22dp squircle curvature, dual-tone preview frame, category tag, and quiz readiness badge.\n• Navigation Streamlining: Removed redundant 'Return to Reading' buttons and unified all exit/completion routes to clear-top 'Back to Home'.\n• Floating Bubble Service Defense: Prevented unwanted floating bubble popups on exit by checking user preferences and active service state.\n• Quiz History Material Tagging: Added visual differentiators for Reading Comprehension quizzes and full-width Back to Home action button."
 }

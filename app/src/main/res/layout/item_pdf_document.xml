@@ -5,10 +5,10 @@
     style="@style/Widget.Stitch.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="20dp"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="22dp"
     app:cardElevation="0dp"
-    app:strokeWidth="1.5dp"
+    app:strokeWidth="1.2dp"
     app:strokeColor="#E2E8F0"
     app:cardBackgroundColor="#FFFFFF"
     android:clickable="true"
@@ -18,66 +18,151 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Modern Document Cover Frame -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="48dp"
-            android:layout_height="60dp"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0"
-            app:cardBackgroundColor="#F8FAFC"
-            android:layout_marginEnd="14dp">
+        <!-- Top Badges & Status Strip -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tv_material_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#EEF2FF"
+                android:paddingHorizontal="9dp"
+                android:paddingVertical="3dp"
+                android:text="📖 READING MATERIAL"
+                android:textColor="#5341CD"
+                android:textSize="10.5sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_quiz_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#ECFDF5"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="QUIZ READY ⚡"
+                android:textColor="#059669"
+                android:textSize="10.5sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <ImageView
-                android:id="@+id/img_pdf_thumb"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:contentDescription="@string/cd_pdf_thumbnail" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_pdf_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Document Title"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#0F172A"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:maxLines="2"
-                android:ellipsize="end" />
-
-            <TextView
-                android:id="@+id/tv_uploader_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Uploaded by Teacher"
-                android:textSize="12.5sp"
-                android:textColor="#64748B"
-                android:fontFamily="@font/font_nunito_sans"
-                android:layout_marginTop="3dp"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="#94A3B8"
+                android:contentDescription="@null" />
         </LinearLayout>
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_chevron_right"
-            app:tint="#94A3B8"
-            android:layout_marginStart="8dp"
-            android:contentDescription="@null" />
+        <!-- Main Content Row: Squircle Cover + Title & Meta -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Premium Squircle Document Cover Frame -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="52dp"
+                android:layout_height="66dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="#E2E8F0"
+                app:cardBackgroundColor="#F8FAFC"
+                android:layout_marginEnd="14dp">
+
+                <ImageView
+                    android:id="@+id/img_pdf_thumb"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_menu_book"
+                    app:tint="#6366F1"
+                    android:contentDescription="@string/cd_pdf_thumbnail" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_pdf_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Document Title"
+                    android:textSize="15.5sp"
+                    android:textStyle="bold"
+                    android:textColor="#0F172A"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tv_uploader_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Uploaded by Teacher"
+                    android:textSize="12sp"
+                    android:textColor="#64748B"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:layout_marginTop="3dp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bottom Action Pill Strip -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_reading_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Official Guided Reading"
+                android:textColor="#94A3B8"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_nunito_sans" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_action_open"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Open Material ➔"
+                android:textColor="#5341CD"
+                android:textSize="12sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

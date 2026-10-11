@@ -209,8 +209,14 @@ class MaterialQuizActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_restart).apply {
-            text = "Return to Library"
-            setOnClickListener { finish() }
+            text = "Back to Home"
+            setOnClickListener {
+                val intent = Intent(this@MaterialQuizActivity, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+                startActivity(intent)
+                finish()
+            }
         }
     }
 
@@ -455,9 +461,13 @@ class MaterialQuizActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_restart).apply {
-            text = if (isPassed) "Return to Library" else "Retry Quiz"
+            text = if (isPassed) "Back to Home" else "Retry Quiz"
             setOnClickListener {
                 if (isPassed) {
+                    val intent = Intent(this@MaterialQuizActivity, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    startActivity(intent)
                     finish()
                 } else {
                     val retryIntent = intent
