@@ -1,11 +1,11 @@
 {
-  "versionCode": 31,
-  "versionName": "0.4.17",
-  "minRequiredVersionCode": 31,
+  "versionCode": 32,
+  "versionName": "0.4.18",
+  "minRequiredVersionCode": 32,
   "forceUpdate": true,
-  "title": "Navigation & Social Profile Max Recall Combo Update (v0.4.17)",
-  "message": "Removed obsolete Back to Menu button, guaranteed floating bubble overlay remains suppressed on Back to Home, and replaced mastered vocabulary with Max Recall Quiz Combo in social student profiles.",
+  "title": "School Boundaries & Identity Collision Defense (v0.4.18)",
+  "message": "Enforced strict school boundaries on QR join codes, added collision-proof student generation with batch deduplication, and added handle disambiguation across all teacher views.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.17/GabAI-v0.4.17.apk",
-  "changelog": "• Removed 'Back to Menu' Button: Cleaned up the quiz completion screen to avoid confusing dual-exit buttons.\n• Zero Bubble on Exit: Defensively suppressed floating bubble overlay when returning to Home across all quiz, reading, and history activities.\n• Social Student Profile Upgrade: Replaced Mastered Words chips with real-time Max Recall Quiz Combo benchmark and streak badges in student profiles.\n• Verified zero compile errors and synchronized graph."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.18/GabAI-v0.4.18.apk",
+  "changelog": "• School Boundary Protection: Scans outside a student's DepEd school boundary are strictly blocked with custom Bento dialog notices.\n• Same-Name Student Collision Defense: Generated student usernames now use 5-digit entropy and batch deduplication sets, eliminating account overwrites.\n• Account Claiming & Recovery: Handled Auth collision recovery and teacher temporary password resets without account lockout.\n• Teacher UI Disambiguation: Display @username handles across Class Roster, Material Assignment, and Analytics to distinguish students with identical names."
 }

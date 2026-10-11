@@ -843,18 +843,32 @@ class ManageClassesActivity : AppCompatActivity() {
 
     private fun generateStudentAccounts(names: List<String>, sectionName: String, classId: String, schoolId: String, grade: String) {
         val db = FirebaseFirestore.getInstance()
+        val validNames = names.map { it.trim() }.filter { it.isNotBlank() }
+        if (validNames.isEmpty()) return
+
         var completedCount = 0
+        val usedInBatch = mutableSetOf<String>()
 
         // TURN ON SPINNER
         GabAIUtils.showGlobalLoading(this)
 
-        for (fullName in names) {
-            val parts = fullName.split(" ")
+        for (fullName in validNames) {
+            val parts = fullName.split("\\s+".toRegex())
             val firstName = parts.firstOrNull() ?: "Student"
             val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
 
-            val randomNum = (1000..9999).random()
-            val username = "${firstName.replace(" ", "")}${lastName.replace(" ", "")}_$randomNum".lowercase()
+            val cleanBase = "${firstName}${lastName}".replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
+            val baseName = if (cleanBase.isNotBlank()) cleanBase else "student"
+
+            var username: String
+            var attempts = 0
+            do {
+                val randomNum = (10000..99999).random()
+                username = "${baseName}_$randomNum"
+                attempts++
+            } while (usedInBatch.contains(username) && attempts < 100)
+            usedInBatch.add(username)
+
             val password = java.util.UUID.randomUUID().toString().substring(0, 6)
 
             val studentData = hashMapOf(
@@ -875,15 +889,20 @@ class ManageClassesActivity : AppCompatActivity() {
                 "createdAt" to System.currentTimeMillis()
             )
 
-            db.collection("pending_students").document(username).set(studentData).addOnSuccessListener {
-                completedCount++
-                // When the loop finishes the last name...
-                if (completedCount == names.size) {
-                    // TURN OFF SPINNER
-                    GabAIUtils.hideGlobalLoading(this)
-                    GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
+            db.collection("pending_students").document(username).set(studentData)
+                .addOnSuccessListener {
+                    completedCount++
+                    if (completedCount == validNames.size) {
+                        GabAIUtils.hideGlobalLoading(this)
+                        GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
+                    }
                 }
-            }
+                .addOnFailureListener {
+                    completedCount++
+                    if (completedCount == validNames.size) {
+                        GabAIUtils.hideGlobalLoading(this)
+                    }
+                }
         }
     }
     private fun showJoinCodeInstructionDialog(className: String) {

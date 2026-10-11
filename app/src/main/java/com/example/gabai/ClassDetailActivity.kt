@@ -335,12 +335,14 @@ class ClassDetailActivity : AppCompatActivity() {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
                                 val fullName = "$fName $lName".trim()
+                                val username = doc.getString("username") ?: ""
                                 val level = doc.getLong("level")?.toInt() ?: 1
                                 val photoUrl = doc.getString("photoUrl")
 
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
-                                view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
+                                val userHandle = if (username.isNotBlank()) "@$username • " else ""
+                                view.findViewById<TextView>(R.id.tv_student_details).text = "${userHandle}Level $level Explorer"
 
                                 val ivPhoto = view.findViewById<ImageView>(R.id.iv_student_avatar_photo)
                                 val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
@@ -413,12 +415,14 @@ class ClassDetailActivity : AppCompatActivity() {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
                                 val fullName = "$fName $lName".trim()
+                                val username = doc.getString("username") ?: ""
                                 val level = doc.getLong("level")?.toInt() ?: 1
                                 val photoUrl = doc.getString("photoUrl")
 
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
-                                view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
+                                val userHandle = if (username.isNotBlank()) "@$username • " else ""
+                                view.findViewById<TextView>(R.id.tv_student_details).text = "${userHandle}Level $level Explorer"
 
                                 val ivPhoto = view.findViewById<ImageView>(R.id.iv_student_avatar_photo)
                                 val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
@@ -462,17 +466,30 @@ class ClassDetailActivity : AppCompatActivity() {
     }
 
     private fun generateStudentAccounts(names: List<String>) {
+        val validNames = names.map { it.trim() }.filter { it.isNotBlank() }
+        if (validNames.isEmpty()) return
+
         var completedCount = 0
-        com.example.gabai.GabAIUtils.showSnackbar(this, "Generating ${names.size} accounts...")
+        val usedInBatch = mutableSetOf<String>()
+        com.example.gabai.GabAIUtils.showSnackbar(this, "Generating ${validNames.size} accounts...")
 
-        for (fullName in names) {
-            // Split back to maintain DB schema seamlessly
-            val parts = fullName.split(" ", limit = 2)
+        for (fullName in validNames) {
+            val parts = fullName.split("\\s+".toRegex())
             val firstName = parts.firstOrNull() ?: "Student"
-            val lastName = if (parts.size > 1) parts[1] else ""
+            val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
 
-            val randomNum = (1000..9999).random()
-            val username = "${fullName.replace(" ", "")}_$randomNum".lowercase()
+            val cleanBase = "${firstName}${lastName}".replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
+            val baseName = if (cleanBase.isNotBlank()) cleanBase else "student"
+
+            var username: String
+            var attempts = 0
+            do {
+                val randomNum = (10000..99999).random()
+                username = "${baseName}_$randomNum"
+                attempts++
+            } while (usedInBatch.contains(username) && attempts < 100)
+            usedInBatch.add(username)
+
             val password = java.util.UUID.randomUUID().toString().substring(0, 6)
 
             val studentData = hashMapOf(
@@ -493,12 +510,16 @@ class ClassDetailActivity : AppCompatActivity() {
                 "createdAt" to System.currentTimeMillis()
             )
 
-            db.collection("pending_students").document(username).set(studentData).addOnSuccessListener {
-                completedCount++
-                if (completedCount == names.size) {
-                    com.example.gabai.GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
+            db.collection("pending_students").document(username).set(studentData)
+                .addOnSuccessListener {
+                    completedCount++
+                    if (completedCount == validNames.size) {
+                        com.example.gabai.GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
+                    }
                 }
-            }
+                .addOnFailureListener {
+                    completedCount++
+                }
         }
     }
 

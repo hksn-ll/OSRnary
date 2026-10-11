@@ -124,9 +124,12 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     val studentId = userDoc.id
                     val fName = userDoc.getString("firstName") ?: ""
                     val lName = userDoc.getString("lastName") ?: ""
+                    val username = userDoc.getString("username") ?: ""
+                    val rawName = "$fName $lName".trim().ifEmpty { username.ifEmpty { "Student" } }
+                    val displayName = if (username.isNotBlank()) "$rawName (@$username)" else rawName
                     val photoUrl = userDoc.getString("photoUrl")
                     val studentLevel = userDoc.getLong("level")?.toInt() ?: 1
-                    val stats = StudentStats(studentId, "$fName $lName", studentLevel, photoUrl = photoUrl)
+                    val stats = StudentStats(studentId, displayName, studentLevel, photoUrl = photoUrl)
 
                     val quizDocs = db.collection("users").document(studentId)
                         .collection("quiz_history").get().await()

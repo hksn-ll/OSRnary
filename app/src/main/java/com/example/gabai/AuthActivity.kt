@@ -381,34 +381,10 @@ class AuthActivity : AppCompatActivity() {
                                 val studentData = doc.data?.toMutableMap() ?: return@addOnSuccessListener
                                 studentData["mustChangePassword"] = true
 
-                                auth.createUserWithEmailAndPassword(fakeEmail, pass).addOnCompleteListener { claimTask ->
-                                    if (claimTask.isSuccessful) {
-                                        val newUid = auth.currentUser?.uid ?: return@addOnCompleteListener
-
-                                        // 1. Move data to the secure 'users' collection
-                                        db.collection("users").document(newUid).set(studentData).addOnSuccessListener {
-                                            // 2. Delete temporary document so it cannot be claimed again
-                                            doc.reference.delete()
-                                            toggleLoading(false)
-                                            val claimedUser = auth.currentUser
-                                            if (claimedUser != null) {
-                                                showForcePasswordChangeDialog(claimedUser, newUid) {
-                                                    navigateToMain("student")
-                                                }
-                                            } else {
-                                                navigateToMain("student")
-                                            }
-                                        }
-                                    } else {
-                                        toggleLoading(false)
-                                        showErrorDialog("System Error", "Could not initialize your account.")
-                                        showLogin()
-                                    }
-                                }
+                                completeStudentAccountClaim(inputId, fakeEmail, pass, studentData, doc.reference)
                             } else {
-                                toggleLoading(false)
-                                showErrorDialog("Login Failed", "Invalid Username or Password.")
-                                showLogin()
+                                // Fallback: Check if student is an active user (e.g. custom authEmail or teacher-reset tempPassword)
+                                checkActiveStudentFallback(inputId, pass, defaultTask = task)
                             }
                         }.addOnFailureListener {
                             toggleLoading(false)
@@ -417,6 +393,216 @@ class AuthActivity : AppCompatActivity() {
                         }
                 }
             }
+        }
+    }
+
+    private fun completeStudentAccountClaim(
+        inputId: String,
+        email: String,
+        pass: String,
+        studentData: MutableMap<String, Any>,
+        pendingDocRef: com.google.firebase.firestore.DocumentReference
+    ) {
+        auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener { claimTask ->
+            if (claimTask.isSuccessful) {
+                val newUid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                studentData["authEmail"] = email
+                db.collection("users").document(newUid).set(studentData).addOnSuccessListener {
+                    pendingDocRef.delete()
+                    toggleLoading(false)
+                    val claimedUser = auth.currentUser
+                    if (claimedUser != null) {
+                        showForcePasswordChangeDialog(claimedUser, newUid) {
+                            navigateToMain("student")
+                        }
+                    } else {
+                        navigateToMain("student")
+                    }
+                }
+            } else {
+                val ex = claimTask.exception
+                if (ex is com.google.firebase.auth.FirebaseAuthUserCollisionException) {
+                    // Collision fallback: try signing into existing Auth user with pass
+                    auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener { reLoginTask ->
+                        if (reLoginTask.isSuccessful) {
+                            val recoveredUid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                            studentData["authEmail"] = email
+                            db.collection("users").document(recoveredUid).set(studentData).addOnSuccessListener {
+                                pendingDocRef.delete()
+                                toggleLoading(false)
+                                val claimedUser = auth.currentUser
+                                if (claimedUser != null) {
+                                    showForcePasswordChangeDialog(claimedUser, recoveredUid) {
+                                        navigateToMain("student")
+                                    }
+                                } else {
+                                    navigateToMain("student")
+                                }
+                            }
+                        } else {
+                            // Suffix a unique salt to email to guarantee clean claim
+                            val saltedEmail = "${inputId}.${System.currentTimeMillis() % 100000}@gabai.app"
+                            auth.createUserWithEmailAndPassword(saltedEmail, pass).addOnCompleteListener { retryTask ->
+                                if (retryTask.isSuccessful) {
+                                    val retryUid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                                    studentData["authEmail"] = saltedEmail
+                                    db.collection("users").document(retryUid).set(studentData).addOnSuccessListener {
+                                        pendingDocRef.delete()
+                                        toggleLoading(false)
+                                        val claimedUser = auth.currentUser
+                                        if (claimedUser != null) {
+                                            showForcePasswordChangeDialog(claimedUser, retryUid) {
+                                                navigateToMain("student")
+                                            }
+                                        } else {
+                                            navigateToMain("student")
+                                        }
+                                    }
+                                } else {
+                                    toggleLoading(false)
+                                    showErrorDialog("Account Conflict", "This student account encountered a credentials conflict. Please contact your adviser to reset your login.")
+                                    showLogin()
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    toggleLoading(false)
+                    showErrorDialog("System Error", "Could not initialize your account: ${ex?.localizedMessage ?: "Unknown error"}")
+                    showLogin()
+                }
+            }
+        }
+    }
+
+    private fun checkActiveStudentFallback(
+        inputId: String,
+        pass: String,
+        defaultTask: com.google.android.gms.tasks.Task<com.google.firebase.auth.AuthResult>
+    ) {
+        db.collection("users")
+            .whereEqualTo("role", "student")
+            .whereEqualTo("username", inputId)
+            .get()
+            .addOnSuccessListener { snaps ->
+                if (!snaps.isEmpty) {
+                    val studentDoc = snaps.documents[0]
+                    val customEmail = studentDoc.getString("authEmail") ?: ""
+                    val tempPassword = studentDoc.getString("tempPassword") ?: ""
+                    val directPassword = studentDoc.getString("password") ?: ""
+                    val defaultEmail = "$inputId@gabai.app"
+
+                    // Case A: Student has a custom/salted authEmail and typed their permanent password
+                    if (customEmail.isNotBlank() && customEmail != defaultEmail) {
+                        auth.signInWithEmailAndPassword(customEmail, pass).addOnCompleteListener { altTask ->
+                            if (altTask.isSuccessful) {
+                                val user = auth.currentUser
+                                if (user != null) {
+                                    val mustChange = studentDoc.getBoolean("mustChangePassword") ?: false
+                                    if (mustChange) {
+                                        toggleLoading(false)
+                                        showForcePasswordChangeDialog(user, user.uid) {
+                                            navigateToMain("student")
+                                        }
+                                    } else {
+                                        toggleLoading(false)
+                                        navigateToMain("student")
+                                    }
+                                }
+                            } else {
+                                checkTempPasswordReset(studentDoc, pass, tempPassword, directPassword)
+                            }
+                        }
+                    } else {
+                        checkTempPasswordReset(studentDoc, pass, tempPassword, directPassword)
+                    }
+                } else {
+                    toggleLoading(false)
+                    showErrorDialog("Login Failed", "Invalid Username or Password.")
+                    showLogin()
+                }
+            }
+            .addOnFailureListener {
+                toggleLoading(false)
+                showErrorDialog("Login Failed", defaultTask.exception?.localizedMessage ?: "Invalid credentials")
+                showLogin()
+            }
+    }
+
+    private fun checkTempPasswordReset(
+        studentDoc: com.google.firebase.firestore.DocumentSnapshot,
+        pass: String,
+        tempPassword: String,
+        directPassword: String
+    ) {
+        val matchesTemp = (tempPassword.isNotBlank() && tempPassword == pass) || (directPassword.isNotBlank() && directPassword == pass)
+        if (matchesTemp) {
+            // Teacher has reset student password! Issue fresh credentials and migrate
+            val studentData = studentDoc.data?.toMutableMap() ?: mutableMapOf()
+            val saltedEmail = "${studentDoc.getString("username") ?: "student"}.${System.currentTimeMillis() % 100000}@gabai.app"
+            val oldUid = studentDoc.id
+
+            auth.createUserWithEmailAndPassword(saltedEmail, pass).addOnCompleteListener { resetClaimTask ->
+                if (resetClaimTask.isSuccessful) {
+                    val newUid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                    studentData["authEmail"] = saltedEmail
+                    studentData["mustChangePassword"] = true
+                    studentData.remove("tempPassword")
+
+                    db.collection("users").document(newUid).set(studentData).addOnSuccessListener {
+                        // Migrate quiz history subcollection
+                        db.collection("users").document(oldUid).collection("quiz_history").get()
+                            .addOnSuccessListener { quizSnaps ->
+                                for (q in quizSnaps) {
+                                    db.collection("users").document(newUid).collection("quiz_history").document(q.id).set(q.data)
+                                    q.reference.delete()
+                                }
+                            }
+
+                        // Update classes joinedStudents
+                        val studentSchoolId = studentDoc.getString("schoolId") ?: ""
+                        if (studentSchoolId.isNotBlank()) {
+                            db.collection("classes").whereEqualTo("schoolId", studentSchoolId).get()
+                                .addOnSuccessListener { classSnaps ->
+                                    for (c in classSnaps) {
+                                        val joined = c.get("joinedStudents") as? List<*> ?: emptyList<Any>()
+                                        if (joined.contains(oldUid)) {
+                                            c.reference.update(
+                                                "joinedStudents",
+                                                FieldValue.arrayRemove(oldUid)
+                                            )
+                                            c.reference.update(
+                                                "joinedStudents",
+                                                FieldValue.arrayUnion(newUid)
+                                            )
+                                        }
+                                    }
+                                }
+                        }
+
+                        // Delete old user doc
+                        studentDoc.reference.delete()
+
+                        toggleLoading(false)
+                        val claimedUser = auth.currentUser
+                        if (claimedUser != null) {
+                            showForcePasswordChangeDialog(claimedUser, newUid) {
+                                navigateToMain("student")
+                            }
+                        } else {
+                            navigateToMain("student")
+                        }
+                    }
+                } else {
+                    toggleLoading(false)
+                    showErrorDialog("Temporary Login Error", resetClaimTask.exception?.localizedMessage ?: "Could not verify temporary password.")
+                    showLogin()
+                }
+            }
+        } else {
+            toggleLoading(false)
+            showErrorDialog("Login Failed", "Invalid Username or Password.")
+            showLogin()
         }
     }
 

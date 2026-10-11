@@ -530,8 +530,10 @@ class SubjectDetailActivity : AppCompatActivity() {
                                     val studentId = studentDoc.id
                                     val fName = studentDoc.getString("firstName") ?: ""
                                     val lName = studentDoc.getString("lastName") ?: ""
-                                    val studentName = "$fName $lName".trim().ifEmpty { studentDoc.getString("username") ?: "Student" }
-                                    val studentData = mapOf("id" to studentId, "name" to studentName)
+                                    val username = studentDoc.getString("username") ?: ""
+                                    val rawName = "$fName $lName".trim().ifEmpty { username.ifEmpty { "Student" } }
+                                    val displayName = if (username.isNotBlank()) "$rawName (@$username)" else rawName
+                                    val studentData = mapOf("id" to studentId, "name" to displayName)
 
                                     if (studentsByClass[sectionHeaderTitle]?.none { it["id"] == studentId } == true) {
                                         studentsByClass[sectionHeaderTitle]?.add(studentData)

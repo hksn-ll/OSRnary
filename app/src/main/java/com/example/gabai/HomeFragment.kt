@@ -427,9 +427,15 @@ class HomeFragment : Fragment() {
                     // ==========================================
                     // 🟢 STRICT CHECK: Enforce School Boundaries
                     // ==========================================
-                    if (teacherSchoolId != studentSchoolId) {
+                    if (teacherSchoolId.isBlank() || studentSchoolId.isBlank() || !teacherSchoolId.equals(studentSchoolId, ignoreCase = true)) {
                         GabAIUtils.hideGlobalLoading(requireContext())
-                        GabAIUtils.showSnackbar(requireContext(), "Invalid Code! This teacher belongs to a different school.")
+                        GabAIDialogs.showNoticeDialog(
+                            context = requireContext(),
+                            title = "School Boundary Alert 🚫",
+                            message = "This QR / Teacher Code belongs to a teacher from another school. You can only join classes within your own registered school.",
+                            buttonText = "Understood",
+                            badgeIcon = "🚫"
+                        )
                         return@addOnSuccessListener
                     }
                     // ==========================================
