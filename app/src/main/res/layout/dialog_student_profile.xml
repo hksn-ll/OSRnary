@@ -205,15 +205,72 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="Mastered Vocabulary"
+        android:text="Recall Mastery Benchmark"
         android:fontFamily="@font/font_plus_jakarta_sans"/>
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chip_group_mastered_words"
+    <LinearLayout
+        android:id="@+id/layout_max_combo_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="14dp"
         android:layout_marginBottom="16dp"
-        app:chipSpacing="6dp"
-        app:singleLine="false"/>
+        android:background="@drawable/bg_pill_translucent"
+        android:backgroundTint="#F8FAFC">
+
+        <TextView
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:gravity="center"
+            android:text="⚡"
+            android:textSize="22sp"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#EEF2FF"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MAX RECALL QUIZ COMBO"
+                android:textColor="#64748B"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:fontFamily="@font/font_plus_jakarta_sans"/>
+
+            <TextView
+                android:id="@+id/tv_profile_max_combo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0x Combo"
+                android:textColor="#4F46E5"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/font_plus_jakarta_sans"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_profile_combo_streak_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Peak Streak 🔥"
+            android:textColor="#D97706"
+            android:textStyle="bold"
+            android:textSize="11sp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#FEF3C7"
+            android:fontFamily="@font/font_plus_jakarta_sans"/>
+    </LinearLayout>
     <TextView
         android:textSize="13sp"
         android:textStyle="bold"

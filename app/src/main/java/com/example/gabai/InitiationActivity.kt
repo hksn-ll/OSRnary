@@ -119,12 +119,7 @@ class InitiationActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val isEnabled = getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE).getBoolean("bubble_enabled", false)
-        if (isEnabled) {
-            val intent = android.content.Intent(this, FloatingControlService::class.java)
-            intent.action = "ACTION_SHOW"
-            startService(intent)
-        }
+        // Defensive: Do not force-show floating bubble when navigating away
     }
 
     // ========================================================================

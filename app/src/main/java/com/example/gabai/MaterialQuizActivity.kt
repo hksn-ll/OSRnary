@@ -83,7 +83,6 @@ class MaterialQuizActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.btn_exit).visibility = View.GONE
         findViewById<Button>(R.id.btn_quiz_history).setOnClickListener {
             startActivity(Intent(this, QuizHistoryActivity::class.java))
             finish()
@@ -211,13 +210,23 @@ class MaterialQuizActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_restart).apply {
             text = "Back to Home"
             setOnClickListener {
-                val intent = Intent(this@MaterialQuizActivity, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-                startActivity(intent)
-                finish()
+                navigateBackToHome()
             }
         }
+    }
+
+    private fun navigateBackToHome() {
+        try {
+            val intentHide = Intent(this, FloatingControlService::class.java).apply {
+                action = "ACTION_HIDE"
+            }
+            startService(intentHide)
+        } catch (_: Exception) {}
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+        finish()
     }
 
     private fun loadQuizFromFirestore() {
@@ -464,11 +473,7 @@ class MaterialQuizActivity : AppCompatActivity() {
             text = if (isPassed) "Back to Home" else "Retry Quiz"
             setOnClickListener {
                 if (isPassed) {
-                    val intent = Intent(this@MaterialQuizActivity, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    }
-                    startActivity(intent)
-                    finish()
+                    navigateBackToHome()
                 } else {
                     val retryIntent = intent
                     finish()

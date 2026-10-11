@@ -12,8 +12,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.google.firebase.firestore.FirebaseFirestore
 
 class StudentProfileBottomSheet : BottomSheetDialogFragment() {
@@ -78,7 +76,8 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         val tvStatXp = view.findViewById<TextView>(R.id.tv_stat_xp)
         val tvStatStreak = view.findViewById<TextView>(R.id.tv_stat_streak)
         val tvStatLevel = view.findViewById<TextView>(R.id.tv_stat_level)
-        val chipGroupWords = view.findViewById<ChipGroup>(R.id.chip_group_mastered_words)
+        val tvMaxCombo = view.findViewById<TextView>(R.id.tv_profile_max_combo)
+        val tvComboBadge = view.findViewById<TextView>(R.id.tv_profile_combo_streak_badge)
         val layoutTrophies = view.findViewById<LinearLayout>(R.id.layout_trophy_showcase)
         val btnClose = view.findViewById<MaterialButton>(R.id.btn_close_sheet)
         val tvMonogram = view.findViewById<TextView>(R.id.tv_profile_monogram)
@@ -129,49 +128,52 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvMonogram)
         }
 
+        // Fetch student's peak combo streak from quiz history
         db.collection("users").document(studentId)
-            .collection("history")
-            .whereGreaterThanOrEqualTo("interval", 2)
-            .limit(6)
+            .collection("quiz_history")
             .get()
-            .addOnSuccessListener { wordSnaps ->
+            .addOnSuccessListener { quizSnaps ->
                 if (!isAdded) return@addOnSuccessListener
-                chipGroupWords.removeAllViews()
-                if (wordSnaps.isEmpty) {
-                    val emptyChip = Chip(requireContext()).apply {
-                        text = "🌱 No mastered words yet"
-                        chipBackgroundColor = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
-                        chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#E2E8F0"))
-                        chipStrokeWidth = resources.displayMetrics.density * 1f
-                        setTextColor(Color.parseColor("#64748B"))
-                        textSize = 12f
-                        isClickable = false
-                    }
-                    chipGroupWords.addView(emptyChip)
-                } else {
-                    for (wDoc in wordSnaps.documents) {
-                        val wordText = wDoc.getString("word")
-                        if (wordText != null) {
-                            addWordChip(chipGroupWords, wordText)
+                var peakCombo = 0
+                for (qDoc in quizSnaps.documents) {
+                    val docMax = qDoc.getLong("maxComboStreak")?.toInt() ?: 0
+                    if (docMax > peakCombo) peakCombo = docMax
+
+                    @Suppress("UNCHECKED_CAST")
+                    val items = qDoc.get("items") as? List<Map<String, Any>>
+                    if (items != null) {
+                        var run = 0
+                        for (item in items) {
+                            if (item["isCorrect"] == true) {
+                                run++
+                                if (run > peakCombo) peakCombo = run
+                            } else {
+                                run = 0
+                            }
                         }
                     }
+                }
+
+                if (peakCombo > 0) {
+                    tvMaxCombo.text = "${peakCombo}x Combo"
+                    if (peakCombo >= 5) {
+                        tvComboBadge.text = "👑 Combo Monarch"
+                        tvComboBadge.setTextColor(Color.parseColor("#047857"))
+                        tvComboBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                    } else {
+                        tvComboBadge.text = "🔥 Peak Streak"
+                        tvComboBadge.setTextColor(Color.parseColor("#D97706"))
+                        tvComboBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF3C7"))
+                    }
+                } else {
+                    tvMaxCombo.text = "0x Combo"
+                    tvComboBadge.text = "🌱 Getting Started"
+                    tvComboBadge.setTextColor(Color.parseColor("#64748B"))
+                    tvComboBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
                 }
             }
 
         loadAchievementsShowcase(layoutTrophies, studentId)
-    }
-
-    private fun addWordChip(group: ChipGroup, word: String) {
-        val chip = Chip(requireContext()).apply {
-            text = "📖 $word"
-            chipBackgroundColor = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
-            chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#E2E8F0"))
-            chipStrokeWidth = resources.displayMetrics.density * 1f
-            setTextColor(Color.parseColor("#334155"))
-            textSize = 12f
-            isClickable = false
-        }
-        group.addView(chip)
     }
 
     private fun loadAchievementsShowcase(container: LinearLayout, studentId: String) {

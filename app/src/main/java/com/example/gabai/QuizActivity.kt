@@ -191,19 +191,17 @@ class QuizActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            val isBubbleEnabled = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
-                .getBoolean("bubble_enabled", false)
-            if (isBubbleEnabled && FloatingControlService.isRunning) {
-                val intent = Intent(this, FloatingControlService::class.java).apply {
-                    action = "ACTION_SHOW"
-                }
-                startService(intent)
-            }
-        } catch (_: Exception) {}
+        // Defensive: Do NOT force-show or enable floating bubble overlay on exit/destroy
     }
 
     private fun navigateBackToHome() {
+        try {
+            // Defensive: ensure floating bubble is not shown when returning to Home
+            val intent = Intent(this, FloatingControlService::class.java).apply {
+                action = "ACTION_HIDE"
+            }
+            startService(intent)
+        } catch (_: Exception) {}
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
@@ -270,10 +268,6 @@ class QuizActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_restart).setOnClickListener {
-            navigateBackToHome()
-        }
-
-        findViewById<Button>(R.id.btn_exit).setOnClickListener {
             navigateBackToHome()
         }
 

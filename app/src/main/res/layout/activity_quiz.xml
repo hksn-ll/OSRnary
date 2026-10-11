@@ -1005,18 +1005,6 @@
                     android:textStyle="bold"
                     android:textSize="15sp"
                     android:layout_marginTop="10dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_exit"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text="Back to Menu"
-                    android:textColor="#64748B"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:layout_marginTop="6dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

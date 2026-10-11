@@ -354,6 +354,12 @@ class QuizHistoryActivity : AppCompatActivity() {
                     ).apply { setMargins(0, (14 * density).toInt(), 0, (24 * density).toInt()) }
                 }
                 GabAIUtils.addSpringPressEffect(btnBackHome) {
+                    try {
+                        val intentHide = Intent(this@QuizHistoryActivity, FloatingControlService::class.java).apply {
+                            action = "ACTION_HIDE"
+                        }
+                        startService(intentHide)
+                    } catch (_: Exception) {}
                     val intent = Intent(this@QuizHistoryActivity, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     }
