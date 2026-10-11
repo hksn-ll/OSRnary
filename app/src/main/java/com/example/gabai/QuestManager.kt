@@ -17,13 +17,14 @@ object QuestManager {
     private const val KEY_STREAK = "current_streak"
     private const val KEY_LAST_STREAK_DATE = "last_streak_date"
 
+    const val QUEST_SCAN = "quest_scan"       // Target: 1 Lens Scan
     const val QUEST_QUIZ = "quest_quiz"       // Target: 1 Quiz Session
-    const val QUEST_SAVE = "quest_save"       // Target: Save 2 Words
     const val QUEST_READ = "quest_read"       // Target: Open 1 PDF
+    const val QUEST_SAVE = "quest_save"       // Legacy / Unused in daily
 
     val questTargets = mapOf(
+        QUEST_SCAN to 1,
         QUEST_QUIZ to 1,
-        QUEST_SAVE to 2,
         QUEST_READ to 1
     )
 
@@ -40,8 +41,8 @@ object QuestManager {
                     .putString(KEY_LAST_DATE, legacyPrefs.getString(KEY_LAST_DATE, ""))
                     .putInt(KEY_STREAK, legacyPrefs.getInt(KEY_STREAK, 0))
                     .putString(KEY_LAST_STREAK_DATE, legacyPrefs.getString(KEY_LAST_STREAK_DATE, ""))
+                    .putInt(QUEST_SCAN, legacyPrefs.getInt(QUEST_SCAN, 0))
                     .putInt(QUEST_QUIZ, legacyPrefs.getInt(QUEST_QUIZ, 0))
-                    .putInt(QUEST_SAVE, legacyPrefs.getInt(QUEST_SAVE, 0))
                     .putInt(QUEST_READ, legacyPrefs.getInt(QUEST_READ, 0))
                     .apply()
             }
@@ -91,9 +92,10 @@ object QuestManager {
             }
 
             prefs.edit()
+                .putInt(QUEST_SCAN, 0)
                 .putInt(QUEST_QUIZ, 0)
-                .putInt(QUEST_SAVE, 0)
                 .putInt(QUEST_READ, 0)
+                .putInt(QUEST_SAVE, 0)
                 .putString(KEY_LAST_DATE, today)
                 .putInt(KEY_STREAK, newStreak)
                 .putString(KEY_LAST_STREAK_DATE, lastStreakDate ?: "")
@@ -107,8 +109,8 @@ object QuestManager {
         checkAndResetDaily(context)
 
         val prefs = getPrefs(context)
+        val target = questTargets[questKey] ?: return
         val currentProgress = prefs.getInt(questKey, 0)
-        val target = questTargets[questKey] ?: 1
 
         if (currentProgress < target) {
             val newProgress = currentProgress + 1

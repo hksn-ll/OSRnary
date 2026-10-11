@@ -552,4 +552,12 @@ class PdfViewerActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            findViewById<PDFView>(R.id.online_pdf_viewer)?.recycle()
+        } catch (_: Exception) {
+        }
+    }
 }

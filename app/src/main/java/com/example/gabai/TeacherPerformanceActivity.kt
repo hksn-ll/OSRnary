@@ -32,7 +32,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         val level: Int,
         var streak: Int = 0,
         var totalQuizzes: Int = 0,
-        var averageScore: Int = 0
+        var averageScore: Int = 0,
+        val photoUrl: String? = null
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,9 +118,9 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     val studentId = userDoc.id
                     val fName = userDoc.getString("firstName") ?: ""
                     val lName = userDoc.getString("lastName") ?: ""
-                    val level = userDoc.getLong("level")?.toInt() ?: 1
-
-                    val stats = StudentStats(studentId, "$fName $lName", level)
+                    val photoUrl = userDoc.getString("photoUrl")
+                    val studentLevel = userDoc.getLong("level")?.toInt() ?: 1
+                    val stats = StudentStats(studentId, "$fName $lName", studentLevel, photoUrl = photoUrl)
 
                     val quizDocs = db.collection("users").document(studentId)
                         .collection("quiz_history").get().await()
@@ -182,21 +183,39 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                             setPadding(p, p, p, p)
                         }
 
-                        // Squircle avatar
+                        // Squircle avatar with rounded border
                         val avatar = android.widget.FrameLayout(this@TeacherPerformanceActivity).apply {
-                            val size = (resources.displayMetrics.density * 42).toInt()
+                            val size = (resources.displayMetrics.density * 44).toInt()
                             layoutParams = LinearLayout.LayoutParams(size, size).apply {
                                 marginEnd = (resources.displayMetrics.density * 12).toInt()
                             }
-                            setBackgroundResource(R.drawable.bg_bento_purple)
+                            setBackgroundResource(R.drawable.bg_avatar_squircle_border)
+                            clipToOutline = true
                         }
-                        val avatarIcon = android.widget.ImageView(this@TeacherPerformanceActivity).apply {
-                            val iconSize = (resources.displayMetrics.density * 20).toInt()
-                            layoutParams = android.widget.FrameLayout.LayoutParams(iconSize, iconSize, android.view.Gravity.CENTER)
-                            setImageResource(R.drawable.ic_person)
-                            imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#5341CD"))
+                        val avatarMonogram = TextView(this@TeacherPerformanceActivity).apply {
+                            text = student.name.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
+                            textSize = 17f
+                            setTextColor(Color.parseColor("#5341CD"))
+                            typeface = fontJakarta ?: typeface
+                            setTypeface(typeface, Typeface.BOLD)
+                            layoutParams = android.widget.FrameLayout.LayoutParams(
+                                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                                android.view.Gravity.CENTER
+                            )
                         }
-                        avatar.addView(avatarIcon)
+                        val avatarPhoto = android.widget.ImageView(this@TeacherPerformanceActivity).apply {
+                            layoutParams = android.widget.FrameLayout.LayoutParams(
+                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+                            )
+                            scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+                            visibility = View.GONE
+                        }
+                        avatar.addView(avatarMonogram)
+                        avatar.addView(avatarPhoto)
+
+                        GabAIUtils.loadAvatarImage(student.photoUrl, avatarPhoto, avatarMonogram)
 
                         // Middle column
                         val col = LinearLayout(this@TeacherPerformanceActivity).apply {
@@ -241,7 +260,15 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                         card.addView(row)
 
                         GabAIUtils.addSpringPressEffect(card) {
-                            GabAIUtils.showSnackbar(this@TeacherPerformanceActivity, "${student.name} • Level ${student.level}")
+                            val sheet = StudentProfileBottomSheet.newInstance(
+                                studentId = student.uid,
+                                studentName = student.name,
+                                grade = grade,
+                                section = sectionName,
+                                level = student.level,
+                                xp = student.totalQuizzes * 25
+                            )
+                            sheet.show(supportFragmentManager, "StudentProfileSheet")
                         }
 
                         container.addView(card)

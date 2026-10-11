@@ -3,19 +3,32 @@ package com.example.gabai
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.net.Uri
+import android.util.LruCache
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
+import java.io.File
+import java.io.FileOutputStream
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 object GabAIUtils {
 
@@ -490,13 +503,185 @@ object GabAIUtils {
     /**
      * Determines whether context surrounding a selection is a phrase, sentence, or passage.
      */
-    fun classifyContextLabel(contextText: String): String {
+    fun classifyContextLabel(contextText: String, targetSpanType: TextSpanType = TextSpanType.WORD): String {
         val clean = contextText.trim().trim('.', '!', '?', ':', ';', ',', '"', '\'', '-', '—')
         val words = clean.split(Regex("\\s+")).filter { it.isNotBlank() }
+        val hasTerminalPunct = contextText.trim().let { it.endsWith(".") || it.endsWith("?") || it.endsWith("!") }
+        val isTrueSentence = words.size >= 8 || (words.size >= 5 && hasTerminalPunct)
+
         return when {
             words.size > 25 -> "Passage"
-            words.size in 1..7 -> "Phrase"
-            else -> "Sentence"
+            isTrueSentence -> "Sentence"
+            targetSpanType == TextSpanType.PHRASE -> "Context"
+            targetSpanType == TextSpanType.WORD -> if (words.size in 2..7) "Context" else "Sentence"
+            else -> "Context"
         }
+    }
+
+    private val avatarMemoryCache: LruCache<String, Bitmap> by lazy {
+        val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
+        val cacheSize = (maxMemory / 8).coerceAtLeast(1024)
+        object : LruCache<String, Bitmap>(cacheSize) {
+            override fun sizeOf(key: String, bitmap: Bitmap): Int {
+                return (bitmap.byteCount / 1024).coerceAtLeast(1)
+            }
+        }
+    }
+
+    private fun getAvatarDiskCacheFile(context: Context, url: String): File {
+        val cacheDir = File(context.cacheDir, "avatar_cache").apply { if (!exists()) mkdirs() }
+        val safeHash = url.hashCode().toString().replace("-", "n")
+        return File(cacheDir, "avatar_$safeHash.jpg")
+    }
+
+    fun invalidateAvatarCache(context: Context, url: String?) {
+        if (url.isNullOrBlank()) return
+        avatarMemoryCache.remove(url)
+        try {
+            val diskFile = getAvatarDiskCacheFile(context, url)
+            if (diskFile.exists()) diskFile.delete()
+        } catch (_: Exception) {}
+    }
+
+    fun loadAvatarImage(url: String?, imageView: ImageView, fallbackView: View? = null) {
+        if (url.isNullOrBlank()) {
+            imageView.visibility = View.GONE
+            fallbackView?.visibility = View.VISIBLE
+            return
+        }
+
+        // 🟢 ZERO-LATENCY SYNCHRONOUS MEMORY CACHE HIT (0ms, no flicker)
+        val memoryHit = avatarMemoryCache.get(url)
+        if (memoryHit != null) {
+            imageView.setImageBitmap(memoryHit)
+            imageView.visibility = View.VISIBLE
+            fallbackView?.visibility = View.GONE
+            return
+        }
+
+        val context = imageView.context
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 🟢 DISK CACHE CHECK
+                val diskFile = getAvatarDiskCacheFile(context, url)
+                if (diskFile.exists() && diskFile.length() > 0) {
+                    val diskBitmap = BitmapFactory.decodeFile(diskFile.absolutePath)
+                    if (diskBitmap != null) {
+                        avatarMemoryCache.put(url, diskBitmap)
+                        withContext(Dispatchers.Main) {
+                            imageView.setImageBitmap(diskBitmap)
+                            imageView.visibility = View.VISIBLE
+                            fallbackView?.visibility = View.GONE
+                        }
+                        return@launch
+                    }
+                }
+
+                if (url.startsWith("content://") || url.startsWith("file://")) {
+                    val cr = context.contentResolver
+                    val bitmap = try {
+                        cr.openInputStream(Uri.parse(url))?.use { stream ->
+                            BitmapFactory.decodeStream(stream)
+                        }
+                    } catch (_: Throwable) {
+                        null
+                    }
+                    if (bitmap != null) {
+                        avatarMemoryCache.put(url, bitmap)
+                    }
+                    withContext(Dispatchers.Main) {
+                        if (bitmap != null) {
+                            imageView.setImageBitmap(bitmap)
+                            imageView.visibility = View.VISIBLE
+                            fallbackView?.visibility = View.GONE
+                        } else {
+                            imageView.visibility = View.GONE
+                            fallbackView?.visibility = View.VISIBLE
+                        }
+                    }
+                    return@launch
+                }
+
+                val resolvedUrl = if (url.contains("drive.google.com")) {
+                    val fileId = when {
+                        url.contains("id=") -> url.substringAfter("id=").substringBefore("&")
+                        url.contains("/d/") -> url.substringAfter("/d/").substringBefore("/")
+                        else -> null
+                    }
+                    if (!fileId.isNullOrBlank()) "https://lh3.googleusercontent.com/d/$fileId" else url
+                } else {
+                    url
+                }
+
+                val req = Request.Builder().url(resolvedUrl).build()
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                    .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                    .build()
+                val resp = client.newCall(req).execute()
+                if (resp.isSuccessful) {
+                    val bytes = resp.body?.bytes()
+                    if (bytes != null && bytes.isNotEmpty()) {
+                        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        if (bitmap != null) {
+                            avatarMemoryCache.put(url, bitmap)
+                            try {
+                                diskFile.outputStream().use { it.write(bytes) }
+                            } catch (_: Exception) {}
+
+                            withContext(Dispatchers.Main) {
+                                imageView.setImageBitmap(bitmap)
+                                imageView.visibility = View.VISIBLE
+                                fallbackView?.visibility = View.GONE
+                            }
+                            return@launch
+                        }
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    imageView.visibility = View.GONE
+                    fallbackView?.visibility = View.VISIBLE
+                }
+            } catch (_: Exception) {
+                withContext(Dispatchers.Main) {
+                    imageView.visibility = View.GONE
+                    fallbackView?.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
+    /**
+     * Sanitizes raw vocabulary strings extracted from OCR, dictionaries, or reading texts:
+     * - Strips quotation marks ("Daily Routine" -> Daily Routine, 'word' -> word)
+     * - Strips phonetic brackets (/word/, [word] -> word)
+     * - Strips syllabification dots and bullets (dai·ly rou·tine -> daily routine)
+     * - Strips IPA stress marks (ˈdeɪli -> deɪli)
+     * - Strips leading/trailing punctuation (. , ! ? ; : ( ) etc.)
+     * - Normalizes multiple spaces and trims
+     */
+    fun sanitizeVocabularyWord(raw: String?): String {
+        if (raw.isNullOrBlank()) return ""
+        var s = raw.trim()
+
+        // 1. Strip enclosing or stray quotation marks
+        s = s.replace(Regex("[\"“”'‘’`«»]"), "")
+
+        // 2. Strip phonetic brackets and slashes
+        s = s.replace(Regex("[\\[\\]/\\\\]"), "")
+
+        // 3. Strip syllable dividers, middle dots, bullets
+        s = s.replace(Regex("[·•‧]"), "")
+
+        // 4. Strip phonetic stress marks
+        s = s.replace(Regex("[ˈˌˈˏˊˋ]"), "")
+
+        // 5. Strip leading and trailing non-alphanumeric punctuation (keep hyphens inside compound words)
+        s = s.replace(Regex("^[\\s\\p{Punct}&&[^-]]+|[\\s\\p{Punct}&&[^-]]+$"), "")
+
+        // 6. Normalize multiple internal whitespaces to a single space
+        s = s.replace(Regex("\\s+"), " ").trim()
+
+        return s
     }
 }

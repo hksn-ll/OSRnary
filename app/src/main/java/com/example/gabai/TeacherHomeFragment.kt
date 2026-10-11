@@ -16,10 +16,16 @@ class TeacherHomeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTeacherHomeBinding.inflate(inflater, container, false)
+        binding.btnCreateClassQuick.visibility = View.GONE
 
         setupButtons()
         loadEducatorProfileAndMetrics()
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadEducatorProfileAndMetrics()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,7 +86,7 @@ class TeacherHomeFragment : Fragment() {
 
         // 2. Classes & Total Enrolled Learners
         db.collection("classes")
-            .whereEqualTo("teacherId", uid)
+            .whereArrayContains("teacherIds", uid)
             .get()
             .addOnSuccessListener { snapshots ->
                 if (_binding != null && isAdded) {
@@ -88,11 +94,26 @@ class TeacherHomeFragment : Fragment() {
                     binding.tvMetricClasses.text = classCount.toString()
 
                     var totalStudents = 0
+                    var hasAdvisoryClass = false
                     for (doc in snapshots.documents) {
                         val joined = doc.get("joinedStudents") as? List<*>
                         totalStudents += joined?.size ?: 0
+
+                        val isAdviser = doc.getBoolean("isAdviser") ?: true
+                        val teacherId = doc.getString("teacherId") ?: ""
+                        if (isAdviser && (teacherId == uid || teacherId.isEmpty())) {
+                            hasAdvisoryClass = true
+                        }
                     }
                     binding.tvMetricStudents.text = totalStudents.toString()
+
+                    val shouldShow = !hasAdvisoryClass
+                    if (binding.btnCreateClassQuick.visibility != (if (shouldShow) View.VISIBLE else View.GONE)) {
+                        binding.btnCreateClassQuick.visibility = if (shouldShow) View.VISIBLE else View.GONE
+                        if (shouldShow) {
+                            GabAIUtils.animateCascade(listOf(binding.btnCreateClassQuick), baseDelay = 0L, startDelayOffset = 0L)
+                        }
+                    }
                 }
             }
 
@@ -159,17 +180,20 @@ class TeacherHomeFragment : Fragment() {
     private fun openClassPerformance() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+        val act = activity ?: return
 
-        GabAIUtils.showGlobalLoading(requireActivity())
+        GabAIUtils.showGlobalLoading(act)
 
         db.collection("classes")
-            .whereEqualTo("teacherId", uid)
+            .whereArrayContains("teacherIds", uid)
             .get()
             .addOnSuccessListener { snapshots ->
-                GabAIUtils.hideGlobalLoading(requireActivity())
+                val currentAct = activity ?: return@addOnSuccessListener
+                GabAIUtils.hideGlobalLoading(currentAct)
+                val currentCtx = context ?: return@addOnSuccessListener
 
                 if (snapshots.isEmpty) {
-                    GabAIUtils.showSnackbar(requireContext(), "Please create a class section first!")
+                    GabAIUtils.showSnackbar(currentCtx, "No classes found to view performance.")
                     return@addOnSuccessListener
                 }
 
@@ -180,11 +204,11 @@ class TeacherHomeFragment : Fragment() {
                     val classNames = snapshots.documents.map {
                         val cName = it.getString("className") ?: "Class"
                         val grade = it.getString("grade") ?: ""
-                        if (grade.isNotEmpty()) "$grade - $cName" else cName
+                        if (grade.isNotEmpty() && !cName.contains(grade)) "$grade - $cName" else cName
                     }
 
                     GabAIDialogs.showSelectionDialog(
-                        context = requireContext(),
+                        context = currentCtx,
                         title = "Select Class to View Performance",
                         subtitle = "Choose which section metrics you want to inspect.",
                         items = classNames,
@@ -197,13 +221,14 @@ class TeacherHomeFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                GabAIUtils.hideGlobalLoading(requireActivity())
-                GabAIUtils.showSnackbar(requireContext(), "Failed to load classes: ${e.message}")
+                activity?.let { GabAIUtils.hideGlobalLoading(it) }
+                context?.let { GabAIUtils.showSnackbar(it, "Failed to load classes: ${e.message}") }
             }
     }
 
     private fun launchPerformanceForClass(classId: String, className: String, sectionName: String, schoolId: String, grade: String) {
-        val perfIntent = Intent(requireContext(), TeacherPerformanceActivity::class.java).apply {
+        val ctx = context ?: return
+        val perfIntent = Intent(ctx, TeacherPerformanceActivity::class.java).apply {
             putExtra("CLASS_ID", classId)
             putExtra("CLASS_NAME", className)
             putExtra("SECTION_NAME", sectionName)

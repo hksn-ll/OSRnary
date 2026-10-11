@@ -348,7 +348,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Finish these tasks to unlock your grade rank:"
+                                android:text="Complete your orientation quests to unlock your grade badge:"
                                 android:textColor="#64748B"
                                 android:textSize="12sp"
                                 android:fontFamily="@font/font_nunito_sans" />
@@ -361,7 +361,7 @@
                             android:background="@drawable/bg_tag_k12"
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="4dp"
-                            android:text="1 / 8 Done"
+                            android:text="1 of 8 Unlocked"
                             android:textColor="#5341CD"
                             android:textSize="12sp"
                             android:fontFamily="@font/font_plus_jakarta_sans"
@@ -389,10 +389,11 @@
                                 android:id="@+id/indicator_quest_bubble"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
                                 android:id="@+id/quest_bubble"
@@ -416,9 +417,9 @@
                                 android:contentDescription="@null" />
                         </LinearLayout>
 
-                        <!-- Item 2: Read -->
+                        <!-- Item 2: Bubble Scan -->
                         <LinearLayout
-                            android:id="@+id/row_quest_read"
+                            android:id="@+id/row_quest_bubble_scan"
                             android:layout_width="match_parent"
                             android:layout_height="44dp"
                             android:layout_marginBottom="6dp"
@@ -428,21 +429,22 @@
                             android:paddingHorizontal="10dp">
 
                             <ImageView
-                                android:id="@+id/indicator_quest_read"
+                                android:id="@+id/indicator_quest_bubble_scan"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
-                                android:id="@+id/quest_read"
+                                android:id="@+id/quest_bubble_scan"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="10dp"
-                                android:text="Read the 4 Required Materials"
+                                android:text="Scan Text with Floating Bubble"
                                 android:textColor="#161D1F"
                                 android:textSize="13sp"
                                 android:fontFamily="@font/font_nunito_sans"
@@ -450,7 +452,7 @@
                                 android:ellipsize="end" />
 
                             <ImageView
-                                android:id="@+id/badge_quest_read"
+                                android:id="@+id/badge_quest_bubble_scan"
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:src="@drawable/ic_verified_teal"
@@ -473,10 +475,11 @@
                                 android:id="@+id/indicator_quest_test"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
                                 android:id="@+id/quest_test"
@@ -484,7 +487,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="10dp"
-                                android:text="Pass the Initiation Test"
+                                android:text="Pass the Initiation Trials"
                                 android:textColor="#161D1F"
                                 android:textSize="13sp"
                                 android:fontFamily="@font/font_nunito_sans"
@@ -498,7 +501,7 @@
                                 android:background="@drawable/bg_tag_quiz_req"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
-                                android:text="Quiz Required"
+                                android:text="Trials Required"
                                 android:textColor="#A31E79"
                                 android:textSize="10sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
@@ -520,10 +523,11 @@
                                 android:id="@+id/indicator_quest_scan"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
                                 android:id="@+id/quest_scan"
@@ -562,10 +566,11 @@
                                 android:id="@+id/indicator_quest_save"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
                                 android:id="@+id/quest_save"
@@ -603,10 +608,11 @@
                                 android:id="@+id/indicator_quest_history"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
                                 android:id="@+id/quest_history"
@@ -644,10 +650,11 @@
                                 android:id="@+id/indicator_quest_detail"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
                                 android:id="@+id/quest_detail"
@@ -685,10 +692,11 @@
                                 android:id="@+id/indicator_quest_library"
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
-                                android:background="@drawable/bg_badge_rose"
-                                android:padding="4dp"
-                                android:src="@drawable/ic_close_bold"
-                                android:contentDescription="@null" />
+                                android:background="@drawable/bg_quest_indicator_pending"
+                                android:padding="3dp"
+                                android:src="@drawable/ic_radio_button_unchecked"
+                                android:contentDescription="Pending task"
+                                app:tint="#94A3B8" />
 
                             <TextView
                                 android:id="@+id/quest_library"

@@ -11,9 +11,6 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import android.media.ExifInterface
 import android.graphics.Matrix
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 
 import android.os.Build
 import android.view.WindowManager
@@ -109,13 +106,6 @@ class ScanResultActivity : AppCompatActivity() {
 
         startHudAnimations()
         startLaserSweep()
-
-        // --- QUEST TRIGGER: SCAN ---
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            FirebaseFirestore.getInstance().collection("users").document(uid)
-                .update("quests_completed", FieldValue.arrayUnion("scan"))
-        }
     }
 
     private var laserAnimator: android.animation.ValueAnimator? = null
@@ -348,9 +338,11 @@ class ScanResultActivity : AppCompatActivity() {
         GabAIUtils.performHaptic(btnAnalyze, android.view.HapticFeedbackConstants.CONFIRM)
 
         if (currentSelectedText.isNotEmpty()) {
+            val scanSource = intent.getStringExtra("SCAN_SOURCE") ?: "camera"
             val intent = android.content.Intent(this, OverviewActivity::class.java)
             intent.putExtra("SELECTED_TEXT", currentSelectedText)
             intent.putExtra("SURROUNDING_SENTENCE", currentSurroundingSentence)
+            intent.putExtra("SCAN_SOURCE", scanSource)
             startActivity(intent)
         }
     }

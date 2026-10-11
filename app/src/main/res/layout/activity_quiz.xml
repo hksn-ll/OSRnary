@@ -33,16 +33,16 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="12dp">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btn_back"
                     style="@style/Widget.Material3.CardView.Filled"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="21dp"
+                    app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
                     app:strokeColor="#E2E8F0"
@@ -56,19 +56,36 @@
                         app:tint="#161D1F" />
                 </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/quiz_header"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="14dp"
-                    android:text="Recall Practice"
-                    android:textColor="#161D1F"
-                    android:textSize="20sp"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:textStyle="bold"
-                    android:singleLine="true"
-                    android:ellipsize="end" />
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/quiz_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Recall Practice"
+                        android:textColor="#161D1F"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold"
+                        android:singleLine="true"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/tv_fuel_pods"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="⚡ ⚡ ⚡ Practice Energy"
+                        android:textColor="#D97706"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <!-- Combo Streak Badge Pill -->
                 <TextView
@@ -83,7 +100,7 @@
                     android:fontFamily="@font/font_plus_jakarta_sans"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="5dp"
-                    android:text="🔥 2x Combo"
+                    android:text="⚡ 1x Combo"
                     android:visibility="gone"
                     tools:visibility="visible" />
             </LinearLayout>
@@ -96,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="14dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -120,7 +137,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/font_plus_jakarta_sans"
-                            android:text="Question 1 of 10"
+                            android:text="Question 1 of 5"
                             android:textColor="#5341CD"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -136,21 +153,140 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:text="10%"
+                        android:text="20%"
                         android:textColor="#94A3B8"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_segmented_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:orientation="horizontal"
+                    android:weightSum="5">
+
+                    <View
+                        android:id="@+id/pill_seg_1"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#6C5CE7" />
+
+                    <View
+                        android:id="@+id/pill_seg_2"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#E2E8F0" />
+
+                    <View
+                        android:id="@+id/pill_seg_3"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#E2E8F0" />
+
+                    <View
+                        android:id="@+id/pill_seg_4"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#E2E8F0" />
+
+                    <View
+                        android:id="@+id/pill_seg_5"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#E2E8F0" />
                 </LinearLayout>
 
                 <ProgressBar
                     android:id="@+id/progress_quiz"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="7dp"
-                    android:max="10"
+                    android:layout_height="0dp"
+                    android:max="5"
                     android:progress="1"
-                    android:progressTint="#6C5CE7"
-                    android:progressBackgroundTint="#E2E8F0" />
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Lifelines Strip -->
+            <LinearLayout
+                android:id="@+id/layout_lifelines"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cross_out"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#FFFFFF"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="0dp"
+                    android:text="✏️ Cross-Out"
+                    android:textColor="#64748B"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="#CBD5E1"
+                    app:strokeWidth="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_double_down"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#ECFDF5"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="0dp"
+                    android:text="🛡️ Safe (1x)"
+                    android:textColor="#059669"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="#A7F3D0"
+                    app:strokeWidth="1dp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_show_clue"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:backgroundTint="#EEF2FF"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="0dp"
+                    android:text="💡 Clue"
+                    android:textColor="#6366F1"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="#E0E7FF"
+                    app:strokeWidth="1dp" />
             </LinearLayout>
 
             <!-- ========================================================= -->
@@ -161,7 +297,7 @@
                 style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="18dp"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1.5dp"
@@ -205,7 +341,7 @@
                             android:backgroundTint="#EEF2FF"
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="4dp"
-                            android:text="VOCABULARY CHALLENGE"
+                            android:text="SENTENCE CLOZE"
                             android:textColor="#5341CD"
                             android:textSize="11sp"
                             android:fontFamily="@font/font_plus_jakarta_sans"
@@ -222,7 +358,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/font_plus_jakarta_sans"
-                            android:text="CLOZE"
+                            android:text="FILL IN THE BLANK"
                             android:textColor="#94A3B8"
                             android:textSize="11sp"
                             android:textStyle="bold"
@@ -235,35 +371,65 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
-                        android:layout_marginBottom="14dp"
+                        android:layout_marginBottom="10dp"
                         android:fontFamily="@font/font_plus_jakarta_sans"
                         android:lineSpacingExtra="5dp"
-                        android:text="Loading definition..."
+                        android:text="Loading practice question..."
                         android:textColor="#0F172A"
                         android:textSize="17.5sp"
                         android:textStyle="bold" />
 
+                    <LinearLayout
+                        android:id="@+id/layout_cloze_slot"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/bg_cloze_slot"
+                        android:gravity="center"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="10dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/tv_cloze_slot_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="[ Tap an option below to fill ]"
+                            android:textColor="#64748B"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/view_guidance_divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="#E2E8F0" />
+
                     <!-- Bottom Context Clue Guidance Strip -->
                     <LinearLayout
+                        android:id="@+id/layout_guidance_strip"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingTop="12dp"
-                        android:background="@drawable/bg_divider_light">
+                        android:orientation="horizontal">
 
                         <View
-                            android:layout_width="5dp"
-                            android:layout_height="5dp"
+                            android:layout_width="6dp"
+                            android:layout_height="6dp"
                             android:background="@drawable/bg_level_pill"
                             android:backgroundTint="#6366F1"
                             android:layout_marginEnd="6dp" />
 
                         <TextView
+                            android:id="@+id/tv_guidance_tip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/font_nunito_sans"
-                            android:text="Select the word that logically fits the sentence clue."
+                            android:text="Look for context clues in the surrounding words."
                             android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -284,8 +450,8 @@
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="60dp"
-                    android:layout_marginBottom="10dp"
+                    android:minHeight="58dp"
+                    android:layout_marginBottom="9dp"
                     app:cornerRadius="18dp"
                     app:strokeWidth="1.5dp"
                     app:strokeColor="#EDF2F7"
@@ -306,8 +472,8 @@
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="60dp"
-                    android:layout_marginBottom="10dp"
+                    android:minHeight="58dp"
+                    android:layout_marginBottom="9dp"
                     app:cornerRadius="18dp"
                     app:strokeWidth="1.5dp"
                     app:strokeColor="#EDF2F7"
@@ -328,8 +494,8 @@
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="60dp"
-                    android:layout_marginBottom="10dp"
+                    android:minHeight="58dp"
+                    android:layout_marginBottom="9dp"
                     app:cornerRadius="18dp"
                     app:strokeWidth="1.5dp"
                     app:strokeColor="#EDF2F7"
@@ -350,8 +516,8 @@
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="60dp"
-                    android:layout_marginBottom="14dp"
+                    android:minHeight="58dp"
+                    android:layout_marginBottom="12dp"
                     app:cornerRadius="18dp"
                     app:strokeWidth="1.5dp"
                     app:strokeColor="#EDF2F7"
@@ -366,6 +532,272 @@
                     android:paddingVertical="14dp"
                     app:rippleColor="#1A6C5CE7"
                     android:text="Option 4" />
+            </LinearLayout>
+
+            <!-- Impostor Container -->
+            <LinearLayout
+                android:id="@+id/layout_impostor_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="Which sentence uses the word correctly?"
+                    android:textColor="#475569"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_impostor_a"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1.5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#EEF2FF"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:gravity="center"
+                            android:text="A"
+                            android:textColor="#5341CD"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_impostor_a_text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingExtra="3dp"
+                            android:text="Sentence A description..."
+                            android:textColor="#1E293B"
+                            android:textSize="14.5sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_impostor_b"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1.5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#EEF2FF"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:gravity="center"
+                            android:text="B"
+                            android:textColor="#5341CD"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_impostor_b_text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingExtra="3dp"
+                            android:text="Sentence B description..."
+                            android:textColor="#1E293B"
+                            android:textSize="14.5sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Rapid Match Container -->
+            <LinearLayout
+                android:id="@+id/layout_rapid_match"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rapid_w1"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FFFFFF"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:gravity="center"
+                        android:minHeight="68dp"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="10dp"
+                        android:text="Word 1"
+                        android:textColor="#1E293B"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#CBD5E1"
+                        app:strokeWidth="1.5dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rapid_d1"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1.3"
+                        android:backgroundTint="#FFFFFF"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:gravity="start|center_vertical"
+                        android:minHeight="68dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="Meaning A"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#CBD5E1"
+                        app:strokeWidth="1.5dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rapid_w2"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FFFFFF"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:gravity="center"
+                        android:minHeight="68dp"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="10dp"
+                        android:text="Word 2"
+                        android:textColor="#1E293B"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#CBD5E1"
+                        app:strokeWidth="1.5dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rapid_d2"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1.3"
+                        android:backgroundTint="#FFFFFF"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:gravity="start|center_vertical"
+                        android:minHeight="68dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="Meaning B"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#CBD5E1"
+                        app:strokeWidth="1.5dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rapid_w3"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FFFFFF"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:gravity="center"
+                        android:minHeight="68dp"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="10dp"
+                        android:text="Word 3"
+                        android:textColor="#1E293B"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#CBD5E1"
+                        app:strokeWidth="1.5dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rapid_d3"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1.3"
+                        android:backgroundTint="#FFFFFF"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:gravity="start|center_vertical"
+                        android:minHeight="68dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="10dp"
+                        android:text="Meaning C"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#CBD5E1"
+                        app:strokeWidth="1.5dp" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- ========================================================= -->
@@ -484,6 +916,7 @@
                 android:padding="26dp">
 
                 <TextView
+                    android:id="@+id/tv_result_emoji"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🏆"
@@ -491,10 +924,11 @@
                     android:layout_marginBottom="8dp" />
 
                 <TextView
+                    android:id="@+id/tv_result_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Quiz Complete!"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:fontFamily="@font/font_plus_jakarta_sans"
                     android:textStyle="bold"
                     android:textColor="#161D1F" />
@@ -503,27 +937,60 @@
                     android:id="@+id/final_score_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Score: 0 / 5"
+                    android:text="Score: 5 / 5"
                     android:textSize="16sp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:fontFamily="@font/font_plus_jakarta_sans"
                     android:textColor="#6C5CE7"
                     android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layout_xp_summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#F8FAFC"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:id="@+id/tv_xp_total"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="+65 XP Earned!"
+                        android:textColor="#059669"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_xp_details"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:text="Base: +50 XP • Combo Bonus: +15 XP"
+                        android:textColor="#64748B"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_restart"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
-                    android:text="Try Again"
+                    android:text="Practice Again"
                     app:cornerRadius="16dp"
                     android:backgroundTint="#6C5CE7"
                     android:textColor="#FFFFFF"
                     android:fontFamily="@font/font_plus_jakarta_sans"
                     android:textStyle="bold"
                     android:textSize="15sp"
-                    android:layout_marginTop="28dp" />
+                    android:layout_marginTop="22dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_quiz_history"

@@ -34,6 +34,37 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Auto-detect and configure ADB in PATH if missing
+if (-not (Get-Command adb -ErrorAction SilentlyContinue)) {
+    $candidates = @(
+        "C:\Users\plaza\.gemini\antigravity\brain\8cb4c754-d4cc-4573-8bd4-ce602215f942\scratch\android-sdk\platform-tools",
+        "C:\Users\plaza\AppData\Local\Android\Sdk\platform-tools"
+    )
+    foreach ($cand in $candidates) {
+        if (Test-Path "$cand\adb.exe") {
+            $env:PATH = "$cand;" + $env:PATH
+            break
+        }
+    }
+}
+
+# Auto-detect JAVA_HOME if needed
+if (-not $env:JAVA_HOME -or -not (Test-Path "$env:JAVA_HOME\bin\javac.exe")) {
+    $javaCandidates = @(
+        "C:\Users\plaza\.gradle\jdks\jetbrains_s_r_o_-21-amd64-windows.2",
+        "C:\Program Files\Java\jdk-27",
+        "C:\Program Files\Java\jdk-21",
+        "C:\Program Files\Eclipse Adoptium\jdk-17.0.14.7-hotspot",
+        "C:\Program Files\Java\jdk-17"
+    )
+    foreach ($jcand in $javaCandidates) {
+        if (Test-Path "$jcand\bin\javac.exe") {
+            $env:JAVA_HOME = $jcand
+            break
+        }
+    }
+}
+
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "   GabAI Wireless ADB Build & Deploy" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
@@ -57,7 +88,8 @@ $deviceList = @()
 foreach ($line in $rawDevices) {
     $parts = $line -split "\s+"
     $id = $parts[0]
-    $model = (adb -s $id shell getprop ro.product.model 2>$null).Trim()
+    $rawModel = adb -s $id shell getprop ro.product.model 2>$null
+    $model = if ($rawModel) { $rawModel.Trim() } else { "Unknown Device" }
     if (-not $model) { $model = "Unknown Device" }
     $deviceList += [PSCustomObject]@{
         Id    = $id
@@ -218,7 +250,7 @@ Write-Host "[+] Found compiled APK: $($apk.Name) ($([math]::Round($apk.Length / 
 
 # 6. Install to target device(s)
 $package = "com.example.gabai"
-$activity = "$package/.MainActivity"
+$activity = "$package/.SplashActivity"
 
 foreach ($target in $targetDevices) {
     Write-Host "`n[*] Installing to $($target.Model) ($($target.Id))..." -ForegroundColor Yellow

@@ -2,14 +2,17 @@ package com.example.gabai
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.json.JSONArray
@@ -48,6 +51,18 @@ class MaterialQuizActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.quiz_header).text = materialTitle
         findViewById<TextView>(R.id.question_text).text = "Checking your records..."
         findViewById<View>(R.id.options_container).visibility = View.GONE
+
+        // Hide vocabulary-quest-specific UI views that do not belong to reading comprehension
+        findViewById<View>(R.id.layout_lifelines)?.visibility = View.GONE
+        findViewById<View>(R.id.layout_segmented_progress)?.visibility = View.GONE
+        findViewById<View>(R.id.tv_fuel_pods)?.visibility = View.GONE
+        findViewById<View>(R.id.tv_combo_streak)?.visibility = View.GONE
+        findViewById<View>(R.id.layout_impostor_container)?.visibility = View.GONE
+        findViewById<View>(R.id.layout_rapid_match)?.visibility = View.GONE
+        findViewById<View>(R.id.layout_cloze_slot)?.visibility = View.GONE
+        findViewById<View>(R.id.card_explanation)?.visibility = View.GONE
+        findViewById<View>(R.id.btn_next_question)?.visibility = View.GONE
+        findViewById<View>(R.id.progress_quiz)?.visibility = View.VISIBLE
 
         // Header back button with safe exit confirmation
         findViewById<View>(R.id.btn_back)?.let { btn ->
@@ -200,7 +215,7 @@ class MaterialQuizActivity : AppCompatActivity() {
     }
 
     private fun loadQuizFromFirestore() {
-        findViewById<TextView>(R.id.question_text).text = "Loading quiz pool..."
+        findViewById<TextView>(R.id.question_text).text = "Loading reading quiz..."
         db.collection("library_materials").document(materialId).get()
             .addOnSuccessListener { doc ->
                 val jsonStr = doc.getString("quiz_pool_json") ?: "[]"
@@ -212,12 +227,20 @@ class MaterialQuizActivity : AppCompatActivity() {
 
                     for (i in 0 until jsonArray.length()) {
                         val obj = jsonArray.getJSONObject(i)
-                        val q = obj.getString("q")
-                        val opts = obj.getJSONArray("options")
-                        val optList = listOf(opts.getString(0), opts.getString(1), opts.getString(2), opts.getString(3))
-                        val ans = obj.getInt("ans")
+                        val q = obj.optString("q", "").trim()
+                        if (q.isBlank()) continue
+                        val opts = obj.optJSONArray("options") ?: JSONArray()
+                        val optList = mutableListOf<String>()
+                        for (j in 0 until opts.length()) {
+                            val optText = opts.optString(j, "").trim()
+                            if (optText.isNotBlank()) {
+                                optList.add(optText)
+                            }
+                        }
+                        if (optList.size < 2) continue
 
-                        val correctText = optList.getOrElse(ans) { optList[0] }
+                        val ans = obj.optInt("ans", 0).coerceIn(0, optList.size - 1)
+                        val correctText = optList[ans]
                         val shuffledOpts = optList.shuffled()
                         val newAns = shuffledOpts.indexOf(correctText).coerceAtLeast(0)
 
@@ -257,7 +280,7 @@ class MaterialQuizActivity : AppCompatActivity() {
 
         val qData = quizList[currentQuizIndex]
         findViewById<TextView>(R.id.question_text).text = qData.question
-        findViewById<TextView>(R.id.tv_question_badge)?.text = "READING COMPREHENSION"
+        findViewById<TextView>(R.id.tv_question_badge)?.text = "READING COMPREHENSION 📖"
         findViewById<TextView>(R.id.tv_question_step_hint)?.text = "QUESTION ${currentQuizIndex + 1}"
         findViewById<TextView>(R.id.tv_progress_counter)?.text = "Question ${currentQuizIndex + 1} of ${quizList.size}"
         val pct = ((currentQuizIndex + 1) * 100) / quizList.size.coerceAtLeast(1)
@@ -267,51 +290,126 @@ class MaterialQuizActivity : AppCompatActivity() {
             progress = currentQuizIndex + 1
         }
 
+        findViewById<View>(R.id.card_explanation)?.visibility = View.GONE
+        findViewById<View>(R.id.btn_next_question)?.visibility = View.GONE
+
         val buttons = listOf(
-            findViewById<Button>(R.id.btn_choice1),
-            findViewById<Button>(R.id.btn_choice2),
-            findViewById<Button>(R.id.btn_choice3),
-            findViewById<Button>(R.id.btn_choice4)
+            findViewById<MaterialButton>(R.id.btn_choice1),
+            findViewById<MaterialButton>(R.id.btn_choice2),
+            findViewById<MaterialButton>(R.id.btn_choice3),
+            findViewById<MaterialButton>(R.id.btn_choice4)
         )
 
         for (i in buttons.indices) {
-            val letter = ('A' + i)
-            buttons[i].text = "$letter)  ${qData.options[i]}"
-            buttons[i].setOnClickListener { checkAnswer(i, qData) }
+            val btn = buttons[i]
+            if (i < qData.options.size) {
+                btn.visibility = View.VISIBLE
+                btn.isEnabled = true
+                val letter = ('A' + i)
+                btn.text = "$letter)  ${qData.options[i]}"
+                btn.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
+                btn.strokeColor = ColorStateList.valueOf(Color.parseColor("#EDF2F7"))
+                btn.setTextColor(Color.parseColor("#161D1F"))
+                btn.setOnClickListener {
+                    GabAIUtils.performHaptic(it, HapticFeedbackConstants.CLOCK_TICK)
+                    checkAnswer(i, qData)
+                }
+            } else {
+                btn.visibility = View.GONE
+            }
         }
     }
 
     private fun checkAnswer(selectedIndex: Int, qData: GeneratedQuestion) {
+        val buttons = listOf(
+            findViewById<MaterialButton>(R.id.btn_choice1),
+            findViewById<MaterialButton>(R.id.btn_choice2),
+            findViewById<MaterialButton>(R.id.btn_choice3),
+            findViewById<MaterialButton>(R.id.btn_choice4)
+        )
+
+        // Lock all buttons immediately to prevent multi-tapping
+        buttons.forEach { it.isEnabled = false }
+
         totalAttempts++
         val isCorrect = (selectedIndex == qData.correctIndex)
+        val selectedText = qData.options.getOrElse(selectedIndex) { "" }
+        val correctText = qData.options.getOrElse(qData.correctIndex) { "" }
 
         if (isCorrect) {
             currentScore++
-            GabAIUtils.showSnackbar(this, "Correct! ✅")
+            GabAIUtils.performHaptic(buttons.getOrNull(selectedIndex) ?: findViewById(R.id.quiz_root), HapticFeedbackConstants.CONFIRM)
+            if (selectedIndex in buttons.indices) {
+                val chosenBtn = buttons[selectedIndex]
+                chosenBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+                chosenBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#00B894"))
+                chosenBtn.setTextColor(Color.parseColor("#065F46"))
+            }
         } else {
-            GabAIUtils.showSnackbar(this, "Wrong! Answer: ${qData.options[qData.correctIndex]} ❌")
+            GabAIUtils.performHaptic(buttons.getOrNull(selectedIndex) ?: findViewById(R.id.quiz_root), HapticFeedbackConstants.REJECT)
+            if (selectedIndex in buttons.indices) {
+                val chosenBtn = buttons[selectedIndex]
+                chosenBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF2F2"))
+                chosenBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#EF4444"))
+                chosenBtn.setTextColor(Color.parseColor("#991B1B"))
+            }
+            if (qData.correctIndex in buttons.indices) {
+                val correctBtn = buttons[qData.correctIndex]
+                correctBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+                correctBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#00B894"))
+                correctBtn.setTextColor(Color.parseColor("#065F46"))
+            }
         }
 
         sessionResults.add(hashMapOf(
             "question" to qData.question,
-            "targetWord" to qData.options[qData.correctIndex],
-            "userAnswer" to qData.options[selectedIndex],
-            "isCorrect" to isCorrect
+            "targetWord" to correctText,
+            "correctAnswer" to correctText,
+            "userAnswer" to selectedText,
+            "isCorrect" to isCorrect,
+            "options" to qData.options,
+            "mechanic" to "READING_COMPREHENSION",
+            "explanation" to "Correct answer: $correctText"
         ))
 
-        currentQuizIndex++
         saveCurrentSession()
-        showCurrentQuestion()
+
+        // Reveal Educational Explanation and Next Question button
+        val cardExplanation = findViewById<View>(R.id.card_explanation)
+        val tvExplanation = findViewById<TextView>(R.id.tv_explanation)
+        val btnNextQuestion = findViewById<MaterialButton>(R.id.btn_next_question)
+
+        tvExplanation?.text = if (isCorrect) {
+            "Excellent comprehension! \"$correctText\" accurately reflects the reading material."
+        } else {
+            "Review: The correct answer is \"$correctText\"."
+        }
+        cardExplanation?.visibility = View.VISIBLE
+
+        btnNextQuestion?.apply {
+            visibility = View.VISIBLE
+            text = if (currentQuizIndex + 1 >= quizList.size) "Complete Reading Quiz 🏆" else "Next Question ➔"
+            backgroundTintList = ColorStateList.valueOf(Color.parseColor(if (currentQuizIndex + 1 >= quizList.size) "#00B894" else "#6C5CE7"))
+            setOnClickListener {
+                GabAIUtils.performHaptic(it, HapticFeedbackConstants.CLOCK_TICK)
+                currentQuizIndex++
+                saveCurrentSession()
+                showCurrentQuestion()
+            }
+        }
     }
 
     private fun showFinalResults() {
         clearSavedSession()
-        if (XPManager.canEarnXP(this)) {
-            XPManager.addXP(this, 30)
-        }
-        QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
-
         val isPassed = currentScore >= (quizList.size / 2.0)
+        val xpEarned = if (isPassed) 30 else 0
+
+        if (isPassed) {
+            if (XPManager.canEarnXP(this)) {
+                XPManager.addXP(this, xpEarned)
+            }
+            QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
+        }
 
         val userId = auth.currentUser?.uid
         if (userId != null && sessionResults.isNotEmpty()) {
@@ -322,13 +420,28 @@ class MaterialQuizActivity : AppCompatActivity() {
                 "timestamp" to System.currentTimeMillis(),
                 "finalScore" to currentScore,
                 "totalAttempts" to totalAttempts,
+                "xpEarned" to xpEarned,
                 "items" to sessionResults
             )
             db.collection("users").document(userId).collection("quiz_history").add(historyData)
         }
 
         findViewById<View>(R.id.options_container).visibility = View.GONE
+        findViewById<View>(R.id.card_explanation)?.visibility = View.GONE
+        findViewById<View>(R.id.btn_next_question)?.visibility = View.GONE
+
         val resultView = findViewById<View>(R.id.result_view)
+        val layoutXpSummary = findViewById<View>(R.id.layout_xp_summary)
+        val tvXpTotal = findViewById<TextView>(R.id.tv_xp_total)
+        val tvXpDetails = findViewById<TextView>(R.id.tv_xp_details)
+
+        if (isPassed) {
+            layoutXpSummary?.visibility = View.VISIBLE
+            tvXpTotal?.text = "+$xpEarned XP"
+            tvXpDetails?.text = "Reading Comprehension Quest: +$xpEarned XP"
+        } else {
+            layoutXpSummary?.visibility = View.GONE
+        }
 
         findViewById<TextView>(R.id.final_score_text).apply {
             visibility = View.VISIBLE
@@ -336,7 +449,7 @@ class MaterialQuizActivity : AppCompatActivity() {
                 text = "Quiz Passed! 🎉\nYou scored $currentScore / $totalAttempts"
                 setTextColor(Color.parseColor("#059669"))
             } else {
-                text = "Quiz Failed. ❌\nYou scored $currentScore / $totalAttempts.\nYou must try again."
+                text = "Quiz Failed. ❌\nYou scored $currentScore / $totalAttempts.\nYou must score at least 50% to pass."
                 setTextColor(Color.parseColor("#EF4444"))
             }
         }

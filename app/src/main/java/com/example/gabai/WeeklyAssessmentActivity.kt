@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -28,6 +29,9 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
     private val questions = mutableListOf<AssessmentQuestion>()
     private var currentIndex = 0
     private var studentAnswers = IntArray(0)
+
+    private val prefName: String
+        get() = "weekly_assessment_session_${assessmentId}_${auth.currentUser?.uid ?: ""}"
 
     data class AssessmentQuestion(
         val q: String,
@@ -137,6 +141,87 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
         loadAssessmentData()
     }
 
+    override fun onPause() {
+        super.onPause()
+        saveCurrentSession()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        saveCurrentSession()
+    }
+
+    private fun saveCurrentSession() {
+        if (assessmentId.isEmpty() || questions.isEmpty() || layoutResults.visibility == View.VISIBLE) return
+        try {
+            val prefs = getSharedPreferences(prefName, Context.MODE_PRIVATE)
+            val jsonArray = JSONArray()
+            for (q in questions) {
+                val obj = JSONObject()
+                obj.put("q", q.q)
+                val optsArray = JSONArray()
+                q.options.forEach { optsArray.put(it) }
+                obj.put("opts", optsArray)
+                obj.put("ans", q.ans)
+                obj.put("exp", q.explanation)
+                jsonArray.put(obj)
+            }
+            val answersArray = JSONArray()
+            studentAnswers.forEach { answersArray.put(it) }
+
+            prefs.edit()
+                .putBoolean("has_saved_session", true)
+                .putString("saved_questions", jsonArray.toString())
+                .putString("saved_answers", answersArray.toString())
+                .putInt("saved_current_index", currentIndex)
+                .apply()
+        } catch (_: Exception) {}
+    }
+
+    private fun restoreSavedSession(): Boolean {
+        if (assessmentId.isEmpty()) return false
+        try {
+            val prefs = getSharedPreferences(prefName, Context.MODE_PRIVATE)
+            if (!prefs.getBoolean("has_saved_session", false)) return false
+            val qStr = prefs.getString("saved_questions", null) ?: return false
+            val aStr = prefs.getString("saved_answers", null) ?: return false
+
+            val qArr = JSONArray(qStr)
+            val aArr = JSONArray(aStr)
+            val restoredQuestions = mutableListOf<AssessmentQuestion>()
+            for (i in 0 until qArr.length()) {
+                val obj = qArr.getJSONObject(i)
+                val q = obj.getString("q")
+                val optsArr = obj.getJSONArray("opts")
+                val opts = mutableListOf<String>()
+                for (j in 0 until optsArr.length()) {
+                    opts.add(optsArr.getString(j))
+                }
+                val ans = obj.getInt("ans")
+                val exp = obj.optString("exp", "")
+                restoredQuestions.add(AssessmentQuestion(q, opts, ans, exp))
+            }
+
+            if (restoredQuestions.isNotEmpty()) {
+                questions.clear()
+                questions.addAll(restoredQuestions)
+                studentAnswers = IntArray(restoredQuestions.size) { idx ->
+                    if (idx < aArr.length()) aArr.getInt(idx) else -1
+                }
+                currentIndex = prefs.getInt("saved_current_index", 0).coerceIn(0, restoredQuestions.size - 1)
+                progressBar.max = questions.size
+                return true
+            }
+        } catch (_: Exception) {}
+        return false
+    }
+
+    private fun clearSavedSession() {
+        try {
+            getSharedPreferences(prefName, Context.MODE_PRIVATE).edit().clear().apply()
+        } catch (_: Exception) {}
+    }
+
     private fun loadStudentInfo() {
         val uid = auth.currentUser?.uid ?: return
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
@@ -170,15 +255,16 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                 findViewById<TextView>(R.id.tv_header_subject).text = subjectName.uppercase()
 
                 val quizJson = doc.getString("quiz_pool_json") ?: "[]"
-                parseQuestions(quizJson)
-
-                if (questions.isEmpty()) {
-                    GabAIUtils.showSnackbar(this, "No questions found in this assessment.")
-                    finish()
-                    return@addOnSuccessListener
+                val hasRestored = restoreSavedSession()
+                if (!hasRestored) {
+                    parseQuestions(quizJson)
+                    if (questions.isEmpty()) {
+                        GabAIUtils.showSnackbar(this, "No questions found in this assessment.")
+                        finish()
+                        return@addOnSuccessListener
+                    }
+                    studentAnswers = IntArray(questions.size) { -1 }
                 }
-
-                studentAnswers = IntArray(questions.size) { -1 }
                 progressBar.max = questions.size
 
                 checkExistingSubmission()
@@ -227,6 +313,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { snapshots ->
                 if (!snapshots.isEmpty) {
+                    clearSavedSession()
                     val submissionDoc = snapshots.documents[0]
                     val score = submissionDoc.getLong("score")?.toInt() ?: 0
                     val total = submissionDoc.getLong("totalQuestions")?.toInt() ?: questions.size
@@ -237,14 +324,12 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                 } else {
                     layoutRunner.visibility = View.VISIBLE
                     layoutResults.visibility = View.GONE
-                    currentIndex = 0
                     displayCurrentQuestion()
                 }
             }
             .addOnFailureListener {
                 layoutRunner.visibility = View.VISIBLE
                 layoutResults.visibility = View.GONE
-                currentIndex = 0
                 displayCurrentQuestion()
             }
     }
@@ -292,6 +377,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
 
     private fun selectOption(optionIndex: Int) {
         studentAnswers[currentIndex] = optionIndex
+        saveCurrentSession()
         displayCurrentQuestion()
     }
 
@@ -373,12 +459,15 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
         GabAIDialogs.showConfirmDialog(
             context = this,
             title = "Exit Assessment?",
-            message = "Your current progress will not be submitted until you complete all questions.",
+            message = "Your assessment answers are safely preserved. You can resume anytime!",
             confirmText = "Exit",
             cancelText = "Keep Going",
             isDestructive = true,
             badgeIcon = "📝",
-            onConfirm = { finish() }
+            onConfirm = {
+                saveCurrentSession()
+                finish()
+            }
         )
     }
 
@@ -423,22 +512,32 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             val isCorrect = (chosen == correctAns)
             if (isCorrect) score++
 
+            val chosenText = if (chosen in 0 until questions[i].options.size) questions[i].options[chosen] else "Unanswered"
+            val correctText = if (correctAns in 0 until questions[i].options.size) questions[i].options[correctAns] else ""
+
             submissionItems.add(
                 mapOf(
                     "qIndex" to i,
                     "question" to questions[i].q,
+                    "targetWord" to subjectName,
                     "selectedOption" to chosen,
-                    "selectedText" to if (chosen in 0..3) questions[i].options[chosen] else "Unanswered",
+                    "selectedText" to chosenText,
+                    "userAnswer" to chosenText,
                     "correctOption" to correctAns,
-                    "correctText" to questions[i].options[correctAns],
+                    "correctText" to correctText,
+                    "correctAnswer" to correctText,
                     "isCorrect" to isCorrect,
-                    "explanation" to questions[i].explanation
+                    "explanation" to questions[i].explanation,
+                    "options" to questions[i].options,
+                    "mechanic" to "WEEKLY_ASSESSMENT"
                 )
             )
         }
 
         val total = questions.size
         val percentage = if (total > 0) (score * 100) / total else 0
+        val isPassed = (percentage >= 50)
+        val xpEarned = if (isPassed) 50 else 0
 
         // 1. Save to assessment_submissions
         val submissionData = hashMapOf(
@@ -466,18 +565,22 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                     "title" to assessmentTitle,
                     "finalScore" to score,
                     "totalAttempts" to total,
-                    "isPassed" to (percentage >= 50),
+                    "xpEarned" to xpEarned,
+                    "isPassed" to isPassed,
                     "timestamp" to System.currentTimeMillis(),
                     "items" to submissionItems
                 )
                 db.collection("users").document(uid).collection("quiz_history").add(historyData)
 
-                // 3. Award XP
-                if (XPManager.canEarnXP(this)) {
-                    XPManager.addXP(this, 50)
+                // 3. Award XP only if passed
+                if (isPassed) {
+                    if (XPManager.canEarnXP(this)) {
+                        XPManager.addXP(this, xpEarned)
+                    }
+                    QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
                 }
-                QuestManager.addProgress(this, QuestManager.QUEST_QUIZ)
 
+                clearSavedSession()
                 GabAIUtils.hideGlobalLoading(this)
                 showResultsView(score, total, percentage, submissionItems)
             }

@@ -108,16 +108,28 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tv_podium_second_avatar"
+                    <FrameLayout
                         android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_bento_lavender"
-                        android:gravity="center"
-                        android:textColor="#5341CD"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                        android:layout_height="48dp">
+
+                        <TextView
+                            android:id="@+id/tv_podium_second_avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_bento_lavender"
+                            android:gravity="center"
+                            android:textColor="#5341CD"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                        <ImageView
+                            android:id="@+id/iv_podium_second_photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                     <TextView
                         android:id="@+id/tv_podium_second_name"
@@ -184,16 +196,28 @@
                         android:text="👑"
                         android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/tv_podium_first_avatar"
+                    <FrameLayout
                         android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_bento_purple"
-                        android:gravity="center"
-                        android:textColor="#5341CD"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                        android:layout_height="56dp">
+
+                        <TextView
+                            android:id="@+id/tv_podium_first_avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_bento_purple"
+                            android:gravity="center"
+                            android:textColor="#5341CD"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                        <ImageView
+                            android:id="@+id/iv_podium_first_photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                     <TextView
                         android:id="@+id/tv_podium_first_name"
@@ -255,16 +279,28 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tv_podium_third_avatar"
+                    <FrameLayout
                         android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_bento_rose"
-                        android:gravity="center"
-                        android:textColor="#E11D48"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/font_plus_jakarta_sans" />
+                        android:layout_height="48dp">
+
+                        <TextView
+                            android:id="@+id/tv_podium_third_avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_bento_rose"
+                            android:gravity="center"
+                            android:textColor="#E11D48"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                        <ImageView
+                            android:id="@+id/iv_podium_third_photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+                    </FrameLayout>
 
                     <TextView
                         android:id="@+id/tv_podium_third_name"

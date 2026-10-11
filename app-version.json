@@ -1,11 +1,11 @@
 {
-  "versionCode": 24,
-  "versionName": "0.4.10",
-  "minRequiredVersionCode": 24,
+  "versionCode": 28,
+  "versionName": "0.4.14",
+  "minRequiredVersionCode": 28,
   "forceUpdate": true,
-  "title": "Profile Identity Resolution & Instant Loading (v0.4.10)",
-  "message": "Resolves user identity display in Profile Fragment for both teachers and students, eliminating 'Loading Name...' with instant offline pre-caching.",
+  "title": "Drive Avatars, Multi-Screen Rosters & Stability Update (v0.4.14)",
+  "message": "Includes Google Drive avatar upload & caching, teacher photo moderation, student photo removal, rounded squircle avatars across all rosters, Help Center role filters, and A24 stability fixes.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.10/GabAI-v0.4.10.apk",
-  "changelog": "• Profile Name Resolution: Fixed missing name view binding in ProfileFragment to display student/teacher full name with fallback resolution across firstName, first_name, displayName, and email handle.\n• Zero-Latency Identity Pre-warming: Pre-populates user name and avatar monogram directly from SharedPreferences and Firebase Auth.\n• Placeholder Cleanup: Removed static 'Loading Name...' placeholder from layout XML."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.14/GabAI-v0.4.14.apk",
+  "changelog": "• Google Drive Avatar Upload: Profile pictures upload directly to Google Drive with high-speed CDN streaming.\n• Zero-Latency Avatar Caching: Two-tier memory and disk caching eliminates placeholder loading flickers.\n• Visual Photo Moderation: Teachers can preview and zoom submitted student photos before approving.\n• Student Avatar Controls: Added option to remove/reset profile picture; locked teacher avatar editing.\n• Universal Squircle Avatars: Rounded borders applied across Profile, Class Roster, Section Roster, and Performance Analytics.\n• Role-Filtered Help Center: Student account locks to student guides; teachers retain access to all guides.\n• Samsung A24 Stability: Safely handles expired picker content URIs to prevent app crashes.\n• Instant Accessibility Screen Capture & Apprentice Quest Completion Banners."
 }

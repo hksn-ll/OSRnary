@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="20dp">
+
+        <!-- ================= EDITORIAL HEADER ================= -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#ECFDF5"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/ic_stitch_scanner"
+                app:tint="#059669" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="03 • SMART OCR SCANNER"
+                android:textColor="#059669"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:letterSpacing="-0.02"
+            android:text="Optical Lens for Printed Books"
+            android:textColor="#0F172A"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:fontFamily="@font/font_nunito_sans"
+            android:lineSpacingExtra="2dp"
+            android:text="Point your camera at physical textbooks. Tap any detected bounding box below to inspect:"
+            android:textColor="#64748B"
+            android:textSize="12sp" />
+
+        <!-- ================= CAMERA HUD VIEWFINDER STAGE ================= -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Material3.CardView.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#0F172A"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="3dp"
+            app:strokeColor="#334155"
+            app:strokeWidth="1.5dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/container_scanner_viewfinder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_viewfinder_frame"
+                    android:orientation="vertical"
+                    android:padding="13dp">
+
+                    <!-- HUD Top Status Bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="7dp"
+                            android:layout_height="7dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#34D399" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="monospace"
+                            android:text="ML KIT VISION OCR"
+                            android:textColor="#34D399"
+                            android:textSize="9.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="TAP BOX TO INSPECT"
+                            android:textColor="#94A3B8"
+                            android:textSize="9sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Simulated Printed Page Excerpt -->
+                    <FrameLayout
+                        android:id="@+id/frame_ocr_page_surface"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="#1E293B"
+                        android:clipChildren="true"
+                        android:padding="12dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="monospace"
+                                android:text="CHAPTER 4 • CELLULAR BIOLOGY"
+                                android:textColor="#38BDF8"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:lineSpacingExtra="2dp"
+                                android:text="During cellular metabolism, specialized green chloroplasts capture solar radiation to drive photosynthesis."
+                                android:textColor="#E2E8F0"
+                                android:textSize="11.5sp" />
+
+                            <!-- Tappable OCR Bounding Box Chips -->
+                            <LinearLayout
+                                android:id="@+id/layout_bounding_box_tags"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="9dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/tv_scanned_highlighted_word"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="26dp"
+                                    android:background="@drawable/bg_pill_translucent"
+                                    android:backgroundTint="#FEF08A"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:fontFamily="monospace"
+                                    android:gravity="center"
+                                    android:paddingHorizontal="9dp"
+                                    android:text="[photosynthesis]"
+                                    android:textColor="#0F172A"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/chip_ocr_word_2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="26dp"
+                                    android:layout_marginStart="6dp"
+                                    android:background="@drawable/bg_pill_translucent"
+                                    android:backgroundTint="#0F172A"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:fontFamily="monospace"
+                                    android:gravity="center"
+                                    android:paddingHorizontal="9dp"
+                                    android:text="[chloroplasts]"
+                                    android:textColor="#A5B4FC"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/chip_ocr_word_3"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="26dp"
+                                    android:layout_marginStart="6dp"
+                                    android:background="@drawable/bg_pill_translucent"
+                                    android:backgroundTint="#0F172A"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:fontFamily="monospace"
+                                    android:gravity="center"
+                                    android:paddingHorizontal="9dp"
+                                    android:text="[metabolism]"
+                                    android:textColor="#A5B4FC"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Animated Sweeping Laser Scan Line -->
+                        <View
+                            android:id="@+id/view_scanner_laser"
+                            android:layout_width="match_parent"
+                            android:layout_height="18dp"
+                            android:layout_gravity="top"
+                            android:background="@drawable/bg_scanner_laser_beam" />
+                    </FrameLayout>
+                </LinearLayout>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ================= LIVE OCR RESULT BREAKDOWN SHEET ================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_ocr_result_sheet"
+            style="@style/Widget.Material3.CardView.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="3dp"
+            app:strokeColor="#A7F3D0"
+            app:strokeWidth="1.5dp">
+
+            <LinearLayout
+                android:id="@+id/container_ocr_result_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_ocr_active_word"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="photosynthesis"
+                                android:textColor="#0F172A"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#ECFDF5"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:paddingHorizontal="7dp"
+                                android:paddingVertical="2dp"
+                                android:text="OCR DETECTED"
+                                android:textColor="#059669"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_ocr_active_phonetic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:fontFamily="monospace"
+                            android:text="/ˌfoʊ.toʊˈsɪn.θə.sɪs/"
+                            android:textColor="#64748B"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <!-- Live TTS Listen Button for OCR -->
+                    <LinearLayout
+                        android:id="@+id/btn_ocr_listen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#059669"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:src="@drawable/ic_volume_up"
+                            app:tint="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/tv_ocr_listen_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Pronounce"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#F0FDF4"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="11dp"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="GABAI CONTEXT BREAKDOWN"
+                        android:textColor="#047857"
+                        android:textSize="9.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_ocr_active_def"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:lineSpacingExtra="1.5dp"
+                        android:text="The biochemical process in which green plants transform solar radiation into storable chemical energy."
+                        android:textColor="#334155"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ================= 3-COLUMN BENTO TAKEAWAYS ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_stitch_scanner"
+                    app:tint="#059669" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:gravity="center"
+                    android:text="Printed Books"
+                    android:textColor="#0F172A"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:gravity="center"
+                    android:text="No manual typing"
+                    android:textColor="#64748B"
+                    android:textSize="9.5sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_floating_gabai_lens"
+                    app:tint="#059669" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:gravity="center"
+                    android:text="Touch Boxes"
+                    android:textColor="#0F172A"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:gravity="center"
+                    android:text="Tap words on page"
+                    android:textColor="#64748B"
+                    android:textSize="9.5sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_verified_teal" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:gravity="center"
+                    android:text="High Precision"
+                    android:textColor="#0F172A"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:gravity="center"
+                    android:text="Instant ML OCR"
+                    android:textColor="#64748B"
+                    android:textSize="9.5sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

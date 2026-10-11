@@ -330,11 +330,7 @@ class OverviewActivity : AppCompatActivity() {
             )
 
             // Trigger Detail Quest progress
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
-            if (uid != null) {
-                FirebaseFirestore.getInstance().collection("users").document(uid)
-                    .update("quests_completed", FieldValue.arrayUnion("detail"))
-            }
+            ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_DETAIL)
         } else if (scannedText.isNotEmpty()) {
             // Smart visual context: initially hidden, only displayed if Gemini or cache verifies feasibility
             isVisualFeasible = false
@@ -969,6 +965,7 @@ class OverviewActivity : AppCompatActivity() {
                 defaultVisualQuery = "$currentVisualTerm diagram"
                 setupVisualContainer(currentVisualTerm, defaultVisualQuery)
             }
+            completeScanQuestIfApplicable()
             return
         }
 
@@ -1222,7 +1219,7 @@ class OverviewActivity : AppCompatActivity() {
 
                 // Save to History with actual enclosing sentence as originalContext and grammatical metadata
                 saveToHistory(
-                    text = inputText,
+                    text = GabAIUtils.sanitizeVocabularyWord(inputText).ifBlank { inputText },
                     aiResult = definition,
                     originalContext = surroundingSentence,
                     partOfSpeech = partOfSpeech,
@@ -1245,6 +1242,7 @@ class OverviewActivity : AppCompatActivity() {
                         relatedQuestions = relatedQuestions
                     )
                 )
+                completeScanQuestIfApplicable()
 
             } catch (e: Exception) {
                 stopSkeletonPulse()
@@ -1398,12 +1396,19 @@ class OverviewActivity : AppCompatActivity() {
             .set(favEntry)
             .addOnSuccessListener {
                 if (BuildConfig.DEBUG) android.util.Log.d("GabAI_DB", "Favorite synced to cloud")
-                QuestManager.addProgress(this, QuestManager.QUEST_SAVE)
-                db.collection("users").document(uid).update(
-                    "quests_completed",
-                    com.google.firebase.firestore.FieldValue.arrayUnion("save")
-                )
+                ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_SAVE)
             }
+    }
+
+    private fun completeScanQuestIfApplicable() {
+        val scanSource = intent.getStringExtra("SCAN_SOURCE") ?: "camera"
+        val questKey = if (scanSource.equals(ApprenticeQuestHelper.QUEST_BUBBLE, ignoreCase = true)) {
+            ApprenticeQuestHelper.QUEST_BUBBLE_SCAN
+        } else {
+            ApprenticeQuestHelper.QUEST_SCAN
+        }
+        ApprenticeQuestHelper.completeQuest(this, questKey)
+        QuestManager.addProgress(this, QuestManager.QUEST_SCAN)
     }
 
     private fun saveToHistory(

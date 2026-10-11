@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import io.noties.markwon.Markwon
@@ -108,11 +107,7 @@ class HistoryActivity : AppCompatActivity() {
 
         loadInitialData()
 
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            FirebaseFirestore.getInstance().collection("users").document(uid)
-                .update("quests_completed", FieldValue.arrayUnion("history"))
-        }
+        ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_HISTORY)
     }
 
     override fun onResume() {
@@ -382,11 +377,7 @@ class HistoryActivity : AppCompatActivity() {
                                 btnFav.setImageResource(R.drawable.ic_star_filled)
                                 GabAIUtils.performHaptic(btnFav, HapticFeedbackConstants.CONFIRM)
                                 GabAIUtils.showSnackbar(this@HistoryActivity, "Saved \"${item.word}\" to Favorites! ⭐")
-                                QuestManager.addProgress(this@HistoryActivity, QuestManager.QUEST_SAVE)
-                                db.collection("users").document(uid).update(
-                                    "quests_completed",
-                                    FieldValue.arrayUnion("save")
-                                )
+                                ApprenticeQuestHelper.completeQuest(this@HistoryActivity, ApprenticeQuestHelper.QUEST_SAVE)
                             }
                     }
                 }

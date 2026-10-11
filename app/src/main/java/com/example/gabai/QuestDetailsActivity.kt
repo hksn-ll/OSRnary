@@ -45,8 +45,8 @@ class QuestDetailsActivity : AppCompatActivity() {
 
                 // 1. UPDATE THE INDIVIDUAL CARDS (ALL 8 PERFECTLY MAPPED)
                 updateQuestCardState(completedQuests.contains("bubble"), R.id.bg_bubble, R.id.icon_bubble, R.id.title_bubble)
-                updateQuestCardState(completedQuests.contains("read"), R.id.bg_read, R.id.icon_read, R.id.title_read)
-                updateQuestCardState(completedQuests.contains("test"), R.id.bg_test, R.id.icon_test, R.id.title_test)
+                updateQuestCardState(completedQuests.contains("bubble_scan"), R.id.bg_read, R.id.icon_read, R.id.title_read)
+                updateQuestCardState(completedQuests.contains("test") || completedQuests.contains("read"), R.id.bg_test, R.id.icon_test, R.id.title_test)
                 updateQuestCardState(completedQuests.contains("scan"), R.id.bg_scan, R.id.icon_scan, R.id.title_scan)
                 updateQuestCardState(completedQuests.contains("save"), R.id.bg_save, R.id.icon_save, R.id.title_save)
                 updateQuestCardState(completedQuests.contains("history"), R.id.bg_history, R.id.icon_history, R.id.title_history)
@@ -87,7 +87,7 @@ class QuestDetailsActivity : AppCompatActivity() {
             title = "Companion Required",
             message = "You cannot face the reading trials alone!\n\nPlease return to your dashboard and activate the GabAI Floating Bubble. Your AI guide is essential for deciphering these texts.",
             buttonText = "Understood",
-            badgeIcon = "🧚‍♂️",
+            iconRes = R.drawable.ic_floating_gabai_lens,
             onAction = {
                 finish()
             }

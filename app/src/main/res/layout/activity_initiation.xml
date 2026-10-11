@@ -28,11 +28,11 @@
 
             <ImageButton
                 android:id="@+id/btn_back"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/cd_back"
-                android:padding="8dp"
+                android:padding="12dp"
                 android:src="@drawable/ic_arrow_back"
                 app:tint="@color/text_primary" />
 
@@ -42,11 +42,33 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
+                android:ellipsize="end"
                 android:fontFamily="@font/font_plus_jakarta_sans"
+                android:singleLine="true"
                 android:text="Apprentice Material 1 of 4"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_toggle_passage"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="12dp"
+                android:text="📖 View Passage"
+                android:textColor="#5341CD"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:backgroundTint="#EEF2FF"
+                app:cornerRadius="18dp"
+                app:elevation="0dp" />
         </LinearLayout>
     </com.example.gabai.FastBlurView>
 

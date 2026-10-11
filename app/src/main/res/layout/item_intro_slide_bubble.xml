@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="20dp">
+
+        <!-- ================= EDITORIAL HEADER ================= -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#EDE9FE"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/ic_floating_gabai_lens"
+                app:tint="#5341CD" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="02 • FLOATING AI LENS"
+                android:textColor="#5341CD"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:letterSpacing="-0.02"
+            android:text="Read Anywhere, On Any Screen"
+            android:textColor="#0F172A"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:fontFamily="@font/font_nunito_sans"
+            android:lineSpacingExtra="2dp"
+            android:text="Stays docked over PDFs, eBooks, and browsers. Tap a word chip below to test the live overlay:"
+            android:textColor="#64748B"
+            android:textSize="12sp" />
+
+        <!-- ================= INTERACTIVE PASSAGE SIMULATOR ================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_bubble_passage"
+            style="@style/Widget.Material3.CardView.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            app:strokeColor="#E2E8F0"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="62dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/ic_menu_book"
+                                app:tint="#64748B" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="LITERATURE EXCERPT • LIVE SANDBOX"
+                                android:textColor="#64748B"
+                                android:textSize="9.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingExtra="2.5dp"
+                            android:text="“Her hair fell about her shining like a cascade of waters beneath the luminescent twilight, her spirit remaining resilient.”"
+                            android:textColor="#1E293B"
+                            android:textSize="12.5sp" />
+                    </LinearLayout>
+
+                    <!-- Floating GabAI Lens Bubble (Tappable to cycle word) -->
+                    <FrameLayout
+                        android:id="@+id/frame_floating_bubble"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <View
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_floating_glow" />
+
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_gabai_logo" />
+                    </FrameLayout>
+                </FrameLayout>
+
+                <!-- Tappable Word Selector Strip -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="Tap word:"
+                        android:textColor="#94A3B8"
+                        android:textSize="10.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/chip_bubble_word_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#5341CD"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:gravity="center"
+                        android:paddingHorizontal="11dp"
+                        android:text="cascade"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/chip_bubble_word_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="6dp"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#F1F5F9"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:gravity="center"
+                        android:paddingHorizontal="11dp"
+                        android:text="luminescent"
+                        android:textColor="#475569"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/chip_bubble_word_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="6dp"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#F1F5F9"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:gravity="center"
+                        android:paddingHorizontal="11dp"
+                        android:text="resilient"
+                        android:textColor="#475569"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ================= LIVE AI VERDICT OVERLAY CARD ================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_bubble_verdict"
+            style="@style/Widget.Material3.CardView.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="3dp"
+            app:strokeColor="#C7D2FE"
+            app:strokeWidth="1.5dp">
+
+            <LinearLayout
+                android:id="@+id/container_bubble_verdict_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <!-- Word Title + Phonetic + Interactive Listen Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_bubble_active_word"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="cascade"
+                                android:textColor="#0F172A"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_bubble_active_pos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#EEF2FF"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:paddingHorizontal="7dp"
+                                android:paddingVertical="2dp"
+                                android:text="noun"
+                                android:textColor="#5341CD"
+                                android:textSize="9.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_bubble_active_phonetic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:fontFamily="monospace"
+                            android:text="/kæˈskeɪd/"
+                            android:textColor="#64748B"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <!-- Live TTS Listen Button -->
+                    <LinearLayout
+                        android:id="@+id/btn_bubble_listen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#5341CD"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp">
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:src="@drawable/ic_volume_up"
+                            app:tint="#FFFFFF" />
+
+                        <TextView
+                            android:id="@+id/tv_bubble_listen_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Listen"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Plain-Language Definition -->
+                <TextView
+                    android:id="@+id/tv_bubble_active_def"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:lineSpacingExtra="2dp"
+                    android:text="A steep, rapid outpouring or succession of elements moving in graceful, continuous descent."
+                    android:textColor="#334155"
+                    android:textSize="12sp" />
+
+                <!-- Context Verdict Highlight Box -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#F5F3FF"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="11dp"
+                    android:paddingVertical="8dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:src="@drawable/ic_psychology"
+                            app:tint="#5341CD" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="IN-SENTENCE CONTEXT VERDICT"
+                            android:textColor="#5341CD"
+                            android:textSize="9.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_bubble_active_role"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:lineSpacingExtra="1.5dp"
+                        android:text="Functions as a vivid visual metaphor emphasizing the abundance, motion, and luster of Della's hair."
+                        android:textColor="#334155"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
+
+                <!-- Footer: Interactive Vault Bookmark & Match Badge -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/btn_bubble_star"
+                        android:layout_width="wrap_content"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#FEF3C7"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="9dp">
+
+                        <ImageView
+                            android:id="@+id/iv_bubble_star_icon"
+                            android:layout_width="13dp"
+                            android:layout_height="13dp"
+                            android:src="@drawable/ic_star_filled"
+                            app:tint="#D97706" />
+
+                        <TextView
+                            android:id="@+id/tv_bubble_star_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Saved to Vault"
+                            android:textColor="#B45309"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <ImageView
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:src="@drawable/ic_verified_teal" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="Context Verified"
+                        android:textColor="#0D9488"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ================= 3-COLUMN BENTO TAKEAWAYS (NO WALL OF TEXT) ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_floating_gabai_lens"
+                    app:tint="#5341CD" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:gravity="center"
+                    android:text="Zero Switching"
+                    android:textColor="#0F172A"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:gravity="center"
+                    android:text="Overlays any app"
+                    android:textColor="#64748B"
+                    android:textSize="9.5sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_psychology"
+                    app:tint="#5341CD" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:gravity="center"
+                    android:text="Author Intent"
+                    android:textColor="#0F172A"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:gravity="center"
+                    android:text="Exact syntax role"
+                    android:textColor="#64748B"
+                    android:textSize="9.5sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_volume_up"
+                    app:tint="#5341CD" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:gravity="center"
+                    android:text="Instant Voice"
+                    android:textColor="#0F172A"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:gravity="center"
+                    android:text="Spoken phonetics"
+                    android:textColor="#64748B"
+                    android:textSize="9.5sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

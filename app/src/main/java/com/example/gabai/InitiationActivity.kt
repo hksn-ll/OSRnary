@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.barteksc.pdfviewer.PDFView
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument
@@ -45,6 +45,7 @@ class InitiationActivity : AppCompatActivity() {
 
     private val scores = intArrayOf(0, 0, 0, 0)
     private var currentScore = 0
+    private var isPassageVisibleInQuiz = false
 
     // 🟢 NEW: Teacher Customizations 🟢
     private var targetQuizItems = 5
@@ -83,6 +84,10 @@ class InitiationActivity : AppCompatActivity() {
             generateQuizFromPdf(currentStep)
         }
 
+        findViewById<MaterialButton>(R.id.btn_toggle_passage)?.setOnClickListener {
+            toggleReadingPassageInQuiz()
+        }
+
         fetchTeacherConfigAndStart()
     }
 
@@ -100,7 +105,11 @@ class InitiationActivity : AppCompatActivity() {
     // 🟢 FETCH TEACHER SETTINGS 🟢
     // ========================================================================
     private fun fetchTeacherConfigAndStart() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            loadStep(0)
+            return
+        }
         val db = FirebaseFirestore.getInstance()
 
         findViewById<LinearLayout>(R.id.ai_loading_container).visibility = View.VISIBLE
@@ -159,11 +168,16 @@ class InitiationActivity : AppCompatActivity() {
             return
         }
 
+        isPassageVisibleInQuiz = false
+        findViewById<MaterialButton>(R.id.btn_toggle_passage)?.visibility = View.GONE
+        findViewById<MaterialButton>(R.id.btn_toggle_passage)?.text = "📖 View Passage"
+        findViewById<View>(R.id.btn_take_quiz)?.visibility = View.VISIBLE
+
         findViewById<TextView>(R.id.tv_progress_tracker).text = "Apprentice Material ${stepIndex + 1} of ${materials.size}"
         findViewById<ProgressBar>(R.id.progress_bar).progress = ((stepIndex + 1) * (100 / materials.size))
 
         findViewById<LinearLayout>(R.id.reading_container).visibility = View.VISIBLE
-        findViewById<LinearLayout>(R.id.quiz_container).visibility = View.GONE
+        findViewById<View>(R.id.quiz_container).visibility = View.GONE
         findViewById<LinearLayout>(R.id.ai_loading_container).visibility = View.GONE
         findViewById<LinearLayout>(R.id.result_container).visibility = View.GONE
 
@@ -337,7 +351,14 @@ class InitiationActivity : AppCompatActivity() {
     private fun showCurrentQuestion() {
         val questionData = currentGeneratedQuestions[currentQuizIndex]
         findViewById<LinearLayout>(R.id.ai_loading_container).visibility = View.GONE
-        findViewById<LinearLayout>(R.id.quiz_container).visibility = View.VISIBLE
+        findViewById<View>(R.id.quiz_container).visibility = View.VISIBLE
+        findViewById<LinearLayout>(R.id.reading_container).visibility = View.GONE
+        isPassageVisibleInQuiz = false
+        findViewById<MaterialButton>(R.id.btn_toggle_passage)?.apply {
+            visibility = View.VISIBLE
+            text = "📖 View Passage"
+        }
+        findViewById<View>(R.id.btn_take_quiz)?.visibility = View.GONE
 
         findViewById<TextView>(R.id.tv_quiz_question).text = "Q${currentQuizIndex + 1}/${targetQuizItems}: ${questionData.question}"
 
@@ -371,11 +392,30 @@ class InitiationActivity : AppCompatActivity() {
         }
     }
 
+    private fun toggleReadingPassageInQuiz() {
+        val readingContainer = findViewById<LinearLayout>(R.id.reading_container) ?: return
+        val quizContainer = findViewById<View>(R.id.quiz_container) ?: return
+        val toggleBtn = findViewById<MaterialButton>(R.id.btn_toggle_passage) ?: return
+
+        isPassageVisibleInQuiz = !isPassageVisibleInQuiz
+        if (isPassageVisibleInQuiz) {
+            readingContainer.visibility = View.VISIBLE
+            quizContainer.visibility = View.GONE
+            toggleBtn.text = "✏️ Back to Quiz"
+            findViewById<View>(R.id.btn_take_quiz)?.visibility = View.GONE
+        } else {
+            readingContainer.visibility = View.GONE
+            quizContainer.visibility = View.VISIBLE
+            toggleBtn.text = "📖 View Passage"
+        }
+    }
+
     private fun showFinalResults() {
+        findViewById<MaterialButton>(R.id.btn_toggle_passage)?.visibility = View.GONE
         findViewById<LinearLayout>(R.id.header_container).visibility = View.GONE
         findViewById<ProgressBar>(R.id.progress_bar).visibility = View.GONE
         findViewById<LinearLayout>(R.id.reading_container).visibility = View.GONE
-        findViewById<LinearLayout>(R.id.quiz_container).visibility = View.GONE
+        findViewById<View>(R.id.quiz_container).visibility = View.GONE
         findViewById<LinearLayout>(R.id.ai_loading_container).visibility = View.GONE
         findViewById<LinearLayout>(R.id.result_container).visibility = View.VISIBLE
 
@@ -408,10 +448,10 @@ class InitiationActivity : AppCompatActivity() {
             row.addView(title)
 
             val scoreText = TextView(this).apply {
-                text = if (passed) "⭐ $score / $targetQuizItems  —  MASTERED" else "⚠️ $score / $targetQuizItems  —  NEEDS REVIEW"
+                text = if (passed) "⭐ $score / $targetQuizItems  —  MASTERED" else "📚 $score / $targetQuizItems  —  PRACTICE MORE"
                 textSize = 18f
                 setTypeface(null, android.graphics.Typeface.BOLD)
-                setTextColor(android.graphics.Color.parseColor(if (passed) "#2D3436" else "#D63031"))
+                setTextColor(android.graphics.Color.parseColor(if (passed) "#2D3436" else "#D97706"))
                 setPadding(0, 8, 0, 12)
             }
             row.addView(scoreText)
@@ -420,7 +460,7 @@ class InitiationActivity : AppCompatActivity() {
                 max = targetQuizItems
                 progress = score
                 progressTintList = android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor(if (passed) "#00B894" else "#D63031")
+                    android.graphics.Color.parseColor(if (passed) "#00B894" else "#F59E0B")
                 )
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 20)
             }
@@ -459,7 +499,7 @@ class InitiationActivity : AppCompatActivity() {
         } else {
             rewardsBox.visibility = View.GONE
             titleText.text = "Training Incomplete 🛡️"
-            subtitleText.text = "A true master learns from failure. Review the highlighted scrolls and challenge the trials again."
+            subtitleText.setText("A true master learns from failure. Review the highlighted scrolls and challenge the trials again.")
 
             btnAction.text = "Return to Studies (Retry)"
             btnAction.setBackgroundColor(android.graphics.Color.parseColor("#D63031"))
@@ -474,15 +514,16 @@ class InitiationActivity : AppCompatActivity() {
     }
 
     private fun finishInitiation() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        GabAIUtils.showSnackbar(this, "Initiation Complete! Quests Unlocked.")
-
-        db.collection("users").document(uid).update(
-            "quests_completed", FieldValue.arrayUnion("read", "test")
-        ).addOnSuccessListener {
+        GabAIUtils.performHaptic(window.decorView, android.view.HapticFeedbackConstants.CONFIRM)
+        ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_TEST) {
             finish()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            findViewById<PDFView>(R.id.pdf_viewer)?.recycle()
+        } catch (_: Exception) {}
     }
 }

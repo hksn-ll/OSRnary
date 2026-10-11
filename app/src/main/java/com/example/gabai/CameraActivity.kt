@@ -1,9 +1,11 @@
 package com.example.gabai
 
+import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
@@ -11,6 +13,8 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
@@ -28,12 +32,28 @@ class CameraActivity : AppCompatActivity() {
     private var camera: Camera? = null
     private var isTorchOn: Boolean = false
     private var laserAnimator: ValueAnimator? = null
+    private var shutterRingAnimator: AnimatorSet? = null
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            startCamera()
+        } else {
+            Toast.makeText(this, "Camera permission is required to scan text.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
 
-        startCamera()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            startCamera()
+        } else {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
         startLaserSweep()
         startShutterRingPulse()
 
@@ -52,11 +72,28 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
+    private fun dismissLoadingOverlay() {
+        val loading = findViewById<View>(R.id.camera_loading_overlay) ?: return
+        if (loading.visibility == View.VISIBLE) {
+            loading.animate()
+                .alpha(0f)
+                .setDuration(260)
+                .withEndAction { loading.visibility = View.GONE }
+                .start()
+        }
+    }
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val cameraProvider: ProcessCameraProvider = try {
+                cameraProviderFuture.get()
+            } catch (e: Exception) {
+                dismissLoadingOverlay()
+                GabAIUtils.showSnackbar(this, "Camera initialization failed: ${e.message}")
+                return@addListener
+            }
             val viewFinder = findViewById<PreviewView>(R.id.viewFinder)
 
             val preview = Preview.Builder()
@@ -74,14 +111,7 @@ class CameraActivity : AppCompatActivity() {
             // Smooth crossfade: dismiss loading screen as soon as preview is live
             viewFinder.previewStreamState.observe(this) { state ->
                 if (state == PreviewView.StreamState.STREAMING) {
-                    val loading = findViewById<View>(R.id.camera_loading_overlay)
-                    if (loading?.visibility == View.VISIBLE) {
-                        loading.animate()
-                            .alpha(0f)
-                            .setDuration(260)
-                            .withEndAction { loading.visibility = View.GONE }
-                            .start()
-                    }
+                    dismissLoadingOverlay()
                 }
             }
 
@@ -94,6 +124,13 @@ class CameraActivity : AppCompatActivity() {
                     imageCapture
                 )
 
+                // Fallback in case device HAL does not emit STREAMING state promptly
+                viewFinder.postDelayed({
+                    if (!isDestroyed && !isFinishing) {
+                        dismissLoadingOverlay()
+                    }
+                }, 2500L)
+
                 // Check flash hardware availability
                 val hasFlash = camera?.cameraInfo?.hasFlashUnit() == true
                 val btnFlash = findViewById<ImageButton>(R.id.btn_flash_toggle)
@@ -101,6 +138,7 @@ class CameraActivity : AppCompatActivity() {
                     btnFlash.alpha = 0.4f
                 }
             } catch (e: Exception) {
+                dismissLoadingOverlay()
                 GabAIUtils.showSnackbar(this, "Camera failed: ${e.message}")
             }
         }, ContextCompat.getMainExecutor(this))
@@ -166,7 +204,7 @@ class CameraActivity : AppCompatActivity() {
             repeatMode = ValueAnimator.REVERSE
             repeatCount = ValueAnimator.INFINITE
         }
-        AnimatorSet().apply {
+        shutterRingAnimator = AnimatorSet().apply {
             playTogether(scaleX, scaleY)
             start()
         }
@@ -206,6 +244,7 @@ class CameraActivity : AppCompatActivity() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val intent = Intent(this@CameraActivity, ScanResultActivity::class.java).apply {
                         putExtra("IMG_PATH", photoFile.absolutePath)
+                        putExtra("SCAN_SOURCE", "camera")
                     }
                     startActivity(intent)
                     finish()
@@ -223,6 +262,8 @@ class CameraActivity : AppCompatActivity() {
         super.onDestroy()
         laserAnimator?.cancel()
         laserAnimator = null
+        shutterRingAnimator?.cancel()
+        shutterRingAnimator = null
         if (isTorchOn) {
             camera?.cameraControl?.enableTorch(false)
         }

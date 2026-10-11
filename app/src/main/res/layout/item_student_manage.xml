@@ -19,19 +19,32 @@
         android:padding="14dp"
         android:gravity="center_vertical">
 
-        <!-- Squircle Initial Avatar -->
+        <!-- Squircle Avatar with Rounded Border -->
         <FrameLayout
+            android:id="@+id/frame_student_avatar"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:background="@drawable/bg_bento_purple"
+            android:background="@drawable/bg_avatar_squircle_border"
+            android:clipToOutline="true"
             android:layout_marginEnd="14dp">
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+            <TextView
+                android:id="@+id/tv_student_avatar_monogram"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_person"
-                app:tint="#5341CD" />
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textColor="#5341CD"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="👤" />
+
+            <ImageView
+                android:id="@+id/iv_student_avatar_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
         </FrameLayout>
 
         <!-- Student Info -->

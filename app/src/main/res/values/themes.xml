@@ -50,8 +50,8 @@
     </style>
 
     <style name="SleekDialogAnimation">
-        <item name="android:windowEnterAnimation">@anim/slide_scale_enter</item>
-        <item name="android:windowExitAnimation">@anim/slide_scale_exit</item>
+        <item name="android:windowEnterAnimation">@anim/dialog_modern_enter</item>
+        <item name="android:windowExitAnimation">@anim/dialog_modern_exit</item>
     </style>
 
     <style name="Theme.GabAI.Fade" parent="Theme.GabAI">

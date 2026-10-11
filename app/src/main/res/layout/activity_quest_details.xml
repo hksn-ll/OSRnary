@@ -236,7 +236,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/font_plus_jakarta_sans"
-                            android:text="2. Read Required Materials"
+                            android:text="2. Scan Text with Floating Bubble"
                             android:textColor="#0F172A"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -247,7 +247,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="@font/font_nunito_sans"
-                            android:text="Use your AI companion to read through the 4 assigned scrolls."
+                            android:text="Tap the floating bubble while reading any app or PDF and explain an unfamiliar word."
                             android:textColor="#64748B"
                             android:textSize="12.5sp" />
                     </LinearLayout>
@@ -294,7 +294,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/font_plus_jakarta_sans"
-                            android:text="3. Pass Initiation Test"
+                            android:text="3. Pass the Initiation Trials"
                             android:textColor="#0F172A"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -305,7 +305,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="@font/font_nunito_sans"
-                            android:text="Score at least 3/5 on the AI exams at the end of each reading material."
+                            android:text="Read through the assigned passage and pass the trial quiz."
                             android:textColor="#64748B"
                             android:textSize="12.5sp" />
                     </LinearLayout>

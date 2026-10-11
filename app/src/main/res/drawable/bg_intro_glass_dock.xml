@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Subtle Outer Shadow Underlay -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="28dp" />
+            <solid android:color="#120F172A" />
+        </shape>
+    </item>
+    <!-- Frosted Acrylic Surface -->
+    <item
+        android:bottom="1.5dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="27dp" />
+            <gradient
+                android:angle="90"
+                android:endColor="#F8FAFC"
+                android:startColor="#FFFFFF"
+                android:type="linear" />
+            <stroke
+                android:width="1dp"
+                android:color="#E2E8F0" />
+        </shape>
+    </item>
+</layer-list>

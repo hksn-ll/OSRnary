@@ -15,7 +15,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class LibraryActivity : AppCompatActivity() {
@@ -39,11 +38,7 @@ class LibraryActivity : AppCompatActivity() {
         loadAssignedMaterials()
 
         // --- QUEST TRIGGER: LIBRARY ---
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            FirebaseFirestore.getInstance().collection("users").document(uid)
-                .update("quests_completed", FieldValue.arrayUnion("library"))
-        }
+        ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_LIBRARY)
     }
 
     private fun loadAssignedMaterials() {

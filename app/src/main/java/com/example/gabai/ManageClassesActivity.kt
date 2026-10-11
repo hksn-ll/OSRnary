@@ -32,6 +32,22 @@ class ManageClassesActivity : AppCompatActivity() {
         fetchAndDisplayClasses()
     }
     private fun showCreateClassDialog() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        db.collection("classes")
+            .whereEqualTo("teacherId", uid)
+            .whereEqualTo("isAdviser", true)
+            .get()
+            .addOnSuccessListener { snaps ->
+                if (!snaps.isEmpty) {
+                    GabAIUtils.showSnackbar(this, "Teachers can only have one advisory class.")
+                    return@addOnSuccessListener
+                }
+                openCreateClassModal()
+            }
+    }
+
+    private fun openCreateClassModal() {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
@@ -188,8 +204,8 @@ class ManageClassesActivity : AppCompatActivity() {
                     textLayout.addView(titleText)
                     textLayout.addView(pillRow)
 
-                    val maxSessions = doc.getLong("maxSessionsPerDay")?.toInt() ?: 3
-                    val maxItems = doc.getLong("maxItemsPerSession")?.toInt() ?: 10
+                    val maxSessions = (doc.getLong("maxSessionsPerDay")?.toInt() ?: 3).coerceIn(3, 5)
+                    val maxItems = (doc.getLong("maxItemsPerSession")?.toInt() ?: 5).coerceIn(3, 10)
 
                     val btnEdit = ImageButton(this).apply {
                         setImageResource(R.drawable.ic_edit)
@@ -232,41 +248,63 @@ class ManageClassesActivity : AppCompatActivity() {
                 }
 
                 // 2. BUILD THE UI: Advisory Section (Student Account Management)
+                val fontJakarta = try { androidx.core.content.res.ResourcesCompat.getFont(this, R.font.font_plus_jakarta_sans) } catch (_: Exception) { null }
                 val headerAdvisory = TextView(this).apply {
-                    text = "🛡️ Advisory Classes (Full Control)"
-                    textSize = 16f
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                    setTextColor(Color.parseColor("#2D3436"))
-                    setPadding(0, 20, 0, 20)
+                    text = "Advisory Class"
+                    textSize = 15.5f
+                    setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                    setTextColor(Color.parseColor("#0F172A"))
+                    setPadding(0, 16, 0, 12)
                 }
                 container.addView(headerAdvisory)
 
                 if (advisoryCards.isEmpty()) {
-                    container.addView(TextView(this).apply { text = "No advisory classes created yet."; setPadding(0, 0, 0, 40) })
+                    container.addView(TextView(this).apply {
+                        text = "No advisory class created yet."
+                        setTextColor(Color.parseColor("#64748B"))
+                        textSize = 13f
+                        setPadding(0, 0, 0, 24)
+                    })
                 } else {
                     advisoryCards.forEach { container.addView(it) }
                 }
 
                 // Add a divider
                 container.addView(View(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 3).apply { setMargins(0, 20, 0, 40) }
-                    setBackgroundColor(Color.parseColor("#DFE6E9"))
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (resources.displayMetrics.density * 1.2).toInt()
+                    ).apply { setMargins(0, 8, 0, 20) }
+                    setBackgroundColor(Color.parseColor("#EDF2F7"))
                 })
 
                 // 3. BUILD THE UI: Subject Section (Class Section List)
                 val headerSubject = TextView(this).apply {
-                    text = "📚 Subject Classes (Joined via Code)"
-                    textSize = 16f
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                    setTextColor(Color.parseColor("#2D3436"))
-                    setPadding(0, 0, 0, 20)
+                    text = "Subject Classes"
+                    textSize = 15.5f
+                    setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                    setTextColor(Color.parseColor("#0F172A"))
+                    setPadding(0, 0, 0, 12)
                 }
                 container.addView(headerSubject)
 
                 if (subjectCards.isEmpty()) {
-                    container.addView(TextView(this).apply { text = "Students haven't joined using your code yet." })
+                    container.addView(TextView(this).apply {
+                        text = "No students have joined your subject classes yet."
+                        setTextColor(Color.parseColor("#64748B"))
+                        textSize = 13f
+                        setPadding(0, 0, 0, 24)
+                    })
                 } else {
                     subjectCards.forEach { container.addView(it) }
+                }
+
+                val bottomDock = findViewById<View>(R.id.bottom_action_container)
+                if (advisoryCards.isNotEmpty()) {
+                    bottomDock?.visibility = View.GONE
+                } else {
+                    bottomDock?.visibility = View.VISIBLE
+                    findViewById<Button>(R.id.btn_create_class)?.text = "+ Create Class Section"
                 }
             }
     }
@@ -306,14 +344,14 @@ class ManageClassesActivity : AppCompatActivity() {
         }
 
         val sessionsLabel = TextView(this).apply {
-            text = "Max Quiz Sessions per Day:"
+            text = "Daily Practice Sessions (3 - 5):"
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(Color.parseColor("#2D3436"))
             setPadding(0, 20, 0, 8)
         }
         val sessionsInput = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            setText(currentMaxSessions.toString())
+            setText(currentMaxSessions.coerceIn(3, 5).toString())
             setBackgroundResource(R.drawable.bg_modern_input)
             setPadding(32, 24, 32, 24)
             setTextColor(Color.parseColor("#2D3436"))
@@ -321,14 +359,14 @@ class ManageClassesActivity : AppCompatActivity() {
         }
 
         val itemsLabel = TextView(this).apply {
-            text = "Max Items per Quiz:"
+            text = "Items per Quiz (5 - 10):"
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(Color.parseColor("#2D3436"))
             setPadding(0, 20, 0, 8)
         }
         val itemsInput = EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            setText(currentMaxItems.toString())
+            setText(currentMaxItems.coerceIn(5, 10).toString())
             setBackgroundResource(R.drawable.bg_modern_input)
             setPadding(32, 24, 32, 24)
             setTextColor(Color.parseColor("#2D3436"))
@@ -362,8 +400,8 @@ class ManageClassesActivity : AppCompatActivity() {
                 val newSection = sectionInput.text.toString().trim()
                 val newFullName = "$newGrade - $newSection"
 
-                val newSessions = sessionsInput.text.toString().toIntOrNull() ?: 3
-                val newItems = itemsInput.text.toString().toIntOrNull() ?: 10
+                val newSessions = (sessionsInput.text.toString().toIntOrNull() ?: 3).coerceIn(3, 5)
+                val newItems = (itemsInput.text.toString().toIntOrNull() ?: 5).coerceIn(5, 10)
 
                 if (newSection.isNotEmpty()) {
                     val db = FirebaseFirestore.getInstance()
@@ -462,16 +500,16 @@ class ManageClassesActivity : AppCompatActivity() {
             val fullClassName = "$grade - $sectionName"
 
             // ==========================================
-            // 🟢 STRICT CHECK: ONE SECTION PER GRADE
+            // 🟢 STRICT CHECK: ONE ADVISORY CLASS PER TEACHER
             // ==========================================
             db.collection("classes")
                 .whereEqualTo("teacherId", uid)
-                .whereEqualTo("grade", grade)
+                .whereEqualTo("isAdviser", true)
                 .get()
-                .addOnSuccessListener { gradeCheck ->
-                    if (!gradeCheck.isEmpty) {
+                .addOnSuccessListener { advisoryCheck ->
+                    if (!advisoryCheck.isEmpty) {
                         GabAIUtils.hideGlobalLoading(this)
-                        GabAIUtils.showSnackbar(this, "Error: You can only create ONE section for $grade.")
+                        GabAIUtils.showSnackbar(this, "Error: Teachers can only have one advisory class.")
                         return@addOnSuccessListener
                     }
 
@@ -502,7 +540,7 @@ class ManageClassesActivity : AppCompatActivity() {
                                     "isAdviser" to true,
                                     "joinedStudents" to listOf<String>(),
                                     "maxSessionsPerDay" to 3,
-                                    "maxItemsPerSession" to 10,
+                                    "maxItemsPerSession" to 5,
                                     "createdAt" to System.currentTimeMillis()
                                 )
                                 db.collection("classes").add(classData)
@@ -603,18 +641,77 @@ class ManageClassesActivity : AppCompatActivity() {
                             for (doc in activeStudents) {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
+                                val fullName = "$fName $lName".trim()
                                 val level = doc.getLong("level")?.toInt() ?: 1
                                 val xp = doc.getLong("current_xp")?.toInt() ?: 0
+                                val photoUrl = doc.getString("photoUrl")
 
-                                container.addView(TextView(this).apply {
-                                    text = "  $fName $lName\n  Level $level ($xp XP)"
+                                val rowCard = LinearLayout(this).apply {
+                                    orientation = LinearLayout.HORIZONTAL
+                                    gravity = android.view.Gravity.CENTER_VERTICAL
+                                    val pad = (resources.displayMetrics.density * 8).toInt()
+                                    setPadding(0, pad, 0, pad)
+                                }
+
+                                val avatarSize = (resources.displayMetrics.density * 40).toInt()
+                                val avatarFrame = FrameLayout(this).apply {
+                                    layoutParams = LinearLayout.LayoutParams(avatarSize, avatarSize).apply {
+                                        marginEnd = (resources.displayMetrics.density * 12).toInt()
+                                    }
+                                    setBackgroundResource(R.drawable.bg_avatar_squircle_border)
+                                    clipToOutline = true
+                                }
+                                val avatarMonogram = TextView(this).apply {
+                                    text = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
                                     textSize = 16f
-                                    setTextColor(Color.BLACK)
-                                    setPadding(0, 10, 0, 20)
-                                })
+                                    setTextColor(Color.parseColor("#5341CD"))
+                                    setTypeface(null, android.graphics.Typeface.BOLD)
+                                    layoutParams = FrameLayout.LayoutParams(
+                                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                                        android.view.Gravity.CENTER
+                                    )
+                                }
+                                val avatarPhoto = ImageView(this).apply {
+                                    layoutParams = FrameLayout.LayoutParams(
+                                        FrameLayout.LayoutParams.MATCH_PARENT,
+                                        FrameLayout.LayoutParams.MATCH_PARENT
+                                    )
+                                    scaleType = ImageView.ScaleType.CENTER_CROP
+                                    visibility = View.GONE
+                                }
+                                avatarFrame.addView(avatarMonogram)
+                                avatarFrame.addView(avatarPhoto)
+
+                                GabAIUtils.loadAvatarImage(photoUrl, avatarPhoto, avatarMonogram)
+
+                                val infoCol = LinearLayout(this).apply {
+                                    orientation = LinearLayout.VERTICAL
+                                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                                }
+                                val nameView = TextView(this).apply {
+                                    text = fullName
+                                    textSize = 15f
+                                    setTypeface(null, android.graphics.Typeface.BOLD)
+                                    setTextColor(Color.parseColor("#0F172A"))
+                                }
+                                val statsView = TextView(this).apply {
+                                    text = "Level $level • $xp XP"
+                                    textSize = 12f
+                                    setTextColor(Color.parseColor("#64748B"))
+                                }
+                                infoCol.addView(nameView)
+                                infoCol.addView(statsView)
+
+                                rowCard.addView(avatarFrame)
+                                rowCard.addView(infoCol)
+                                container.addView(rowCard)
+
                                 container.addView(View(this).apply {
-                                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2).apply { setMargins(0, 10, 0, 10) }
-                                    setBackgroundColor(Color.LTGRAY)
+                                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
+                                        setMargins(0, 4, 0, 4)
+                                    }
+                                    setBackgroundColor(Color.parseColor("#F1F5F9"))
                                 })
                             }
                         } else if (!isAdviser) {
@@ -640,18 +737,65 @@ class ManageClassesActivity : AppCompatActivity() {
                                         for (doc in pendingSnaps) {
                                             val fName = doc.getString("firstName") ?: ""
                                             val lName = doc.getString("lastName") ?: ""
+                                            val fullName = "$fName $lName".trim()
                                             val username = doc.getString("username") ?: "N/A"
                                             val password = doc.getString("password") ?: "N/A"
 
-                                            container.addView(TextView(this).apply {
-                                                text = "  $fName $lName\n  User: $username | Pass: $password"
+                                            val rowCard = LinearLayout(this).apply {
+                                                orientation = LinearLayout.HORIZONTAL
+                                                gravity = android.view.Gravity.CENTER_VERTICAL
+                                                val pad = (resources.displayMetrics.density * 8).toInt()
+                                                setPadding(0, pad, 0, pad)
+                                            }
+
+                                            val avatarSize = (resources.displayMetrics.density * 40).toInt()
+                                            val avatarFrame = FrameLayout(this).apply {
+                                                layoutParams = LinearLayout.LayoutParams(avatarSize, avatarSize).apply {
+                                                    marginEnd = (resources.displayMetrics.density * 12).toInt()
+                                                }
+                                                setBackgroundResource(R.drawable.bg_avatar_squircle_border)
+                                                clipToOutline = true
+                                            }
+                                            val avatarMonogram = TextView(this).apply {
+                                                text = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
                                                 textSize = 16f
-                                                setTextColor(Color.BLACK)
-                                                setPadding(0, 10, 0, 20)
-                                            })
+                                                setTextColor(Color.parseColor("#5341CD"))
+                                                setTypeface(null, android.graphics.Typeface.BOLD)
+                                                layoutParams = FrameLayout.LayoutParams(
+                                                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                                                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                                                    android.view.Gravity.CENTER
+                                                )
+                                            }
+                                            avatarFrame.addView(avatarMonogram)
+
+                                            val infoCol = LinearLayout(this).apply {
+                                                orientation = LinearLayout.VERTICAL
+                                                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                                            }
+                                            val nameView = TextView(this).apply {
+                                                text = fullName
+                                                textSize = 15f
+                                                setTypeface(null, android.graphics.Typeface.BOLD)
+                                                setTextColor(Color.parseColor("#0F172A"))
+                                            }
+                                            val credsView = TextView(this).apply {
+                                                text = "User: $username | Pass: $password"
+                                                textSize = 12f
+                                                setTextColor(Color.parseColor("#64748B"))
+                                            }
+                                            infoCol.addView(nameView)
+                                            infoCol.addView(credsView)
+
+                                            rowCard.addView(avatarFrame)
+                                            rowCard.addView(infoCol)
+                                            container.addView(rowCard)
+
                                             container.addView(View(this).apply {
-                                                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2).apply { setMargins(0, 10, 0, 10) }
-                                                setBackgroundColor(Color.LTGRAY)
+                                                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
+                                                    setMargins(0, 4, 0, 4)
+                                                }
+                                                setBackgroundColor(Color.parseColor("#F1F5F9"))
                                             })
                                         }
                                     }

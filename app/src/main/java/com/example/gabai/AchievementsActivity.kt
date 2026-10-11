@@ -105,6 +105,54 @@ class AchievementsActivity : AppCompatActivity() {
                 R.drawable.ic_insights,
                 "#8B5CF6",
                 "Requires Level 15"
+            ),
+            Badge(
+                "Combo Monarch",
+                "Complete a 5-item quiz session with a 5x Flawless Combo.",
+                AchievementManager.isUnlocked(this, AchievementManager.ACH_COMBO_MONARCH),
+                R.drawable.ic_military_tech,
+                "#F59E0B",
+                "Achieve 5x Flawless Combo in a Quiz"
+            ),
+            Badge(
+                "Eagle Eye",
+                "Uncover 10 context clues in Word Detective mode.",
+                AchievementManager.isUnlocked(this, AchievementManager.ACH_EAGLE_EYE),
+                R.drawable.ic_center_focus,
+                "#6366F1",
+                "Find 10 Clues in Word Detective"
+            ),
+            Badge(
+                "Glitch Buster",
+                "Catch 5 sentence impostors on your first attempt.",
+                AchievementManager.isUnlocked(this, AchievementManager.ACH_GLITCH_BUSTER),
+                R.drawable.ic_task_alt,
+                "#10B981",
+                "Spot 5 Impostor Sentences"
+            ),
+            Badge(
+                "Lightning Reflexes",
+                "Clear a Rapid Match arcade round in under 8 seconds.",
+                AchievementManager.isUnlocked(this, AchievementManager.ACH_LIGHTNING_REFLEXES),
+                R.drawable.ic_flash_on,
+                "#E11D48",
+                "Solve Rapid Match < 8s"
+            ),
+            Badge(
+                "Bold Reader",
+                "Answer 3 questions accurately using the 50/50 Cross-Out Tool.",
+                AchievementManager.isUnlocked(this, AchievementManager.ACH_BOLD_READER),
+                R.drawable.ic_edit,
+                "#8B5CF6",
+                "Use 50/50 Cross-Out 3 Times"
+            ),
+            Badge(
+                "Vocabulary Vault",
+                "Master 20 unique words through recall practice sessions.",
+                AchievementManager.isUnlocked(this, AchievementManager.ACH_VOCAB_VAULT),
+                R.drawable.ic_menu_book,
+                "#059669",
+                "Master 20 Unique Words"
             )
         )
 

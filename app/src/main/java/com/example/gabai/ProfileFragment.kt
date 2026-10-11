@@ -9,6 +9,14 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
+import java.io.ByteArrayOutputStream
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.gabai.databinding.FragmentProfileBinding
@@ -23,6 +31,12 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
+    private val photoPickerLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            showAdjustPhotoDialog(uri)
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
 
@@ -34,24 +48,57 @@ class ProfileFragment : Fragment() {
 
         if (cachedFullName.isNotBlank()) {
             binding.tvProfileName.text = cachedFullName
-            val initial = cachedFullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "G"
+            val initial = cachedFullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
             binding.tvAvatarMonogram.text = initial
         } else if (cachedFirstName.isNotBlank()) {
             val constructed = if (cachedLastName.isNotBlank()) "$cachedFirstName $cachedLastName" else cachedFirstName
             binding.tvProfileName.text = constructed
-            binding.tvAvatarMonogram.text = cachedFirstName.firstOrNull()?.uppercaseChar()?.toString() ?: "G"
+            binding.tvAvatarMonogram.text = cachedFirstName.firstOrNull()?.uppercaseChar()?.toString() ?: "👤"
         } else {
             val fbName = FirebaseAuth.getInstance().currentUser?.displayName
             if (!fbName.isNullOrBlank()) {
                 binding.tvProfileName.text = fbName
-                binding.tvAvatarMonogram.text = fbName.firstOrNull()?.uppercaseChar()?.toString() ?: "G"
+                binding.tvAvatarMonogram.text = fbName.firstOrNull()?.uppercaseChar()?.toString() ?: "👤"
             }
+        }
+
+        val cachedPhotoUrl = prefs.getString("cached_user_photo_url", null)
+        val cachedPhotoStatus = prefs.getString("cached_user_photo_status", "none")
+        if (!cachedPhotoUrl.isNullOrBlank() && (cachedRole == "teacher" || cachedPhotoStatus == "approved")) {
+            GabAIUtils.loadAvatarImage(cachedPhotoUrl, binding.ivAvatarPhoto, binding.tvAvatarMonogram)
         }
 
         applyRoleVisibility(cachedRole)
 
         setupButtons()
         loadUserData()
+
+        binding.btnProfileAvatarFrame.setOnClickListener {
+            val currentRole = prefs.getString("cached_user_role", "student") ?: "student"
+            if (currentRole == "teacher") return@setOnClickListener
+
+            val currentPhotoUrl = prefs.getString("cached_user_photo_url", null)
+            val currentPhotoStatus = prefs.getString("cached_user_photo_status", "none")
+
+            if (!currentPhotoUrl.isNullOrBlank() || currentPhotoStatus == "pending") {
+                GabAIDialogs.showSelectionDialog(
+                    context = requireContext(),
+                    title = "Profile Photo",
+                    subtitle = "Update or remove your current profile photo",
+                    items = listOf("📷 Choose New Photo", "🗑️ Remove Photo"),
+                    badgeIcon = "👤",
+                    onSelected = { which, _ ->
+                        if (which == 0) {
+                            photoPickerLauncher.launch("image/*")
+                        } else {
+                            promptRemoveProfilePhoto()
+                        }
+                    }
+                )
+            } else {
+                photoPickerLauncher.launch("image/*")
+            }
+        }
 
         binding.tvAppVersionLabel.text = "v${BuildConfig.VERSION_NAME}"
 
@@ -76,6 +123,14 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        GabAIUtils.addSpringPressEffect(binding.rowHelpGuide) {
+            val ctx = context ?: return@addSpringPressEffect
+            val currentRole = prefs.getString("cached_user_role", "student") ?: "student"
+            val intent = Intent(ctx, HelpActivity::class.java)
+            intent.putExtra(HelpActivity.EXTRA_USER_ROLE, currentRole)
+            startActivity(intent)
+        }
+
         binding.rowCheckUpdate.setOnClickListener {
             val act = activity ?: return@setOnClickListener
             GitHubUpdateHelper.checkUpdate(act, forceShow = true) {}
@@ -91,17 +146,21 @@ class ProfileFragment : Fragment() {
                 isDestructive = true,
                 badgeIcon = "🚪"
             ) {
-                // Stop the bubble service and reset toggle
-                requireContext().stopService(Intent(requireContext(), FloatingControlService::class.java))
-                requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-                .edit().putBoolean("bubble_enabled", false).apply()
+                val currentCtx = context
+                val currentAct = activity
+                if (currentCtx != null && currentAct != null) {
+                    // Stop the bubble service and reset toggle
+                    currentCtx.stopService(Intent(currentCtx, FloatingControlService::class.java))
+                    currentCtx.getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+                        .edit().putBoolean("bubble_enabled", false).apply()
 
-                FirebaseAuth.getInstance().signOut()
-                val intent = Intent(requireContext(), AuthActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    FirebaseAuth.getInstance().signOut()
+                    val intent = Intent(currentCtx, AuthActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                    currentAct.finish()
                 }
-                startActivity(intent)
-                requireActivity().finish()
             }
         }
 
@@ -111,6 +170,11 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         playEntranceAnimation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadUserData()
     }
 
     fun playEntranceAnimation() {
@@ -141,12 +205,15 @@ class ProfileFragment : Fragment() {
             binding.tvProfileSubtitle.text = "Educator credentials & account settings"
             binding.llStudentGradeSectionRow.visibility = View.GONE
             binding.llTeacherCodeRow.visibility = View.VISIBLE
-            binding.tvStatsHeader.text = "TEACHING STATS"
+            binding.tvStatsHeader.text = "EDUCATOR CREDENTIALS"
             binding.llStudentStatsContainer.visibility = View.GONE
             binding.llTeacherStatsContainer.visibility = View.VISIBLE
             binding.llStudentHubsContainer.visibility = View.GONE
             binding.llTeacherShortcutsContainer.visibility = View.VISIBLE
             binding.llAiLanguageContainer.visibility = View.GONE
+            binding.ivAvatarEditBadge.visibility = View.GONE
+            binding.btnProfileAvatarFrame.isClickable = false
+            binding.btnProfileAvatarFrame.isFocusable = false
         } else {
             binding.tvProfileSubtitle.text = "Personal learning identity & account settings"
             binding.llStudentGradeSectionRow.visibility = View.VISIBLE
@@ -157,6 +224,9 @@ class ProfileFragment : Fragment() {
             binding.llStudentHubsContainer.visibility = View.VISIBLE
             binding.llTeacherShortcutsContainer.visibility = View.GONE
             binding.llAiLanguageContainer.visibility = View.VISIBLE
+            binding.ivAvatarEditBadge.visibility = View.VISIBLE
+            binding.btnProfileAvatarFrame.isClickable = true
+            binding.btnProfileAvatarFrame.isFocusable = true
         }
     }
 
@@ -262,6 +332,28 @@ class ProfileFragment : Fragment() {
                     val schoolName = SchoolRepository.getSchoolName(sId)
                     binding.tvProfileSchool.text = "School: $schoolName"
 
+                    val photoStatus = doc.getString("photoStatus") ?: "none"
+                    val photoUrl = doc.getString("photoUrl")
+
+                    requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+                        .edit()
+                        .putString("cached_user_photo_url", photoUrl)
+                        .putString("cached_user_photo_status", photoStatus)
+                        .apply()
+
+                    if (!photoUrl.isNullOrBlank() && (photoStatus == "approved" || role == "teacher")) {
+                        GabAIUtils.loadAvatarImage(photoUrl, binding.ivAvatarPhoto, binding.tvAvatarMonogram)
+                    } else {
+                        binding.ivAvatarPhoto.visibility = View.GONE
+                        binding.tvAvatarMonogram.visibility = View.VISIBLE
+                    }
+
+                    if (photoStatus == "pending" && role != "teacher") {
+                        binding.tvPhotoStatusPill.visibility = View.VISIBLE
+                    } else {
+                        binding.tvPhotoStatusPill.visibility = View.GONE
+                    }
+
                     applyRoleVisibility(role)
 
                     if (role == "teacher") {
@@ -316,33 +408,52 @@ class ProfileFragment : Fragment() {
     private fun loadTeacherStats(uid: String, db: FirebaseFirestore) {
         // Classes & Enrolled Students
         db.collection("classes")
-            .whereEqualTo("teacherId", uid)
+            .whereArrayContains("teacherIds", uid)
             .get()
             .addOnSuccessListener { snapshots ->
                 if (_binding != null && isAdded) {
-                    binding.loadingTeacherStatClasses.visibility = View.GONE
-                    binding.loadingTeacherStatStudents.visibility = View.GONE
-                    binding.tvTeacherStatClasses.visibility = View.VISIBLE
-                    binding.tvTeacherStatStudents.visibility = View.VISIBLE
-
-                    binding.tvTeacherStatClasses.text = snapshots.size().toString()
-
+                    val totalSections = snapshots.size()
+                    var advisoryTitle = ""
                     var totalStudents = 0
                     for (doc in snapshots.documents) {
+                        val isAdviser = doc.getBoolean("isAdviser") ?: true
+                        val teacherId = doc.getString("teacherId") ?: ""
+                        if (isAdviser && (teacherId == uid || teacherId.isEmpty()) && advisoryTitle.isEmpty()) {
+                            val grade = doc.getString("grade") ?: ""
+                            val className = doc.getString("className") ?: ""
+                            advisoryTitle = if (grade.isNotEmpty() && !className.contains(grade, ignoreCase = false)) {
+                                "$grade - $className"
+                            } else {
+                                className
+                            }
+                        }
                         val joined = doc.get("joinedStudents") as? List<*>
                         totalStudents += joined?.size ?: 0
                     }
-                    binding.tvTeacherStatStudents.text = totalStudents.toString()
+
+                    if (advisoryTitle.isNotEmpty()) {
+                        binding.tvProfileTeacherAdvisory.text = advisoryTitle
+                        binding.tvProfileAdvisoryStatusBadge.text = "Official Advisory"
+                        binding.tvProfileAdvisoryStatusBadge.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#EEF2FF"))
+                        binding.tvProfileAdvisoryStatusBadge.setTextColor(android.graphics.Color.parseColor("#6366F1"))
+                        binding.tvProfileAdvisoryDescription.text = "Designated advisory section for student records, attendance, and performance tracking."
+                    } else {
+                        binding.tvProfileTeacherAdvisory.text = "No Advisory Assigned"
+                        binding.tvProfileAdvisoryStatusBadge.text = "Not Assigned"
+                        binding.tvProfileAdvisoryStatusBadge.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F1F5F9"))
+                        binding.tvProfileAdvisoryStatusBadge.setTextColor(android.graphics.Color.parseColor("#64748B"))
+                        binding.tvProfileAdvisoryDescription.text = "You have not created an advisory class section yet. You can create one in Class Sections & Rosters."
+                    }
+
+                    binding.tvTeacherCredClasses.text = if (totalSections == 1) "1 Section" else "$totalSections Sections"
+                    binding.tvTeacherCredStudents.text = if (totalStudents == 1) "1 Student" else "$totalStudents Students"
                 }
             }
             .addOnFailureListener {
                 if (_binding != null && isAdded) {
-                    binding.loadingTeacherStatClasses.visibility = View.GONE
-                    binding.loadingTeacherStatStudents.visibility = View.GONE
-                    binding.tvTeacherStatClasses.visibility = View.VISIBLE
-                    binding.tvTeacherStatStudents.visibility = View.VISIBLE
-                    binding.tvTeacherStatClasses.text = "0"
-                    binding.tvTeacherStatStudents.text = "0"
+                    binding.tvProfileTeacherAdvisory.text = "Unable to load"
+                    binding.tvTeacherCredClasses.text = "0 Sections"
+                    binding.tvTeacherCredStudents.text = "0 Students"
                 }
             }
 
@@ -352,16 +463,13 @@ class ProfileFragment : Fragment() {
             .get()
             .addOnSuccessListener { snapshots ->
                 if (_binding != null && isAdded) {
-                    binding.loadingTeacherStatMaterials.visibility = View.GONE
-                    binding.tvTeacherStatMaterials.visibility = View.VISIBLE
-                    binding.tvTeacherStatMaterials.text = snapshots.size().toString()
+                    val count = snapshots.size()
+                    binding.tvTeacherCredMaterials.text = if (count == 1) "1 Material" else "$count Materials"
                 }
             }
             .addOnFailureListener {
                 if (_binding != null && isAdded) {
-                    binding.loadingTeacherStatMaterials.visibility = View.GONE
-                    binding.tvTeacherStatMaterials.visibility = View.VISIBLE
-                    binding.tvTeacherStatMaterials.text = "0"
+                    binding.tvTeacherCredMaterials.text = "0 Materials"
                 }
             }
 
@@ -371,16 +479,13 @@ class ProfileFragment : Fragment() {
             .get()
             .addOnSuccessListener { snapshots ->
                 if (_binding != null && isAdded) {
-                    binding.loadingTeacherStatQuizzes.visibility = View.GONE
-                    binding.tvTeacherStatQuizzes.visibility = View.VISIBLE
-                    binding.tvTeacherStatQuizzes.text = snapshots.size().toString()
+                    val count = snapshots.size()
+                    binding.tvTeacherCredQuizzes.text = if (count == 1) "1 Quiz" else "$count Quizzes"
                 }
             }
             .addOnFailureListener {
                 if (_binding != null && isAdded) {
-                    binding.loadingTeacherStatQuizzes.visibility = View.GONE
-                    binding.tvTeacherStatQuizzes.visibility = View.VISIBLE
-                    binding.tvTeacherStatQuizzes.text = "0"
+                    binding.tvTeacherCredQuizzes.text = "0 Quizzes"
                 }
             }
     }
@@ -505,6 +610,159 @@ class ProfileFragment : Fragment() {
             val selected = parent.getItemAtPosition(position).toString()
             prefs.edit().putString("ai_language_pref", selected).apply()
             GabAIUtils.showSnackbar(context, "AI will now explain in $selected")
+        }
+    }
+
+    private fun showAdjustPhotoDialog(uri: android.net.Uri) {
+        val ctx = context ?: return
+        GabAIDialogs.showConfirmDialog(
+            ctx,
+            title = "Adjust Profile Photo",
+            message = "Center your photo in the square frame.\n\nOnce submitted, your teacher will review and approve it before it becomes visible to your class.",
+            confirmText = "Submit for Review",
+            cancelText = "Cancel",
+            isDestructive = false,
+            badgeIcon = "📷"
+        ) {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@showConfirmDialog
+            uploadProfilePhotoToDrive(uri, uid)
+        }
+    }
+
+    private fun uploadProfilePhotoToDrive(uri: android.net.Uri, uid: String) {
+        val act = activity ?: return
+        GabAIUtils.showGlobalLoading(act, "Uploading photo to Drive...")
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val inputStream = act.contentResolver.openInputStream(uri)
+                    ?: throw Exception("Could not open image file.")
+                val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                if (originalBitmap == null) throw Exception("Failed to decode image.")
+
+                // Scale down to max 800x800 maintaining aspect ratio
+                val maxDim = 800
+                val width = originalBitmap.width
+                val height = originalBitmap.height
+                val scaledBitmap = if (width > maxDim || height > maxDim) {
+                    val ratio = width.toFloat() / height.toFloat()
+                    val newWidth: Int
+                    val newHeight: Int
+                    if (ratio > 1) {
+                        newWidth = maxDim
+                        newHeight = (maxDim / ratio).toInt()
+                    } else {
+                        newHeight = maxDim
+                        newWidth = (maxDim * ratio).toInt()
+                    }
+                    Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
+                } else {
+                    originalBitmap
+                }
+
+                val baos = ByteArrayOutputStream()
+                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
+                val imageBytes = baos.toByteArray()
+                val base64File = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+
+                val systematicFilename = "GabAI_Profile_${uid}_${System.currentTimeMillis()}.jpg"
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(45, java.util.concurrent.TimeUnit.SECONDS)
+                    .readTimeout(45, java.util.concurrent.TimeUnit.SECONDS)
+                    .build()
+
+                val formBody = FormBody.Builder()
+                    .add("action", "upload")
+                    .add("fileName", systematicFilename)
+                    .add("mimeType", "image/jpeg")
+                    .add("fileData", base64File)
+                    .build()
+
+                val request = Request.Builder().url(GabAIApp.DRIVE_API_URL).post(formBody).build()
+                val response = client.newCall(request).execute()
+                val responseData = response.body?.string()
+
+                if (response.isSuccessful && responseData != null) {
+                    val json = JSONObject(responseData)
+                    if (json.getString("status") == "success") {
+                        val fileId = json.getString("fileId")
+                        val directPhotoUrl = "https://lh3.googleusercontent.com/d/$fileId"
+
+                        FirebaseFirestore.getInstance().collection("users").document(uid)
+                            .update(
+                                "pendingPhotoUrl", directPhotoUrl,
+                                "pendingPhotoFileId", fileId,
+                                "photoStatus", "pending"
+                            ).await()
+
+                        withContext(Dispatchers.Main) {
+                            GabAIUtils.hideGlobalLoading(act)
+                            if (_binding != null && isAdded) {
+                                binding.tvPhotoStatusPill.visibility = View.VISIBLE
+                                GabAIUtils.showSnackbar(act, "Photo submitted to teacher for review! 📷")
+                            }
+                        }
+                    } else {
+                        throw Exception(json.optString("message", "Upload failed"))
+                    }
+                } else {
+                    throw Exception("Google Error Code: ${response.code}")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.hideGlobalLoading(act)
+                    GabAIUtils.showSnackbar(act, "Upload failed: ${e.message}")
+                }
+            }
+        }
+    }
+
+    private fun promptRemoveProfilePhoto() {
+        val ctx = context ?: return
+        GabAIDialogs.showConfirmDialog(
+            ctx,
+            title = "Remove Profile Photo",
+            message = "Are you sure you want to remove your profile photo? Your avatar will revert to your initials.",
+            confirmText = "Remove",
+            cancelText = "Cancel",
+            isDestructive = true,
+            badgeIcon = "🗑️"
+        ) {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@showConfirmDialog
+            val prefs = ctx.getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            val oldPhotoUrl = prefs.getString("cached_user_photo_url", null)
+
+            val act = activity ?: return@showConfirmDialog
+            GabAIUtils.showGlobalLoading(act, "Removing profile photo...")
+            FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update(
+                    "photoUrl", null,
+                    "pendingPhotoUrl", null,
+                    "pendingPhotoFileId", null,
+                    "photoStatus", "none"
+                )
+                .addOnSuccessListener {
+                    GabAIUtils.hideGlobalLoading(act)
+                    prefs.edit()
+                        .remove("cached_user_photo_url")
+                        .putString("cached_user_photo_status", "none")
+                        .apply()
+
+                    GabAIUtils.invalidateAvatarCache(ctx, oldPhotoUrl)
+
+                    if (_binding != null && isAdded) {
+                        binding.ivAvatarPhoto.visibility = View.GONE
+                        binding.tvAvatarMonogram.visibility = View.VISIBLE
+                        binding.tvPhotoStatusPill.visibility = View.GONE
+                        GabAIUtils.showSnackbar(act, "Profile photo removed.")
+                    }
+                }
+                .addOnFailureListener { e ->
+                    GabAIUtils.hideGlobalLoading(act)
+                    GabAIUtils.showSnackbar(act, "Failed to remove photo: ${e.message}")
+                }
         }
     }
 

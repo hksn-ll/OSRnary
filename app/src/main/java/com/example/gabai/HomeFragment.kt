@@ -74,6 +74,7 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        updateFeatureLockState(XPManager.canEarnXP(requireContext()))
         loadActiveWeeklyAssessments()
     }
 
@@ -85,19 +86,7 @@ class HomeFragment : Fragment() {
         }
 
         // Check lock status for the Leaderboard and Daily Quests UI
-        if (!com.example.gabai.XPManager.canEarnXP(requireContext())) {
-            binding.tvLeaderboardTitle.text = "Leaderboard (Locked)"
-            binding.tvLeaderboardTitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
-            binding.tvLeaderboardSubtitle.text = "Complete Initiation to unlock"
-            binding.ivLeaderboardIcon.setImageResource(R.drawable.ic_lock)
-            binding.ivLeaderboardIcon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
-
-            binding.tvDailyQuestsTitle.text = "Daily Quests (Locked)"
-            binding.tvDailyQuestsTitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
-            binding.tvDailyQuestsSubtitle.text = "Complete Initiation to unlock"
-            binding.ivDailyQuestsIcon.setImageResource(R.drawable.ic_lock)
-            binding.ivDailyQuestsIcon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
-        }
+        updateFeatureLockState(XPManager.canEarnXP(requireContext()))
 
         loadActiveWeeklyAssessments()
 
@@ -111,7 +100,7 @@ class HomeFragment : Fragment() {
             if (com.example.gabai.XPManager.canEarnXP(requireContext())) {
                 startActivity(Intent(requireContext(), DailyQuestsActivity::class.java))
             } else {
-                com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Quests Locked! 🔒 Complete your Apprentice Initiation first.")
+                com.example.gabai.GabAIUtils.showSnackbar(requireContext(), "Quests Locked! 🔒 Complete your Apprentice Quests first.")
             }
         }
         GabAIUtils.addSpringPressEffect(binding.btnLeaderboard) {
@@ -136,7 +125,7 @@ class HomeFragment : Fragment() {
                     confirmText = "Turn On & Open",
                     cancelText = "Cancel",
                     isDestructive = false,
-                    badgeIcon = "🧚‍♂️",
+                    iconRes = R.drawable.ic_floating_gabai_lens,
                     onConfirm = {
                         mainAct?.toggleBubble(enable = true) {
                             startActivity(Intent(requireContext(), LibraryActivity::class.java))
@@ -166,6 +155,15 @@ class HomeFragment : Fragment() {
         binding.root.findViewById<android.widget.Button>(R.id.btn_quest_details)?.let { btn ->
             GabAIUtils.addSpringPressEffect(btn) { showQuestDetailsDialog() }
         }
+        setupQuestRowClickListener(R.id.row_quest_bubble, ApprenticeQuestHelper.QUEST_BUBBLE)
+        setupQuestRowClickListener(R.id.row_quest_bubble_scan, ApprenticeQuestHelper.QUEST_BUBBLE_SCAN)
+        setupQuestRowClickListener(R.id.row_quest_test, ApprenticeQuestHelper.QUEST_TEST)
+        setupQuestRowClickListener(R.id.row_quest_scan, ApprenticeQuestHelper.QUEST_SCAN)
+        setupQuestRowClickListener(R.id.row_quest_save, ApprenticeQuestHelper.QUEST_SAVE)
+        setupQuestRowClickListener(R.id.row_quest_history, ApprenticeQuestHelper.QUEST_HISTORY)
+        setupQuestRowClickListener(R.id.row_quest_detail, ApprenticeQuestHelper.QUEST_DETAIL)
+        setupQuestRowClickListener(R.id.row_quest_library, ApprenticeQuestHelper.QUEST_LIBRARY)
+
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
@@ -191,10 +189,27 @@ class HomeFragment : Fragment() {
             currentCompletedQuests = completedQuests // Save for the dialog
 
             // --- THE GRAND UNLOCK LOGIC (NOW REQUIRES 8 QUESTS) ---
-            val requiredQuests = listOf("bubble", "read", "test", "scan", "save", "history", "detail", "library")
-            if (!isOnboarded && completedQuests.containsAll(requiredQuests)) {
-                // Permanently unlock their account in the database
-                db.collection("users").document(uid).update("is_onboarded", true)
+            val isBubbleDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_BUBBLE)
+            val isBubbleScanDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_BUBBLE_SCAN)
+            val isTrialsDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_TEST) || completedQuests.contains("read")
+            val isScanDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_SCAN)
+            val isSaveDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_SAVE)
+            val isHistoryDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_HISTORY)
+            val isDetailDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_DETAIL)
+            val isLibraryDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_LIBRARY)
+            val allQuestsDone = isBubbleDone && isBubbleScanDone && isTrialsDone && isScanDone && isSaveDone && isHistoryDone && isDetailDone && isLibraryDone
+
+            if (!isOnboarded && allQuestsDone) {
+                XPManager.setOnboarded(requireContext(), true)
+                updateFeatureLockState(true)
+                binding.root.findViewById<View>(R.id.locked_xp_view).visibility = View.GONE
+                binding.root.findViewById<View>(R.id.unlocked_xp_view).visibility = View.VISIBLE
+                binding.root.findViewById<View>(R.id.quest_board_container).visibility = View.GONE
+
+                binding.tvLevelLabel.text = "LEVEL $currentLevel"
+                binding.tvXpLabel.text = "$currentXP / $maxXP XP"
+                binding.xpProgressBar.max = maxXP
+                binding.xpProgressBar.progress = currentXP
 
                 // Show the massive engaging cheer!
                 showGrandUnlockCelebration()
@@ -203,6 +218,7 @@ class HomeFragment : Fragment() {
 
             if (isOnboarded) {
                 // UI: UNLOCKED STATE
+                updateFeatureLockState(true)
                 binding.root.findViewById<View>(R.id.locked_xp_view).visibility = View.GONE
                 binding.root.findViewById<View>(R.id.unlocked_xp_view).visibility = View.VISIBLE
                 binding.root.findViewById<View>(R.id.quest_board_container).visibility = View.GONE
@@ -213,23 +229,57 @@ class HomeFragment : Fragment() {
                 binding.xpProgressBar.progress = currentXP
             } else {
                 // UI: LOCKED STATE (Apprentice Mode)
+                updateFeatureLockState(false)
                 binding.root.findViewById<View>(R.id.locked_xp_view).visibility = View.VISIBLE
                 binding.root.findViewById<View>(R.id.unlocked_xp_view).visibility = View.GONE
                 binding.root.findViewById<View>(R.id.quest_board_container).visibility = View.VISIBLE
 
                 // Update badge and quest rows with clean Google Stitch styling
-                val countDone = completedQuests.size.coerceAtMost(8)
-                binding.root.findViewById<android.widget.TextView>(R.id.tv_quest_progress_badge)?.text = "$countDone / 8 Done"
+                val countDone = listOf(isBubbleDone, isBubbleScanDone, isTrialsDone, isScanDone, isSaveDone, isHistoryDone, isDetailDone, isLibraryDone).count { it }
+                binding.root.findViewById<android.widget.TextView>(R.id.tv_quest_progress_badge)?.text = "$countDone of 8 Unlocked"
 
-                setQuestRowState(R.id.row_quest_bubble, R.id.indicator_quest_bubble, R.id.quest_bubble, R.id.badge_quest_bubble, "Activate the Floating Bubble", completedQuests.contains("bubble"))
-                setQuestRowState(R.id.row_quest_read, R.id.indicator_quest_read, R.id.quest_read, R.id.badge_quest_read, "Read Required Study Materials", completedQuests.contains("read"))
-                setQuestRowState(R.id.row_quest_test, R.id.indicator_quest_test, R.id.quest_test, R.id.badge_quest_test, "Pass the Initiation Test", completedQuests.contains("test"))
-                setQuestRowState(R.id.row_quest_scan, R.id.indicator_quest_scan, R.id.quest_scan, R.id.badge_quest_scan, "Scan a text with the Camera", completedQuests.contains("scan"))
-                setQuestRowState(R.id.row_quest_save, R.id.indicator_quest_save, R.id.quest_save, R.id.badge_quest_save, "Save a word to Favorites", completedQuests.contains("save"))
-                setQuestRowState(R.id.row_quest_history, R.id.indicator_quest_history, R.id.quest_history, R.id.badge_quest_history, "Check your Scan History", completedQuests.contains("history"))
-                setQuestRowState(R.id.row_quest_detail, R.id.indicator_quest_detail, R.id.quest_detail, R.id.badge_quest_detail, "View Saved Content", completedQuests.contains("detail"))
-                setQuestRowState(R.id.row_quest_library, R.id.indicator_quest_library, R.id.quest_library, R.id.badge_quest_library, "Open the Digital Library", completedQuests.contains("library"))
+                setQuestRowState(R.id.row_quest_bubble, R.id.indicator_quest_bubble, R.id.quest_bubble, R.id.badge_quest_bubble, "Activate the Floating Bubble", isBubbleDone)
+                setQuestRowState(R.id.row_quest_bubble_scan, R.id.indicator_quest_bubble_scan, R.id.quest_bubble_scan, R.id.badge_quest_bubble_scan, "Scan Text with Floating Bubble", isBubbleScanDone)
+                setQuestRowState(R.id.row_quest_test, R.id.indicator_quest_test, R.id.quest_test, R.id.badge_quest_test, "Pass the Initiation Trials", isTrialsDone)
+                setQuestRowState(R.id.row_quest_scan, R.id.indicator_quest_scan, R.id.quest_scan, R.id.badge_quest_scan, "Scan a text with the Camera", isScanDone)
+                setQuestRowState(R.id.row_quest_save, R.id.indicator_quest_save, R.id.quest_save, R.id.badge_quest_save, "Save a word to Favorites", isSaveDone)
+                setQuestRowState(R.id.row_quest_history, R.id.indicator_quest_history, R.id.quest_history, R.id.badge_quest_history, "Check your Scan History", isHistoryDone)
+                setQuestRowState(R.id.row_quest_detail, R.id.indicator_quest_detail, R.id.quest_detail, R.id.badge_quest_detail, "View Saved Content", isDetailDone)
+                setQuestRowState(R.id.row_quest_library, R.id.indicator_quest_library, R.id.quest_library, R.id.badge_quest_library, "Open the Digital Library", isLibraryDone)
             }
+        }
+    }
+
+    private fun updateFeatureLockState(isUnlocked: Boolean) {
+        if (_binding == null || !isAdded) return
+        if (isUnlocked) {
+            binding.tvLeaderboardTitle.text = "Leaderboard"
+            binding.tvLeaderboardTitle.setTextColor(android.graphics.Color.parseColor("#161D1F"))
+            binding.tvLeaderboardSubtitle.text = "Rank in your section"
+            binding.tvLeaderboardSubtitle.setTextColor(android.graphics.Color.parseColor("#64748B"))
+            binding.ivLeaderboardIcon.setImageResource(R.drawable.ic_leaderboard)
+            binding.ivLeaderboardIcon.clearColorFilter()
+
+            binding.tvDailyQuestsTitle.text = "Daily Quests"
+            binding.tvDailyQuestsTitle.setTextColor(android.graphics.Color.parseColor("#161D1F"))
+            binding.tvDailyQuestsSubtitle.text = "Daily tasks for bonus XP"
+            binding.tvDailyQuestsSubtitle.setTextColor(android.graphics.Color.parseColor("#64748B"))
+            binding.ivDailyQuestsIcon.setImageResource(R.drawable.ic_task_alt)
+            binding.ivDailyQuestsIcon.clearColorFilter()
+        } else {
+            binding.tvLeaderboardTitle.text = "Leaderboard (Locked)"
+            binding.tvLeaderboardTitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            binding.tvLeaderboardSubtitle.text = "Complete Apprentice Quests to unlock"
+            binding.tvLeaderboardSubtitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            binding.ivLeaderboardIcon.setImageResource(R.drawable.ic_lock)
+            binding.ivLeaderboardIcon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
+
+            binding.tvDailyQuestsTitle.text = "Daily Quests (Locked)"
+            binding.tvDailyQuestsTitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            binding.tvDailyQuestsSubtitle.text = "Complete Apprentice Quests to unlock"
+            binding.tvDailyQuestsSubtitle.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+            binding.ivDailyQuestsIcon.setImageResource(R.drawable.ic_lock)
+            binding.ivDailyQuestsIcon.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
         }
     }
 
@@ -247,8 +297,6 @@ class HomeFragment : Fragment() {
         val badge = if (badgeId != null) binding.root.findViewById<View>(badgeId) else null
 
         textView?.text = title
-        val isAlwaysTealCheck = (badgeId == R.id.badge_quest_bubble || badgeId == R.id.badge_quest_read || 
-                                 badgeId == R.id.badge_quest_scan || badgeId == R.id.badge_quest_library)
 
         if (isDone) {
             container.setBackgroundResource(R.drawable.bg_quest_row_done)
@@ -258,25 +306,23 @@ class HomeFragment : Fragment() {
             indicator?.setPadding(10, 10, 10, 10)
             textView?.setTextColor(android.graphics.Color.parseColor("#64748B"))
             textView?.paintFlags = (textView?.paintFlags ?: 0) or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
-            
-            if (isAlwaysTealCheck) {
-                badge?.visibility = View.VISIBLE
-            } else {
-                badge?.visibility = View.GONE
-            }
+            badge?.visibility = View.VISIBLE
         } else {
             container.setBackgroundResource(R.drawable.bg_quest_row_pending)
-            indicator?.setBackgroundResource(R.drawable.bg_badge_rose)
-            indicator?.setImageResource(R.drawable.ic_close_bold)
-            indicator?.setColorFilter(android.graphics.Color.parseColor("#BA1A1A"))
-            indicator?.setPadding(10, 10, 10, 10)
+            indicator?.setBackgroundResource(R.drawable.bg_quest_indicator_pending)
+            indicator?.setImageResource(R.drawable.ic_radio_button_unchecked)
+            indicator?.setColorFilter(android.graphics.Color.parseColor("#94A3B8"))
+            indicator?.setPadding(8, 8, 8, 8)
             textView?.setTextColor(android.graphics.Color.parseColor("#161D1F"))
             textView?.paintFlags = (textView?.paintFlags ?: 0) and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            badge?.visibility = View.GONE
+        }
+    }
 
-            if (isAlwaysTealCheck) {
-                badge?.visibility = View.GONE
-            } else {
-                badge?.visibility = View.VISIBLE
+    private fun setupQuestRowClickListener(rowId: Int, questId: String) {
+        binding.root.findViewById<View>(rowId)?.let { row ->
+            GabAIUtils.addSpringPressEffect(row) {
+                GabAIDialogs.showQuestNavigationDialog(requireContext(), questId)
             }
         }
     }
@@ -524,20 +570,23 @@ class HomeFragment : Fragment() {
                                 }
 
                                 card.setOnClickListener {
-                                    val intent = Intent(requireContext(), WeeklyAssessmentActivity::class.java).apply {
+                                    val ctx = context ?: return@setOnClickListener
+                                    val intent = Intent(ctx, WeeklyAssessmentActivity::class.java).apply {
                                         putExtra("ASSESSMENT_ID", assessmentId)
                                     }
                                     startActivity(intent)
                                 }
 
                                 btn.setOnClickListener {
-                                    val intent = Intent(requireContext(), WeeklyAssessmentActivity::class.java).apply {
+                                    val ctx = context ?: return@setOnClickListener
+                                    val intent = Intent(ctx, WeeklyAssessmentActivity::class.java).apply {
                                         putExtra("ASSESSMENT_ID", assessmentId)
                                     }
                                     startActivity(intent)
                                 }
 
-                                binding.containerAssessmentCards.addView(card)
+                                val currentBinding = _binding ?: return@addOnSuccessListener
+                                currentBinding.containerAssessmentCards.addView(card)
                             }
                         }
                 }

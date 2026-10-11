@@ -417,7 +417,11 @@ object GitHubUpdateHelper {
         dialog.setContentView(view)
 
         // Apply hardware-accelerated frosted glass backdrop blur, animations, and responsive dimensions
-        GabAIDialogs.applyModernWindowStyles(dialog)
+        GabAIDialogs.applyModernWindowStyles(dialog) {
+            if (activeDialog === dialog) {
+                activeDialog = null
+            }
+        }
 
         val tvTitle = view.findViewById<TextView>(R.id.tv_update_title)
         val tvMessage = view.findViewById<TextView>(R.id.tv_update_message)
@@ -451,8 +455,9 @@ object GitHubUpdateHelper {
         var downloadedApkFile: File? = null
 
         btnUpdateNow.setOnClickListener {
-            if (downloadedApkFile != null && downloadedApkFile!!.exists()) {
-                installApk(activity, downloadedApkFile!!)
+            val cachedApk = downloadedApkFile
+            if (cachedApk != null && cachedApk.exists()) {
+                installApk(activity, cachedApk)
                 return@setOnClickListener
             }
 
@@ -507,12 +512,6 @@ object GitHubUpdateHelper {
             } catch (_: Exception) {}
             activeDialog = null
             activity.finishAffinity()
-        }
-
-        dialog.setOnDismissListener {
-            if (activeDialog === dialog) {
-                activeDialog = null
-            }
         }
 
         activeDialog = dialog

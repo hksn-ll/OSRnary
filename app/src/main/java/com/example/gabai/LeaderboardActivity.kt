@@ -5,7 +5,9 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -112,10 +114,15 @@ class LeaderboardActivity : AppCompatActivity() {
                     val firstLName = firstDoc.getString("lastName") ?: ""
                     val firstInitial = (firstFName.firstOrNull() ?: '1').uppercaseChar().toString()
                     val firstXp = firstDoc.getLong("current_xp")?.toInt() ?: 0
-                    findViewById<TextView>(R.id.tv_podium_first_avatar).text = firstInitial
+                    val firstPhotoUrl = firstDoc.getString("photoUrl")
+                    val tvFirstAvatar = findViewById<TextView>(R.id.tv_podium_first_avatar)
+                    val ivFirstPhoto = findViewById<ImageView>(R.id.iv_podium_first_photo)
+                    tvFirstAvatar.text = firstInitial
+                    GabAIUtils.loadAvatarImage(firstPhotoUrl, ivFirstPhoto, tvFirstAvatar)
                     findViewById<TextView>(R.id.tv_podium_first_name).text = "$firstFName $firstLName".trim()
                     findViewById<TextView>(R.id.tv_podium_first_xp).text = "$firstXp XP"
                     podiumFirst.visibility = View.VISIBLE
+                    podiumFirst.setOnClickListener { showStudentProfile(firstDoc, 1) }
 
                     // 2nd Place
                     if (sortedStudents.size > 1) {
@@ -124,10 +131,15 @@ class LeaderboardActivity : AppCompatActivity() {
                         val secondLName = secondDoc.getString("lastName") ?: ""
                         val secondInitial = (secondFName.firstOrNull() ?: '2').uppercaseChar().toString()
                         val secondXp = secondDoc.getLong("current_xp")?.toInt() ?: 0
-                        findViewById<TextView>(R.id.tv_podium_second_avatar).text = secondInitial
+                        val secondPhotoUrl = secondDoc.getString("photoUrl")
+                        val tvSecondAvatar = findViewById<TextView>(R.id.tv_podium_second_avatar)
+                        val ivSecondPhoto = findViewById<ImageView>(R.id.iv_podium_second_photo)
+                        tvSecondAvatar.text = secondInitial
+                        GabAIUtils.loadAvatarImage(secondPhotoUrl, ivSecondPhoto, tvSecondAvatar)
                         findViewById<TextView>(R.id.tv_podium_second_name).text = "$secondFName $secondLName".trim()
                         findViewById<TextView>(R.id.tv_podium_second_xp).text = "$secondXp XP"
                         podiumSecond.visibility = View.VISIBLE
+                        podiumSecond.setOnClickListener { showStudentProfile(secondDoc, 2) }
                     } else {
                         podiumSecond.visibility = View.INVISIBLE
                     }
@@ -139,10 +151,15 @@ class LeaderboardActivity : AppCompatActivity() {
                         val thirdLName = thirdDoc.getString("lastName") ?: ""
                         val thirdInitial = (thirdFName.firstOrNull() ?: '3').uppercaseChar().toString()
                         val thirdXp = thirdDoc.getLong("current_xp")?.toInt() ?: 0
-                        findViewById<TextView>(R.id.tv_podium_third_avatar).text = thirdInitial
+                        val thirdPhotoUrl = thirdDoc.getString("photoUrl")
+                        val tvThirdAvatar = findViewById<TextView>(R.id.tv_podium_third_avatar)
+                        val ivThirdPhoto = findViewById<ImageView>(R.id.iv_podium_third_photo)
+                        tvThirdAvatar.text = thirdInitial
+                        GabAIUtils.loadAvatarImage(thirdPhotoUrl, ivThirdPhoto, tvThirdAvatar)
                         findViewById<TextView>(R.id.tv_podium_third_name).text = "$thirdFName $thirdLName".trim()
                         findViewById<TextView>(R.id.tv_podium_third_xp).text = "$thirdXp XP"
                         podiumThird.visibility = View.VISIBLE
+                        podiumThird.setOnClickListener { showStudentProfile(thirdDoc, 3) }
                     } else {
                         podiumThird.visibility = View.INVISIBLE
                     }
@@ -171,7 +188,7 @@ class LeaderboardActivity : AppCompatActivity() {
                             val row = LinearLayout(this).apply {
                                 orientation = LinearLayout.HORIZONTAL
                                 gravity = Gravity.CENTER_VERTICAL
-                                setPadding(36, 32, 36, 32)
+                                setPadding(32, 28, 32, 28)
                                 layoutParams = LinearLayout.LayoutParams(
                                     LinearLayout.LayoutParams.MATCH_PARENT,
                                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -181,16 +198,49 @@ class LeaderboardActivity : AppCompatActivity() {
                             }
 
                             val tvRank = TextView(this).apply {
-                                text = "  #$rank"
+                                text = "#$rank"
                                 textSize = 14f
                                 setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
-                                layoutParams = LinearLayout.LayoutParams(110, LinearLayout.LayoutParams.WRAP_CONTENT)
+                                layoutParams = LinearLayout.LayoutParams(85, LinearLayout.LayoutParams.WRAP_CONTENT)
                                 setTextColor(Color.parseColor("#94A3B8"))
                             }
 
+                            val density = resources.displayMetrics.density
+                            val avatarSizePx = (40 * density).toInt()
+                            val avatarFrame = FrameLayout(this).apply {
+                                layoutParams = LinearLayout.LayoutParams(avatarSizePx, avatarSizePx).apply {
+                                    marginEnd = (12 * density).toInt()
+                                }
+                                setBackgroundResource(R.drawable.bg_bento_purple)
+                            }
+                            val initial = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
+                            val tvInitial = TextView(this).apply {
+                                layoutParams = FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                    FrameLayout.LayoutParams.MATCH_PARENT
+                                )
+                                gravity = Gravity.CENTER
+                                text = initial
+                                textSize = 15f
+                                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                                setTextColor(Color.parseColor("#5341CD"))
+                            }
+                            val ivPhoto = ImageView(this).apply {
+                                layoutParams = FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                    FrameLayout.LayoutParams.MATCH_PARENT
+                                )
+                                scaleType = ImageView.ScaleType.CENTER_CROP
+                                visibility = View.GONE
+                            }
+                            avatarFrame.addView(tvInitial)
+                            avatarFrame.addView(ivPhoto)
+                            val photoUrl = doc.getString("photoUrl")
+                            GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvInitial)
+
                             val tvName = TextView(this).apply {
                                 text = if (isMe) "$fullName (You)" else fullName
-                                textSize = 14f
+                                textSize = 14.5f
                                 setTypeface(fontJakarta ?: typeface, if (isMe) Typeface.BOLD else Typeface.NORMAL)
                                 setTextColor(Color.parseColor(if (isMe) "#5341CD" else "#161D1F"))
                                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -205,11 +255,12 @@ class LeaderboardActivity : AppCompatActivity() {
                             }
 
                             row.addView(tvRank)
+                            row.addView(avatarFrame)
                             row.addView(tvName)
                             row.addView(tvLevel)
 
                             GabAIUtils.addSpringPressEffect(row) {
-                                GabAIUtils.showSnackbar(this, "$fullName • Rank #$rank ($xp Total XP)")
+                                showStudentProfile(doc, rank)
                             }
 
                             container.addView(row)
@@ -255,5 +306,26 @@ class LeaderboardActivity : AppCompatActivity() {
                     GabAIUtils.showSnackbar(this, "Error loading leaderboard: ${e.message}")
                 }
         }
+    }
+
+    private fun showStudentProfile(doc: DocumentSnapshot, rank: Int) {
+        val fName = doc.getString("firstName") ?: "Scholar"
+        val lName = doc.getString("lastName") ?: ""
+        val fullName = "$fName $lName".trim()
+        val grade = doc.getString("grade") ?: ""
+        val section = doc.getString("section") ?: ""
+        val level = doc.getLong("level")?.toInt() ?: 1
+        val xp = doc.getLong("current_xp")?.toInt() ?: 0
+
+        val sheet = StudentProfileBottomSheet.newInstance(
+            studentId = doc.id,
+            studentName = fullName,
+            grade = grade,
+            section = section,
+            level = level,
+            xp = xp,
+            rank = rank
+        )
+        sheet.show(supportFragmentManager, "StudentProfileSheet")
     }
 }

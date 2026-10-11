@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.Dialog
 import android.content.ClipData
@@ -16,6 +17,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.*
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
@@ -55,7 +57,7 @@ object GabAIDialogs {
     /**
      * Applies hardware-accelerated frosted glass backdrop blur, dimming, and window animations.
      */
-    fun applyModernWindowStyles(dialog: Dialog) {
+    fun applyModernWindowStyles(dialog: Dialog, onDismiss: (() -> Unit)? = null) {
         val window = dialog.window ?: return
         val context = dialog.context
         window.setBackgroundDrawableResource(android.R.color.transparent)
@@ -81,18 +83,22 @@ object GabAIDialogs {
                     try {
                         decorView.setRenderEffect(null)
                     } catch (_: Exception) {}
+                    onDismiss?.invoke()
                 }
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+                if (onDismiss != null) {
+                    dialog.setOnDismissListener { onDismiss.invoke() }
+                }
+            }
+        } else if (onDismiss != null) {
+            dialog.setOnDismissListener { onDismiss.invoke() }
         }
 
         try {
             window.setWindowAnimations(R.style.SleekDialogAnimation)
         } catch (_: Exception) {}
 
-        // Enforce card sizing on show
-        dialog.setOnShowListener {
-            applyDialogDimensions(dialog)
-        }
+        applyDialogDimensions(dialog)
     }
 
     /**
@@ -315,6 +321,7 @@ object GabAIDialogs {
         isDestructive: Boolean = false,
         badgeIcon: String = if (isDestructive) "🗑️" else "⚠️",
         iconRes: Int? = null,
+        onCancel: (() -> Unit)? = null,
         onConfirm: () -> Unit
     ): Dialog {
         val dialog = Dialog(context)
@@ -350,6 +357,7 @@ object GabAIDialogs {
 
         GabAIUtils.addSpringPressEffect(btnCancel) {
             dialog.dismiss()
+            onCancel?.invoke()
         }
 
         GabAIUtils.addSpringPressEffect(btnConfirm) {
@@ -380,7 +388,7 @@ object GabAIDialogs {
         dialog.setCancelable(cancelable)
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_modern_notice, null)
         dialog.setContentView(view)
-        applyModernWindowStyles(dialog)
+        applyModernWindowStyles(dialog, onDismiss)
 
         val tvBadge = view.findViewById<TextView>(R.id.tv_dialog_badge_icon)
         val ivBadge = view.findViewById<ImageView?>(R.id.iv_dialog_badge_icon)
@@ -405,12 +413,6 @@ object GabAIDialogs {
         GabAIUtils.addSpringPressEffect(btnAction) {
             dialog.dismiss()
             onAction?.invoke() ?: onDismiss?.invoke()
-        }
-
-        if (onDismiss != null) {
-            dialog.setOnDismissListener {
-                onDismiss.invoke()
-            }
         }
 
         dialog.show()
@@ -541,6 +543,174 @@ object GabAIDialogs {
 
         dialog.show()
         applyDialogDimensions(dialog)
+        return dialog
+    }
+
+    /**
+     * Interactive Quest & Feature Navigation Tutorial Dialog with animated mockup pointer.
+     */
+    fun showQuestNavigationDialog(context: Context, questId: String): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_quest_nav_tutorial, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val tvTag = view.findViewById<TextView>(R.id.tv_quest_nav_tag)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_quest_nav_title)
+        val tvInstruction = view.findViewById<TextView>(R.id.tv_quest_nav_instruction)
+        val btnGotIt = view.findViewById<Button>(R.id.btn_quest_nav_got_it)
+
+        val mockupBubble = view.findViewById<View?>(R.id.mockup_bubble)
+        val mockupBubbleScan = view.findViewById<View?>(R.id.mockup_bubble_scan)
+        val mockupScan = view.findViewById<View?>(R.id.mockup_scan)
+        val mockupTest = view.findViewById<View?>(R.id.mockup_test)
+        val mockupSave = view.findViewById<View?>(R.id.mockup_save)
+        val mockupHistory = view.findViewById<View?>(R.id.mockup_history)
+        val mockupDetail = view.findViewById<View?>(R.id.mockup_detail)
+        val mockupLibrary = view.findViewById<View?>(R.id.mockup_library)
+        val mockupTeacherQr = view.findViewById<View?>(R.id.mockup_teacher_qr)
+        val mockupTeacherClasses = view.findViewById<View?>(R.id.mockup_teacher_classes)
+        val mockupTeacherLibrary = view.findViewById<View?>(R.id.mockup_teacher_library)
+        val mockupTeacherQuiz = view.findViewById<View?>(R.id.mockup_teacher_quiz)
+        val mockupTeacherAnalytics = view.findViewById<View?>(R.id.mockup_teacher_analytics)
+
+        mockupBubble?.visibility = View.GONE
+        mockupBubbleScan?.visibility = View.GONE
+        mockupScan?.visibility = View.GONE
+        mockupTest?.visibility = View.GONE
+        mockupSave?.visibility = View.GONE
+        mockupHistory?.visibility = View.GONE
+        mockupDetail?.visibility = View.GONE
+        mockupLibrary?.visibility = View.GONE
+        mockupTeacherQr?.visibility = View.GONE
+        mockupTeacherClasses?.visibility = View.GONE
+        mockupTeacherLibrary?.visibility = View.GONE
+        mockupTeacherQuiz?.visibility = View.GONE
+        mockupTeacherAnalytics?.visibility = View.GONE
+
+        when (questId) {
+            ApprenticeQuestHelper.QUEST_BUBBLE -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Activate the Floating Bubble"
+                tvInstruction.text = "Tap 'Launch Bubble' at the top of your Home screen to turn on the floating companion."
+                mockupBubble?.visibility = View.VISIBLE
+            }
+            ApprenticeQuestHelper.QUEST_BUBBLE_SCAN -> {
+                tvTag.text = "ANY APP OR PDF"
+                tvTitle.text = "Scan Text with Floating Bubble"
+                tvInstruction.text = "When reading in any app or PDF, tap the floating bubble on your screen, then tap a word to see its definition."
+                mockupBubbleScan?.visibility = View.VISIBLE
+            }
+            ApprenticeQuestHelper.QUEST_SCAN -> {
+                tvTag.text = "BOTTOM NAVIGATION"
+                tvTitle.text = "Scan Text with the Camera"
+                tvInstruction.text = "Tap the camera button on the bottom bar, then point at printed text to look up words."
+                mockupScan?.visibility = View.VISIBLE
+            }
+            ApprenticeQuestHelper.QUEST_TEST, "read" -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Initiation Trials"
+                tvInstruction.text = "Tap 'View Quest Details' on your Home screen, read the passage, and answer the questions."
+                mockupTest?.visibility = View.VISIBLE
+            }
+            ApprenticeQuestHelper.QUEST_SAVE -> {
+                tvTag.text = "WORD OVERVIEW"
+                tvTitle.text = "Save Words to Favorites"
+                tvInstruction.text = "When looking up a word, tap the star icon (⭐) at the top right to save it to your favorites."
+                mockupSave?.visibility = View.VISIBLE
+            }
+            ApprenticeQuestHelper.QUEST_HISTORY -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Check Scan History"
+                tvInstruction.text = "On your Home screen, scroll down to 'Review' and tap 'History' to see words you recently looked up."
+                mockupHistory?.visibility = View.VISIBLE
+            }
+            ApprenticeQuestHelper.QUEST_DETAIL -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Saved Words (Favorites)"
+                tvInstruction.text = "On your Home screen, scroll down to 'Review' and tap 'Favourites' to review all your saved words."
+                mockupDetail?.visibility = View.VISIBLE
+            }
+            ApprenticeQuestHelper.QUEST_LIBRARY -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Digital Library"
+                tvInstruction.text = "On your Home screen, scroll down to 'Tools' and tap 'Digital Library' to open reading materials from your teacher."
+                mockupLibrary?.visibility = View.VISIBLE
+            }
+            "teacher_qr" -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Class Join Code & QR Code"
+                tvInstruction.text = "Tap 'Show QR' on your Home screen to display your class QR code and 6-letter join code for students."
+                mockupTeacherQr?.visibility = View.VISIBLE
+            }
+            "teacher_classes" -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Class Sections & Rosters"
+                tvInstruction.text = "On your Home screen, tap 'Class Sections' to view rosters, add classes, or remove students."
+                mockupTeacherClasses?.visibility = View.VISIBLE
+            }
+            "teacher_library" -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Learning Materials"
+                tvInstruction.text = "On your Home screen, tap 'Learning Materials' to upload reading PDFs for your classes."
+                mockupTeacherLibrary?.visibility = View.VISIBLE
+            }
+            "teacher_quiz" -> {
+                tvTag.text = "READING MATERIALS"
+                tvTitle.text = "Comprehension Quizzes"
+                tvInstruction.text = "Open any material in your library and tap 'Generate AI Quiz' or 'Create Quiz' to add questions."
+                mockupTeacherQuiz?.visibility = View.VISIBLE
+            }
+            "teacher_analytics" -> {
+                tvTag.text = "HOME SCREEN"
+                tvTitle.text = "Learner Analytics"
+                tvInstruction.text = "On your Home screen, tap 'Learner Analytics' to view student progress and difficult words."
+                mockupTeacherAnalytics?.visibility = View.VISIBLE
+            }
+        }
+
+        val activePointer: View? = when (questId) {
+            ApprenticeQuestHelper.QUEST_BUBBLE -> view.findViewById(R.id.pointer_bubble)
+            ApprenticeQuestHelper.QUEST_BUBBLE_SCAN -> view.findViewById(R.id.pointer_bubble_scan)
+            ApprenticeQuestHelper.QUEST_SCAN -> view.findViewById(R.id.pointer_scan)
+            ApprenticeQuestHelper.QUEST_TEST, "read" -> view.findViewById(R.id.pointer_test)
+            ApprenticeQuestHelper.QUEST_SAVE -> view.findViewById(R.id.pointer_save)
+            ApprenticeQuestHelper.QUEST_HISTORY -> view.findViewById(R.id.pointer_history)
+            ApprenticeQuestHelper.QUEST_DETAIL -> view.findViewById(R.id.pointer_detail)
+            ApprenticeQuestHelper.QUEST_LIBRARY -> view.findViewById(R.id.pointer_library)
+            "teacher_qr" -> view.findViewById(R.id.pointer_teacher_qr)
+            "teacher_classes" -> view.findViewById(R.id.pointer_teacher_classes)
+            "teacher_library" -> view.findViewById(R.id.pointer_teacher_library)
+            "teacher_quiz" -> view.findViewById(R.id.pointer_teacher_quiz)
+            "teacher_analytics" -> view.findViewById(R.id.pointer_teacher_analytics)
+            else -> null
+        }
+
+        var pointerAnimator: ObjectAnimator? = null
+        if (activePointer != null) {
+            val property = if (questId == ApprenticeQuestHelper.QUEST_BUBBLE_SCAN) "translationX" else "translationY"
+            val targetOffset = if (questId == ApprenticeQuestHelper.QUEST_BUBBLE_SCAN || questId == ApprenticeQuestHelper.QUEST_SCAN) 8f else -8f
+            pointerAnimator = ObjectAnimator.ofFloat(activePointer, property, 0f, targetOffset, 0f).apply {
+                duration = 850L
+                startDelay = 260L
+                repeatCount = ObjectAnimator.INFINITE
+                repeatMode = ObjectAnimator.REVERSE
+                interpolator = AccelerateDecelerateInterpolator()
+            }
+        }
+
+        GabAIUtils.addSpringPressEffect(btnGotIt) {
+            GabAIUtils.performHaptic(btnGotIt, android.view.HapticFeedbackConstants.CLOCK_TICK)
+            pointerAnimator?.cancel()
+            dialog.dismiss()
+        }
+
+        dialog.setOnShowListener {
+            pointerAnimator?.start()
+        }
+
+        applyDialogDimensions(dialog)
+        dialog.show()
         return dialog
     }
 }

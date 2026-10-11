@@ -30,6 +30,10 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.content.res.ColorStateList
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
+import com.google.firebase.firestore.DocumentSnapshot
 
 class ClassDetailActivity : AppCompatActivity() {
 
@@ -212,6 +216,9 @@ class ClassDetailActivity : AppCompatActivity() {
 
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, pendingContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
+                                val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
+                                val initial = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
+                                tvMonogram?.text = initial
                                 val detailsView = view.findViewById<TextView>(R.id.tv_student_details)
                                 val maskedPass = "•".repeat(password.length.coerceIn(6, 10))
                                 detailsView.text = "User: $username | Pass: $maskedPass  📋 Tap to copy"
@@ -243,22 +250,45 @@ class ClassDetailActivity : AppCompatActivity() {
                         if (snapshots.isEmpty) {
                             activeContainer.addView(TextView(this).apply { text = "No active students." })
                         } else {
+                            val pendingPhotos = snapshots.documents.filter { it.getString("photoStatus") == "pending" }
+                            if (pendingPhotos.isNotEmpty()) {
+                                activeContainer.addView(TextView(this).apply {
+                                    text = "📷 Photo Approvals (${pendingPhotos.size} Pending)"
+                                    setTypeface(null, android.graphics.Typeface.BOLD)
+                                    setTextColor(Color.parseColor("#5341CD"))
+                                    setPadding(0, 10, 0, 10)
+                                })
+                                for (pDoc in pendingPhotos) {
+                                    val pName = "${pDoc.getString("firstName") ?: ""} ${pDoc.getString("lastName") ?: ""}".trim()
+                                    val pUrl = pDoc.getString("pendingPhotoUrl") ?: ""
+                                    activeContainer.addView(createPhotoModerationCard(pDoc.id, pName, pUrl))
+                                }
+                            }
+
                             activeContainer.addView(TextView(this).apply {
                                 text = "Active Students"
                                 setTypeface(null, android.graphics.Typeface.BOLD)
                                 setTextColor(Color.DKGRAY)
-                                setPadding(0, 30, 0, 10)
+                                setPadding(0, 20, 0, 10)
                             })
                             for (doc in snapshots) {
                                 val fName = doc.getString("firstName") ?: ""
                                 val lName = doc.getString("lastName") ?: ""
                                 val fullName = "$fName $lName".trim()
                                 val level = doc.getLong("level")?.toInt() ?: 1
+                                val photoUrl = doc.getString("photoUrl")
 
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
                                 view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
 
+                                val ivPhoto = view.findViewById<ImageView>(R.id.iv_student_avatar_photo)
+                                val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
+                                val initial = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
+                                tvMonogram?.text = initial
+                                GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvMonogram)
+
+                                view.setOnClickListener { openStudentProfile(doc) }
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "") }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, false, fullName) }
                                 activeContainer.addView(view)
@@ -289,6 +319,21 @@ class ClassDetailActivity : AppCompatActivity() {
                         if (activeDocs.isEmpty()) {
                             activeContainer.addView(TextView(this).apply { text = "No students have joined using your code yet." })
                         } else {
+                            val pendingPhotos = activeDocs.filter { it.getString("photoStatus") == "pending" }
+                            if (pendingPhotos.isNotEmpty()) {
+                                activeContainer.addView(TextView(this).apply {
+                                    text = "📷 Photo Approvals (${pendingPhotos.size} Pending)"
+                                    setTypeface(null, android.graphics.Typeface.BOLD)
+                                    setTextColor(Color.parseColor("#5341CD"))
+                                    setPadding(0, 10, 0, 10)
+                                })
+                                for (pDoc in pendingPhotos) {
+                                    val pName = "${pDoc.getString("firstName") ?: ""} ${pDoc.getString("lastName") ?: ""}".trim()
+                                    val pUrl = pDoc.getString("pendingPhotoUrl") ?: ""
+                                    activeContainer.addView(createPhotoModerationCard(pDoc.id, pName, pUrl))
+                                }
+                            }
+
                             activeContainer.addView(TextView(this).apply {
                                 text = "Students Joined"
                                 setTypeface(null, android.graphics.Typeface.BOLD)
@@ -300,10 +345,19 @@ class ClassDetailActivity : AppCompatActivity() {
                                 val lName = doc.getString("lastName") ?: ""
                                 val fullName = "$fName $lName".trim()
                                 val level = doc.getLong("level")?.toInt() ?: 1
+                                val photoUrl = doc.getString("photoUrl")
 
                                 val view = layoutInflater.inflate(R.layout.item_student_manage, activeContainer, false)
                                 view.findViewById<TextView>(R.id.tv_student_name).text = fullName
                                 view.findViewById<TextView>(R.id.tv_student_details).text = "Level $level Explorer"
+
+                                val ivPhoto = view.findViewById<ImageView>(R.id.iv_student_avatar_photo)
+                                val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
+                                val initial = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
+                                tvMonogram?.text = initial
+                                GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvMonogram)
+
+                                view.setOnClickListener { openStudentProfile(doc) }
 
                                 // Remove editing controls so they can't mess with the adviser's students
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).visibility = View.GONE
@@ -870,5 +924,173 @@ class ClassDetailActivity : AppCompatActivity() {
                     container.addView(card)
                 }
             }
+    }
+
+    private fun openStudentProfile(doc: DocumentSnapshot) {
+        val fName = doc.getString("firstName") ?: ""
+        val lName = doc.getString("lastName") ?: ""
+        val fullName = "$fName $lName".trim()
+        val level = doc.getLong("level")?.toInt() ?: 1
+        val xp = doc.getLong("current_xp")?.toInt() ?: 0
+        val sheet = StudentProfileBottomSheet.newInstance(
+            studentId = doc.id,
+            studentName = fullName,
+            grade = grade,
+            section = sectionName,
+            level = level,
+            xp = xp
+        )
+        sheet.show(supportFragmentManager, "StudentProfileSheet")
+    }
+
+    private fun createPhotoModerationCard(studentId: String, studentName: String, photoUrl: String): View {
+        val density = resources.displayMetrics.density
+        val card = MaterialCardView(this).apply {
+            radius = 16f * density
+            strokeWidth = (1f * density).toInt()
+            strokeColor = Color.parseColor("#E2E8F0")
+            setCardBackgroundColor(Color.WHITE)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, (12f * density).toInt())
+            }
+        }
+
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(
+                (16f * density).toInt(),
+                (14f * density).toInt(),
+                (16f * density).toInt(),
+                (14f * density).toInt()
+            )
+        }
+
+        val titleRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+
+        val avatarFrame = FrameLayout(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                (54f * density).toInt(),
+                (54f * density).toInt()
+            ).apply {
+                marginEnd = (12f * density).toInt()
+            }
+            setBackgroundResource(R.drawable.bg_bento_purple)
+            clipToOutline = true
+        }
+
+        val avatarMonogram = TextView(this).apply {
+            text = studentName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
+            textSize = 20f
+            setTextColor(Color.parseColor("#5341CD"))
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                android.view.Gravity.CENTER
+            )
+        }
+
+        val avatarImageView = ImageView(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            visibility = View.GONE
+        }
+
+        avatarFrame.addView(avatarMonogram)
+        avatarFrame.addView(avatarImageView)
+
+        // Visually render student's submitted photo from Drive
+        GabAIUtils.loadAvatarImage(photoUrl, avatarImageView, avatarMonogram)
+
+        avatarFrame.setOnClickListener {
+            GabAIDialogs.showConfirmDialog(
+                this,
+                title = "$studentName's Photo",
+                message = "Student submitted a profile photo for verification.\n\nApprove or decline this photo for the student profile?",
+                confirmText = "Approve",
+                cancelText = "Decline",
+                badgeIcon = "📷"
+            ) {
+                db.collection("users").document(studentId)
+                    .update("photoUrl", photoUrl, "photoStatus", "approved", "pendingPhotoUrl", null)
+                    .addOnSuccessListener {
+                        GabAIUtils.showSnackbar(this@ClassDetailActivity, "Approved photo for $studentName! ✅")
+                    }
+            }
+        }
+
+        val nameView = TextView(this).apply {
+            text = "$studentName\nSubmitted a photo for review"
+            textSize = 13.5f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#1E293B"))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        titleRow.addView(avatarFrame)
+        titleRow.addView(nameView)
+
+        val actionRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = (10f * density).toInt()
+            }
+        }
+
+        val btnApprove = MaterialButton(this).apply {
+            text = "✅ Approve"
+            textSize = 12f
+            cornerRadius = (10f * density).toInt()
+            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+            setTextColor(Color.WHITE)
+            layoutParams = LinearLayout.LayoutParams(0, (42f * density).toInt(), 1f).apply {
+                marginEnd = (6f * density).toInt()
+            }
+            setOnClickListener {
+                db.collection("users").document(studentId)
+                    .update("photoUrl", photoUrl, "photoStatus", "approved", "pendingPhotoUrl", null)
+                    .addOnSuccessListener {
+                        GabAIUtils.showSnackbar(this@ClassDetailActivity, "Approved photo for $studentName! ✅")
+                    }
+            }
+        }
+
+        val btnDecline = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+            text = "❌ Decline"
+            textSize = 12f
+            cornerRadius = (10f * density).toInt()
+            strokeColor = ColorStateList.valueOf(Color.parseColor("#EF4444"))
+            strokeWidth = (1f * density).toInt()
+            setTextColor(Color.parseColor("#EF4444"))
+            layoutParams = LinearLayout.LayoutParams(0, (42f * density).toInt(), 1f).apply {
+                marginStart = (6f * density).toInt()
+            }
+            setOnClickListener {
+                db.collection("users").document(studentId)
+                    .update("photoStatus", "declined", "pendingPhotoUrl", null)
+                    .addOnSuccessListener {
+                        GabAIUtils.showSnackbar(this@ClassDetailActivity, "Declined photo for $studentName.")
+                    }
+            }
+        }
+
+        actionRow.addView(btnApprove)
+        actionRow.addView(btnDecline)
+        layout.addView(titleRow)
+        layout.addView(actionRow)
+        card.addView(layout)
+        return card
     }
 }

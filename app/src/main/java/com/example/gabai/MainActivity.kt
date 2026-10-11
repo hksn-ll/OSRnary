@@ -51,13 +51,8 @@ class MainActivity : AppCompatActivity() {
 
             updateBubbleUi(true, animate = true)
             GabAIUtils.performHaptic(binding.btnBubbleToggle, android.view.HapticFeedbackConstants.CONFIRM)
-            GabAIUtils.showSnackbar(this, "Bubble Active! 🧚‍♂️")
-
-            val triggerUid = FirebaseAuth.getInstance().currentUser?.uid
-            if (triggerUid != null) {
-                FirebaseFirestore.getInstance().collection("users").document(triggerUid)
-                    .update("quests_completed", com.google.firebase.firestore.FieldValue.arrayUnion("bubble"))
-            }
+            GabAIUtils.showSnackbar(this, "Floating Bubble Active! ✨")
+            ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_BUBBLE)
 
             pendingBubbleLaunchCallback?.invoke()
             pendingBubbleLaunchCallback = null
@@ -405,6 +400,36 @@ class MainActivity : AppCompatActivity() {
         colorAnim.start()
     }
 
+    private fun startPromptlessBubble(onLaunched: (() -> Unit)? = null) {
+        FloatingControlService.isRunning = true
+        getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            .edit().putBoolean("bubble_enabled", true).apply()
+
+        val intent = Intent(this, FloatingControlService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
+
+        updateBubbleUi(true, animate = true)
+        GabAIUtils.performHaptic(binding.btnBubbleToggle, android.view.HapticFeedbackConstants.CONFIRM)
+        GabAIUtils.showSnackbar(this, "Floating Bubble Active! ✨")
+        ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_BUBBLE)
+        onLaunched?.invoke()
+    }
+
+    private fun launchMediaProjection(onLaunched: (() -> Unit)? = null) {
+        pendingBubbleLaunchCallback = onLaunched
+        val mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val config = MediaProjectionConfig.createConfigForDefaultDisplay()
+            screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent(config))
+        } else {
+            screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
+        }
+    }
+
     fun toggleBubble(enable: Boolean? = null, onLaunched: (() -> Unit)? = null) {
         val currentlyActive = isBubbleActive() || binding.btnBubbleToggle.text == "Bubble Active"
         val shouldEnable = enable ?: !currentlyActive
@@ -415,15 +440,34 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
                 startActivity(intent)
                 updateBubbleUi(false, animate = false)
-            } else {
-                pendingBubbleLaunchCallback = onLaunched
-                val mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    val config = MediaProjectionConfig.createConfigForDefaultDisplay()
-                    screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent(config))
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (GabAIAccessibilityService.isRunning) {
+                    startPromptlessBubble(onLaunched)
                 } else {
-                    screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
+                    GabAIDialogs.showConfirmDialog(
+                        context = this,
+                        title = "Screen Capture Permission",
+                        message = "GabAI needs screen capture permission to scan and define words on your screen.",
+                        confirmText = "Enable in Settings",
+                        cancelText = "Screen Share",
+                        isDestructive = false,
+                        badgeIcon = "📸",
+                        onCancel = {
+                            launchMediaProjection(onLaunched)
+                        },
+                        onConfirm = {
+                            try {
+                                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                startActivity(intent)
+                                GabAIUtils.showSnackbar(this, "Find and enable 'GabAI' in the list")
+                            } catch (_: Exception) {
+                                launchMediaProjection(onLaunched)
+                            }
+                        }
+                    )
                 }
+            } else {
+                launchMediaProjection(onLaunched)
             }
         } else {
             stopService(Intent(this, FloatingControlService::class.java))
@@ -468,6 +512,16 @@ class MainActivity : AppCompatActivity() {
         applyRoleUi(role)
         val targetTag = if (role == "teacher") "teacher_home" else "student_home"
         showFragmentByTag(targetTag)
+
+        if (role == "student") {
+            val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+            val hasSeenIntro = prefs.getBoolean(StudentIntroActivity.PREF_HAS_SEEN_INTRO, false)
+            if (!hasSeenIntro) {
+                val introIntent = Intent(this, StudentIntroActivity::class.java)
+                startActivity(introIntent)
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            }
+        }
 
         // Pre-inflate ProfileFragment in the background so opening Profile tab is instantaneous (0ms cold-start lag)
         val fm = supportFragmentManager

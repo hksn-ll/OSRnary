@@ -47,6 +47,7 @@
         android:layout_marginTop="36dp"
         android:background="@drawable/bg_btn_frosted_circle"
         android:contentDescription="Close Camera"
+        android:elevation="16dp"
         android:padding="11dp"
         android:src="@drawable/ic_close_bold"
         app:tint="#FFFFFF"

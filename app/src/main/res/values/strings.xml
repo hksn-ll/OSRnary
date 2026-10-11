@@ -20,4 +20,5 @@
     <string name="error_load_failed">Something went wrong. Please check your connection and try again.</string>
     <string name="error_load_settings_failed">Couldn\'t load your class settings. Please try again.</string>
     <string name="action_retry">Return to Dashboard</string>
+    <string name="accessibility_service_description">Enables GabAI to capture and translate on-screen text instantly without repeated screen recording dialogs.</string>
 </resources>

@@ -2,6 +2,7 @@ package com.example.gabai
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
@@ -14,9 +15,11 @@ class GabAIApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         // Initialize centralized GitHub update monitor with lifecycle tracking and idle poller
         GitHubUpdateHelper.init(this)
+        OfflineLockoutHelper.init(this)
 
         // Offload App Check to background thread so AppBindData runs at maximum speed
         thread(start = true, name = "GabAI-Init") {

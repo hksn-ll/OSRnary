@@ -104,6 +104,7 @@ class FavoritesActivity : AppCompatActivity() {
         })
 
         loadInitialData()
+        ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_DETAIL)
     }
 
     override fun onResume() {
