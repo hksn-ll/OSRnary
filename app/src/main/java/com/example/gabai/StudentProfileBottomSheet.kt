@@ -1,5 +1,6 @@
 package com.example.gabai
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -115,6 +116,34 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
 
         btnClose.setOnClickListener { dismiss() }
 
+        val tvMasteryPill = view.findViewById<TextView>(R.id.tv_profile_mastery_pill)
+        val tvWordsMastered = view.findViewById<TextView>(R.id.tv_stat_words_mastered)
+        val tvAccuracy = view.findViewById<TextView>(R.id.tv_stat_accuracy)
+
+        val btnShare = view.findViewById<MaterialButton>(R.id.btn_share_profile)
+        btnShare?.setOnClickListener {
+            val slip = buildString {
+                appendLine("🌟 GabAI Scholar Reading Slip")
+                appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                appendLine("Learner: $studentName")
+                appendLine("Class: $classLabel")
+                appendLine("Reading Mastery: ${tvMasteryPill?.text ?: "In Progress"}")
+                appendLine("Quiz Accuracy: ${tvAccuracy?.text ?: "--"}")
+                appendLine("Words Mastered: ${tvWordsMastered?.text ?: "0 Words"}")
+                appendLine("Reading Streak: ${tvStatStreak.text}")
+                appendLine("Level & XP: Lvl $level ($xp XP)")
+                appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                appendLine("Verified by Advisory Teacher via GabAI Educational Platform")
+            }
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "GabAI Reading Slip - $studentName")
+                putExtra(Intent.EXTRA_TEXT, slip)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share Scholar Progress Slip"))
+        }
+
         db.collection("users").document(studentId).get().addOnSuccessListener { doc ->
             if (!isAdded || doc == null || !doc.exists()) return@addOnSuccessListener
             val liveXp = doc.getLong("current_xp")?.toInt() ?: xp
@@ -128,14 +157,33 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvMonogram)
         }
 
-        // Fetch student's peak combo streak from quiz history
+        // Fetch words mastered from OCR history (interval >= 4)
+        db.collection("users").document(studentId)
+            .collection("history")
+            .whereGreaterThanOrEqualTo("interval", 4)
+            .get()
+            .addOnSuccessListener { masteredDocs ->
+                if (!isAdded) return@addOnSuccessListener
+                val count = masteredDocs.size()
+                tvWordsMastered?.text = "$count Words"
+            }
+
+        // Fetch student's peak combo streak and accuracy from quiz history
         db.collection("users").document(studentId)
             .collection("quiz_history")
             .get()
             .addOnSuccessListener { quizSnaps ->
                 if (!isAdded) return@addOnSuccessListener
                 var peakCombo = 0
+                var totalScore = 0
+                var totalAttempts = 0
+
                 for (qDoc in quizSnaps.documents) {
+                    val s = qDoc.getLong("finalScore")?.toInt() ?: 0
+                    val a = qDoc.getLong("totalAttempts")?.toInt() ?: 0
+                    totalScore += s
+                    totalAttempts += a
+
                     val docMax = qDoc.getLong("maxComboStreak")?.toInt() ?: 0
                     if (docMax > peakCombo) peakCombo = docMax
 
@@ -152,6 +200,27 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
                             }
                         }
                     }
+                }
+
+                val accuracyPct = if (totalAttempts > 0) ((totalScore.toDouble() / totalAttempts) * 100).toInt() else 0
+                tvAccuracy?.text = "$accuracyPct%"
+
+                if (totalAttempts == 0) {
+                    tvMasteryPill?.text = "🌱 New Scholar"
+                    tvMasteryPill?.setTextColor(Color.parseColor("#64748B"))
+                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
+                } else if (accuracyPct >= 80) {
+                    tvMasteryPill?.text = "🟢 Mastery ($accuracyPct%)"
+                    tvMasteryPill?.setTextColor(Color.parseColor("#047857"))
+                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                } else if (accuracyPct >= 60) {
+                    tvMasteryPill?.text = "🟡 Proficient ($accuracyPct%)"
+                    tvMasteryPill?.setTextColor(Color.parseColor("#D97706"))
+                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF3C7"))
+                } else {
+                    tvMasteryPill?.text = "🔴 Needs Support ($accuracyPct%)"
+                    tvMasteryPill?.setTextColor(Color.parseColor("#BE123C"))
+                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFE4E6"))
                 }
 
                 if (peakCombo > 0) {

@@ -417,9 +417,19 @@ class MaterialQuizActivity : AppCompatActivity() {
     private fun showFinalResults() {
         clearSavedSession()
         val isPassed = currentScore >= (quizList.size / 2.0)
-        val xpEarned = if (isPassed) 30 else 0
+
+        // 🟢 PREVENT REPEAT XP FARMING EXPLOIT:
+        // First mastery awards full 30 XP. Repeat reviews award +5 Review XP.
+        val progressPrefs = getSharedPreferences("gabai_material_progress", android.content.Context.MODE_PRIVATE)
+        val progressKey = "mastered_${materialId}_${auth.currentUser?.uid ?: ""}"
+        val isFirstMastery = !progressPrefs.getBoolean(progressKey, false)
+
+        val xpEarned = if (isPassed) {
+            if (isFirstMastery) 30 else 5
+        } else 0
 
         if (isPassed) {
+            progressPrefs.edit().putBoolean(progressKey, true).apply()
             if (XPManager.canEarnXP(this)) {
                 XPManager.addXP(this, xpEarned)
             }
@@ -436,6 +446,7 @@ class MaterialQuizActivity : AppCompatActivity() {
                 "finalScore" to currentScore,
                 "totalAttempts" to totalAttempts,
                 "xpEarned" to xpEarned,
+                "isFirstMastery" to isFirstMastery,
                 "items" to sessionResults
             )
             db.collection("users").document(userId).collection("quiz_history").add(historyData)
@@ -453,7 +464,7 @@ class MaterialQuizActivity : AppCompatActivity() {
         if (isPassed) {
             layoutXpSummary?.visibility = View.VISIBLE
             tvXpTotal?.text = "+$xpEarned XP"
-            tvXpDetails?.text = "Reading Comprehension Quest: +$xpEarned XP"
+            tvXpDetails?.text = if (isFirstMastery) "Reading Comprehension Mastered: +$xpEarned XP" else "Reading Review Revision: +$xpEarned XP"
         } else {
             layoutXpSummary?.visibility = View.GONE
         }

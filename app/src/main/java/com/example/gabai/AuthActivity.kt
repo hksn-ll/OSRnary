@@ -550,7 +550,7 @@ class AuthActivity : AppCompatActivity() {
                     studentData.remove("tempPassword")
 
                     db.collection("users").document(newUid).set(studentData).addOnSuccessListener {
-                        // Migrate quiz history subcollection
+                        // 1. Migrate quiz history subcollection
                         db.collection("users").document(oldUid).collection("quiz_history").get()
                             .addOnSuccessListener { quizSnaps ->
                                 for (q in quizSnaps) {
@@ -559,7 +559,49 @@ class AuthActivity : AppCompatActivity() {
                                 }
                             }
 
-                        // Update classes joinedStudents
+                        // 2. Migrate diagnostic results subcollection
+                        db.collection("users").document(oldUid).collection("diagnostic_results").get()
+                            .addOnSuccessListener { diagSnaps ->
+                                for (d in diagSnaps) {
+                                    db.collection("users").document(newUid).collection("diagnostic_results").document(d.id).set(d.data)
+                                    d.reference.delete()
+                                }
+                            }
+
+                        // 3. Migrate favorites subcollection
+                        db.collection("users").document(oldUid).collection("favorites").get()
+                            .addOnSuccessListener { favSnaps ->
+                                for (f in favSnaps) {
+                                    db.collection("users").document(newUid).collection("favorites").document(f.id).set(f.data)
+                                    f.reference.delete()
+                                }
+                            }
+
+                        // 4. Migrate search/scan history subcollection
+                        db.collection("users").document(oldUid).collection("history").get()
+                            .addOnSuccessListener { histSnaps ->
+                                for (h in histSnaps) {
+                                    db.collection("users").document(newUid).collection("history").document(h.id).set(h.data)
+                                    h.reference.delete()
+                                }
+                            }
+
+                        // 5. Migrate assessment submissions to newUid
+                        db.collection("assessment_submissions")
+                            .whereEqualTo("studentUid", oldUid)
+                            .get()
+                            .addOnSuccessListener { subSnaps ->
+                                for (sub in subSnaps) {
+                                    val data = sub.data.toMutableMap()
+                                    data["studentUid"] = newUid
+                                    val assessmentId = sub.getString("assessmentId") ?: ""
+                                    val newDocId = if (assessmentId.isNotBlank()) "${assessmentId}_${newUid}" else sub.id
+                                    db.collection("assessment_submissions").document(newDocId).set(data)
+                                    sub.reference.delete()
+                                }
+                            }
+
+                        // 6. Update classes joinedStudents
                         val studentSchoolId = studentDoc.getString("schoolId") ?: ""
                         if (studentSchoolId.isNotBlank()) {
                             db.collection("classes").whereEqualTo("schoolId", studentSchoolId).get()
@@ -580,7 +622,25 @@ class AuthActivity : AppCompatActivity() {
                                 }
                         }
 
-                        // Delete old user doc
+                        // 7. Migrate library_materials assigned access
+                        db.collection("library_materials")
+                            .whereArrayContains("assignedSections", oldUid)
+                            .get()
+                            .addOnSuccessListener { matSnaps ->
+                                for (m in matSnaps) {
+                                    m.reference.update(
+                                        "assignedSections", FieldValue.arrayRemove(oldUid)
+                                    )
+                                    m.reference.update(
+                                        "assignedSections", FieldValue.arrayUnion(newUid)
+                                    )
+                                }
+                            }
+
+                        // 8. Clear stale SharedPreferences caches
+                        getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).edit().clear().apply()
+
+                        // 8. Delete old user doc
                         studentDoc.reference.delete()
 
                         toggleLoading(false)

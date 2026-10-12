@@ -137,6 +137,16 @@ class InitiationActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_loading_text).text = "Fetching your initiation trials..."
         findViewById<LinearLayout>(R.id.reading_container).visibility = View.GONE
 
+        // 🟢 Network Watchdog: Prevent hanging forever on slow/dropped connections
+        var hasLoaded = false
+        val watchdog = Runnable {
+            if (!hasLoaded && !isDestroyed && !isFinishing) {
+                hasLoaded = true
+                loadStep(0)
+            }
+        }
+        window.decorView.postDelayed(watchdog, 4000)
+
         db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
             val schoolId = userDoc.getString("schoolId") ?: ""
             val section = userDoc.getString("section") ?: ""
@@ -150,29 +160,46 @@ class InitiationActivity : AppCompatActivity() {
                 .whereEqualTo("isAdviser", true)
                 .get()
                 .addOnSuccessListener { classSnaps ->
-                    if (!classSnaps.isEmpty) {
-                        val classDoc = classSnaps.documents[0]
+                    if (!hasLoaded) {
+                        hasLoaded = true
+                        window.decorView.removeCallbacks(watchdog)
 
-                        // 1. Override the Quiz Items
-                        targetQuizItems = classDoc.getLong("initiation_items")?.toInt() ?: 5
+                        if (!classSnaps.isEmpty) {
+                            val classDoc = classSnaps.documents[0]
 
-                        // 2. Override the PDFs with Custom Ones
-                        val customPdfs = classDoc.get("initiation_pdfs") as? Map<String, Map<String, String>>
-                        if (customPdfs != null) {
-                            val slot = customPdfs["1"]
-                            if (slot != null) {
-                                val url = slot["url"] ?: ""
-                                val title = slot["title"] ?: "Custom Material 1"
-                                if (url.isNotEmpty()) {
-                                    materials[0] = InitiationMaterial(true, url, title)
+                            // 1. Override the Quiz Items
+                            targetQuizItems = classDoc.getLong("initiation_items")?.toInt() ?: 5
+
+                            // 2. Override the PDFs with Custom Ones
+                            val customPdfs = classDoc.get("initiation_pdfs") as? Map<String, Map<String, String>>
+                            if (customPdfs != null) {
+                                val slot = customPdfs["1"]
+                                if (slot != null) {
+                                    val url = slot["url"] ?: ""
+                                    val title = slot["title"] ?: "Custom Material 1"
+                                    if (url.isNotEmpty()) {
+                                        materials[0] = InitiationMaterial(true, url, title)
+                                    }
                                 }
                             }
                         }
+                        loadStep(0)
                     }
-                    loadStep(0)
                 }
-                .addOnFailureListener { loadStep(0) }
-        }.addOnFailureListener { loadStep(0) }
+                .addOnFailureListener {
+                    if (!hasLoaded) {
+                        hasLoaded = true
+                        window.decorView.removeCallbacks(watchdog)
+                        loadStep(0)
+                    }
+                }
+        }.addOnFailureListener {
+            if (!hasLoaded) {
+                hasLoaded = true
+                window.decorView.removeCallbacks(watchdog)
+                loadStep(0)
+            }
+        }
     }
 
     private fun loadStep(stepIndex: Int) {
@@ -556,6 +583,8 @@ class InitiationActivity : AppCompatActivity() {
         val rewardsBox = findViewById<LinearLayout>(R.id.rewards_container)
 
         if (allPassed) {
+            lastTotalScore = totalScore
+            lastTotalPossible = targetQuizItems * materials.size
             rewardsBox.visibility = View.VISIBLE
 
             if (totalScore == (targetQuizItems * materials.size)) {
@@ -585,8 +614,34 @@ class InitiationActivity : AppCompatActivity() {
         }
     }
 
+    private var lastTotalScore = 0
+    private var lastTotalPossible = 0
+
     private fun finishInitiation() {
         GabAIUtils.performHaptic(window.decorView, android.view.HapticFeedbackConstants.CONFIRM)
+
+        val totalPossible = if (lastTotalPossible > 0) lastTotalPossible else (targetQuizItems * materials.size)
+        val percentage = if (totalPossible > 0) ((lastTotalScore.toDouble() / totalPossible) * 100).toInt() else 0
+        val philIriTier = when {
+            percentage >= 80 -> "Independent"
+            percentage >= 59 -> "Instructional"
+            else -> "Frustration"
+        }
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            val db = FirebaseFirestore.getInstance()
+            val diagData = hashMapOf(
+                "phil_iri_tier" to philIriTier,
+                "diagnostic_score" to lastTotalScore,
+                "diagnostic_total" to totalPossible,
+                "diagnostic_pct" to percentage,
+                "diagnostic_completed_at" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+            db.collection("users").document(uid).update(diagData as Map<String, Any>)
+            db.collection("users").document(uid).collection("diagnostic_results").add(diagData)
+        }
+
         ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_TEST) {
             finish()
         }

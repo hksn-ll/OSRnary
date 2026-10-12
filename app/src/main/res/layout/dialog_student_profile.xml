@@ -99,6 +99,24 @@
                     android:backgroundTint="#fef3c7"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"/>
+                <TextView
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#059669"
+                    android:id="@+id/tv_profile_mastery_pill"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:paddingLeft="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="8dp"
+                    android:paddingBottom="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🟢 Advanced"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:layout_marginStart="6dp"
+                    android:backgroundTint="#d1fae5"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -198,6 +216,73 @@
                 android:letterSpacing="0.05"/>
         </LinearLayout>
     </LinearLayout>
+
+    <!-- Literacy & Vocabulary Retention Bento Grid -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:baselineAligned="false">
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/bg_pill_translucent"
+            android:padding="12dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:backgroundTint="#f8fafc">
+            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#5341cd"
+                android:id="@+id/tv_stat_words_mastered"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 Words"
+                android:fontFamily="@font/font_plus_jakarta_sans"/>
+            <TextView
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#94a3b8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WORDS MASTERED"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:letterSpacing="0.05"/>
+        </LinearLayout>
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/bg_pill_translucent"
+            android:padding="12dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:backgroundTint="#f8fafc">
+            <TextView
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#059669"
+                android:id="@+id/tv_stat_accuracy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:fontFamily="@font/font_plus_jakarta_sans"/>
+            <TextView
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#94a3b8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QUIZ ACCURACY"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:letterSpacing="0.05"/>
+        </LinearLayout>
+    </LinearLayout>
+
     <TextView
         android:textSize="13sp"
         android:textStyle="bold"
@@ -287,16 +372,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"/>
-    <com.google.android.material.button.MaterialButton
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="#ffffff"
-        android:id="@+id/btn_close_sheet"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Close Profile"
-        android:fontFamily="@font/font_plus_jakarta_sans"
-        android:backgroundTint="#5341cd"
-        app:cornerRadius="14dp"
-        style="@style/Widget.Material3.Button"/>
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.button.MaterialButton
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#5341cd"
+            android:id="@+id/btn_share_profile"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            android:text="Share Slip 📤"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:backgroundTint="#EEF2FF"
+            app:cornerRadius="14dp"
+            app:strokeWidth="1.2dp"
+            app:strokeColor="#C7D2FE"
+            app:icon="@drawable/ic_share"
+            app:iconTint="#5341CD"
+            app:iconSize="16dp"
+            app:iconPadding="4dp"
+            style="@style/Widget.Material3.Button.TonalButton"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#ffffff"
+            android:id="@+id/btn_close_sheet"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:text="Close"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:backgroundTint="#5341cd"
+            app:cornerRadius="14dp"
+            style="@style/Widget.Material3.Button"/>
+    </LinearLayout>
 </LinearLayout>

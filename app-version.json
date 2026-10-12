@@ -1,11 +1,11 @@
 {
-  "versionCode": 32,
-  "versionName": "0.4.18",
-  "minRequiredVersionCode": 32,
+  "versionCode": 33,
+  "versionName": "0.4.19",
+  "minRequiredVersionCode": 33,
   "forceUpdate": true,
-  "title": "School Boundaries & Identity Collision Defense (v0.4.18)",
-  "message": "Enforced strict school boundaries on QR join codes, added collision-proof student generation with batch deduplication, and added handle disambiguation across all teacher views.",
+  "title": "AI Document Validation & Reading Mastery Analytics (v0.4.19)",
+  "message": "Enforced AI validation to reject unrelated documents (Math, Science formulas), revamped teacher & admin metrics to modern Reading Mastery standards, and enabled full CSV and mobile roster exports.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.18/GabAI-v0.4.18.apk",
-  "changelog": "• School Boundary Protection: Scans outside a student's DepEd school boundary are strictly blocked with custom Bento dialog notices.\n• Same-Name Student Collision Defense: Generated student usernames now use 5-digit entropy and batch deduplication sets, eliminating account overwrites.\n• Account Claiming & Recovery: Handled Auth collision recovery and teacher temporary password resets without account lockout.\n• Teacher UI Disambiguation: Display @username handles across Class Roster, Material Assignment, and Analytics to distinguish students with identical names."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.19/GabAI-v0.4.19.apk",
+  "changelog": "• AI Document Upload Validation: Automatically inspects teacher PDFs and strictly rejects non-reading documents (Math problem sets, Science formulas, lab logs, coding scripts), ensuring only reading comprehension materials and literature are accepted.\n• Reading Mastery Analytics: Overhauled teacher mobile statistics and admin portal dashboards with modern reading fluency metrics.\n• Universal Data Export: Added client-side CSV downloads in the web admin portal and Android Share Sheet exports for student rosters and support radar.\n• Zero Jargon & Clean UI: Enforced modern literacy mastery benchmarks throughout."
 }

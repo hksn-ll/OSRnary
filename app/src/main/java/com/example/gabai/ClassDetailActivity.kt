@@ -650,7 +650,13 @@ class ClassDetailActivity : AppCompatActivity() {
         ) {
             val collection = if (isPending) "pending_students" else "users"
             db.collection(collection).document(docId).delete()
-                .addOnSuccessListener { com.example.gabai.GabAIUtils.showSnackbar(this, "Student removed") }
+                .addOnSuccessListener {
+                    // 🟢 Clean up ghost UID from class document
+                    db.collection("classes").document(classId).update(
+                        "joinedStudents", com.google.firebase.firestore.FieldValue.arrayRemove(docId)
+                    )
+                    com.example.gabai.GabAIUtils.showSnackbar(this, "Student removed from section")
+                }
         }
     }
     // ==============================================================
@@ -777,7 +783,7 @@ class ClassDetailActivity : AppCompatActivity() {
     }
 
     private fun uploadInitiationPdfToDrive(fileUri: Uri, title: String) {
-        GabAIUtils.showGlobalLoading(this, "Uploading Material $currentPdfSlot to Google Drive...")
+        GabAIUtils.showGlobalLoading(this, "AI is validating reading content...")
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -790,6 +796,27 @@ class ClassDetailActivity : AppCompatActivity() {
                         GabAIUtils.showSnackbar(this@ClassDetailActivity, "PDF exceeds the 15MB upload limit. Please compress or select a smaller PDF.")
                     }
                     return@launch
+                }
+
+                // AI CONTENT VALIDATION: Ensure only reading material is uploaded
+                val validation = AIContentValidator.validateReadingPdf(this@ClassDetailActivity, fileUri)
+                if (!validation.isValid) {
+                    withContext(Dispatchers.Main) {
+                        GabAIUtils.hideGlobalLoading(this@ClassDetailActivity)
+                        GabAIDialogs.showNoticeDialog(
+                            context = this@ClassDetailActivity,
+                            title = "Document Rejected by AI",
+                            message = "Detected: ${validation.detectedSubject}\n\n${validation.rejectionReason}\n\nInitiation quest materials must be reading comprehension passages.",
+                            buttonText = "Understood",
+                            badgeIcon = "🚫"
+                        )
+                        openInitiationSettings()
+                    }
+                    return@launch
+                }
+
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.showGlobalLoading(this@ClassDetailActivity, "Uploading Material $currentPdfSlot to Google Drive...")
                 }
 
                 val inputStream = contentResolver.openInputStream(fileUri)
@@ -883,7 +910,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
     private fun handleAssessmentPdfSelected(uri: Uri) {
         val fileName = getFileNameFromUri(uri)
-        GabAIUtils.showGlobalLoading(this, "Gemini is generating 10 weekly assessment questions for $sectionName...")
+        GabAIUtils.showGlobalLoading(this, "AI is validating reading content...")
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -896,13 +923,33 @@ class ClassDetailActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                // AI CONTENT VALIDATION: Ensure only reading comprehension materials are processed
+                val validation = AIContentValidator.validateReadingDocument(extractedText)
+                if (!validation.isValid) {
+                    withContext(Dispatchers.Main) {
+                        GabAIUtils.hideGlobalLoading(this@ClassDetailActivity)
+                        GabAIDialogs.showNoticeDialog(
+                            context = this@ClassDetailActivity,
+                            title = "Document Rejected by AI",
+                            message = "Detected: ${validation.detectedSubject}\n\n${validation.rejectionReason}\n\nWeekly assessments must be based on reading comprehension materials.",
+                            buttonText = "Understood",
+                            badgeIcon = "🚫"
+                        )
+                    }
+                    return@launch
+                }
+
+                withContext(Dispatchers.Main) {
+                    GabAIUtils.showGlobalLoading(this@ClassDetailActivity, "Gemini is generating 10 weekly assessment questions for $sectionName...")
+                }
+
                 val generativeModel = GenerativeModel(
                     modelName = "gemini-3.5-flash-lite",
                     apiKey = BuildConfig.GEMINI_API_KEY
                 )
 
                 val prompt = """
-                    You are an expert DepEd curriculum designer and assessment specialist.
+                    You are an expert reading curriculum designer and literacy assessment specialist.
                     Section: $sectionName
                     Class/Subject: $className
                     Grade Level: $grade
@@ -1041,17 +1088,45 @@ class ClassDetailActivity : AppCompatActivity() {
                     }
 
                     val btnAction = card.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_action_assessment)
-                    btnAction?.text = "Preview ➔"
-                    btnAction?.setOnClickListener {
-                        val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
-                            putExtra("ASSESSMENT_ID", assessmentId)
-                            putExtra("CLASS_ID", classId)
-                            putExtra("CLASS_NAME", className)
-                            putExtra("GRADE", grade)
-                            putExtra("SCHOOL_ID", schoolId)
+                    
+                    // 🟢 Query submissions for this weekly assessment
+                    db.collection("assessment_submissions")
+                        .whereEqualTo("assessmentId", assessmentId)
+                        .get()
+                        .addOnSuccessListener { subSnaps ->
+                            val subCount = subSnaps.size()
+                            if (subCount > 0) {
+                                btnAction?.text = "Review ($subCount) ➔"
+                                btnAction?.setOnClickListener {
+                                    showSubmissionsReviewDialog(assessmentId, title, subSnaps.documents)
+                                }
+                            } else {
+                                btnAction?.text = "Preview ➔"
+                                btnAction?.setOnClickListener {
+                                    val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
+                                        putExtra("ASSESSMENT_ID", assessmentId)
+                                        putExtra("CLASS_ID", classId)
+                                        putExtra("CLASS_NAME", className)
+                                        putExtra("GRADE", grade)
+                                        putExtra("SCHOOL_ID", schoolId)
+                                    }
+                                    startActivity(intent)
+                                }
+                            }
                         }
-                        startActivity(intent)
-                    }
+                        .addOnFailureListener {
+                            btnAction?.text = "Preview ➔"
+                            btnAction?.setOnClickListener {
+                                val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
+                                    putExtra("ASSESSMENT_ID", assessmentId)
+                                    putExtra("CLASS_ID", classId)
+                                    putExtra("CLASS_NAME", className)
+                                    putExtra("GRADE", grade)
+                                    putExtra("SCHOOL_ID", schoolId)
+                                }
+                                startActivity(intent)
+                            }
+                        }
 
                     card.setOnClickListener {
                         val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
@@ -1067,6 +1142,150 @@ class ClassDetailActivity : AppCompatActivity() {
                     container.addView(card)
                 }
             }
+    }
+
+    private fun showSubmissionsReviewDialog(
+        assessmentId: String,
+        assessmentTitle: String,
+        submissions: List<DocumentSnapshot>
+    ) {
+        val density = resources.displayMetrics.density
+        val listLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
+        }
+
+        val sdf = SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault())
+
+        for (doc in submissions) {
+            val studentName = doc.getString("studentName") ?: "Student"
+            val score = doc.getLong("score")?.toInt() ?: 0
+            val total = doc.getLong("totalQuestions")?.toInt() ?: 10
+            val pct = doc.getLong("percentage")?.toInt() ?: if (total > 0) (score * 100) / total else 0
+            val subTime = doc.getLong("submittedAt") ?: 0L
+            val currentRemark = doc.getString("teacherRemark") ?: ""
+
+            val itemCard = MaterialCardView(this).apply {
+                radius = 16 * density
+                cardElevation = 0f
+                strokeWidth = (1 * density).toInt()
+                setStrokeColor(Color.parseColor("#E2E8F0"))
+                setCardBackgroundColor(Color.parseColor("#F8FAFC"))
+                val params = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(0, 0, 0, (10 * density).toInt())
+                }
+                layoutParams = params
+            }
+
+            val itemContent = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding((16 * density).toInt(), (14 * density).toInt(), (16 * density).toInt(), (14 * density).toInt())
+            }
+
+            val headerRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+            }
+
+            val tvName = TextView(this).apply {
+                text = studentName
+                textSize = 14f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(Color.parseColor("#0F172A"))
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+
+            val badgeColor = if (pct >= 75) "#10B981" else if (pct >= 50) "#F59E0B" else "#EF4444"
+            val tvScore = TextView(this).apply {
+                text = "$score / $total ($pct%)"
+                textSize = 13f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(Color.parseColor(badgeColor))
+            }
+
+            headerRow.addView(tvName)
+            headerRow.addView(tvScore)
+            itemContent.addView(headerRow)
+
+            val tvMeta = TextView(this).apply {
+                text = if (subTime > 0) "Submitted: ${sdf.format(Date(subTime))}" else "Submitted"
+                textSize = 11f
+                setTextColor(Color.parseColor("#94A3B8"))
+                setPadding(0, (4 * density).toInt(), 0, 0)
+            }
+            itemContent.addView(tvMeta)
+
+            if (currentRemark.isNotBlank()) {
+                val tvRemark = TextView(this).apply {
+                    text = "💬 Commendation: $currentRemark"
+                    textSize = 12f
+                    setTextColor(Color.parseColor("#4F46E5"))
+                    setPadding(0, (6 * density).toInt(), 0, 0)
+                }
+                itemContent.addView(tvRemark)
+            }
+
+            itemCard.addView(itemContent)
+
+            // Click to add / edit teacher remark
+            itemCard.setOnClickListener {
+                showAddTeacherRemarkDialog(doc.id, studentName, currentRemark)
+            }
+
+            listLayout.addView(itemCard)
+        }
+
+        val scroll = ScrollView(this).apply {
+            addView(listLayout)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                (360 * density).toInt()
+            )
+        }
+
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Submissions Review",
+            subtitle = "$assessmentTitle • ${submissions.size} Submission(s)",
+            customView = scroll,
+            confirmText = null,
+            cancelText = "Done",
+            badgeIcon = "📝"
+        )
+    }
+
+    private fun showAddTeacherRemarkDialog(submissionDocId: String, studentName: String, existingRemark: String) {
+        val input = EditText(this).apply {
+            setText(existingRemark)
+            hint = "e.g., Great mastery of vocabulary! Keep reading."
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#1E293B"))
+            textSize = 14f
+        }
+
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Teacher Commendation",
+            subtitle = "Feedback for $studentName",
+            customView = input,
+            confirmText = "Save Remark",
+            cancelText = "Cancel",
+            badgeIcon = "💬",
+            onConfirm = { dialog ->
+                val newRemark = input.text.toString().trim()
+                db.collection("assessment_submissions").document(submissionDocId)
+                    .update("teacherRemark", newRemark)
+                    .addOnSuccessListener {
+                        dialog.dismiss()
+                        com.example.gabai.GabAIUtils.showSnackbar(this, "Commendation saved for $studentName! ⭐")
+                        loadWeeklyAssessments()
+                    }
+            }
+        )
     }
 
     private fun openStudentProfile(doc: DocumentSnapshot) {

@@ -384,6 +384,22 @@ class ProfileFragment : Fragment() {
 
                     if (photoStatus == "pending" && role != "teacher") {
                         binding.tvPhotoStatusPill.visibility = View.VISIBLE
+                        binding.tvPhotoStatusPill.text = "⏳ Pending Review"
+                        binding.tvPhotoStatusPill.setTextColor(Color.parseColor("#4338CA"))
+                    } else if ((photoStatus == "rejected" || photoStatus == "declined") && role != "teacher") {
+                        binding.tvPhotoStatusPill.visibility = View.VISIBLE
+                        binding.tvPhotoStatusPill.text = "⚠️ Photo Declined"
+                        binding.tvPhotoStatusPill.setTextColor(Color.parseColor("#DC2626"))
+                        binding.tvPhotoStatusPill.setOnClickListener {
+                            val act = activity ?: return@setOnClickListener
+                            GabAIDialogs.showNoticeDialog(
+                                act,
+                                title = "Photo Not Approved",
+                                message = "Your uploaded photo was declined during campus moderation.\n\nPlease upload a clear, appropriate school portrait or student ID photo.",
+                                buttonText = "Understood",
+                                badgeIcon = "📷"
+                            )
+                        }
                     } else {
                         binding.tvPhotoStatusPill.visibility = View.GONE
                     }

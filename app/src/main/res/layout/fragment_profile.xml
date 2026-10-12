@@ -648,7 +648,7 @@
                                 <ImageView
                                     android:layout_width="32dp"
                                     android:layout_height="32dp"
-                                    android:background="@drawable/bg_bento_lavender"
+                                    android:background="@drawable/bg_bento_orange"
                                     android:padding="7dp"
                                     android:src="@drawable/ic_task_alt"
                                     app:tint="#D97706"

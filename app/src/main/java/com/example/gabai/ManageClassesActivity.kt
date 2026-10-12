@@ -213,7 +213,7 @@ class ManageClassesActivity : AppCompatActivity() {
                         setBackgroundResource(android.R.color.transparent)
                         setColorFilter(Color.parseColor("#6366F1"))
                         setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
-                        setOnClickListener { showEditClassDialog(classId, gradeName, sectionName, maxSessions, maxItems) }
+                        setOnClickListener { showEditClassDialog(classId, gradeName, sectionName, maxSessions, maxItems, schoolId) }
                     }
                     if (!isAdviser) btnEdit.visibility = View.GONE
 
@@ -310,7 +310,7 @@ class ManageClassesActivity : AppCompatActivity() {
             }
     }
     // UPDATE Class
-    private fun showEditClassDialog(classId: String, currentGrade: String, currentSection: String, currentMaxSessions: Int, currentMaxItems: Int) {
+    private fun showEditClassDialog(classId: String, currentGrade: String, currentSection: String, currentMaxSessions: Int, currentMaxItems: Int, schoolId: String) {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
@@ -424,7 +424,10 @@ class ManageClassesActivity : AppCompatActivity() {
                                     db.collection("classes").document(classId).update(
                                         "grade", newGrade, "section", newSection, "className", newFullName,
                                         "maxSessionsPerDay", newSessions, "maxItemsPerSession", newItems
-                                    ).addOnSuccessListener { GabAIUtils.showSnackbar(this, "Class updated!") }
+                                    ).addOnSuccessListener {
+                                        cascadeUpdateClassSectionForStudents(schoolId, currentGrade, currentSection, newGrade, newSection)
+                                        GabAIUtils.showSnackbar(this, "Class updated & students synchronized!")
+                                    }
                                 }
                             }
                     } else {
@@ -432,11 +435,60 @@ class ManageClassesActivity : AppCompatActivity() {
                         db.collection("classes").document(classId).update(
                             "section", newSection, "className", newFullName,
                             "maxSessionsPerDay", newSessions, "maxItemsPerSession", newItems
-                        ).addOnSuccessListener { GabAIUtils.showSnackbar(this, "Class updated!") }
+                        ).addOnSuccessListener {
+                            if (currentSection != newSection) {
+                                cascadeUpdateClassSectionForStudents(schoolId, currentGrade, currentSection, newGrade, newSection)
+                            }
+                            GabAIUtils.showSnackbar(this, "Class updated & students synchronized!")
+                        }
                     }
                 }
             }
         )
+    }
+
+    private fun cascadeUpdateClassSectionForStudents(
+        schoolId: String,
+        oldGrade: String,
+        oldSection: String,
+        newGrade: String,
+        newSection: String
+    ) {
+        if (oldGrade == newGrade && oldSection == newSection) return
+        val db = FirebaseFirestore.getInstance()
+
+        // 1. Synchronize active student accounts
+        db.collection("users")
+            .whereEqualTo("schoolId", schoolId)
+            .whereEqualTo("role", "student")
+            .whereEqualTo("section", oldSection)
+            .whereEqualTo("grade", oldGrade)
+            .get()
+            .addOnSuccessListener { snaps ->
+                if (!snaps.isEmpty) {
+                    val batch = db.batch()
+                    for (doc in snaps.documents) {
+                        batch.update(doc.reference, "section", newSection, "grade", newGrade)
+                    }
+                    batch.commit()
+                }
+            }
+
+        // 2. Synchronize pending student accounts
+        db.collection("pending_students")
+            .whereEqualTo("schoolId", schoolId)
+            .whereEqualTo("section", oldSection)
+            .whereEqualTo("grade", oldGrade)
+            .get()
+            .addOnSuccessListener { snaps ->
+                if (!snaps.isEmpty) {
+                    val batch = db.batch()
+                    for (doc in snaps.documents) {
+                        batch.update(doc.reference, "section", newSection, "grade", newGrade)
+                    }
+                    batch.commit()
+                }
+            }
     }
 
     // DELETE Class & Cascade Delete Students (Only if Adviser)
@@ -852,57 +904,77 @@ class ManageClassesActivity : AppCompatActivity() {
         // TURN ON SPINNER
         GabAIUtils.showGlobalLoading(this)
 
-        for (fullName in validNames) {
-            val parts = fullName.split("\\s+".toRegex())
-            val firstName = parts.firstOrNull() ?: "Student"
-            val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
+        val pendingQuery = if (schoolId.isNotBlank()) db.collection("pending_students").whereEqualTo("schoolId", schoolId) else db.collection("pending_students")
+        pendingQuery.get().addOnCompleteListener { pendingTask ->
+            val existingUsernames = mutableSetOf<String>()
+            if (pendingTask.isSuccessful) {
+                pendingTask.result?.forEach { doc ->
+                    doc.getString("username")?.let { existingUsernames.add(it.lowercase()) }
+                }
+            }
 
-            val cleanBase = "${firstName}${lastName}".replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
-            val baseName = if (cleanBase.isNotBlank()) cleanBase else "student"
-
-            var username: String
-            var attempts = 0
-            do {
-                val randomNum = (10000..99999).random()
-                username = "${baseName}_$randomNum"
-                attempts++
-            } while (usedInBatch.contains(username) && attempts < 100)
-            usedInBatch.add(username)
-
-            val password = java.util.UUID.randomUUID().toString().substring(0, 6)
-
-            val studentData = hashMapOf(
-                "firstName" to firstName,
-                "lastName" to lastName,
-                "username" to username,
-                "password" to password,
-                "mustChangePassword" to true,
-                "role" to "student",
-                "grade" to grade,
-                "section" to sectionName,
-                "schoolId" to schoolId,
-                "current_xp" to 0,
-                "level" to 1,
-                "isApproved" to true,
-                "is_onboarded" to false,
-                "quests_completed" to listOf<String>(),
-                "createdAt" to System.currentTimeMillis()
-            )
-
-            db.collection("pending_students").document(username).set(studentData)
-                .addOnSuccessListener {
-                    completedCount++
-                    if (completedCount == validNames.size) {
-                        GabAIUtils.hideGlobalLoading(this)
-                        GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
+            val usersQuery = if (schoolId.isNotBlank()) db.collection("users").whereEqualTo("schoolId", schoolId) else db.collection("users")
+            usersQuery.get().addOnCompleteListener { usersTask ->
+                if (usersTask.isSuccessful) {
+                    usersTask.result?.forEach { doc ->
+                        doc.getString("username")?.let { existingUsernames.add(it.lowercase()) }
                     }
                 }
-                .addOnFailureListener {
-                    completedCount++
-                    if (completedCount == validNames.size) {
-                        GabAIUtils.hideGlobalLoading(this)
-                    }
+
+                for (fullName in validNames) {
+                    val parts = fullName.split("\\s+".toRegex())
+                    val firstName = parts.firstOrNull() ?: "Student"
+                    val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
+
+                    val cleanBase = "${firstName}${lastName}".replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
+                    val baseName = if (cleanBase.isNotBlank()) cleanBase else "student"
+
+                    var username: String
+                    var attempts = 0
+                    do {
+                        val randomNum = (10000..99999).random()
+                        username = "${baseName}_$randomNum"
+                        attempts++
+                    } while ((usedInBatch.contains(username) || existingUsernames.contains(username.lowercase())) && attempts < 100)
+                    usedInBatch.add(username)
+                    existingUsernames.add(username.lowercase())
+
+                    val password = java.util.UUID.randomUUID().toString().substring(0, 6)
+
+                    val studentData = hashMapOf(
+                        "firstName" to firstName,
+                        "lastName" to lastName,
+                        "username" to username,
+                        "password" to password,
+                        "mustChangePassword" to true,
+                        "role" to "student",
+                        "grade" to grade,
+                        "section" to sectionName,
+                        "schoolId" to schoolId,
+                        "current_xp" to 0,
+                        "level" to 1,
+                        "isApproved" to true,
+                        "is_onboarded" to false,
+                        "quests_completed" to listOf<String>(),
+                        "createdAt" to System.currentTimeMillis()
+                    )
+
+                    db.collection("pending_students").document(username).set(studentData)
+                        .addOnSuccessListener {
+                            completedCount++
+                            if (completedCount == validNames.size) {
+                                GabAIUtils.hideGlobalLoading(this)
+                                GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
+                            }
+                        }
+                        .addOnFailureListener {
+                            completedCount++
+                            if (completedCount == validNames.size) {
+                                GabAIUtils.hideGlobalLoading(this)
+                            }
+                        }
                 }
+            }
         }
     }
     private fun showJoinCodeInstructionDialog(className: String) {

@@ -144,10 +144,10 @@ class SubjectDetailActivity : AppCompatActivity() {
     private fun uploadPdfToDrive(fileUri: Uri, title: String) {
         btnUploadPdf.isEnabled = false
         btnUploadPdf.alpha = 0.5f
-        btnUploadPdf.text = "Uploading..."
+        btnUploadPdf.text = "Validating..."
         uploadStatusContainer.visibility = View.VISIBLE
         uploadProgress.isIndeterminate = true
-        tvUploadStatus.text = "Uploading to Google Drive..."
+        tvUploadStatus.text = "AI is inspecting document contents..."
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -160,6 +160,27 @@ class SubjectDetailActivity : AppCompatActivity() {
                         GabAIUtils.showSnackbar(this@SubjectDetailActivity, "PDF exceeds the 15MB upload limit. Please compress or select a smaller PDF.")
                     }
                     return@launch
+                }
+
+                // AI CONTENT VALIDATION: Strictly verify that document is reading comprehension material
+                val validation = AIContentValidator.validateReadingPdf(this@SubjectDetailActivity, fileUri)
+                if (!validation.isValid) {
+                    withContext(Dispatchers.Main) {
+                        resetUploadUI()
+                        GabAIDialogs.showNoticeDialog(
+                            context = this@SubjectDetailActivity,
+                            title = "Document Rejected by AI",
+                            message = "Detected: ${validation.detectedSubject}\n\n${validation.rejectionReason}\n\nGabAI is exclusively dedicated to reading comprehension. Math, science formulas, and unrelated documents cannot be uploaded.",
+                            buttonText = "Understood",
+                            badgeIcon = "🚫"
+                        )
+                    }
+                    return@launch
+                }
+
+                withContext(Dispatchers.Main) {
+                    tvUploadStatus.text = "Uploading to Google Drive..."
+                    btnUploadPdf.text = "Uploading..."
                 }
 
                 val thumbnailBase64 = generateThumbnail(fileUri)

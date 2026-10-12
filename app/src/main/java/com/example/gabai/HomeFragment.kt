@@ -419,6 +419,20 @@ class HomeFragment : Fragment() {
                 val teacherDoc = userSnaps.documents[0]
                 val teacherId = teacherDoc.id
                 val teacherSchoolId = teacherDoc.getString("schoolId") ?: "" // 🟢 NEW: Get Teacher's School ID
+                val isTeacherApproved = teacherDoc.getBoolean("isApproved") ?: false
+
+                // 🟢 STRICT CHECK: Enforce Faculty Accreditation
+                if (!isTeacherApproved) {
+                    GabAIUtils.hideGlobalLoading(requireContext())
+                    GabAIDialogs.showNoticeDialog(
+                        context = requireContext(),
+                        title = "Faculty Account Inactive ⚠️",
+                        message = "This educator's account is currently pending verification or has been deactivated by campus administration. You cannot join this class at this time.",
+                        buttonText = "Understood",
+                        badgeIcon = "⚠️"
+                    )
+                    return@addOnSuccessListener
+                }
 
                 // 2. Fetch the student's data
                 db.collection("users").document(uid).get().addOnSuccessListener { studentDoc ->
@@ -536,10 +550,10 @@ class HomeFragment : Fragment() {
                         val docClassName = doc.getString("className") ?: ""
 
                         val schoolMatches = docSchoolId.isEmpty() || studentSchoolId.isEmpty() || docSchoolId == studentSchoolId
-                        val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains(studentGrade, ignoreCase = true)
-                        val sectionMatches = studentSection.isEmpty() || docClassName.contains(studentSection, ignoreCase = true)
+                        val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains(studentGrade, ignoreCase = true) || studentGrade.contains(docGrade, ignoreCase = true)
+                        val sectionMatches = docClassName.isBlank() || docClassName.contains("All", ignoreCase = true) || (studentSection.isNotBlank() && docClassName.contains(studentSection, ignoreCase = true))
 
-                        schoolMatches && (gradeMatches || sectionMatches)
+                        schoolMatches && gradeMatches && sectionMatches
                     }
 
                     if (matchingDocs.isEmpty()) {
