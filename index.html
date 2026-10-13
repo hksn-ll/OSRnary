@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GabAI — AI-Powered Mobile Reading Assistant for Students & Teachers</title>
   <meta name="description" content="GabAI is an Android reading companion that floats over textbooks and learning modules, delivering instant OCR pronunciation, Gemini 3.5 Flash Lite context overviews, and gamified comprehension practice.">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -66,6 +69,20 @@
       transform: translateY(-3px);
       box-shadow: 0 25px 50px -15px rgba(108, 92, 231, 0.25);
     }
+    /* Scroll snap for one box per scroll on mobile & desktop */
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y proximity;
+    }
+    @media (max-width: 768px) {
+      html {
+        scroll-snap-type: y mandatory;
+      }
+    }
+    .snap-slide {
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+    }
     /* Soundwave bars for sandbox */
     @keyframes soundwave {
       0%, 100% { height: 4px; }
@@ -101,10 +118,7 @@
 
       <!-- Desktop Links -->
       <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-white/70">
-        <a href="#showcase" class="hover:text-white transition flex items-center gap-1.5">
-          <span class="inline-block w-2 h-2 rounded-full bg-[#7EF0D8] animate-pulse"></span>
-          <span>Capabilities</span>
-        </a>
+        <a href="#showcase" class="hover:text-white transition">Capabilities</a>
         <a href="#demo" class="hover:text-white transition">Interactive Sandbox</a>
         <a href="#classroom" class="hover:text-white transition">For Teachers</a>
         <a href="admin.html" class="text-white hover:text-[#7EF0D8] font-bold transition flex items-center gap-1">
@@ -140,8 +154,8 @@
       
       <!-- HERO ANIMATED LOGO CENTERPIECE (First thing on the page) -->
       <div class="flex justify-center items-center">
-        <div class="relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center">
-          <canvas id="heroLogoCanvas" class="w-full h-full object-contain pointer-events-none drop-shadow-2xl"></canvas>
+        <div class="relative w-52 h-52 sm:w-60 sm:h-60 flex items-center justify-center">
+          <canvas id="heroLogoCanvas" class="w-full h-full object-contain cursor-pointer drop-shadow-2xl" title="Click to replay pop"></canvas>
         </div>
       </div>
 
@@ -202,9 +216,12 @@
   <!-- ========================================================================= -->
   <!-- SEPARATED LOOPING SLIDES SHOWCASE -->
   <!-- ========================================================================= -->
-  <section id="showcase" class="py-20 sm:py-28 bg-[#050310] relative z-10">
+  <!-- ========================================================================= -->
+  <!-- SEPARATED LOOPING SLIDES SHOWCASE (ONE BOX PER SCROLL) -->
+  <!-- ========================================================================= -->
+  <section id="showcase" class="py-12 sm:py-20 bg-[#050310] relative z-10">
     
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-16 text-center space-y-3">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-8 sm:mb-14 text-center space-y-3">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6C5CE7]/20 text-[#A0C4FF] text-xs font-bold border border-[#6C5CE7]/30">
         <span>CORE CAPABILITIES</span>
       </div>
@@ -216,62 +233,78 @@
       </p>
     </div>
 
-    <!-- Container of Separate Slides -->
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-20">
+    <!-- Container of Separate Slides (One Box Per Scroll) -->
+    <div class="max-w-6xl mx-auto px-2 sm:px-6 space-y-6 sm:space-y-12">
 
-      <!-- SLIDE 01 (Scene 1: Platform Roles) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="1" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 01 (Scene 1) -->
+      <div id="slide-1" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="1" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- SLIDE 02 (Scene 2: Onboarding & Section Rosters) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="2" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 02 (Scene 2) -->
+      <div id="slide-2" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="2" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- SLIDE 03 (Scene 3: QR Pairing) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="3" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 03 (Scene 3) -->
+      <div id="slide-3" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="3" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- SLIDE 04 (Scene 4: Dual Reading Pipeline) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="4" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 04 (Scene 4) -->
+      <div id="slide-4" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="4" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- SLIDE 05 (Scene 5: Gemini AI Scanner) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="5" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 05 (Scene 5) -->
+      <div id="slide-5" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="5" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- SLIDE 06 (Scene 6: Screen Reading Overlay) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="6" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 06 (Scene 6) -->
+      <div id="slide-6" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="6" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- SLIDE 07 (Scene 7: Gamification & Streaks) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="7" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 07 (Scene 7) -->
+      <div id="slide-7" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="7" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- SLIDE 08 (Scene 8: Teacher Console) -->
-      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
-          <canvas data-scene="8" class="w-full h-full object-contain block"></canvas>
+      <!-- SLIDE 08 (Scene 8) -->
+      <div id="slide-8" class="snap-slide min-h-[76dvh] sm:min-h-[85dvh] flex flex-col items-center justify-center py-2 sm:py-4">
+        <div class="bento-glass w-full rounded-2xl sm:rounded-3xl p-2 sm:p-5 shadow-2xl border border-white/10 bento-glass-hover flex flex-col justify-center">
+          <div class="aspect-[16/9] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+            <canvas data-scene="8" class="w-full h-full object-contain block"></canvas>
+          </div>
         </div>
       </div>
 
@@ -631,6 +664,9 @@
       }
     })();
 
+    /* ==========================================================================
+       SLIDE SNAP OBSERVER & MOBILE CONTROLLER (ONE BOX PER SCROLL)
+       ========================================================================== */
     /* ==========================================================================
        INTERACTIVE READING SANDBOX LOGIC
        ========================================================================== */

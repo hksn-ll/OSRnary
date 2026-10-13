@@ -270,9 +270,9 @@
     "semantic_hash": ""
   },
   "admin-portal/index.html": {
-    "mtime": 1791630779.9511948,
-    "seen": 1791636064.3372686,
-    "ast_hash": "2bd77ba94400b42c4c4019308faafbe3",
+    "mtime": 1791928443.23705,
+    "seen": 1791928456.1210144,
+    "ast_hash": "de21e5ab2a1413a8caaf8baaa89a7c79",
     "semantic_hash": ""
   },
   "app/src/main/res/mipmap-hdpi/ic_launcher.png": {
@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1791926257.9709878,
-    "seen": 1791926281.011909,
-    "ast_hash": "d60cc3719f5e78a02439918e06cf663f",
+    "mtime": 1791928417.6705356,
+    "seen": 1791928456.1210165,
+    "ast_hash": "8ee50260c8721d4c6a98d2d26eff1cb3",
     "semantic_hash": ""
   },
   "app-version.json": {
@@ -444,9 +444,9 @@
     "semantic_hash": ""
   },
   "admin-portal/admin.html": {
-    "mtime": 1791836142.7364693,
-    "seen": 1791836331.10323,
-    "ast_hash": "519bc57dd18312c291a09305e705d6cd",
+    "mtime": 1791928433.3927417,
+    "seen": 1791928456.1210122,
+    "ast_hash": "463d62d38854d392af234a82b3413f61",
     "semantic_hash": ""
   },
   "admin-portal/bubble.png": {
@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "admin.html": {
-    "mtime": 1791836142.7364693,
-    "seen": 1791836331.1032338,
-    "ast_hash": "519bc57dd18312c291a09305e705d6cd",
+    "mtime": 1791928423.321542,
+    "seen": 1791928456.1210155,
+    "ast_hash": "463d62d38854d392af234a82b3413f61",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ScanImageHolder.kt": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "motion-graphics/gabai-motion.js": {
-    "mtime": 1791926232.1686132,
-    "seen": 1791926281.0118837,
-    "ast_hash": "2a87d4e4da3ed35aae942df84f7be3c3",
+    "mtime": 1791928245.7932363,
+    "seen": 1791928296.02015,
+    "ast_hash": "3f39433536098362c5e79ace28deda11",
     "semantic_hash": ""
   },
   "motion-graphics/index.html": {

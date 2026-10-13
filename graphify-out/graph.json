@@ -5753,7 +5753,7 @@
       "file_type": "code",
       "norm_label": "at()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L126"
+      "source_location": "L127"
     },
     {
       "id": "motion_graphics_gabai_motion_avatar",
@@ -5765,7 +5765,7 @@
       "file_type": "code",
       "norm_label": "avatar()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L194"
+      "source_location": "L195"
     },
     {
       "id": "motion_graphics_gabai_motion_caret",
@@ -5777,7 +5777,7 @@
       "file_type": "code",
       "norm_label": "caret()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L222"
+      "source_location": "L223"
     },
     {
       "id": "motion_graphics_gabai_motion_checkbadge",
@@ -5789,7 +5789,7 @@
       "file_type": "code",
       "norm_label": "checkbadge()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L183"
+      "source_location": "L184"
     },
     {
       "id": "motion_graphics_gabai_motion_chiprow",
@@ -5801,7 +5801,7 @@
       "file_type": "code",
       "norm_label": "chiprow()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L227"
+      "source_location": "L228"
     },
     {
       "id": "motion_graphics_gabai_motion_codeline",
@@ -5813,7 +5813,7 @@
       "file_type": "code",
       "norm_label": "codeline()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L715"
+      "source_location": "L716"
     },
     {
       "id": "motion_graphics_gabai_motion_confetti",
@@ -5825,7 +5825,7 @@
       "file_type": "code",
       "norm_label": "confetti()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1190"
+      "source_location": "L1191"
     },
     {
       "id": "motion_graphics_gabai_motion_drawarticle",
@@ -5837,7 +5837,7 @@
       "file_type": "code",
       "norm_label": "drawarticle()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1047"
+      "source_location": "L1048"
     },
     {
       "id": "motion_graphics_gabai_motion_drawbackground",
@@ -5849,7 +5849,7 @@
       "file_type": "code",
       "norm_label": "drawbackground()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L423"
+      "source_location": "L424"
     },
     {
       "id": "motion_graphics_gabai_motion_drawbubble",
@@ -5861,7 +5861,7 @@
       "file_type": "code",
       "norm_label": "drawbubble()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L360"
+      "source_location": "L361"
     },
     {
       "id": "motion_graphics_gabai_motion_drawlogo",
@@ -5873,7 +5873,7 @@
       "file_type": "code",
       "norm_label": "drawlogo()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L299"
+      "source_location": "L300"
     },
     {
       "id": "motion_graphics_gabai_motion_drawqr",
@@ -5885,7 +5885,7 @@
       "file_type": "code",
       "norm_label": "drawqr()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L704"
+      "source_location": "L705"
     },
     {
       "id": "motion_graphics_gabai_motion_fit",
@@ -5897,7 +5897,7 @@
       "file_type": "code",
       "norm_label": "fit()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1566"
+      "source_location": "L1567"
     },
     {
       "id": "motion_graphics_gabai_motion_frame",
@@ -5909,7 +5909,7 @@
       "file_type": "code",
       "norm_label": "frame()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1618"
+      "source_location": "L1619"
     },
     {
       "id": "motion_graphics_gabai_motion_gauge",
@@ -5921,7 +5921,7 @@
       "file_type": "code",
       "norm_label": "gauge()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L844"
+      "source_location": "L845"
     },
     {
       "id": "motion_graphics_gabai_motion_glass",
@@ -5933,7 +5933,7 @@
       "file_type": "code",
       "norm_label": "glass()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L91"
+      "source_location": "L92"
     },
     {
       "id": "motion_graphics_gabai_motion_glowdot",
@@ -5945,7 +5945,7 @@
       "file_type": "code",
       "norm_label": "glowdot()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L153"
+      "source_location": "L154"
     },
     {
       "id": "motion_graphics_gabai_motion_grad",
@@ -5957,7 +5957,7 @@
       "file_type": "code",
       "norm_label": "grad()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L75"
+      "source_location": "L76"
     },
     {
       "id": "motion_graphics_gabai_motion_header",
@@ -5969,7 +5969,7 @@
       "file_type": "code",
       "norm_label": "header()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L267"
+      "source_location": "L268"
     },
     {
       "id": "motion_graphics_gabai_motion_hud",
@@ -5981,7 +5981,7 @@
       "file_type": "code",
       "norm_label": "hud()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1521"
+      "source_location": "L1522"
     },
     {
       "id": "motion_graphics_gabai_motion_labelpill",
@@ -5993,7 +5993,7 @@
       "file_type": "code",
       "norm_label": "labelpill()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L203"
+      "source_location": "L204"
     },
     {
       "id": "motion_graphics_gabai_motion_looplogooncanvas",
@@ -6005,7 +6005,7 @@
       "file_type": "code",
       "norm_label": "looplogooncanvas()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1816"
+      "source_location": "L1820"
     },
     {
       "id": "motion_graphics_gabai_motion_looplogooncanvas_tick",
@@ -6017,7 +6017,7 @@
       "file_type": "code",
       "norm_label": "tick()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1833"
+      "source_location": "L1839"
     },
     {
       "id": "motion_graphics_gabai_motion_loopsceneoncanvas",
@@ -6029,7 +6029,7 @@
       "file_type": "code",
       "norm_label": "loopsceneoncanvas()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1719"
+      "source_location": "L1720"
     },
     {
       "id": "motion_graphics_gabai_motion_loopsceneoncanvas_tick",
@@ -6041,7 +6041,7 @@
       "file_type": "code",
       "norm_label": "tick()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1743"
+      "source_location": "L1749"
     },
     {
       "id": "motion_graphics_gabai_motion_measure",
@@ -6053,7 +6053,7 @@
       "file_type": "code",
       "norm_label": "measure()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L119"
+      "source_location": "L120"
     },
     {
       "id": "motion_graphics_gabai_motion_mulberry32",
@@ -6077,7 +6077,7 @@
       "file_type": "code",
       "norm_label": "optionrow()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L938"
+      "source_location": "L939"
     },
     {
       "id": "motion_graphics_gabai_motion_orb",
@@ -6089,7 +6089,7 @@
       "file_type": "code",
       "norm_label": "orb()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L918"
+      "source_location": "L919"
     },
     {
       "id": "motion_graphics_gabai_motion_phone",
@@ -6101,7 +6101,7 @@
       "file_type": "code",
       "norm_label": "phone()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L281"
+      "source_location": "L282"
     },
     {
       "id": "motion_graphics_gabai_motion_pnode",
@@ -6113,7 +6113,7 @@
       "file_type": "code",
       "norm_label": "pnode()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L825"
+      "source_location": "L826"
     },
     {
       "id": "motion_graphics_gabai_motion_quadpt",
@@ -6125,7 +6125,7 @@
       "file_type": "code",
       "norm_label": "quadpt()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L164"
+      "source_location": "L165"
     },
     {
       "id": "motion_graphics_gabai_motion_render",
@@ -6137,7 +6137,7 @@
       "file_type": "code",
       "norm_label": "render()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1529"
+      "source_location": "L1530"
     },
     {
       "id": "motion_graphics_gabai_motion_renderscenetocanvas",
@@ -6149,7 +6149,7 @@
       "file_type": "code",
       "norm_label": "renderscenetocanvas()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1696"
+      "source_location": "L1697"
     },
     {
       "id": "motion_graphics_gabai_motion_revealtext",
@@ -6161,7 +6161,7 @@
       "file_type": "code",
       "norm_label": "revealtext()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L245"
+      "source_location": "L246"
     },
     {
       "id": "motion_graphics_gabai_motion_rgba",
@@ -6185,7 +6185,7 @@
       "file_type": "code",
       "norm_label": "sai()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L952"
+      "source_location": "L953"
     },
     {
       "id": "motion_graphics_gabai_motion_sceneat",
@@ -6197,7 +6197,7 @@
       "file_type": "code",
       "norm_label": "sceneat()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1515"
+      "source_location": "L1516"
     },
     {
       "id": "motion_graphics_gabai_motion_sconsole",
@@ -6209,7 +6209,7 @@
       "file_type": "code",
       "norm_label": "sconsole()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1321"
+      "source_location": "L1322"
     },
     {
       "id": "motion_graphics_gabai_motion_seek",
@@ -6221,7 +6221,7 @@
       "file_type": "code",
       "norm_label": "seek()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1600"
+      "source_location": "L1601"
     },
     {
       "id": "motion_graphics_gabai_motion_setplaying",
@@ -6233,7 +6233,7 @@
       "file_type": "code",
       "norm_label": "setplaying()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1601"
+      "source_location": "L1602"
     },
     {
       "id": "motion_graphics_gabai_motion_sgame",
@@ -6245,7 +6245,7 @@
       "file_type": "code",
       "norm_label": "sgame()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1203"
+      "source_location": "L1204"
     },
     {
       "id": "motion_graphics_gabai_motion_sintro",
@@ -6257,7 +6257,7 @@
       "file_type": "code",
       "norm_label": "sintro()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L461"
+      "source_location": "L462"
     },
     {
       "id": "motion_graphics_gabai_motion_slens",
@@ -6269,7 +6269,7 @@
       "file_type": "code",
       "norm_label": "slens()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1084"
+      "source_location": "L1085"
     },
     {
       "id": "motion_graphics_gabai_motion_solid",
@@ -6281,7 +6281,7 @@
       "file_type": "code",
       "norm_label": "solid()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L81"
+      "source_location": "L82"
     },
     {
       "id": "motion_graphics_gabai_motion_sonboard",
@@ -6293,7 +6293,7 @@
       "file_type": "code",
       "norm_label": "sonboard()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L596"
+      "source_location": "L597"
     },
     {
       "id": "motion_graphics_gabai_motion_soutro",
@@ -6305,7 +6305,7 @@
       "file_type": "code",
       "norm_label": "soutro()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1439"
+      "source_location": "L1440"
     },
     {
       "id": "motion_graphics_gabai_motion_sparkle",
@@ -6317,7 +6317,7 @@
       "file_type": "code",
       "norm_label": "sparkle()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L135"
+      "source_location": "L136"
     },
     {
       "id": "motion_graphics_gabai_motion_speaker",
@@ -6329,7 +6329,7 @@
       "file_type": "code",
       "norm_label": "speaker()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1067"
+      "source_location": "L1068"
     },
     {
       "id": "motion_graphics_gabai_motion_spipeline",
@@ -6341,7 +6341,7 @@
       "file_type": "code",
       "norm_label": "spipeline()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L865"
+      "source_location": "L866"
     },
     {
       "id": "motion_graphics_gabai_motion_sqr",
@@ -6353,7 +6353,7 @@
       "file_type": "code",
       "norm_label": "sqr()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L728"
+      "source_location": "L729"
     },
     {
       "id": "motion_graphics_gabai_motion_squircle",
@@ -6365,7 +6365,7 @@
       "file_type": "code",
       "norm_label": "squircle()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L58"
+      "source_location": "L59"
     },
     {
       "id": "motion_graphics_gabai_motion_sroles",
@@ -6377,7 +6377,7 @@
       "file_type": "code",
       "norm_label": "sroles()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L523"
+      "source_location": "L524"
     },
     {
       "id": "motion_graphics_gabai_motion_startrecording",
@@ -6389,7 +6389,7 @@
       "file_type": "code",
       "norm_label": "startrecording()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1637"
+      "source_location": "L1638"
     },
     {
       "id": "motion_graphics_gabai_motion_stoprecording",
@@ -6401,7 +6401,7 @@
       "file_type": "code",
       "norm_label": "stoprecording()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1659"
+      "source_location": "L1660"
     },
     {
       "id": "motion_graphics_gabai_motion_strokequad",
@@ -6413,7 +6413,7 @@
       "file_type": "code",
       "norm_label": "strokequad()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L168"
+      "source_location": "L169"
     },
     {
       "id": "motion_graphics_gabai_motion_tagpill",
@@ -6425,7 +6425,7 @@
       "file_type": "code",
       "norm_label": "tagpill()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L215"
+      "source_location": "L216"
     },
     {
       "id": "motion_graphics_gabai_motion_text",
@@ -6437,7 +6437,7 @@
       "file_type": "code",
       "norm_label": "text()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L108"
+      "source_location": "L109"
     },
     {
       "id": "motion_graphics_gabai_motion_ticket",
@@ -6449,7 +6449,7 @@
       "file_type": "code",
       "norm_label": "ticket()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L581"
+      "source_location": "L582"
     },
     {
       "id": "motion_graphics_gabai_motion_toast",
@@ -6461,7 +6461,7 @@
       "file_type": "code",
       "norm_label": "toast()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1593"
+      "source_location": "L1594"
     },
     {
       "id": "motion_graphics_gabai_motion_track",
@@ -6473,7 +6473,7 @@
       "file_type": "code",
       "norm_label": "track()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L834"
+      "source_location": "L835"
     },
     {
       "id": "motion_graphics_gabai_motion_updateui",
@@ -6485,7 +6485,7 @@
       "file_type": "code",
       "norm_label": "updateui()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1604"
+      "source_location": "L1605"
     },
     {
       "id": "motion_graphics_gabai_motion_wordbox",
@@ -6497,7 +6497,7 @@
       "file_type": "code",
       "norm_label": "wordbox()",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1063"
+      "source_location": "L1064"
     },
     {
       "id": "app_src_main_java_com_example_gabai_manageclassesactivity_manageclassesactivity_cascadeupdateclasssectionforstudents",
@@ -33445,7 +33445,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L197",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -33457,7 +33457,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L197",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -33469,7 +33469,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L200",
+      "source_location": "L201",
       "weight": 1.0
     },
     {
@@ -33481,7 +33481,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L228",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -33493,7 +33493,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L235",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -33505,7 +33505,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L239",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -33517,24 +33517,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L718",
+      "source_location": "L719",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_codeline",
       "target": "motion_graphics_gabai_motion_rgba",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L720",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_codeline",
-      "target": "motion_graphics_gabai_motion_squircle",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33546,6 +33534,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_codeline",
+      "target": "motion_graphics_gabai_motion_squircle",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L722",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_codeline",
       "target": "motion_graphics_gabai_motion_text",
       "relation": "calls",
       "_origin": "ast",
@@ -33553,24 +33553,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L723",
+      "source_location": "L724",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_drawarticle",
       "target": "motion_graphics_gabai_motion_text",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1048",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_drawarticle",
-      "target": "motion_graphics_gabai_motion_solid",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33582,19 +33570,19 @@
     },
     {
       "source": "motion_graphics_gabai_motion_drawarticle",
-      "target": "motion_graphics_gabai_motion_squircle",
+      "target": "motion_graphics_gabai_motion_solid",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1051",
+      "source_location": "L1050",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_drawarticle",
-      "target": "motion_graphics_gabai_motion_grad",
+      "target": "motion_graphics_gabai_motion_squircle",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33606,6 +33594,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_drawarticle",
+      "target": "motion_graphics_gabai_motion_grad",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L1053",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_drawarticle",
       "target": "motion_graphics_gabai_motion_wordbox",
       "relation": "calls",
       "_origin": "ast",
@@ -33613,7 +33613,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1058",
+      "source_location": "L1059",
       "weight": 1.0
     },
     {
@@ -33625,7 +33625,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1059",
+      "source_location": "L1060",
       "weight": 1.0
     },
     {
@@ -33637,7 +33637,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L424",
+      "source_location": "L425",
       "weight": 1.0
     },
     {
@@ -33649,7 +33649,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L430",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
@@ -33661,24 +33661,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L447",
+      "source_location": "L448",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_drawbubble",
       "target": "motion_graphics_gabai_motion_squircle",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L373",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_drawbubble",
-      "target": "motion_graphics_gabai_motion_grad",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33689,20 +33677,20 @@
       "weight": 1.0
     },
     {
-      "source": "motion_graphics_gabai_motion_drawlogo",
-      "target": "motion_graphics_gabai_motion_squircle",
+      "source": "motion_graphics_gabai_motion_drawbubble",
+      "target": "motion_graphics_gabai_motion_grad",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L303",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_drawlogo",
-      "target": "motion_graphics_gabai_motion_grad",
+      "target": "motion_graphics_gabai_motion_squircle",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33714,6 +33702,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_drawlogo",
+      "target": "motion_graphics_gabai_motion_grad",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L305",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_drawlogo",
       "target": "motion_graphics_gabai_motion_rgba",
       "relation": "calls",
       "_origin": "ast",
@@ -33721,7 +33721,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L311",
+      "source_location": "L312",
       "weight": 1.0
     },
     {
@@ -33733,7 +33733,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L352",
+      "source_location": "L353",
       "weight": 1.0
     },
     {
@@ -33745,7 +33745,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1624",
+      "source_location": "L1625",
       "weight": 1.0
     },
     {
@@ -33757,7 +33757,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1624",
+      "source_location": "L1625",
       "weight": 1.0
     },
     {
@@ -33769,7 +33769,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1629",
+      "source_location": "L1630",
       "weight": 1.0
     },
     {
@@ -33781,7 +33781,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1631",
+      "source_location": "L1632",
       "weight": 1.0
     },
     {
@@ -33793,7 +33793,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L101",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -33805,7 +33805,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L94",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -33817,7 +33817,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L97",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -33829,24 +33829,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L158",
+      "source_location": "L159",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_header",
       "target": "motion_graphics_gabai_motion_measure",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L269",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_header",
-      "target": "motion_graphics_gabai_motion_at",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33858,6 +33846,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_header",
+      "target": "motion_graphics_gabai_motion_at",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L271",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_header",
       "target": "motion_graphics_gabai_motion_rgba",
       "relation": "calls",
       "_origin": "ast",
@@ -33865,7 +33865,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L273",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -33877,7 +33877,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L275",
+      "source_location": "L276",
       "weight": 1.0
     },
     {
@@ -33889,24 +33889,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L277",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_hud",
       "target": "motion_graphics_gabai_motion_at",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1523",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_hud",
-      "target": "motion_graphics_gabai_motion_drawlogo",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33918,7 +33906,7 @@
     },
     {
       "source": "motion_graphics_gabai_motion_hud",
-      "target": "motion_graphics_gabai_motion_text",
+      "target": "motion_graphics_gabai_motion_drawlogo",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -33926,6 +33914,18 @@
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
       "source_location": "L1525",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_hud",
+      "target": "motion_graphics_gabai_motion_text",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L1526",
       "weight": 1.0
     },
     {
@@ -33937,7 +33937,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L205",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -33949,7 +33949,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L210",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -33961,19 +33961,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L212",
+      "source_location": "L213",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_looplogooncanvas_tick",
-      "target": "motion_graphics_gabai_motion_squircle",
+      "target": "motion_graphics_gabai_motion_rgba",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1852",
+      "source_location": "L1859",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_looplogooncanvas_tick",
+      "target": "motion_graphics_gabai_motion_sparkle",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L1878",
       "weight": 1.0
     },
     {
@@ -33985,7 +33997,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1872",
+      "source_location": "L1893",
       "weight": 1.0
     },
     {
@@ -33997,7 +34009,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1735",
+      "source_location": "L1741",
       "weight": 1.0
     },
     {
@@ -34009,7 +34021,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1754",
+      "source_location": "L1760",
       "weight": 1.0
     },
     {
@@ -34021,7 +34033,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L940",
+      "source_location": "L941",
       "weight": 1.0
     },
     {
@@ -34033,7 +34045,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L945",
+      "source_location": "L946",
       "weight": 1.0
     },
     {
@@ -34045,7 +34057,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L947",
+      "source_location": "L948",
       "weight": 1.0
     },
     {
@@ -34057,7 +34069,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L920",
+      "source_location": "L921",
       "weight": 1.0
     },
     {
@@ -34069,7 +34081,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L935",
+      "source_location": "L936",
       "weight": 1.0
     },
     {
@@ -34081,24 +34093,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L284",
+      "source_location": "L285",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_pnode",
       "target": "motion_graphics_gabai_motion_at",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L826",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_pnode",
-      "target": "motion_graphics_gabai_motion_glass",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34110,7 +34110,7 @@
     },
     {
       "source": "motion_graphics_gabai_motion_pnode",
-      "target": "motion_graphics_gabai_motion_rgba",
+      "target": "motion_graphics_gabai_motion_glass",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34118,6 +34118,18 @@
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
       "source_location": "L828",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_pnode",
+      "target": "motion_graphics_gabai_motion_rgba",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L829",
       "weight": 1.0
     },
     {
@@ -34129,7 +34141,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L828",
+      "source_location": "L829",
       "weight": 1.0
     },
     {
@@ -34141,24 +34153,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L830",
+      "source_location": "L831",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_render",
       "target": "motion_graphics_gabai_motion_drawbackground",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1532",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_render",
-      "target": "motion_graphics_gabai_motion_sceneat",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34170,6 +34170,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_render",
+      "target": "motion_graphics_gabai_motion_sceneat",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L1534",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_render",
       "target": "motion_graphics_gabai_motion_hud",
       "relation": "calls",
       "_origin": "ast",
@@ -34177,7 +34189,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1543",
+      "source_location": "L1544",
       "weight": 1.0
     },
     {
@@ -34189,7 +34201,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1707",
+      "source_location": "L1708",
       "weight": 1.0
     },
     {
@@ -34201,7 +34213,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1026",
+      "source_location": "L1027",
       "weight": 1.0
     },
     {
@@ -34213,7 +34225,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1029",
+      "source_location": "L1030",
       "weight": 1.0
     },
     {
@@ -34225,24 +34237,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L953",
+      "source_location": "L954",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_sai",
       "target": "motion_graphics_gabai_motion_at",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L958",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_sai",
-      "target": "motion_graphics_gabai_motion_solid",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34254,7 +34254,7 @@
     },
     {
       "source": "motion_graphics_gabai_motion_sai",
-      "target": "motion_graphics_gabai_motion_text",
+      "target": "motion_graphics_gabai_motion_solid",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34266,6 +34266,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_sai",
+      "target": "motion_graphics_gabai_motion_text",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L961",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_sai",
       "target": "motion_graphics_gabai_motion_labelpill",
       "relation": "calls",
       "_origin": "ast",
@@ -34273,7 +34285,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L962",
+      "source_location": "L963",
       "weight": 1.0
     },
     {
@@ -34285,7 +34297,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L969",
+      "source_location": "L970",
       "weight": 1.0
     },
     {
@@ -34297,7 +34309,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L970",
+      "source_location": "L971",
       "weight": 1.0
     },
     {
@@ -34309,7 +34321,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L970",
+      "source_location": "L971",
       "weight": 1.0
     },
     {
@@ -34321,7 +34333,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L996",
+      "source_location": "L997",
       "weight": 1.0
     },
     {
@@ -34333,24 +34345,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1322",
+      "source_location": "L1323",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_sconsole",
       "target": "motion_graphics_gabai_motion_at",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1326",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_sconsole",
-      "target": "motion_graphics_gabai_motion_glass",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34362,6 +34362,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_sconsole",
+      "target": "motion_graphics_gabai_motion_glass",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L1328",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_sconsole",
       "target": "motion_graphics_gabai_motion_text",
       "relation": "calls",
       "_origin": "ast",
@@ -34369,7 +34381,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1332",
+      "source_location": "L1333",
       "weight": 1.0
     },
     {
@@ -34381,7 +34393,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1333",
+      "source_location": "L1334",
       "weight": 1.0
     },
     {
@@ -34393,7 +34405,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1333",
+      "source_location": "L1334",
       "weight": 1.0
     },
     {
@@ -34405,7 +34417,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1362",
+      "source_location": "L1363",
       "weight": 1.0
     },
     {
@@ -34417,7 +34429,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1363",
+      "source_location": "L1364",
       "weight": 1.0
     },
     {
@@ -34429,7 +34441,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1363",
+      "source_location": "L1364",
       "weight": 1.0
     },
     {
@@ -34441,7 +34453,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1400",
+      "source_location": "L1401",
       "weight": 1.0
     },
     {
@@ -34453,7 +34465,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1401",
+      "source_location": "L1402",
       "weight": 1.0
     },
     {
@@ -34465,7 +34477,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1204",
+      "source_location": "L1205",
       "weight": 1.0
     },
     {
@@ -34477,7 +34489,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1216",
+      "source_location": "L1217",
       "weight": 1.0
     },
     {
@@ -34489,7 +34501,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1218",
+      "source_location": "L1219",
       "weight": 1.0
     },
     {
@@ -34501,7 +34513,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1223",
+      "source_location": "L1224",
       "weight": 1.0
     },
     {
@@ -34513,7 +34525,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1229",
+      "source_location": "L1230",
       "weight": 1.0
     },
     {
@@ -34525,7 +34537,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1240",
+      "source_location": "L1241",
       "weight": 1.0
     },
     {
@@ -34537,7 +34549,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1266",
+      "source_location": "L1267",
       "weight": 1.0
     },
     {
@@ -34549,7 +34561,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1274",
+      "source_location": "L1275",
       "weight": 1.0
     },
     {
@@ -34561,7 +34573,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1286",
+      "source_location": "L1287",
       "weight": 1.0
     },
     {
@@ -34573,7 +34585,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1297",
+      "source_location": "L1298",
       "weight": 1.0
     },
     {
@@ -34585,7 +34597,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1304",
+      "source_location": "L1305",
       "weight": 1.0
     },
     {
@@ -34597,7 +34609,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L474",
+      "source_location": "L475",
       "weight": 1.0
     },
     {
@@ -34609,7 +34621,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L479",
+      "source_location": "L480",
       "weight": 1.0
     },
     {
@@ -34621,7 +34633,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L486",
+      "source_location": "L487",
       "weight": 1.0
     },
     {
@@ -34633,7 +34645,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L497",
+      "source_location": "L498",
       "weight": 1.0
     },
     {
@@ -34645,7 +34657,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L509",
+      "source_location": "L510",
       "weight": 1.0
     },
     {
@@ -34657,7 +34669,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L512",
+      "source_location": "L513",
       "weight": 1.0
     },
     {
@@ -34669,7 +34681,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1085",
+      "source_location": "L1086",
       "weight": 1.0
     },
     {
@@ -34681,7 +34693,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1089",
+      "source_location": "L1090",
       "weight": 1.0
     },
     {
@@ -34693,7 +34705,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1091",
+      "source_location": "L1092",
       "weight": 1.0
     },
     {
@@ -34705,7 +34717,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1093",
+      "source_location": "L1094",
       "weight": 1.0
     },
     {
@@ -34717,7 +34729,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1100",
+      "source_location": "L1101",
       "weight": 1.0
     },
     {
@@ -34729,24 +34741,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1103",
+      "source_location": "L1104",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_slens",
       "target": "motion_graphics_gabai_motion_phone",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1110",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_slens",
-      "target": "motion_graphics_gabai_motion_drawarticle",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34758,19 +34758,19 @@
     },
     {
       "source": "motion_graphics_gabai_motion_slens",
-      "target": "motion_graphics_gabai_motion_rgba",
+      "target": "motion_graphics_gabai_motion_drawarticle",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1118",
+      "source_location": "L1112",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_slens",
-      "target": "motion_graphics_gabai_motion_squircle",
+      "target": "motion_graphics_gabai_motion_rgba",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34782,6 +34782,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_slens",
+      "target": "motion_graphics_gabai_motion_squircle",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L1120",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_slens",
       "target": "motion_graphics_gabai_motion_drawbubble",
       "relation": "calls",
       "_origin": "ast",
@@ -34789,7 +34801,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1150",
+      "source_location": "L1151",
       "weight": 1.0
     },
     {
@@ -34801,7 +34813,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1158",
+      "source_location": "L1159",
       "weight": 1.0
     },
     {
@@ -34813,7 +34825,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1161",
+      "source_location": "L1162",
       "weight": 1.0
     },
     {
@@ -34825,7 +34837,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1163",
+      "source_location": "L1164",
       "weight": 1.0
     },
     {
@@ -34837,7 +34849,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1163",
+      "source_location": "L1164",
       "weight": 1.0
     },
     {
@@ -34849,7 +34861,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1166",
+      "source_location": "L1167",
       "weight": 1.0
     },
     {
@@ -34861,7 +34873,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L84",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -34873,24 +34885,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L597",
+      "source_location": "L598",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_sonboard",
       "target": "motion_graphics_gabai_motion_at",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L601",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_sonboard",
-      "target": "motion_graphics_gabai_motion_glass",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -34902,6 +34902,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_sonboard",
+      "target": "motion_graphics_gabai_motion_glass",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L603",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_sonboard",
       "target": "motion_graphics_gabai_motion_text",
       "relation": "calls",
       "_origin": "ast",
@@ -34909,7 +34921,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L604",
+      "source_location": "L605",
       "weight": 1.0
     },
     {
@@ -34921,7 +34933,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L607",
+      "source_location": "L608",
       "weight": 1.0
     },
     {
@@ -34933,7 +34945,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L610",
+      "source_location": "L611",
       "weight": 1.0
     },
     {
@@ -34945,7 +34957,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L610",
+      "source_location": "L611",
       "weight": 1.0
     },
     {
@@ -34957,7 +34969,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L616",
+      "source_location": "L617",
       "weight": 1.0
     },
     {
@@ -34969,7 +34981,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L643",
+      "source_location": "L644",
       "weight": 1.0
     },
     {
@@ -34981,7 +34993,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L655",
+      "source_location": "L656",
       "weight": 1.0
     },
     {
@@ -34993,7 +35005,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L663",
+      "source_location": "L664",
       "weight": 1.0
     },
     {
@@ -35005,7 +35017,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L683",
+      "source_location": "L684",
       "weight": 1.0
     },
     {
@@ -35017,7 +35029,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1443",
+      "source_location": "L1444",
       "weight": 1.0
     },
     {
@@ -35029,7 +35041,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1447",
+      "source_location": "L1448",
       "weight": 1.0
     },
     {
@@ -35041,24 +35053,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1452",
+      "source_location": "L1453",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_soutro",
       "target": "motion_graphics_gabai_motion_revealtext",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1455",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_soutro",
-      "target": "motion_graphics_gabai_motion_grad",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35070,7 +35070,7 @@
     },
     {
       "source": "motion_graphics_gabai_motion_soutro",
-      "target": "motion_graphics_gabai_motion_text",
+      "target": "motion_graphics_gabai_motion_grad",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35082,6 +35082,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_soutro",
+      "target": "motion_graphics_gabai_motion_text",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L1458",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_soutro",
       "target": "motion_graphics_gabai_motion_chiprow",
       "relation": "calls",
       "_origin": "ast",
@@ -35089,7 +35101,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1460",
+      "source_location": "L1461",
       "weight": 1.0
     },
     {
@@ -35101,7 +35113,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1465",
+      "source_location": "L1466",
       "weight": 1.0
     },
     {
@@ -35113,24 +35125,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L866",
+      "source_location": "L867",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_spipeline",
       "target": "motion_graphics_gabai_motion_text",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L869",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_spipeline",
-      "target": "motion_graphics_gabai_motion_track",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35142,6 +35142,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_spipeline",
+      "target": "motion_graphics_gabai_motion_track",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L871",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_spipeline",
       "target": "motion_graphics_gabai_motion_pnode",
       "relation": "calls",
       "_origin": "ast",
@@ -35149,7 +35161,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L873",
+      "source_location": "L874",
       "weight": 1.0
     },
     {
@@ -35161,7 +35173,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L877",
+      "source_location": "L878",
       "weight": 1.0
     },
     {
@@ -35173,7 +35185,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L879",
+      "source_location": "L880",
       "weight": 1.0
     },
     {
@@ -35185,7 +35197,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L881",
+      "source_location": "L882",
       "weight": 1.0
     },
     {
@@ -35197,7 +35209,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L896",
+      "source_location": "L897",
       "weight": 1.0
     },
     {
@@ -35209,7 +35221,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L729",
+      "source_location": "L730",
       "weight": 1.0
     },
     {
@@ -35221,7 +35233,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L733",
+      "source_location": "L734",
       "weight": 1.0
     },
     {
@@ -35233,7 +35245,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L735",
+      "source_location": "L736",
       "weight": 1.0
     },
     {
@@ -35245,24 +35257,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L736",
+      "source_location": "L737",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_sqr",
       "target": "motion_graphics_gabai_motion_solid",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L739",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_sqr",
-      "target": "motion_graphics_gabai_motion_drawqr",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35274,6 +35274,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_sqr",
+      "target": "motion_graphics_gabai_motion_drawqr",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L741",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_sqr",
       "target": "motion_graphics_gabai_motion_grad",
       "relation": "calls",
       "_origin": "ast",
@@ -35281,7 +35293,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L751",
+      "source_location": "L752",
       "weight": 1.0
     },
     {
@@ -35293,7 +35305,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L774",
+      "source_location": "L775",
       "weight": 1.0
     },
     {
@@ -35305,7 +35317,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L787",
+      "source_location": "L788",
       "weight": 1.0
     },
     {
@@ -35317,24 +35329,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L787",
+      "source_location": "L788",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_sqr",
       "target": "motion_graphics_gabai_motion_quadpt",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L791",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_sqr",
-      "target": "motion_graphics_gabai_motion_glowdot",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35346,6 +35346,18 @@
     },
     {
       "source": "motion_graphics_gabai_motion_sqr",
+      "target": "motion_graphics_gabai_motion_glowdot",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L793",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_sqr",
       "target": "motion_graphics_gabai_motion_codeline",
       "relation": "calls",
       "_origin": "ast",
@@ -35353,7 +35365,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L806",
+      "source_location": "L807",
       "weight": 1.0
     },
     {
@@ -35365,7 +35377,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L815",
+      "source_location": "L816",
       "weight": 1.0
     },
     {
@@ -35377,7 +35389,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L524",
+      "source_location": "L525",
       "weight": 1.0
     },
     {
@@ -35389,7 +35401,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L531",
+      "source_location": "L532",
       "weight": 1.0
     },
     {
@@ -35401,7 +35413,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L531",
+      "source_location": "L532",
       "weight": 1.0
     },
     {
@@ -35413,7 +35425,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L535",
+      "source_location": "L536",
       "weight": 1.0
     },
     {
@@ -35425,7 +35437,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L535",
+      "source_location": "L536",
       "weight": 1.0
     },
     {
@@ -35437,7 +35449,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L538",
+      "source_location": "L539",
       "weight": 1.0
     },
     {
@@ -35449,7 +35461,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L545",
+      "source_location": "L546",
       "weight": 1.0
     },
     {
@@ -35461,7 +35473,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L546",
+      "source_location": "L547",
       "weight": 1.0
     },
     {
@@ -35473,7 +35485,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L547",
+      "source_location": "L548",
       "weight": 1.0
     },
     {
@@ -35485,7 +35497,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L549",
+      "source_location": "L550",
       "weight": 1.0
     },
     {
@@ -35497,7 +35509,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L555",
+      "source_location": "L556",
       "weight": 1.0
     },
     {
@@ -35509,7 +35521,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1638",
+      "source_location": "L1639",
       "weight": 1.0
     },
     {
@@ -35521,24 +35533,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L176",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
       "source": "motion_graphics_gabai_motion_tagpill",
       "target": "motion_graphics_gabai_motion_measure",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L216",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion_tagpill",
-      "target": "motion_graphics_gabai_motion_rgba",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35550,7 +35550,7 @@
     },
     {
       "source": "motion_graphics_gabai_motion_tagpill",
-      "target": "motion_graphics_gabai_motion_text",
+      "target": "motion_graphics_gabai_motion_rgba",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35558,6 +35558,18 @@
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
       "source_location": "L218",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion_tagpill",
+      "target": "motion_graphics_gabai_motion_text",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L219",
       "weight": 1.0
     },
     {
@@ -35569,7 +35581,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L585",
+      "source_location": "L586",
       "weight": 1.0
     },
     {
@@ -35581,7 +35593,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L587",
+      "source_location": "L588",
       "weight": 1.0
     },
     {
@@ -35593,7 +35605,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L588",
+      "source_location": "L589",
       "weight": 1.0
     },
     {
@@ -35605,7 +35617,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L590",
+      "source_location": "L591",
       "weight": 1.0
     },
     {
@@ -35617,7 +35629,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L591",
+      "source_location": "L592",
       "weight": 1.0
     },
     {
@@ -35629,7 +35641,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L837",
+      "source_location": "L838",
       "weight": 1.0
     },
     {
@@ -35641,7 +35653,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L841",
+      "source_location": "L842",
       "weight": 1.0
     },
     {
@@ -35653,7 +35665,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1610",
+      "source_location": "L1611",
       "weight": 1.0
     },
     {
@@ -35665,7 +35677,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1064",
+      "source_location": "L1065",
       "weight": 1.0
     },
     {
@@ -35809,7 +35821,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L108",
+      "source_location": "L109",
       "weight": 1.0
     },
     {
@@ -35821,7 +35833,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1600",
+      "source_location": "L1601",
       "weight": 1.0
     },
     {
@@ -35833,7 +35845,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1637",
+      "source_location": "L1638",
       "weight": 1.0
     },
     {
@@ -35845,7 +35857,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1659",
+      "source_location": "L1660",
       "weight": 1.0
     },
     {
@@ -35869,7 +35881,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L58",
+      "source_location": "L59",
       "weight": 1.0
     },
     {
@@ -57510,7 +57522,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1047",
+      "source_location": "L1048",
       "weight": 1.0
     },
     {
@@ -57521,7 +57533,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1063",
+      "source_location": "L1064",
       "weight": 1.0
     },
     {
@@ -57532,18 +57544,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1067",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion",
-      "target": "motion_graphics_gabai_motion_measure",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L119",
+      "source_location": "L1068",
       "weight": 1.0
     },
     {
@@ -57554,7 +57555,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1190",
+      "source_location": "L1191",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion",
+      "target": "motion_graphics_gabai_motion_measure",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -57565,7 +57577,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L126",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -57576,7 +57588,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L135",
+      "source_location": "L136",
       "weight": 1.0
     },
     {
@@ -57587,7 +57599,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1521",
+      "source_location": "L1522",
       "weight": 1.0
     },
     {
@@ -57598,7 +57610,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L153",
+      "source_location": "L154",
       "weight": 1.0
     },
     {
@@ -57609,7 +57621,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1593",
+      "source_location": "L1594",
       "weight": 1.0
     },
     {
@@ -57620,7 +57632,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1604",
+      "source_location": "L1605",
       "weight": 1.0
     },
     {
@@ -57631,7 +57643,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L164",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -57642,7 +57654,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L168",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -57653,7 +57665,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L183",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -57664,7 +57676,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L194",
+      "source_location": "L195",
       "weight": 1.0
     },
     {
@@ -57675,7 +57687,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L203",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -57686,7 +57698,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L215",
+      "source_location": "L216",
       "weight": 1.0
     },
     {
@@ -57697,7 +57709,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L222",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -57708,7 +57720,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L227",
+      "source_location": "L228",
       "weight": 1.0
     },
     {
@@ -57719,7 +57731,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L245",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -57730,7 +57742,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L267",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -57741,7 +57753,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L281",
+      "source_location": "L282",
       "weight": 1.0
     },
     {
@@ -57752,7 +57764,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L299",
+      "source_location": "L300",
       "weight": 1.0
     },
     {
@@ -57763,7 +57775,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L360",
+      "source_location": "L361",
       "weight": 1.0
     },
     {
@@ -57774,7 +57786,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L423",
+      "source_location": "L424",
       "weight": 1.0
     },
     {
@@ -57796,7 +57808,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L581",
+      "source_location": "L582",
       "weight": 1.0
     },
     {
@@ -57807,7 +57819,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L704",
+      "source_location": "L705",
       "weight": 1.0
     },
     {
@@ -57818,7 +57830,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L715",
+      "source_location": "L716",
       "weight": 1.0
     },
     {
@@ -57829,7 +57841,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L75",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -57840,7 +57852,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L81",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -57851,7 +57863,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L825",
+      "source_location": "L826",
       "weight": 1.0
     },
     {
@@ -57862,7 +57874,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L834",
+      "source_location": "L835",
       "weight": 1.0
     },
     {
@@ -57873,18 +57885,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L844",
-      "weight": 1.0
-    },
-    {
-      "source": "motion_graphics_gabai_motion",
-      "target": "motion_graphics_gabai_motion_glass",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L91",
+      "source_location": "L845",
       "weight": 1.0
     },
     {
@@ -57895,7 +57896,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L918",
+      "source_location": "L919",
+      "weight": 1.0
+    },
+    {
+      "source": "motion_graphics_gabai_motion",
+      "target": "motion_graphics_gabai_motion_glass",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "motion-graphics/gabai-motion.js",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -57906,7 +57918,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L938",
+      "source_location": "L939",
       "weight": 1.0
     },
     {
@@ -57917,7 +57929,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1743",
+      "source_location": "L1749",
       "weight": 1.0
     },
     {
@@ -65961,7 +65973,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1575",
+      "source_location": "L1576",
       "weight": 1.0
     },
     {
@@ -65973,7 +65985,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1938",
+      "source_location": "L1972",
       "weight": 1.0
     },
     {
@@ -65985,7 +65997,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1886",
+      "source_location": "L1914",
       "weight": 1.0
     },
     {
@@ -65997,7 +66009,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1783",
+      "source_location": "L1789",
       "weight": 1.0
     },
     {
@@ -66009,7 +66021,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1772",
+      "source_location": "L1778",
       "weight": 1.0
     },
     {
@@ -66297,7 +66309,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1500",
+      "source_location": "L1501",
       "weight": 1.0
     },
     {
@@ -66309,7 +66321,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1501",
+      "source_location": "L1502",
       "weight": 1.0
     },
     {
@@ -66321,7 +66333,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1502",
+      "source_location": "L1503",
       "weight": 1.0
     },
     {
@@ -66333,7 +66345,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1503",
+      "source_location": "L1504",
       "weight": 1.0
     },
     {
@@ -66345,7 +66357,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1504",
+      "source_location": "L1505",
       "weight": 1.0
     },
     {
@@ -66357,7 +66369,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1505",
+      "source_location": "L1506",
       "weight": 1.0
     },
     {
@@ -66369,7 +66381,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1506",
+      "source_location": "L1507",
       "weight": 1.0
     },
     {
@@ -66381,7 +66393,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1507",
+      "source_location": "L1508",
       "weight": 1.0
     },
     {
@@ -66393,7 +66405,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1508",
+      "source_location": "L1509",
       "weight": 1.0
     },
     {
@@ -66405,7 +66417,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1509",
+      "source_location": "L1510",
       "weight": 1.0
     },
     {
@@ -66417,7 +66429,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1916",
+      "source_location": "L1950",
       "weight": 1.0
     },
     {
@@ -66429,7 +66441,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1917",
+      "source_location": "L1951",
       "weight": 1.0
     },
     {
@@ -66441,7 +66453,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1918",
+      "source_location": "L1952",
       "weight": 1.0
     },
     {
@@ -66453,7 +66465,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1919",
+      "source_location": "L1953",
       "weight": 1.0
     },
     {
@@ -66465,7 +66477,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1920",
+      "source_location": "L1954",
       "weight": 1.0
     },
     {
@@ -66477,7 +66489,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "motion-graphics/gabai-motion.js",
-      "source_location": "L1927",
+      "source_location": "L1961",
       "weight": 1.0
     },
     {

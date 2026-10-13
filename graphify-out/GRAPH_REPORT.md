@@ -1,12 +1,12 @@
 # Graph Report - OSRnary  (2026-10-14)
 
 ## Corpus Check
-- 71 files · ~215,392 words
+- 71 files · ~215,790 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 293 file(s) not represented in the graph (top: .xml 266, .ttf 7, (none) 5)
 
 ## Summary
-- 1452 nodes · 3970 edges · 64 communities (23 shown, 41 thin omitted)
+- 1452 nodes · 3971 edges · 64 communities (23 shown, 41 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
@@ -66,9 +66,9 @@
 2. `OverviewActivity` - 34 edges
 3. `FloatingControlService` - 29 edges
 4. `ClassDetailActivity` - 27 edges
-5. `AuthActivity` - 25 edges
-6. `WeeklyAssessmentActivity` - 25 edges
-7. `rgba()` - 25 edges
+5. `rgba()` - 26 edges
+6. `AuthActivity` - 25 edges
+7. `WeeklyAssessmentActivity` - 25 edges
 8. `rgba()` - 25 edges
 9. `GabAIUtils` - 24 edges
 10. `MainActivity` - 23 edges
@@ -191,7 +191,7 @@ Nodes (7): 3. The 6 Critical Loopholes: Status & Resolution, Loophole 1: Student
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `QuizActivity` connect `QuizActivity` to `3. The 6 Critical Loopholes: Status & Resolution`, `ClassDetailActivity.kt`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+  _High betweenness centrality (0.050) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `FloatingControlService` (e.g. with `Executive Summary: You Are Not Failing, The System Is Massive` and `Loophole 4: Unwanted Floating Bubble on Quiz Exit`) actually correct?**
   _`FloatingControlService` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `WORD`, `PHRASE`, `SENTENCE` to the rest of the system?**
@@ -203,4 +203,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `CameraActivity.kt` be split into smaller, more focused modules?**
   _Cohesion score 0.12307692307692308 - nodes in this community are weakly interconnected._
 - **Why does `FastBlurView` connect `FastBlurView` to `2. The 5 Core System Engines (How It Actually Works)`, `GabAIUtils`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._

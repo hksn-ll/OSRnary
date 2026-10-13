@@ -21,7 +21,7 @@
     primary: '#6C5CE7', primaryLight: '#8A84FF', primaryVariant: '#A29BFE',
     secondary: '#A0C4FF', green: '#00B894', gold: '#FDCB6E', amber: '#F1C40F',
     lavender: '#D6BCFA', blue: '#0984E3', red: '#E74C3C', orange: '#E17055',
-    pink: '#E84393', ink: '#2D3436', muted: '#636E72',
+    pink: '#E84393', ink: '#2D3436', muted: '#636E72', cyan: '#7EF0D8',
   };
   const FONT = '"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif,"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji"';
   const MONO = '"JetBrains Mono","Cascadia Code",Consolas,monospace';
@@ -48,6 +48,7 @@
     };
   }
   function rgba(hex, a) {
+    if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return `rgba(255,255,255,${a})`;
     const n = parseInt(hex.slice(1), 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
   }
@@ -1718,8 +1719,13 @@
 
   function loopSceneOnCanvas(targetCanvas, sceneIndex, options = {}) {
     if (!targetCanvas) return null;
-    targetCanvas.width = W;
-    targetCanvas.height = H;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const renderW = isMobile ? 960 : W;
+    const renderH = isMobile ? 540 : H;
+    const scaleFactor = renderW / W;
+
+    targetCanvas.width = renderW;
+    targetCanvas.height = renderH;
     const targetCtx = targetCanvas.getContext('2d');
     const s = SCENES[sceneIndex];
     if (!s) return null;
@@ -1730,14 +1736,14 @@
     // Immediately render base frame at t = 0.01 so canvas is never blank
     const initCtx = ctx;
     ctx = targetCtx;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
     ctx.globalAlpha = 1;
     drawBackground(performance.now() / 1000);
     s.draw(0.01, dur);
     ctx = initCtx;
 
     let animId = null;
-    let isVisible = true;
+    let isVisible = false;
     let startTime = performance.now();
 
     function tick(now) {
@@ -1748,7 +1754,7 @@
 
       const prevCtx = ctx;
       ctx = targetCtx;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
       ctx.globalAlpha = 1;
       // Seamlessly loop the cosmic background: stars, dust, and grid use continuous time and never snap backwards
       drawBackground(now / 1000);
@@ -1775,7 +1781,7 @@
     if (window.IntersectionObserver) {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
             if (!isVisible) {
               isVisible = true;
               startTime = performance.now();
@@ -1790,11 +1796,9 @@
             }
           }
         });
-      }, { threshold: 0.05 });
+      }, { threshold: [0, 0.2, 0.35, 0.5, 0.7] });
       observer.observe(targetCanvas);
     }
-
-    animId = requestAnimationFrame(tick);
 
     return {
       stop: () => {
@@ -1825,56 +1829,80 @@
 
     const cx = canvasSize / 2;
     const cy = canvasSize / 2;
-    const s = canvasSize * 0.44;
+    const s = canvasSize * 0.36;
 
     let animId = null;
     let isVisible = true;
+    let startTime = performance.now();
+    const cycle = options.cycle !== undefined ? options.cycle : 7.5;
 
     function tick(now) {
       if (!isVisible) return;
-      const t = now / 1000;
+      const elapsed = (now - startTime) / 1000;
+      const t = cycle > 0 ? (elapsed % cycle) : elapsed;
 
       const prevCtx = ctx;
       ctx = targetCtx;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvasSize, canvasSize);
 
-      // 1. Concentric expanding squircle pulse rings
-      for (let i = 0; i < 3; i++) {
-        const phase = ((t * 0.45 + i * 0.333) % 1.0);
-        const rSize = s + phase * (canvasSize * 0.46);
-        const alpha = Math.sin(phase * Math.PI) * 0.35;
-        if (alpha > 0.01) {
-          ctx.save();
-          ctx.globalAlpha = alpha;
-          ctx.strokeStyle = '#8A84FF';
-          ctx.lineWidth = 2.5 * dpr;
-          squircle(cx - rSize / 2, cy - rSize / 2, rSize, rSize, rSize * 0.24);
-          ctx.stroke();
-          ctx.restore();
-        }
+      // Entrance animation: Signature Outro Spring Pop Effect
+      const sp = E.spring(prog(t, 0.1, 1.05));
+      const fadeOut = cycle > 0 ? 1 - E.inOutCubic(prog(t, cycle - 0.5, 0.5)) : 1;
+
+      // Soft ambient radial glow scaling with the pop - smoothly fades to 0 before canvas edges
+      if (sp > 0.01 && fadeOut > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = fadeOut;
+        const glowR = s * 1.35;
+        const gl = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+        gl.addColorStop(0, rgba(C.primaryLight, 0.42 * clamp(sp)));
+        gl.addColorStop(0.42, rgba(C.cyan, 0.16 * clamp(sp)));
+        gl.addColorStop(0.78, rgba(C.primary, 0.05 * clamp(sp)));
+        gl.addColorStop(1, 'rgba(108, 92, 231, 0)');
+        ctx.fillStyle = gl;
+        ctx.fillRect(0, 0, canvasSize, canvasSize);
+        ctx.restore();
       }
 
-      // 2. Soft radial ambient glow
-      const aura = ctx.createRadialGradient(cx, cy, s * 0.15, cx, cy, s * 1.35);
-      aura.addColorStop(0, 'rgba(108, 92, 231, 0.48)');
-      aura.addColorStop(0.55, 'rgba(126, 240, 216, 0.18)');
-      aura.addColorStop(1, 'rgba(108, 92, 231, 0)');
-      ctx.fillStyle = aura;
-      ctx.fillRect(cx - s * 1.35, cy - s * 1.35, s * 2.7, s * 2.7);
+      // Outro signature pop effect: 14 celestial sparkles bursting outward in a 360° ring
+      if (fadeOut > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = fadeOut;
+        for (let i = 0; i < 14; i++) {
+          const p = prog(t, 0.6, 1.15), a = (i / 14) * Math.PI * 2 + 0.2;
+          if (p > 0 && p < 1) {
+            const dist = s * 0.55 + p * (s * 0.68);
+            const sx = cx + Math.cos(a) * dist;
+            const sy = cy + Math.sin(a) * dist;
+            sparkle(sx, sy, (9 * (1 - p) + 3) * dpr, i % 2 ? C.cyan : '#ffffff', (1 - p) * 0.95);
+          }
+        }
+        ctx.restore();
+      }
 
-      // 3. Gentle float bobbing and breathing book opening
-      const floatY = Math.sin(t * 1.8) * (6 * dpr);
-      const open = 0.88 + 0.12 * Math.sin(t * 1.4);
-
-      ctx.save();
-      ctx.translate(cx, cy + floatY);
-      drawLogo(0, 0, s, open, t, { sparkles: 1 });
-      ctx.restore();
+      // Logo with elastic spring pop, breathing book, and float bobbing
+      if (sp > 0.001 && fadeOut > 0.001) {
+        ctx.save();
+        ctx.globalAlpha = fadeOut;
+        const floatY = Math.sin(t * 1.6) * (5 * dpr);
+        ctx.translate(cx, cy + floatY);
+        ctx.scale(sp, sp);
+        const open = E.inOutCubic(prog(t, 0.35, 0.75));
+        const spk = E.outBack(prog(t, 0.75, 0.5));
+        drawLogo(0, 0, s, open, t, { sparkles: spk });
+        ctx.restore();
+      }
 
       ctx = prevCtx;
       animId = requestAnimationFrame(tick);
     }
+
+    // Clicking the logo re-triggers the spring pop effect
+    targetCanvas.style.cursor = 'pointer';
+    targetCanvas.onclick = () => {
+      startTime = performance.now();
+    };
 
     if (window.IntersectionObserver) {
       const observer = new IntersectionObserver((entries) => {
@@ -1906,6 +1934,12 @@
           cancelAnimationFrame(animId);
           animId = null;
         }
+      },
+      restart: () => {
+        startTime = performance.now();
+        isVisible = true;
+        if (animId) cancelAnimationFrame(animId);
+        animId = requestAnimationFrame(tick);
       }
     };
   }
