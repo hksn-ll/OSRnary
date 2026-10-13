@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1791928417.6705356,
-    "seen": 1791928456.1210165,
-    "ast_hash": "8ee50260c8721d4c6a98d2d26eff1cb3",
+    "mtime": 1791930937.1404157,
+    "seen": 1791930981.5770729,
+    "ast_hash": "990c747f610f74d23cd90768458427c9",
     "semantic_hash": ""
   },
   "app-version.json": {
@@ -615,6 +615,12 @@
     "mtime": 1791921224.4453423,
     "seen": 1791923850.3648586,
     "ast_hash": "4dacf9e449073c4b9b527f343f8f5ac7",
+    "semantic_hash": ""
+  },
+  "wipe_auth_users.py": {
+    "mtime": 1791930477.9772274,
+    "seen": 1791930981.5770597,
+    "ast_hash": "64986e039f2539150c231fa78cf94176",
     "semantic_hash": ""
   }
 }

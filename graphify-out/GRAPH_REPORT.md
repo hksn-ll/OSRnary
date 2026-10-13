@@ -1,12 +1,12 @@
 # Graph Report - OSRnary  (2026-10-14)
 
 ## Corpus Check
-- 71 files · ~215,790 words
+- 72 files · ~216,023 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 293 file(s) not represented in the graph (top: .xml 266, .ttf 7, (none) 5)
+- Unclassified: 295 file(s) not represented in the graph (top: .xml 266, .ttf 7, (none) 5)
 
 ## Summary
-- 1452 nodes · 3971 edges · 64 communities (23 shown, 41 thin omitted)
+- 1456 nodes · 3977 edges · 63 communities (25 shown, 38 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
@@ -27,15 +27,14 @@
 - Activity
 - TextOverlayView
 - motion-graphics-backup/gabai-motion.js
-- FloatingControlService
 - SubjectDetailActivity
 - HistoryActivity
-- .onTouch
+- FloatingControlService
 - WeeklyAssessmentActivity
 - HomeFragment
 - FastBlurView
-- Callback
-- TeacherHomeFragment
+- .onStartCommand
+- QuizHistoryActivity.kt
 - ExampleInstrumentedTest.kt
 - motion-graphics/gabai-motion.js
 - ExampleUnitTest.kt
@@ -46,19 +45,19 @@
 - .onCreate
 - Activity
 - .onCreate
-- GabAIAccessibilityService
-- GabAiLoadingView
+- GabAIAccessibilityService.kt
+- FavoritesActivity
 - GabAIUtils
 - TextWatcher
-- MaterialQuizActivity
+- .addProgress
 - ProfileFragment
 - TextWatcher
 - .loadPerformanceData
-- DevEasterEggActivity
+- GabAiLoadingView
 - .onCreate
+- ViewOutlineProvider
 - StudentProfileBottomSheet.kt
 - 3. The 6 Critical Loopholes: Status & Resolution
-- TextWatcher
 - .loadAssignedMaterials
 
 ## God Nodes (most connected - your core abstractions)
@@ -88,11 +87,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (64 total, 41 thin omitted)
-
-### Community 0 - "MainActivity"
-Cohesion: 0.12
-Nodes (3): MainActivity, OnBackPressedCallback, ViewOutlineProvider
+## Communities (63 total, 38 thin omitted)
 
 ### Community 2 - "InitiationActivity"
 Cohesion: 0.17
@@ -103,8 +98,8 @@ Cohesion: 0.07
 Nodes (8): TextSpanClassification, TextSpanType, PHRASE, SENTENCE, WORD, ScanImageHolder, ScanResultActivity, OnTouchListener
 
 ### Community 6 - "AuthActivity"
-Cohesion: 0.16
-Nodes (4): AuthActivity, School, SchoolAdminInvite, SchoolRepository
+Cohesion: 0.10
+Nodes (5): AuthActivity, TakeScreenshotCallback, School, SchoolAdminInvite, SchoolRepository
 
 ### Community 8 - "OverviewActivity"
 Cohesion: 0.05
@@ -119,12 +114,12 @@ Cohesion: 0.06
 Nodes (10): AchievementManager, MechanicType, CLOZE, CONTEXT_MEANING, GRAMMAR_LANDMINE, IMPOSTOR, RAPID_MATCH, QuizActivity (+2 more)
 
 ### Community 13 - "Activity"
-Cohesion: 0.09
-Nodes (8): GitHubUpdateHelper, Callback, Callback, Callback, Callback, ActivityLifecycleCallbacks, VersionInfo, SplashActivity
+Cohesion: 0.07
+Nodes (9): GabAIApp, GitHubUpdateHelper, Callback, Callback, Callback, Callback, ActivityLifecycleCallbacks, VersionInfo (+1 more)
 
 ### Community 14 - "TextOverlayView"
-Cohesion: 0.06
-Nodes (9): GabAiAnimatedLogoView, AnimatorListenerAdapter, DragMode, DRAG_END_HANDLE, DRAG_START_HANDLE, NONE, SELECTION, TextOverlayView (+1 more)
+Cohesion: 0.09
+Nodes (7): DragMode, DRAG_END_HANDLE, DRAG_START_HANDLE, NONE, SELECTION, TextOverlayView, WordBox
 
 ### Community 15 - "motion-graphics-backup/gabai-motion.js"
 Cohesion: 0.14
@@ -142,41 +137,53 @@ Nodes (6): HistoryActivity, OnScrollListener, HistoryAdapter, HistoryItem, ItemV
 Cohesion: 0.13
 Nodes (3): AssessmentQuestion, WeeklyAssessmentActivity, OnBackPressedCallback
 
+### Community 22 - "HomeFragment"
+Cohesion: 0.08
+Nodes (3): HomeFragment, MaterialQuizActivity, XPManager
+
 ### Community 23 - "FastBlurView"
-Cohesion: 0.07
+Cohesion: 0.09
 Nodes (10): 1. Always Use Graphify (Token Efficiency & Navigation), 2. Engineering & Design System Standards, 3. Build & Testing Protocols, Project Rules: OSRnary (GabAI), FastBlurTarget, FastBlurView, 1. Always Use Graphify (Token Efficiency & Navigation), 2. Engineering & Design System Standards (+2 more)
 
 ### Community 29 - "motion-graphics/gabai-motion.js"
 Cohesion: 0.12
 Nodes (59): at(), avatar(), caret(), checkBadge(), chipRow(), codeLine(), confetti(), drawArticle() (+51 more)
 
+### Community 35 - "serve.py"
+Cohesion: 0.21
+Nodes (3): DualStackHandler, run(), find_service_account()
+
 ### Community 36 - ".performHaptic"
 Cohesion: 0.07
 Nodes (7): QuestDetailsActivity, IntroSlideAdapter, IntroSlideViewHolder, SampleWordData, SlideTheme, StudentIntroActivity, OnPageChangeCallback
 
 ### Community 39 - "Activity"
-Cohesion: 0.10
-Nodes (4): GabAIApp, OfflineLockoutHelper, ActivityLifecycleCallbacks, NetworkCallback
+Cohesion: 0.14
+Nodes (3): OfflineLockoutHelper, ActivityLifecycleCallbacks, NetworkCallback
 
 ### Community 40 - ".onCreate"
 Cohesion: 0.14
 Nodes (4): GuideViewHolder, HelpActivity, HelpGuide, HelpGuidesAdapter
 
-### Community 42 - "GabAiLoadingView"
-Cohesion: 0.07
-Nodes (7): FavoriteItem, FavoritesActivity, OnScrollListener, FavoritesAdapter, ItemViewHolder, LoadingViewHolder, GabAiLoadingView
+### Community 42 - "FavoritesActivity"
+Cohesion: 0.11
+Nodes (6): FavoriteItem, FavoritesActivity, OnScrollListener, FavoritesAdapter, ItemViewHolder, LoadingViewHolder
 
 ### Community 43 - "GabAIUtils"
-Cohesion: 0.08
-Nodes (5): AchievementsActivity, Badge, GabAIUtils, QuizHistoryActivity, StudentSubjectActivity
+Cohesion: 0.09
+Nodes (5): AchievementsActivity, Badge, GabAIUtils, ProgressDashboardActivity, StudentSubjectActivity
 
-### Community 46 - "MaterialQuizActivity"
-Cohesion: 0.10
-Nodes (4): DailyQuestsActivity, MaterialQuizActivity, DailyQuestMeta, QuestManager
+### Community 46 - ".addProgress"
+Cohesion: 0.17
+Nodes (3): DailyQuestsActivity, DailyQuestMeta, QuestManager
 
 ### Community 49 - ".loadPerformanceData"
-Cohesion: 0.24
+Cohesion: 0.20
 Nodes (3): LeaderboardActivity, StudentStats, TeacherPerformanceActivity
+
+### Community 52 - "GabAiLoadingView"
+Cohesion: 0.06
+Nodes (5): DevEasterEggActivity, OnSeekBarChangeListener, GabAiAnimatedLogoView, AnimatorListenerAdapter, GabAiLoadingView
 
 ### Community 60 - "3. The 6 Critical Loopholes: Status & Resolution"
 Cohesion: 0.25
@@ -185,22 +192,22 @@ Nodes (7): 3. The 6 Critical Loopholes: Status & Resolution, Loophole 1: Student
 ## Knowledge Gaps
 - **18 isolated node(s):** `WORD`, `PHRASE`, `SENTENCE`, `IDLE`, `LOADING` (+13 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 203 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **41 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **38 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `QuizActivity` connect `QuizActivity` to `3. The 6 Critical Loopholes: Status & Resolution`, `ClassDetailActivity.kt`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `QuizActivity` connect `QuizActivity` to `3. The 6 Critical Loopholes: Status & Resolution`, `HomeFragment`, `color`?**
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `FloatingControlService` (e.g. with `Executive Summary: You Are Not Failing, The System Is Massive` and `Loophole 4: Unwanted Floating Bubble on Quiz Exit`) actually correct?**
   _`FloatingControlService` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `WORD`, `PHRASE`, `SENTENCE` to the rest of the system?**
   _18 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MainActivity` be split into smaller, more focused modules?**
-  _Cohesion score 0.1164021164021164 - nodes in this community are weakly interconnected._
-- **Why does `GabAIUtils` connect `GabAIUtils` to `ScanResultActivity`, `.showSnackbar`, `.performHaptic`, `ClassDetailActivity`, `OverviewActivity`, `QuizActivity`, `.addSpringPressEffect`, `GitHubUpdateHelper.kt`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _Cohesion score 0.09206349206349207 - nodes in this community are weakly interconnected._
+- **Why does `FastBlurView` connect `FastBlurView` to `2. The 5 Core System Engines (How It Actually Works)`, `GabAIUtils`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
 - **Should `CameraActivity.kt` be split into smaller, more focused modules?**
   _Cohesion score 0.12307692307692308 - nodes in this community are weakly interconnected._
-- **Why does `FastBlurView` connect `FastBlurView` to `2. The 5 Core System Engines (How It Actually Works)`, `GabAIUtils`?**
+- **Why does `GabAIUtils` connect `GabAIUtils` to `ScanResultActivity`, `.showSnackbar`, `.performHaptic`, `ClassDetailActivity`, `OverviewActivity`, `QuizActivity`, `.addSpringPressEffect`, `GabAIUtils.kt`?**
   _High betweenness centrality (0.031) - this node is a cross-community bridge._
