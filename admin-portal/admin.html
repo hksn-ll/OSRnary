@@ -2410,11 +2410,11 @@
       activeInspectorMaterialId = materialId;
       activeInspectorAssessmentId = null;
       activeInspectorQuestions = getMaterialQuestions(m);
-      activeInspectorIsTeacher = Boolean(m.uploaderRole === 'teacher' || (m.teacherId && m.teacherId !== currentAdminUser?.uid));
-      activeInspectorTeacherName = m.teacherName || "Faculty";
+      activeInspectorIsTeacher = true; // Strictly read-only for School Admin and Super Admin
+      activeInspectorTeacherName = m.uploaderName || m.teacherName || "Faculty";
 
       document.getElementById('quizInspectorTitle').textContent = `Quiz Pool: ${m.title || 'Untitled Document'}`;
-      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json)${activeInspectorIsTeacher ? ' • Read-Only Inspection' : ''}`;
+      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json) • Read-Only Inspection`;
       
       renderQuizQuestionsList();
       document.getElementById('modalQuizInspector').classList.remove('hidden');
@@ -2427,8 +2427,8 @@
       activeInspectorType = 'assessment';
       activeInspectorAssessmentId = assessmentId;
       activeInspectorMaterialId = null;
-      activeInspectorIsTeacher = false;
-      activeInspectorTeacherName = "";
+      activeInspectorIsTeacher = true; // Strictly read-only for School Admin and Super Admin
+      activeInspectorTeacherName = a.teacherName || "Faculty";
       
       let qs = [];
       try {
@@ -4699,25 +4699,7 @@
     };
 
     window.openEditMaterialModal = function(id) {
-      const m = cachedMaterials.find(item => item.id === id);
-      if (!m) return;
-
-      const isTeacherMaterial = Boolean(m.uploaderRole === 'teacher' || (m.teacherId && m.teacherId !== currentAdminUser?.uid));
-      if (isTeacherMaterial) {
-        window.showToast("Pedagogical Safeguard: Classroom materials authored by faculty cannot be modified by administrators. Use Inspect to review or Remarks to advise.", "warning");
-        return;
-      }
-
-      populateSubjectDropdown();
-      document.getElementById('modalMaterialTitle').textContent = "Edit PDF Material & Quiz Pool";
-      document.getElementById('materialEditId').value = id;
-      document.getElementById('matSubjectSelect').value = m.subjectId || "";
-      document.getElementById('matTitleInput').value = m.title || "";
-      document.getElementById('matDownloadUrl').value = getMaterialPdfUrl(m);
-      
-      const questions = getMaterialQuestions(m);
-      document.getElementById('matQuizJson').value = JSON.stringify(questions, null, 2);
-      document.getElementById('modalMaterial').classList.remove('hidden');
+      window.showToast("Institutional Safeguard: Classroom materials and PDFs are authored exclusively by faculty in the mobile app. Neither School Admins nor Super Admins can edit teacher materials.", "warning");
     };
 
     window.closeMaterialModal = function() {
@@ -4725,97 +4707,13 @@
     };
 
     window.handleMaterialSubmit = async function(e) {
-      e.preventDefault();
-      const editId = document.getElementById('materialEditId').value;
-      const subjectId = document.getElementById('matSubjectSelect').value;
-      const title = document.getElementById('matTitleInput').value.trim();
-      const downloadUrl = document.getElementById('matDownloadUrl').value.trim();
-      const quizJson = document.getElementById('matQuizJson').value.trim();
-
-      // Validate JSON
-      let parsed = [];
-      try {
-        parsed = JSON.parse(quizJson);
-        if (!Array.isArray(parsed)) throw new Error("Quiz questions must be a JSON array.");
-      } catch (err) {
-        alert("Attached Quiz JSON is invalid: " + err.message);
-        return;
-      }
-
-      // Extract drive ID if present
-      let driveId = "";
-      const match = downloadUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || downloadUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (match && match[1]) driveId = match[1];
-
-      const btn = document.getElementById('btnSaveMaterial');
-      btn.disabled = true;
-      btn.textContent = "Saving...";
-
-      try {
-        const sub = cachedSubjects.find(s => s.id === subjectId);
-        const derivedSchoolId = sub ? sub.schoolId : (currentAdminUser ? currentAdminUser.schoolId : "ALL");
-
-        if (editId) {
-          await updateDoc(doc(db, "library_materials", editId), {
-            title,
-            subjectId,
-            schoolId: derivedSchoolId,
-            isSchoolWide: true,
-            pdfUrl: downloadUrl,
-            downloadUrl: downloadUrl,
-            driveFileId: driveId,
-            quiz_pool_json: quizJson,
-            quiz_json: quizJson,
-            quiz_max_items: parsed.length,
-            updatedAt: Date.now()
-          });
-          window.showToast("Library material and quiz updated.", "success");
-        } else {
-          await addDoc(collection(db, "library_materials"), {
-            title,
-            subjectId,
-            schoolId: derivedSchoolId,
-            isSchoolWide: true,
-            uploaderRole: isSuperAdmin ? 'super_admin' : 'school_admin',
-            pdfUrl: downloadUrl,
-            downloadUrl: downloadUrl,
-            driveFileId: driveId,
-            quiz_pool_json: quizJson,
-            quiz_json: quizJson,
-            quiz_max_items: parsed.length,
-            teacherName: currentAdminUser ? `${currentAdminUser.firstName} ${currentAdminUser.lastName}` : "Division Admin",
-            createdAt: Date.now(),
-            timestamp: Date.now()
-          });
-          window.showToast("New reading document and quiz attached.", "success");
-        }
-        closeMaterialModal();
-      } catch (err) {
-        console.error("Save material error:", err);
-        window.showToast("Error saving material: " + err.message, "error");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Save Library Material";
-      }
+      e?.preventDefault();
+      window.showToast("Curricular materials cannot be created or modified from the administrative portal.", "warning");
+      closeMaterialModal();
     };
 
     window.deleteMaterial = async function(id, title) {
-      const m = cachedMaterials.find(item => item.id === id);
-      const isTeacherMaterial = Boolean(m && (m.uploaderRole === 'teacher' || (m.teacherId && m.teacherId !== currentAdminUser?.uid)));
-      if (isTeacherMaterial) {
-        window.showToast("Administrators cannot delete classroom materials uploaded by faculty.", "warning");
-        return;
-      }
-
-      if (confirm(`Remove reading document "${title}" from the library?`)) {
-        try {
-          await deleteDoc(doc(db, "library_materials", id));
-          window.showToast(`Document "${title}" removed.`, "info");
-        } catch (err) {
-          console.error("Delete material error:", err);
-          window.showToast("Failed to remove material: " + err.message, "error");
-        }
-      }
+      window.showToast("Institutional Safeguard: Neither School Admins nor Super Admins have permission to delete faculty learning materials or PDFs.", "warning");
     };
 
     function renderMaterialsTable() {
@@ -4876,7 +4774,6 @@
         const questions = getMaterialQuestions(m);
         const qCount = questions.length;
         const pdfUrl = getMaterialPdfUrl(m);
-        const isTeacherMaterial = Boolean(m.uploaderRole === 'teacher' || (m.teacherId && m.teacherId !== currentAdminUser?.uid));
 
         return `
           <tr class="hover:bg-slate-50/80 transition-colors">
@@ -4912,18 +4809,9 @@
                 <button onclick="openAdminRemarksModal('material', '${m.id}', '${(m.title || 'Material').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded text-xs font-bold" title="Pedagogical Guidance & Remarks">
                   💬 Remarks
                 </button>
-                ${isTeacherMaterial ? `
-                  <span class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-[11px] font-semibold border border-slate-200 select-none flex items-center gap-1" title="Classroom Faculty Upload: Read-only inspection">
-                    🔒 Read-Only
-                  </span>
-                ` : `
-                  <button onclick="openEditMaterialModal('${m.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold" title="Edit Document & Quiz">
-                    ✏️
-                  </button>
-                  <button onclick="deleteMaterial('${m.id}', '${(m.title || 'Document').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold" title="Delete Document">
-                    🗑️
-                  </button>
-                `}
+                <span class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-[11px] font-semibold border border-slate-200 select-none flex items-center gap-1" title="Classroom Faculty Upload: Read-only inspection">
+                  🔒 Read-Only
+                </span>
               </div>
             </td>
           </tr>
@@ -5109,9 +4997,9 @@
                 <button onclick="openAssessmentSubmissionsModal('${a.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1">
                   <span>📋</span> Submissions
                 </button>
-                <button onclick="deleteAssessment('${a.id}', '${safeTitle}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold" title="Delete Assessment">
-                  🗑️
-                </button>
+                <span class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-[11px] font-semibold border border-slate-200 select-none flex items-center gap-1" title="Classroom Faculty Assessment: Read-only inspection">
+                  🔒 Read-Only
+                </span>
               </div>
             </td>
           </tr>
@@ -5120,15 +5008,7 @@
     };
 
     window.deleteAssessment = async function(id, title) {
-      if (confirm(`Are you sure you want to delete the weekly assessment "${title}"? This cannot be undone.`)) {
-        try {
-          await deleteDoc(doc(db, "weekly_assessments", id));
-          window.showToast(`Assessment "${title}" removed.`, "info");
-        } catch (err) {
-          console.error("Delete assessment error:", err);
-          window.showToast("Failed to delete assessment: " + err.message, "error");
-        }
-      }
+      window.showToast("Institutional Safeguard: Weekly assessments are created and managed exclusively by teachers in the mobile app. Neither School Admins nor Super Admins can delete faculty assessments.", "warning");
     };
 
     window.openAssessmentSubmissionsModal = function(assessmentId) {

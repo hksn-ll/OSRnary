@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1791630780.1737037,
-    "seen": 1791636064.337271,
-    "ast_hash": "2bd77ba94400b42c4c4019308faafbe3",
+    "mtime": 1791926257.9709878,
+    "seen": 1791926281.011909,
+    "ast_hash": "d60cc3719f5e78a02439918e06cf663f",
     "semantic_hash": ""
   },
   "app-version.json": {
@@ -444,9 +444,9 @@
     "semantic_hash": ""
   },
   "admin-portal/admin.html": {
-    "mtime": 1791766258.7230122,
-    "seen": 1791766621.0130956,
-    "ast_hash": "d9630c68eec5763ad51f05d651c23db5",
+    "mtime": 1791836142.7364693,
+    "seen": 1791836331.10323,
+    "ast_hash": "519bc57dd18312c291a09305e705d6cd",
     "semantic_hash": ""
   },
   "admin-portal/bubble.png": {
@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "admin.html": {
-    "mtime": 1791630779.9551997,
-    "seen": 1791636064.33727,
-    "ast_hash": "9996917d756030dc837e5c545c113219",
+    "mtime": 1791836142.7364693,
+    "seen": 1791836331.1032338,
+    "ast_hash": "519bc57dd18312c291a09305e705d6cd",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ScanImageHolder.kt": {
@@ -591,6 +591,30 @@
     "mtime": 1791766866.2871265,
     "seen": 1791766981.048832,
     "ast_hash": "7055828810243ce7cc58e50113c1ac42",
+    "semantic_hash": ""
+  },
+  "motion-graphics/gabai-motion.js": {
+    "mtime": 1791926232.1686132,
+    "seen": 1791926281.0118837,
+    "ast_hash": "2a87d4e4da3ed35aae942df84f7be3c3",
+    "semantic_hash": ""
+  },
+  "motion-graphics/index.html": {
+    "mtime": 1791921224.4453423,
+    "seen": 1791921361.6651058,
+    "ast_hash": "4dacf9e449073c4b9b527f343f8f5ac7",
+    "semantic_hash": ""
+  },
+  "motion-graphics-backup/gabai-motion.js": {
+    "mtime": 1791923030.2023501,
+    "seen": 1791923850.3648295,
+    "ast_hash": "ce794089cadff945b1ff0252ffda2884",
+    "semantic_hash": ""
+  },
+  "motion-graphics-backup/index.html": {
+    "mtime": 1791921224.4453423,
+    "seen": 1791923850.3648586,
+    "ast_hash": "4dacf9e449073c4b9b527f343f8f5ac7",
     "semantic_hash": ""
   }
 }

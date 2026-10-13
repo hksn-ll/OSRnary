@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GabAI — Motion Graphics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <div class="stage-wrap" id="stageWrap">
+      <canvas id="stage" aria-label="GabAI motion graphics animation"></canvas>
+    </div>
+
+    <section class="controls">
+      <button id="btnPlay" class="btn icon" title="Play / Pause (Space)">❚❚</button>
+      <button id="btnRestart" class="btn icon" title="Restart (R)">↺</button>
+      <span id="time" class="time">00:00 / 00:00</span>
+      <div id="timeline" class="timeline" title="Scrub (← / → to seek)">
+        <div class="track"><div id="fill" class="fill"></div></div>
+        <div id="markers" class="markers"></div>
+        <div id="knob" class="knob"></div>
+      </div>
+      <button id="btnRecord" class="btn rec" title="Export the full animation as a WebM video">● Export WebM</button>
+      <button id="btnFull" class="btn icon" title="Fullscreen (F)">⛶</button>
+    </section>
+
+    <nav id="chapters" class="chapters"></nav>
+    <div id="toast" class="toast" role="status"></div>
+  </main>
+
+  <script src="gabai-motion.js"></script>
+</body>
+</html>

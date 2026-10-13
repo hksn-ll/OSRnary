@@ -3,28 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GabAI — AI Reading Companion for Students & Teachers</title>
-  <meta name="description" content="GabAI is an Android reading companion that floats over textbooks and modules, providing instant pronunciation, simplified definitions, and comprehension practice for students and teachers.">
+  <title>GabAI — AI-Powered Mobile Reading Assistant for Students & Teachers</title>
+  <meta name="description" content="GabAI is an Android reading companion that floats over textbooks and learning modules, delivering instant OCR pronunciation, Gemini 3.5 Flash Lite context overviews, and gamified comprehension practice.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Lexend', 'system-ui', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
           },
           colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a'
+            gabai: {
+              primary: '#6C5CE7',
+              primaryLight: '#8A84FF',
+              secondary: '#A0C4FF',
+              cyan: '#7EF0D8',
+              green: '#00B894',
+              gold: '#FDCB6E',
+              orange: '#E17055',
+              dark: '#070514',
+              darker: '#04030a',
             }
           }
         }
@@ -32,142 +35,93 @@
     }
   </script>
   <style>
+    :root {
+      --bg: #070514;
+      --accent: #6C5CE7;
+      --accent-light: #8A84FF;
+    }
     body {
-      font-family: 'Lexend', system-ui, sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #334155;
-      background-color: #FFFFFF;
-    }
-    h1 {
-      font-size: 3.25rem;
-      line-height: 1.15;
-      font-weight: 800;
-      color: #0F172A;
-    }
-    h2 {
-      font-size: 2.5rem;
-      line-height: 1.25;
-      font-weight: 800;
-      color: #0F172A;
-    }
-    h3 {
-      font-size: 1.85rem;
-      line-height: 1.35;
-      font-weight: 700;
-      color: #0F172A;
-    }
-    h4 {
-      font-size: 1.35rem;
-      line-height: 1.4;
-      font-weight: 700;
-      color: #0F172A;
-    }
-    p {
-      font-size: 1rem;
-      line-height: 1.6;
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      background-color: var(--bg);
+      color: #ECEAFF;
+      overflow-x: hidden;
     }
     ::selection {
-      background-color: #2563eb;
+      background-color: #6C5CE7;
       color: #ffffff;
     }
-    ::-webkit-scrollbar {
-      width: 8px;
+    /* Bento squircle frosted glass utility */
+    .bento-glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
-    ::-webkit-scrollbar-track {
-      background: #F8FAFC;
+    .bento-glass-hover {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    ::-webkit-scrollbar-thumb {
-      background: #CBD5E1;
-      border-radius: 4px;
+    .bento-glass-hover:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(138, 132, 255, 0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 25px 50px -15px rgba(108, 92, 231, 0.25);
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94A3B8;
-    }
-    .focus-ring:focus-visible {
-      outline: 2px solid #2563eb;
-      outline-offset: 3px;
-    }
-
-    /* Living UI Animations */
-    @keyframes floatCompanion {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-    }
-    .animate-float {
-      animation: floatCompanion 4s ease-in-out infinite;
-    }
-
-    @keyframes pulseRing {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.08); opacity: 0.3; }
-      100% { transform: scale(0.95); opacity: 0.8; }
-    }
-    .animate-glow-ring {
-      animation: pulseRing 3s ease-in-out infinite;
-    }
-
-    @keyframes soundBarMove {
+    /* Soundwave bars for sandbox */
+    @keyframes soundwave {
       0%, 100% { height: 4px; }
-      50% { height: 16px; }
+      50% { height: 18px; }
     }
-    .bar-1 { animation: soundBarMove 0.8s ease-in-out infinite; }
-    .bar-2 { animation: soundBarMove 0.7s ease-in-out 0.15s infinite; }
-    .bar-3 { animation: soundBarMove 0.9s ease-in-out 0.3s infinite; }
-    .bar-4 { animation: soundBarMove 0.65s ease-in-out 0.2s infinite; }
-
-    @keyframes popInFeedback {
-      0% { transform: scale(0.85); opacity: 0; }
-      70% { transform: scale(1.05); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .animate-pop-in {
-      animation: popInFeedback 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .interactive-card {
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .interactive-card:hover {
-      transform: translateY(-2px);
-    }
+    .wave-1 { animation: soundwave 0.8s ease-in-out infinite; }
+    .wave-2 { animation: soundwave 0.7s ease-in-out 0.15s infinite; }
+    .wave-3 { animation: soundwave 0.9s ease-in-out 0.3s infinite; }
+    .wave-4 { animation: soundwave 0.65s ease-in-out 0.2s infinite; }
   </style>
 </head>
-<body class="text-slate-700 antialiased bg-white flex flex-col min-h-screen">
+<body class="min-h-screen flex flex-col antialiased relative selection:bg-[#6C5CE7] selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- SEAMLESS COSMIC STARFIELD BACKGROUND -->
+  <!-- ========================================================================= -->
+  <canvas id="pageStarfield" class="fixed inset-0 pointer-events-none z-0 opacity-50"></canvas>
 
   <!-- ========================================================================= -->
   <!-- NAVIGATION -->
   <!-- ========================================================================= -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+  <header class="sticky top-0 z-50 bg-[#070514]/85 backdrop-blur-xl border-b border-white/10 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       
       <!-- Brand Logo -->
-      <a href="#top" class="flex items-center gap-3 focus-ring rounded-lg py-1">
-        <img src="logo.png" alt="GabAI Logo" class="w-9 h-9 rounded-xl shadow-sm object-cover flex-shrink-0">
+      <a href="#top" class="flex items-center gap-3 rounded-xl py-1 focus:outline-none focus:ring-2 focus:ring-[#8A84FF]">
+        <img src="logo.png" alt="GabAI Logo" class="w-9 h-9 rounded-xl shadow-md object-cover flex-shrink-0 ring-1 ring-white/20">
         <span class="flex flex-col">
-          <span class="font-bold text-base text-slate-900 tracking-tight leading-none">GabAI</span>
-          <span class="text-xs text-slate-500 leading-tight mt-0.5">AI Reading Assistant</span>
+          <span class="font-extrabold text-base text-white tracking-tight leading-none">GabAI</span>
+          <span class="text-[11px] text-[#A0C4FF] font-medium leading-tight mt-0.5">Reading Assistant</span>
         </span>
       </a>
 
       <!-- Desktop Links -->
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-        <a href="#demo" class="hover:text-blue-600 transition">Interactive Demo</a>
-        <a href="#classroom" class="hover:text-blue-600 transition">In The Classroom</a>
-        <a href="#how-it-works" class="hover:text-blue-600 transition">How It Works</a>
-        <a href="#faq" class="hover:text-blue-600 transition">Questions</a>
-        <a href="admin.html" class="text-slate-900 hover:text-blue-600 font-semibold transition">Admin Portal &rarr;</a>
+      <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-white/70">
+        <a href="#showcase" class="hover:text-white transition flex items-center gap-1.5">
+          <span class="inline-block w-2 h-2 rounded-full bg-[#7EF0D8] animate-pulse"></span>
+          <span>Capabilities</span>
+        </a>
+        <a href="#demo" class="hover:text-white transition">Interactive Sandbox</a>
+        <a href="#classroom" class="hover:text-white transition">For Teachers</a>
+        <a href="admin.html" class="text-white hover:text-[#7EF0D8] font-bold transition flex items-center gap-1">
+          <span>Admin Portal</span>
+          <span class="text-xs">↗</span>
+        </a>
       </nav>
 
       <!-- Primary Action -->
       <div class="flex items-center gap-3">
-        <a href="https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition flex items-center gap-2">
+        <a href="https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" class="px-4 py-2 rounded-xl bg-gradient-to-r from-[#6C5CE7] to-[#8A84FF] hover:from-[#5b4bc7] hover:to-[#7973ff] text-white font-bold text-xs shadow-lg shadow-indigo-500/25 transition active:scale-95 flex items-center gap-2">
           <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          <span>Download App</span>
+          <span>Download APK</span>
         </a>
       </div>
 
@@ -177,48 +131,68 @@
   <!-- ========================================================================= -->
   <!-- HERO SECTION -->
   <!-- ========================================================================= -->
-  <section id="top" class="pt-16 pb-12 sm:pt-24 sm:pb-20 border-b border-slate-100 bg-slate-50 relative overflow-hidden">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6 relative z-10">
+  <section id="top" class="relative pt-10 pb-16 sm:pt-16 sm:pb-24 overflow-hidden border-b border-white/10">
+    <!-- Ambient Radial Glows -->
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-gradient-to-b from-[#6C5CE7]/30 via-[#8A84FF]/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-1/3 -right-20 w-80 h-80 bg-[#7EF0D8]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6 relative z-10">
       
-      <!-- Brand App Mark -->
-      <div class="flex items-center justify-center">
-        <img src="logo.png" alt="GabAI App Icon" class="w-16 h-16 rounded-2xl shadow-md object-cover flex-shrink-0 animate-glow-ring">
+      <!-- HERO ANIMATED LOGO CENTERPIECE (First thing on the page) -->
+      <div class="flex justify-center items-center">
+        <div class="relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center">
+          <canvas id="heroLogoCanvas" class="w-full h-full object-contain pointer-events-none drop-shadow-2xl"></canvas>
+        </div>
+      </div>
+
+      <!-- Eyebrow Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bento-glass text-xs font-semibold text-[#A0C4FF] shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-[#7EF0D8]"></span>
+        <span>Mobile Reading Assistant · Android 8.0+</span>
+        <span class="text-white/30">|</span>
+        <span class="text-white/80 font-mono">Gemini 3.5 Flash Lite</span>
       </div>
 
       <!-- Main Headline -->
-      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight max-w-3xl mx-auto">
-        An AI reading companion for every student.
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08] max-w-4xl mx-auto">
+        Read. Understand. Grow. <br class="hidden sm:inline">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#A0C4FF] via-[#7EF0D8] to-white">On any page, in any app.</span>
       </h1>
 
       <!-- Subtext -->
-      <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-        GabAI floats quietly over textbooks, classroom modules, and articles on Android devices. When students encounter an unfamiliar word, a single tap pronounces it, explains it in plain language, and generates instant comprehension questions.
+      <p class="text-base sm:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed font-normal">
+        GabAI floats quietly over textbook modules, classroom articles, and PDFs. One tap pronounces unfamiliar words, explains meanings with Gemini AI, and builds comprehension with gamified combo streaks.
       </p>
 
-      <!-- Call to Actions -->
-      <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-        <a href="https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]">
+      <!-- Action Buttons -->
+      <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-[#6C5CE7] to-[#8A84FF] hover:from-[#5b4bc7] hover:to-[#7973ff] text-white font-extrabold text-sm shadow-xl shadow-indigo-500/30 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2.5">
           <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
-          <span>Download GabAI App</span>
+          <span>Download Free for Android</span>
         </a>
-        <a href="#demo" class="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-sm transition text-center hover:scale-[1.02] active:scale-[0.98]">
-          Try the Interactive Demo &darr;
+        <a href="#showcase" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bento-glass hover:bg-white/10 text-white font-bold text-sm transition text-center flex items-center justify-center gap-2">
+          <span>Explore Capabilities</span>
+          <span class="text-cyan-300">↓</span>
         </a>
       </div>
 
-      <!-- Device Compatibility -->
-      <div class="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium">
-        <span class="flex items-center gap-1.5">
-          <svg class="w-4 h-4 stroke-slate-400 fill-none stroke-2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-          Compatible with Android 8.0 and above
+      <!-- Feature Pill Badges -->
+      <div class="pt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold text-white/60">
+        <span class="px-3.5 py-1.5 rounded-xl bento-glass flex items-center gap-2">
+          <span class="text-[#7EF0D8]">⚡</span> Instant Section Filtering
         </span>
-        <span class="flex items-center gap-1.5">
-          <svg class="w-4 h-4 stroke-slate-400 fill-none stroke-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-          Requires an active internet connection
+        <span class="px-3.5 py-1.5 rounded-xl bento-glass flex items-center gap-2">
+          <span class="text-[#8A84FF]">🤖</span> Gemini 3.5 Flash Lite
+        </span>
+        <span class="px-3.5 py-1.5 rounded-xl bento-glass flex items-center gap-2">
+          <span class="text-[#FDCB6E]">👑</span> 5-Question Combo Streaks
+        </span>
+        <span class="px-3.5 py-1.5 rounded-xl bento-glass flex items-center gap-2">
+          <span class="text-[#00B894]">🫧</span> Floating Accessibility Bubble
         </span>
       </div>
 
@@ -226,69 +200,149 @@
   </section>
 
   <!-- ========================================================================= -->
-  <!-- INTERACTIVE DEMO (WITH LIVING ANIMATIONS & SOUNDWAVE) -->
+  <!-- SEPARATED LOOPING SLIDES SHOWCASE -->
   <!-- ========================================================================= -->
-  <section id="demo" class="py-16 sm:py-24 border-b border-slate-200">
+  <section id="showcase" class="py-20 sm:py-28 bg-[#050310] relative z-10">
+    
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-16 text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6C5CE7]/20 text-[#A0C4FF] text-xs font-bold border border-[#6C5CE7]/30">
+        <span>CORE CAPABILITIES</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+        Built for Every Reading Journey
+      </h2>
+      <p class="text-sm sm:text-base text-white/60 max-w-2xl mx-auto leading-relaxed">
+        From floating screen overlays and instant Gemini-powered context overviews to gamified streaks and teacher diagnostics — explore GabAI in motion.
+      </p>
+    </div>
+
+    <!-- Container of Separate Slides -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-20">
+
+      <!-- SLIDE 01 (Scene 1: Platform Roles) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="1" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- SLIDE 02 (Scene 2: Onboarding & Section Rosters) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="2" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- SLIDE 03 (Scene 3: QR Pairing) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="3" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- SLIDE 04 (Scene 4: Dual Reading Pipeline) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="4" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- SLIDE 05 (Scene 5: Gemini AI Scanner) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="5" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- SLIDE 06 (Scene 6: Screen Reading Overlay) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="6" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- SLIDE 07 (Scene 7: Gamification & Streaks) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="7" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+      <!-- SLIDE 08 (Scene 8: Teacher Console) -->
+      <div class="bento-glass rounded-3xl p-3 sm:p-5 shadow-2xl border border-white/10 overflow-hidden bento-glass-hover">
+        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#120c3a] relative shadow-inner">
+          <canvas data-scene="8" class="w-full h-full object-contain block"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- INTERACTIVE SANDBOX DEMO -->
+  <!-- ========================================================================= -->
+  <section id="demo" class="py-20 sm:py-28 border-t border-b border-white/10 bg-[#070514]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
       
       <div class="text-center max-w-2xl mx-auto space-y-3">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Experience how GabAI works while reading
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Try the Reading Assistant in Your Browser
         </h2>
-        <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-          Tap any underlined word in the sample classroom passage below. Notice how the assistant provides pronunciation, clarity, and comprehension practice without interrupting your flow.
+        <p class="text-sm sm:text-base text-white/60 leading-relaxed">
+          Tap any highlighted word in the classroom science passage below to experience live audio pronunciation, phonetics, and contextual comprehension checks.
         </p>
       </div>
 
-      <!-- Interactive Sandbox -->
+      <!-- Sandbox Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        <!-- Left: Reading Passage -->
-        <div class="lg:col-span-7 space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-200 text-xs text-slate-500 font-medium">
-            <span>Sample Learning Module</span>
-            <span>Living Things & Environment</span>
+        <!-- Left: Classroom Passage -->
+        <div class="lg:col-span-7 bento-glass rounded-3xl p-6 sm:p-8 space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-white/10 text-xs text-white/50 font-medium">
+            <span>Science Module · Grade 7–8</span>
+            <span class="text-[#7EF0D8]">Living Things & Environment</span>
           </div>
 
-          <h3 class="text-lg font-bold text-slate-900">
-            Energy Transformation in the Ecosystem
+          <h3 class="text-xl font-extrabold text-white">
+            Ecosystems & Endemic Wildlife
           </h3>
 
-          <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
-            Green plants act as the primary producers of our planet. Through the light reactions of 
-            <button onclick="selectWord('photosynthesis')" id="btn-photosynthesis" class="font-bold text-white bg-blue-600 px-2 py-0.5 rounded shadow-sm transition">photosynthesis</button>, 
-            they capture sunlight to create nutrients. In turn, organisms convert these stored sugars through 
-            <button onclick="selectWord('respiration')" id="btn-respiration" class="font-bold text-blue-600 underline decoration-blue-300 underline-offset-4 hover:bg-blue-50 px-1 py-0.5 rounded transition">cellular respiration</button> 
-            to generate cellular energy. Maintaining balanced 
-            <button onclick="selectWord('biodiversity')" id="btn-biodiversity" class="font-bold text-blue-600 underline decoration-blue-300 underline-offset-4 hover:bg-blue-50 px-1 py-0.5 rounded transition">biodiversity</button> 
-            ensures that ecosystems remain resilient against sudden environmental changes.
+          <p class="text-white/80 leading-relaxed text-sm sm:text-base space-y-1">
+            The Philippine Eagle is one of the largest eagles in the world. It is 
+            <button onclick="selectWord('endemic')" id="btn-endemic" class="font-extrabold text-white bg-[#6C5CE7] px-2.5 py-0.5 rounded-lg shadow-sm transition hover:bg-[#5b4bc7] cursor-pointer">endemic</button> 
+            to the primary rainforests of Luzon, Samar, Leyte, and Mindanao. As an apex 
+            <button onclick="selectWord('predator')" id="btn-predator" class="font-bold text-[#A0C4FF] underline decoration-[#A0C4FF]/40 underline-offset-4 hover:bg-white/10 px-1.5 py-0.5 rounded transition cursor-pointer">predator</button>, 
+            it maintains biological equilibrium within the forest 
+            <button onclick="selectWord('canopy')" id="btn-canopy" class="font-bold text-[#A0C4FF] underline decoration-[#A0C4FF]/40 underline-offset-4 hover:bg-white/10 px-1.5 py-0.5 rounded transition cursor-pointer">canopy</button> 
+            and prevents prey population collapse.
           </p>
 
-          <div class="pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-            <span>Tap an underlined word above to inspect</span>
-            <span class="text-blue-600 font-semibold">Active: <span id="currentSelectionLabel">photosynthesis</span></span>
+          <div class="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-white/50">
+            <span>Tap any highlighted word to inspect</span>
+            <span class="text-[#7EF0D8] font-bold">Selected: <span id="currentSelectionLabel">endemic</span></span>
           </div>
         </div>
 
-        <!-- Right: Animated Floating Companion Window -->
-        <div class="lg:col-span-5 border border-slate-200 rounded-2xl p-6 bg-slate-50 shadow-sm space-y-4 interactive-card animate-float">
+        <!-- Right: Floating Companion Window -->
+        <div class="lg:col-span-5 bento-glass rounded-3xl p-6 sm:p-7 space-y-5 border-[#6C5CE7]/30 shadow-2xl relative">
           
-          <!-- Floating Window Header -->
-          <div class="flex items-center justify-between pb-2">
-            <span class="flex items-center gap-2 font-bold text-sm text-slate-900">
-              <img src="bubble.png" alt="GabAI Bubble" class="w-7 h-7 object-contain flex-shrink-0">
-              <span>GabAI Reading Overlay</span>
+          <!-- Window Header -->
+          <div class="flex items-center justify-between pb-2 border-b border-white/10">
+            <span class="flex items-center gap-2 font-bold text-sm text-white">
+              <img src="logo.png" alt="GabAI Logo" class="w-6 h-6 rounded-lg object-cover">
+              <span>Context Overview</span>
             </span>
 
-            <!-- Audio Trigger with Dancing Soundwave Visualizer -->
-            <button onclick="triggerAudio()" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-xs font-semibold hover:text-blue-600 hover:border-blue-300 transition flex items-center gap-2 shadow-xs">
+            <!-- Audio Trigger with Animated Soundwave Visualizer -->
+            <button onclick="triggerAudio()" class="px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-white text-xs font-bold hover:bg-white/20 transition flex items-center gap-2 cursor-pointer shadow-sm">
               <div id="soundBars" class="hidden items-end gap-0.5 h-3">
-                <span class="w-0.5 bg-blue-600 rounded-full bar-1"></span>
-                <span class="w-0.5 bg-blue-600 rounded-full bar-2"></span>
-                <span class="w-0.5 bg-blue-600 rounded-full bar-3"></span>
-                <span class="w-0.5 bg-blue-600 rounded-full bar-4"></span>
+                <span class="w-0.5 bg-[#7EF0D8] rounded-full wave-1"></span>
+                <span class="w-0.5 bg-[#7EF0D8] rounded-full wave-2"></span>
+                <span class="w-0.5 bg-[#7EF0D8] rounded-full wave-3"></span>
+                <span class="w-0.5 bg-[#7EF0D8] rounded-full wave-4"></span>
               </div>
-              <svg id="staticAudioIcon" class="w-3.5 h-3.5 stroke-blue-600 fill-none stroke-2" viewBox="0 0 24 24">
+              <svg id="staticAudioIcon" class="w-3.5 h-3.5 stroke-[#7EF0D8] fill-none stroke-2" viewBox="0 0 24 24">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
                 <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
               </svg>
@@ -296,42 +350,38 @@
             </button>
           </div>
 
-          <hr class="border-slate-200 my-2" />
-
-          <!-- Active Word Details with Animated Content Switch -->
-          <div id="wordContentWrapper" class="space-y-1 transition-opacity duration-200">
-            <div class="flex items-baseline gap-2">
-              <h4 id="displayWord" class="text-xl font-extrabold text-slate-900">photosynthesis</h4>
-              <span id="displayPhonetic" class="text-xs text-slate-500 font-mono">/ˌfoʊ.toʊˈsɪn.θə.sɪs/</span>
+          <!-- Active Word Details -->
+          <div id="wordContentWrapper" class="space-y-1.5 transition-opacity duration-200">
+            <div class="flex items-baseline gap-2.5">
+              <h4 id="displayWord" class="text-2xl font-extrabold text-white">endemic</h4>
+              <span id="displayPhonetic" class="text-xs text-[#7EF0D8] font-mono">/ɛnˈdɛm.ɪk/</span>
             </div>
-            <p id="displayPartOfSpeech" class="text-xs text-slate-500 font-medium">noun · biological sciences</p>
+            <p id="displayPartOfSpeech" class="text-xs text-white/50 font-medium">adjective · biogeography</p>
           </div>
 
           <!-- Clear Plain-Language Definition -->
           <div class="space-y-1">
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Plain-Language Definition</span>
-            <p id="displayDefinition" class="text-sm text-slate-800 leading-relaxed border-l-2 border-blue-600 pl-3">
-              The process by which green plants and certain organisms transform sunlight, water, and carbon dioxide into oxygen and usable food energy.
+            <span class="text-[11px] font-bold text-[#A0C4FF] uppercase tracking-wider">Plain-Language Context</span>
+            <p id="displayDefinition" class="text-sm text-white/90 leading-relaxed border-l-2 border-[#6C5CE7] pl-3 py-0.5 bg-white/[0.02] rounded-r-lg">
+              Native and strictly restricted to a specific geographical region or ecosystem; found naturally nowhere else.
             </p>
           </div>
 
-          <hr class="border-slate-200 my-2" />
-
-          <!-- Mini Comprehension Practice Quiz -->
-          <div class="space-y-2">
+          <!-- Mini Comprehension Check -->
+          <div class="space-y-2.5 pt-2 border-t border-white/10">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-slate-700">Quick Check</span>
-              <span id="quizStatus" class="text-slate-500">Pick the correct answer:</span>
+              <span class="font-bold text-white">Comprehension Check</span>
+              <span id="quizStatus" class="text-white/60 font-medium">Pick the best answer:</span>
             </div>
-            <p id="quizQuestion" class="text-xs text-slate-600 font-medium">
-              What primary energy source powers this reaction?
+            <p id="quizQuestion" class="text-xs text-white/80 font-medium">
+              If a bird is endemic to Samar, what does that mean?
             </p>
-            <div id="quizOptions" class="grid grid-cols-2 gap-2 text-xs">
-              <button onclick="handleQuizAnswer(true, this)" class="p-2 text-left font-medium transition text-slate-800 hover:text-blue-600 hover:bg-slate-100 rounded">
-                A) Sunlight
+            <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <button onclick="handleQuizAnswer(true, this)" class="p-2.5 text-left font-bold transition text-white bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl cursor-pointer">
+                A) Found only on Samar
               </button>
-              <button onclick="handleQuizAnswer(false, this)" class="p-2 text-left font-medium transition text-slate-800 hover:text-blue-600 hover:bg-slate-100 rounded">
-                B) Soil Minerals
+              <button onclick="handleQuizAnswer(false, this)" class="p-2.5 text-left font-medium transition text-white/80 bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl cursor-pointer">
+                B) Migrates worldwide
               </button>
             </div>
           </div>
@@ -344,306 +394,280 @@
   </section>
 
   <!-- ========================================================================= -->
-  <!-- IN THE CLASSROOM: STUDENTS & TEACHERS -->
+  <!-- FOR TEACHERS & CLASSROOMS -->
   <!-- ========================================================================= -->
-  <section id="classroom" class="py-16 sm:py-24 border-b border-slate-200">
+  <section id="classroom" class="py-20 sm:py-28 border-b border-white/10 bg-[#050310]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
       
       <div class="text-center max-w-2xl mx-auto space-y-3">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Built for students and teachers in the classroom
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Built for Teachers. Loved by Students.
         </h2>
-        <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-          Both students and teachers use the native GabAI Android app. Teachers run their classrooms directly on mobile without needing complex software, while students read with confidence.
+        <p class="text-sm sm:text-base text-white/60">
+          Mobile app strictly serves Students & Teachers. School administrators and system coordinators manage everything from the dedicated Web Admin Portal.
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-        
-        <!-- For Students -->
-        <div class="space-y-3 border-t-2 border-blue-600 pt-5 interactive-card">
-          <span class="text-blue-600 block">
-            <svg class="w-6 h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          </span>
-          <h3 class="text-xl font-bold text-slate-900">For Students</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Never feel stuck or embarrassed by difficult vocabulary. The floating bubble stays with you on screen while you read PDF modules, browser articles, or study materials.
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bento-glass rounded-2xl p-6 space-y-3">
+          <div class="text-3xl">📱</div>
+          <h3 class="text-lg font-bold text-white">Zero Account Clutter</h3>
+          <p class="text-xs sm:text-sm text-white/70 leading-relaxed">
+            Students scan their teacher's section QR code once and are instantly paired. No forgotten passwords or enrollment forms required.
           </p>
-          <ul class="text-xs text-slate-500 space-y-2 pt-2">
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              <span>Tap any word to hear natural audio pronunciation instantly</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              <span>Simplified definitions with contextual examples to understand unfamiliar words</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              <span>Bite-sized comprehension mini-quizzes to lock in retention</span>
-            </li>
-          </ul>
         </div>
 
-        <!-- For Teachers -->
-        <div class="space-y-3 border-t-2 border-blue-600 pt-5 interactive-card">
-          <span class="text-blue-600 block">
-            <svg class="w-6 h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-          </span>
-          <h3 class="text-xl font-bold text-slate-900">For Teachers</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Manage your classes completely within the GabAI mobile app. Enroll your entire class in seconds, assign reading passages, and track vocabulary mastery without paperwork.
+        <div class="bento-glass rounded-2xl p-6 space-y-3">
+          <div class="text-3xl">📈</div>
+          <h3 class="text-lg font-bold text-white">Tier-Based Reading Feeds</h3>
+          <p class="text-xs sm:text-sm text-white/70 leading-relaxed">
+            Diagnostic assessments categorize learners into Frustration, Instructional, and Independent tiers to guide targeted reading practice.
           </p>
-          <ul class="text-xs text-slate-500 space-y-2 pt-2">
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              <span>Instant classroom QR codes via Google Code Scanner</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              <span>In-app dashboard shows which words challenge your students</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              <span>Direct mobile workflow designed for classroom teachers</span>
-            </li>
-          </ul>
         </div>
 
+        <div class="bento-glass rounded-2xl p-6 space-y-3">
+          <div class="text-3xl">💻</div>
+          <h3 class="text-lg font-bold text-white">Web Admin Portal</h3>
+          <p class="text-xs sm:text-sm text-white/70 leading-relaxed">
+            School principals and coordinators manage teacher advisories, view school-wide analytics, and archive sections from the <a href="admin.html" class="text-[#7EF0D8] underline hover:text-white transition">School Admin Portal</a>.
+          </p>
+        </div>
       </div>
 
     </div>
   </section>
 
   <!-- ========================================================================= -->
-  <!-- HOW IT WORKS -->
+  <!-- DOWNLOAD HUB (VGABAI.NETLIFY.APP) -->
   <!-- ========================================================================= -->
-  <section id="how-it-works" class="py-16 sm:py-24 border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
+  <section class="py-20 sm:py-28 bg-gradient-to-b from-[#070514] to-[#04030a] relative overflow-hidden">
+    <div class="absolute inset-0 bg-radial-gradient from-[#6C5CE7]/15 to-transparent blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 text-center space-y-8">
       
-      <div class="text-center max-w-2xl mx-auto space-y-3">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          How to get started in three simple steps
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#6C5CE7] to-[#8A84FF] mx-auto flex items-center justify-center text-3xl shadow-2xl shadow-indigo-500/40">
+        ⬇
+      </div>
+
+      <div class="space-y-3">
+        <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+          Get Started with GabAI Today
         </h2>
-        <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-          Both teachers and students get up and running entirely on mobile.
+        <p class="text-base sm:text-lg text-white/70 max-w-xl mx-auto">
+          Free on Android for every learner and educator. Download directly or visit our official web portal.
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <div class="space-y-3 interactive-card">
-          <span class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center">
-            1
-          </span>
-          <h3 class="text-base font-bold text-slate-900">Install the Mobile App</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Download and install the <a href="https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" class="text-blue-600 font-medium hover:underline">GabAI Android App</a> on any phone or tablet running Android 8.0 or newer.
-          </p>
+      <!-- Action Card -->
+      <div class="bento-glass rounded-3xl p-8 max-w-2xl mx-auto space-y-6 border-[#8A84FF]/30 shadow-2xl">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-left">
+            <span class="text-xs font-bold uppercase tracking-wider text-white/50">Official Web Domain</span>
+            <div class="text-2xl font-extrabold text-[#7EF0D8] font-mono">vgabai.netlify.app</div>
+            <p class="text-xs text-white/60 mt-0.5">Direct APK download & school onboarding hub</p>
+          </div>
+          <a href="https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#6C5CE7] to-[#8A84FF] hover:from-[#5b4bc7] hover:to-[#7973ff] text-white font-extrabold text-sm shadow-xl shadow-indigo-500/30 transition active:scale-95 flex items-center justify-center gap-2">
+            <span>Download APK</span>
+            <span>→</span>
+          </a>
         </div>
-
-        <div class="space-y-3 interactive-card">
-          <span class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center">
-            2
-          </span>
-          <h3 class="text-base font-bold text-slate-900">Scan Your Classroom QR</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Students scan the classroom QR code generated on the teacher's mobile screen to join without typing usernames or passwords.
-          </p>
-        </div>
-
-        <div class="space-y-3 interactive-card">
-          <span class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-sm flex items-center justify-center">
-            3
-          </span>
-          <h3 class="text-base font-bold text-slate-900">Tap the Floating Bubble</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            Open your reading module. Tap the floating assistant whenever you need word definitions, pronunciations, or review quizzes.
-          </p>
-        </div>
-
       </div>
 
     </div>
   </section>
 
   <!-- ========================================================================= -->
-  <!-- FAQ SECTION -->
+  <!-- FOOTER -->
   <!-- ========================================================================= -->
-  <section id="faq" class="py-16 sm:py-24 border-b border-slate-200">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 space-y-10">
-      
-      <div class="text-center space-y-3">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Frequently asked questions
-        </h2>
-        <p class="text-sm text-slate-600">
-          Everything students, teachers, and school administrators need to know.
-        </p>
+  <footer class="border-t border-white/10 py-12 bg-[#04030a] text-xs text-white/50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="GabAI Logo" class="w-7 h-7 rounded-lg object-cover">
+        <span class="font-bold text-white text-sm">GabAI</span>
+        <span>— AI Reading Assistant</span>
       </div>
 
-      <div class="divide-y divide-slate-200">
-        
-        <details class="group py-5 [&_summary::-webkit-details-marker]:hidden">
-          <summary class="flex items-center justify-between cursor-pointer font-bold text-slate-900 text-sm sm:text-base">
-            <span>Do teachers use this website or the mobile app?</span>
-            <span class="transition duration-200 group-open:rotate-180 text-slate-400">
-              <svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-          </summary>
-          <p class="mt-3 text-sm text-slate-600 leading-relaxed">
-            Teachers use the mobile app exclusively! All class creation, QR code scanning, assignment workflows, and student progress tracking happen directly inside the GabAI Android app.
-          </p>
-        </details>
-
-        <details class="group py-5 [&_summary::-webkit-details-marker]:hidden">
-          <summary class="flex items-center justify-between cursor-pointer font-bold text-slate-900 text-sm sm:text-base">
-            <span>Who is authorized to access the Admin Portal?</span>
-            <span class="transition duration-200 group-open:rotate-180 text-slate-400">
-              <svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-          </summary>
-          <p class="mt-3 text-sm text-slate-600 leading-relaxed">
-            The web Admin Portal is strictly reserved for authorized School Administrators and coordinators for institutional setup and campus records.
-          </p>
-        </details>
-
-        <details class="group py-5 [&_summary::-webkit-details-marker]:hidden">
-          <summary class="flex items-center justify-between cursor-pointer font-bold text-slate-900 text-sm sm:text-base">
-            <span>What Android versions are supported?</span>
-            <span class="transition duration-200 group-open:rotate-180 text-slate-400">
-              <svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-          </summary>
-          <p class="mt-3 text-sm text-slate-600 leading-relaxed">
-            GabAI runs on devices running Android 8.0 (Oreo) and above. It is engineered to perform smoothly on standard mobile devices used in classrooms.
-          </p>
-        </details>
-
-        <details class="group py-5 [&_summary::-webkit-details-marker]:hidden">
-          <summary class="flex items-center justify-between cursor-pointer font-bold text-slate-900 text-sm sm:text-base">
-            <span>Does the app require an internet connection?</span>
-            <span class="transition duration-200 group-open:rotate-180 text-slate-400">
-              <svg class="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
-          </summary>
-          <p class="mt-3 text-sm text-slate-600 leading-relaxed">
-            Yes, GabAI requires an active internet connection (Wi-Fi or mobile data) to power real-time AI vocabulary explanations, generated quizzes, and classroom synchronization.
-          </p>
-        </details>
-
+      <div class="flex flex-wrap items-center gap-6">
+        <a href="#showcase" class="hover:text-white transition">Features & Slides</a>
+        <a href="#demo" class="hover:text-white transition">Interactive Demo</a>
+        <a href="admin.html" class="hover:text-white transition">Admin Portal</a>
+        <a href="https://github.com/hksn-ll/OSRnary" class="hover:text-white transition">GitHub Repository</a>
       </div>
 
-    </div>
-  </section>
-
-  <!-- ========================================================================= -->
-  <!-- DOWNLOAD CALL TO ACTION -->
-  <!-- ========================================================================= -->
-  <section class="py-16 sm:py-20 bg-slate-900 text-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-      
-      <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-        Start reading with confidence today.
-      </h2>
-
-      <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-        Get the latest version of GabAI directly on your Android phone or tablet.
-      </p>
-
-      <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-        <a href="https://github.com/hksn-ll/OSRnary/releases/latest/download/GabAI.apk" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-md transition flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]">
-          <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          <span>Download GabAI for Android</span>
-        </a>
-        <a href="admin.html" class="w-full sm:w-auto px-5 py-3.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold text-sm transition text-center hover:scale-[1.02] active:scale-[0.98]">
-          School Admin Portal &rarr;
-        </a>
+      <div class="text-center sm:text-right">
+        <span>© 2026 GabAI. Read. Understand. Grow.</span>
       </div>
-
-      <p class="text-xs text-slate-400">
-        Package: <span class="font-mono text-slate-300">com.example.gabai</span> · Direct release download
-      </p>
-
-    </div>
-  </section>
-
-  <!-- ========================================================================= -->
-  <!-- CAPSTONE ATTRIBUTION & FOOTER -->
-  <!-- ========================================================================= -->
-  <footer class="py-12 bg-slate-950 text-slate-400 text-xs border-t border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
-      
-      <!-- Top Row: Identity & Navigation -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <img src="logo.png" alt="GabAI Logo" class="w-6 h-6 rounded-md object-cover flex-shrink-0">
-          <span class="text-slate-300 font-semibold">GabAI</span>
-          <span>·</span>
-          <span>AI Reading Assistant</span>
-        </div>
-
-        <div class="flex items-center gap-6">
-          <a href="#demo" class="hover:text-slate-200 transition">Interactive Demo</a>
-          <a href="#classroom" class="hover:text-slate-200 transition">In The Classroom</a>
-          <a href="#how-it-works" class="hover:text-slate-200 transition">Installation</a>
-          <a href="admin.html" class="hover:text-slate-200 transition">Admin Portal</a>
-          <a href="https://github.com/hksn-ll/OSRnary" target="_blank" class="hover:text-slate-200 transition">GitHub</a>
-        </div>
-      </div>
-
-      <!-- Bottom Row: Honest Capstone Project Statement -->
-      <div class="pt-6 border-t border-slate-900 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500">
-        <p class="leading-relaxed max-w-2xl">
-          This project was developed in fulfillment of academic capstone requirements. Developed by: <strong class="text-slate-300 font-medium">Krista Mae Cabanacan</strong>, <strong class="text-slate-300 font-medium">Jeremy Bernardino</strong>, <strong class="text-slate-300 font-medium">John Clarence Dimla</strong>, and <strong class="text-slate-300 font-medium">Lemwell Plaza</strong>.
-        </p>
-        <span class="text-slate-600 whitespace-nowrap">Academic Capstone Project</span>
-      </div>
-
     </div>
   </footer>
 
   <!-- ========================================================================= -->
-  <!-- CLIENT INTERACTIVITY & AUDIO SCRIPT -->
+  <!-- SCRIPTS -->
   <!-- ========================================================================= -->
+  <!-- 1. Motion Graphics Canvas Core Engine -->
+  <script src="motion-graphics/gabai-motion.js"></script>
+
+  <!-- 2. Loop Runner for Separate Slide Canvases & Interactive Sandbox Logic -->
   <script>
+    /* ==========================================================================
+       SEAMLESS COSMIC BACKGROUND STARFIELD
+       ========================================================================== */
+    (function () {
+      const cvs = document.getElementById('pageStarfield');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      let w = (cvs.width = window.innerWidth);
+      let h = (cvs.height = window.innerHeight);
+
+      window.addEventListener('resize', () => {
+        w = cvs.width = window.innerWidth;
+        h = cvs.height = window.innerHeight;
+      });
+
+      const STAR_COUNT = 85;
+      const stars = [];
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: 0.6 + Math.random() * 2.0,
+          speed: 5 + Math.random() * 15,
+          phase: Math.random() * Math.PI * 2,
+          isSparkle: Math.random() < 0.18,
+          color: Math.random() < 0.35 ? '#7EF0D8' : Math.random() < 0.65 ? '#A0C4FF' : '#ffffff'
+        });
+      }
+
+      function drawSparkle(ctx, x, y, r, alpha, color) {
+        if (alpha <= 0 || r <= 0) return;
+        const k = r * 0.18;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        ctx.translate(x, y);
+        ctx.beginPath();
+        ctx.moveTo(0, -r);
+        ctx.quadraticCurveTo(k, -k, r, 0);
+        ctx.quadraticCurveTo(k, k, 0, r);
+        ctx.quadraticCurveTo(-k, k, -r, 0);
+        ctx.quadraticCurveTo(-k, -k, 0, -r);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      let lastTime = performance.now();
+      function renderStars(now) {
+        if (document.hidden) {
+          lastTime = now;
+          requestAnimationFrame(renderStars);
+          return;
+        }
+        const dt = Math.min(0.1, (now - lastTime) / 1000);
+        lastTime = now;
+        const tSec = now / 1000;
+
+        ctx.clearRect(0, 0, w, h);
+
+        for (let i = 0; i < stars.length; i++) {
+          const s = stars[i];
+          s.y -= s.speed * dt;
+          if (s.y < -20) {
+            s.y = h + 20;
+            s.x = Math.random() * w;
+          }
+
+          const swayX = s.x + Math.sin(tSec * 0.35 + s.phase) * 14;
+          const twinkle = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(tSec * 1.8 + s.phase * 2));
+
+          if (s.isSparkle) {
+            drawSparkle(ctx, swayX, s.y, s.r * 4.2, twinkle * 0.8, s.color);
+          } else {
+            ctx.save();
+            ctx.globalAlpha = twinkle * 0.55;
+            ctx.fillStyle = s.color;
+            ctx.beginPath();
+            ctx.arc(swayX, s.y, s.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        requestAnimationFrame(renderStars);
+      }
+
+      requestAnimationFrame(renderStars);
+    })();
+
+    /* ==========================================================================
+       MULTI-CANVAS SCENE LOOP RUNNER
+       ========================================================================== */
+    (function () {
+      function startSceneLoops() {
+        if (!window.GabAIMotion || !window.GabAIMotion.loopSceneOnCanvas) {
+          setTimeout(startSceneLoops, 50);
+          return;
+        }
+
+        // Initialize Hero Logo Animation (The first thing on the page)
+        const heroLogo = document.getElementById('heroLogoCanvas');
+        if (heroLogo && window.GabAIMotion.loopLogoOnCanvas) {
+          window.GabAIMotion.loopLogoOnCanvas(heroLogo);
+        }
+
+        // Initialize every canvas that has a data-scene attribute
+        const slideCanvases = document.querySelectorAll('canvas[data-scene]');
+        slideCanvases.forEach(cvs => {
+          const sceneIndex = parseInt(cvs.getAttribute('data-scene'), 10);
+          if (!isNaN(sceneIndex)) {
+            window.GabAIMotion.loopSceneOnCanvas(cvs, sceneIndex, { pauseAtEnd: 0.6 });
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startSceneLoops);
+      } else {
+        startSceneLoops();
+      }
+    })();
+
+    /* ==========================================================================
+       INTERACTIVE READING SANDBOX LOGIC
+       ========================================================================== */
     const sampleWords = {
-      photosynthesis: {
-        word: 'photosynthesis',
-        phonetic: '/ˌfoʊ.toʊˈsɪn.θə.sɪs/',
-        pos: 'noun · biological sciences',
-        definition: 'The process by which green plants and certain organisms transform sunlight, water, and carbon dioxide into oxygen and usable food energy.',
-        quizQuestion: 'What primary energy source powers this reaction?',
-        correctAnswer: 'A) Sunlight',
-        wrongAnswer: 'B) Soil Minerals'
+      endemic: {
+        word: 'endemic',
+        phonetic: '/ɛnˈdɛm.ɪk/',
+        pos: 'adjective · biogeography',
+        definition: 'Native and strictly restricted to a specific geographical region or ecosystem; found naturally nowhere else.',
+        quizQuestion: 'If a bird is endemic to Samar, what does that mean?',
+        correctAnswer: 'A) Found only on Samar',
+        wrongAnswer: 'B) Migrates worldwide'
       },
-      respiration: {
-        word: 'cellular respiration',
-        phonetic: '/ˈsɛl.jə.lər ˌrɛs.pəˈreɪ.ʃən/',
-        pos: 'noun · cellular biology',
-        definition: 'The metabolic chemical process in cells that breaks down glucose food molecules to release energy in the form of ATP.',
-        quizQuestion: 'What vital molecule does this process yield for cell energy?',
-        correctAnswer: 'A) ATP (Energy)',
-        wrongAnswer: 'B) Carbon Dioxide only'
+      predator: {
+        word: 'predator',
+        phonetic: '/ˈprɛd.ə.tər/',
+        pos: 'noun · ecological biology',
+        definition: 'An animal that naturally hunts and feeds on other organisms to survive, maintaining ecosystem population balance.',
+        quizQuestion: 'What vital ecological role does an apex predator serve?',
+        correctAnswer: 'A) Regulates prey numbers',
+        wrongAnswer: 'B) Produces plant seeds'
       },
-      biodiversity: {
-        word: 'biodiversity',
-        phonetic: '/ˌbaɪ.oʊ.daɪˈvɜːr.sə.ti/',
-        pos: 'noun · ecology',
-        definition: 'The biological variety and variability of life on Earth, including diversity within species, between species, and across ecosystems.',
-        quizQuestion: 'Why is healthy biodiversity beneficial for an ecosystem?',
-        correctAnswer: 'A) Builds ecosystem resilience',
-        wrongAnswer: 'B) Decreases food availability'
+      canopy: {
+        word: 'canopy',
+        phonetic: '/ˈkæn.ə.pi/',
+        pos: 'noun · forest ecology',
+        definition: 'The high, continuous overhead layer formed by the mature crowns of trees in a rainforest.',
+        quizQuestion: 'Where is the rainforest canopy located?',
+        correctAnswer: 'A) The upper treetop layer',
+        wrongAnswer: 'B) Deep underground soil'
       }
     };
 
-    let activeWordKey = 'photosynthesis';
+    let activeWordKey = 'endemic';
 
     function selectWord(key) {
+      if (!sampleWords[key]) return;
       activeWordKey = key;
       const data = sampleWords[key];
       
@@ -659,29 +683,29 @@
         
         // Update Quiz
         document.getElementById('quizQuestion').textContent = data.quizQuestion;
-        document.getElementById('quizStatus').textContent = 'Pick the correct answer:';
-        document.getElementById('quizStatus').className = 'text-slate-500';
+        document.getElementById('quizStatus').textContent = 'Pick the best answer:';
+        document.getElementById('quizStatus').className = 'text-white/60 font-medium';
         
         const optionsContainer = document.getElementById('quizOptions');
         optionsContainer.innerHTML = `
-          <button onclick="handleQuizAnswer(true, this)" class="p-2 text-left font-medium transition text-slate-800 hover:text-blue-600 hover:bg-slate-100 rounded">
+          <button onclick="handleQuizAnswer(true, this)" class="p-2.5 text-left font-bold transition text-white bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl cursor-pointer">
             ${data.correctAnswer}
           </button>
-          <button onclick="handleQuizAnswer(false, this)" class="p-2 text-left font-medium transition text-slate-800 hover:text-blue-600 hover:bg-slate-100 rounded">
+          <button onclick="handleQuizAnswer(false, this)" class="p-2.5 text-left font-medium transition text-white/80 bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl cursor-pointer">
             ${data.wrongAnswer}
           </button>
         `;
         wrapper.style.opacity = '1';
-      }, 120);
+      }, 100);
 
       // Update button highlights
-      ['photosynthesis', 'respiration', 'biodiversity'].forEach(w => {
+      ['endemic', 'predator', 'canopy'].forEach(w => {
         const btn = document.getElementById('btn-' + w);
         if (btn) {
           if (w === key) {
-            btn.className = 'font-bold text-white bg-blue-600 px-2 py-0.5 rounded shadow-sm transition scale-105';
+            btn.className = 'font-extrabold text-white bg-[#6C5CE7] px-2.5 py-0.5 rounded-lg shadow-sm transition hover:bg-[#5b4bc7] cursor-pointer';
           } else {
-            btn.className = 'font-bold text-blue-600 underline decoration-blue-300 underline-offset-4 hover:bg-blue-50 px-1 py-0.5 rounded transition';
+            btn.className = 'font-bold text-[#A0C4FF] underline decoration-[#A0C4FF]/40 underline-offset-4 hover:bg-white/10 px-1.5 py-0.5 rounded transition cursor-pointer';
           }
         }
       });
@@ -699,14 +723,14 @@
         utterance.rate = 0.85;
         utterance.lang = 'en-US';
         
-        utterance.onstart = function() {
-          audioBtnText.textContent = 'Playing...';
+        utterance.onstart = function () {
+          audioBtnText.textContent = 'Speaking...';
           soundBars.classList.remove('hidden');
           soundBars.classList.add('flex');
           staticIcon.classList.add('hidden');
         };
         
-        const resetAudioUI = function() {
+        const resetAudioUI = function () {
           audioBtnText.textContent = 'Listen';
           soundBars.classList.add('hidden');
           soundBars.classList.remove('flex');
@@ -715,11 +739,10 @@
         
         utterance.onend = resetAudioUI;
         utterance.onerror = resetAudioUI;
-        
         window.speechSynthesis.speak(utterance);
       } else {
-        audioBtnText.textContent = 'Speaking...';
-        setTimeout(() => { audioBtnText.textContent = 'Listen'; }, 1000);
+        audioBtnText.textContent = 'Playing...';
+        setTimeout(() => { audioBtnText.textContent = 'Listen'; }, 900);
       }
     }
 
@@ -727,12 +750,12 @@
       const statusElem = document.getElementById('quizStatus');
       if (isCorrect) {
         statusElem.innerHTML = '&#10003; Correct! Great comprehension.';
-        statusElem.className = 'text-emerald-600 font-bold animate-pop-in';
-        buttonElem.className = 'p-2 text-left font-bold transition text-emerald-800 bg-emerald-50 border border-emerald-300 rounded';
+        statusElem.className = 'text-[#7EF0D8] font-bold animate-pulse';
+        buttonElem.className = 'p-2.5 text-left font-extrabold transition text-[#7EF0D8] bg-[#00B894]/20 border border-[#7EF0D8]/40 rounded-xl';
       } else {
-        statusElem.textContent = 'Try again! Review the definition above.';
-        statusElem.className = 'text-amber-600 font-semibold animate-pop-in';
-        buttonElem.className = 'p-2 text-left font-medium transition text-amber-800 bg-amber-50 border border-amber-300 rounded';
+        statusElem.textContent = 'Review the definition and try again!';
+        statusElem.className = 'text-[#FDCB6E] font-semibold';
+        buttonElem.className = 'p-2.5 text-left font-medium transition text-[#FDCB6E] bg-[#FDCB6E]/10 border border-[#FDCB6E]/30 rounded-xl';
       }
     }
   </script>

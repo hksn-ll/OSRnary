@@ -499,28 +499,33 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       allow create: if isAuthenticated() &&
-        (isSuperAdmin() || getUserRole() in ['teacher', 'school_admin']) &&
+        getUserRole() == 'teacher' &&
         isValidLibraryMaterialDoc(request.resource.data) &&
-        (isSuperAdmin() || request.resource.data.get('schoolId', '') == getUserSchoolId());
+        request.resource.data.get('schoolId', '') == getUserSchoolId();
 
       allow update: if isAuthenticated() &&
         (
-          isSuperAdmin() ||
           (
-            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserRole() == 'teacher' &&
             getUserSchoolId() == resource.data.get('schoolId', '') &&
             resource.data.get('schoolId', '') != ''
+          ) ||
+          (
+            isSuperAdmin() &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['uploaderStatus', 'archivedAt'])
+          ) ||
+          (
+            getUserRole() == 'student' &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['assignedSections'])
           )
         ) && isValidLibraryMaterialDoc(request.resource.data);
 
       allow delete: if isAuthenticated() &&
         (
-          isSuperAdmin() ||
-          (
-            getUserRole() in ['school_admin', 'teacher'] &&
-            getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
-          )
+          getUserRole() == 'teacher' &&
+          getUserSchoolId() == resource.data.get('schoolId', '') &&
+          resource.data.get('schoolId', '') != '' &&
+          (resource.data.get('teacherId', '') == request.auth.uid || resource.data.get('teacherId', '') == '')
         );
 
       // Pedagogical remarks drawer attached to materials
@@ -534,18 +539,13 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       allow create: if isAuthenticated() &&
-        (isSuperAdmin() || getUserRole() in ['teacher', 'school_admin']) &&
-        (isSuperAdmin() || request.resource.data.get('schoolId', '') == getUserSchoolId());
+        getUserRole() == 'teacher' &&
+        request.resource.data.get('schoolId', '') == getUserSchoolId();
 
       allow update, delete: if isAuthenticated() &&
-        (
-          isSuperAdmin() ||
-          (
-            getUserRole() in ['school_admin', 'teacher'] &&
-            getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
-          )
-        );
+        getUserRole() == 'teacher' &&
+        getUserSchoolId() == resource.data.get('schoolId', '') &&
+        resource.data.get('schoolId', '') != '';
     }
 
     // 7. Weekly Assessments
@@ -553,33 +553,30 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       allow create: if isAuthenticated() &&
-        (
-          isSuperAdmin() ||
-          (
-            getUserRole() in ['school_admin', 'teacher'] &&
-            getUserSchoolId() == request.resource.data.get('schoolId', '') &&
-            request.resource.data.get('schoolId', '') != ''
-          )
-        ) && isValidWeeklyAssessmentDoc(request.resource.data);
+        getUserRole() == 'teacher' &&
+        getUserSchoolId() == request.resource.data.get('schoolId', '') &&
+        request.resource.data.get('schoolId', '') != '' &&
+        isValidWeeklyAssessmentDoc(request.resource.data);
 
       allow update: if isAuthenticated() &&
         (
-          isSuperAdmin() ||
           (
-            getUserRole() in ['school_admin', 'teacher'] &&
+            getUserRole() == 'teacher' &&
             getUserSchoolId() == resource.data.get('schoolId', '') &&
             resource.data.get('schoolId', '') != ''
+          ) ||
+          (
+            (isSuperAdmin() || getUserRole() == 'school_admin') &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
           )
         ) && isValidWeeklyAssessmentDoc(request.resource.data);
 
       allow delete: if isAuthenticated() &&
         (
-          isSuperAdmin() ||
-          (
-            getUserRole() in ['school_admin', 'teacher'] &&
-            getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
-          )
+          getUserRole() == 'teacher' &&
+          getUserSchoolId() == resource.data.get('schoolId', '') &&
+          resource.data.get('schoolId', '') != '' &&
+          (resource.data.get('teacherId', '') == request.auth.uid || resource.data.get('teacherId', '') == '')
         );
 
       // Pedagogical remarks drawer attached to assessments

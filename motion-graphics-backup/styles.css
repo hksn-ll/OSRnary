@@ -1,0 +1,164 @@
+:root {
+  --bg: #0b0820;
+  --panel: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.14);
+  --brand: #6C5CE7;
+  --brand-light: #8A84FF;
+  --text: #ECEAFF;
+  --muted: #A9A4D6;
+  --rec: #E74C3C;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: radial-gradient(1200px 700px at 20% 0%, #1d1552 0%, var(--bg) 60%);
+  color: var(--text);
+  font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 22px 16px;
+}
+
+.stage-wrap {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.stage-wrap:fullscreen { background: #000; }
+
+canvas {
+  display: block;
+  border-radius: 22px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: #120c3a;
+}
+
+.stage-wrap:fullscreen canvas { border-radius: 0; box-shadow: none; }
+
+/* ---------- Controls ---------- */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  backdrop-filter: blur(18px);
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font: 700 14px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(.34, 1.56, .64, 1), background 0.2s;
+}
+.btn:hover { background: rgba(255, 255, 255, 0.14); }
+.btn:active { transform: scale(0.92); }
+.btn.icon { width: 40px; padding: 0; font-size: 16px; }
+.btn.rec { color: #ffd9d4; border-color: rgba(231, 76, 60, 0.45); background: rgba(231, 76, 60, 0.14); }
+body.is-recording .btn.rec { background: var(--rec); color: #fff; animation: pulse 1.2s infinite; }
+
+@keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0.18); } }
+
+.time {
+  font: 600 13px/1 "JetBrains Mono", Consolas, monospace;
+  color: var(--muted);
+  min-width: 112px;
+  text-align: center;
+}
+
+.timeline {
+  position: relative;
+  flex: 1;
+  height: 40px;
+  cursor: pointer;
+  touch-action: none;
+}
+.timeline .track {
+  position: absolute; left: 0; right: 0; top: 50%;
+  height: 6px; margin-top: -3px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.timeline .fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--brand), var(--brand-light), #A0C4FF);
+}
+.timeline .markers { position: absolute; inset: 0; pointer-events: none; }
+.timeline .markers i {
+  position: absolute; top: 50%;
+  width: 2px; height: 14px; margin-top: -7px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+}
+.timeline .knob {
+  position: absolute; top: 50%;
+  width: 16px; height: 16px; margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.45), 0 4px 12px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+body.is-recording .timeline { pointer-events: none; opacity: 0.6; }
+
+/* ---------- Chapters ---------- */
+.chapters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.chapters button {
+  flex: none;
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font: 600 12.5px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chapters button b { color: var(--brand-light); margin-right: 6px; }
+.chapters button:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.3); }
+.chapters button.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+.chapters button.active b { color: #fff; }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 120px;
+  transform: translate(-50%, 20px);
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: rgba(20, 16, 50, 0.92);
+  border: 1px solid var(--line);
+  font-weight: 600; font-size: 14px;
+  opacity: 0; pointer-events: none;
+  transition: all 0.35s cubic-bezier(.34, 1.56, .64, 1);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- Clean mode (?clean) for screen captures ---------- */
+body.clean .controls, body.clean .chapters { display: none; }
+body.clean .app { padding: 0; }
+body.clean canvas { border-radius: 0; box-shadow: none; }

@@ -1004,7 +1004,7 @@
       </div>
 
       <form id="formBatchStudents" onsubmit="handleBatchStudentsSubmit(event)" class="space-y-3">
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-3 gap-3">
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-1">Target School</label>
             <select id="batchSchoolSelect" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
@@ -1012,7 +1012,18 @@
             </select>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">Class Section Name</label>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Grade Level</label>
+            <select id="batchStudentGrade" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+              <option value="Grade 7">Grade 7</option>
+              <option value="Grade 8">Grade 8</option>
+              <option value="Grade 9">Grade 9</option>
+              <option value="Grade 10" selected>Grade 10</option>
+              <option value="Grade 11">Grade 11</option>
+              <option value="Grade 12">Grade 12</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Section Name</label>
             <input type="text" id="batchSectionName" required placeholder="e.g. Diamond" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
           </div>
         </div>
@@ -1033,6 +1044,45 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ONE-TIME TEMPORARY PASSKEY DISPLAY -->
+  <div id="modalResetPasskey" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🔑</span>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">Temporary Passkey Generated</h3>
+            <p class="text-[11px] text-slate-500">One-time student activation passkey</p>
+          </div>
+        </div>
+        <button onclick="closeResetPasskeyModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+      <div class="space-y-3">
+        <p class="text-xs text-slate-600 leading-relaxed">
+          A temporary single-use passkey has been generated for learner <strong id="resetTargetUsername" class="text-indigo-600">@username</strong>.
+        </p>
+        <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-between">
+          <div>
+            <div class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Temporary Passkey</div>
+            <div id="resetGeneratedPasskey" class="text-xl font-mono font-black text-indigo-900 tracking-wider">gab00000</div>
+          </div>
+          <button onclick="copyGeneratedPasskey()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
+            <span>📋</span> Copy
+          </button>
+        </div>
+        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 leading-relaxed flex items-start gap-2">
+          <span class="text-sm">⚠️</span>
+          <span>Share this passkey with the learner in person. Upon logging into the GabAI mobile app, they will be required to create their own private password. This passkey is only displayed once and will remain encrypted in the database.</span>
+        </div>
+      </div>
+      <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <button onclick="closeResetPasskeyModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold">
+          Done &amp; Dismiss
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1465,6 +1515,150 @@
             </div>
           </div>
 
+          <!-- ROW 2: READING MASTERY & ACADEMIC INTELLIGENCE (4 BENTO TILES) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Tile 1: Reading Mastery Index -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Reading Mastery Index</span>
+                <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 font-bold">🎯</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span id="kpiAvgReadingScore" class="text-2xl sm:text-3xl font-black text-slate-900 font-display">0%</span>
+                <span class="text-[11px] text-slate-400 font-medium">Avg Score</span>
+              </div>
+              <!-- Distribution Bar -->
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex">
+                <div id="barMasteryHigh" style="width: 33%" class="bg-emerald-500 h-full" title="Mastery"></div>
+                <div id="barMasteryMid" style="width: 33%" class="bg-amber-400 h-full" title="Proficient"></div>
+                <div id="barMasteryLow" style="width: 34%" class="bg-rose-400 h-full" title="Needs Support"></div>
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-500 font-medium">
+                <span class="text-emerald-700 font-bold">🟢 <span id="kpiMasteryScholars">0</span> High</span>
+                <span class="text-amber-700 font-bold">🟡 <span id="kpiProficientScholars">0</span> Mid</span>
+                <span class="text-rose-700 font-bold">🔴 <span id="kpiSupportScholars">0</span> Support</span>
+              </div>
+            </div>
+
+            <!-- Tile 2: Weekly Assessment Submissions -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Weekly Assessments</span>
+                <span class="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 font-bold">📝</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span id="kpiTotalAssessmentSubs" class="text-2xl sm:text-3xl font-black text-indigo-700 font-display">0</span>
+                <span class="text-[11px] text-slate-400 font-medium">Submissions</span>
+              </div>
+              <div class="text-[11px] text-slate-600">
+                <span id="kpiActiveWeeklyCount" class="font-bold text-slate-900">0</span> Active assessments assigned
+              </div>
+              <p class="text-[10px] text-slate-400">Classroom diagnostic &amp; reading comprehension</p>
+            </div>
+
+            <!-- Tile 3: Reading Habit & Streak Velocity -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span>Reading Habit Velocity</span>
+                <span class="p-1.5 rounded-lg bg-amber-50 text-amber-600 font-bold">🔥</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span id="kpiReadingVelocity" class="text-2xl sm:text-3xl font-black text-amber-600 font-display">0 Days</span>
+                <span class="text-[11px] text-slate-400 font-medium">Avg Streak</span>
+              </div>
+              <div class="text-[11px] text-slate-600">
+                <span id="kpiActiveStreakers" class="font-bold text-slate-900">0</span> Active daily streaks
+              </div>
+              <p class="text-[10px] text-slate-400">Consistent learner app engagement</p>
+            </div>
+
+            <!-- Tile 4: Academic Support Early Radar -->
+            <div class="bg-white p-5 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-xs space-y-3">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                <span class="text-rose-900 font-bold">Academic Support Radar</span>
+                <span class="p-1.5 rounded-lg bg-rose-100 text-rose-700 font-bold">⚠️</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <span id="kpiAtRiskLearners" class="text-2xl sm:text-3xl font-black text-rose-700 font-display">0</span>
+                <span class="text-[11px] text-rose-800 font-medium">Learners</span>
+              </div>
+              <p class="text-[11px] text-rose-700 font-medium">Scored below 60% or inactive in reading</p>
+              <button onclick="switchTab('tab-learner-performance')" class="w-full py-1.5 text-center bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs">
+                Inspect Support Queue &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- GRADE-LEVEL COMPARATIVE BENCHMARK MATRIX (CAMPUS INTELLIGENCE) -->
+          <div id="gradeMatrixSection" class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>📊</span> Grade-Level Comparative Performance Matrix
+                </h3>
+                <p id="gradeMatrixSubtitle" class="text-xs text-slate-500">Live academic mastery and submission rates across Grades 7 through 10.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="exportGradeMatrixCSV()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                  <span>📥</span> Export Benchmark (CSV)
+                </button>
+                <span class="text-xs px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold rounded-full border border-indigo-200">
+                  Grades 7–10
+                </span>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-3">Grade Level</th>
+                    <th class="p-3">Enrolled Learners</th>
+                    <th class="p-3">Class Sections</th>
+                    <th class="p-3">Average Score</th>
+                    <th class="p-3">Mastery Spread (High / Mid / Support)</th>
+                    <th class="p-3">Submissions</th>
+                    <th class="p-3 text-right">Academic Status</th>
+                  </tr>
+                </thead>
+                <tbody id="gradeMatrixTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                  <tr>
+                    <td colspan="7" class="p-6 text-center text-slate-400">Loading grade-level benchmarks...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SDO VALENZUELA DIVISION SPOTLIGHT BENCHMARK (SUPER ADMIN ONLY) -->
+          <div id="divisionSpotlightSection" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Top Performing Schools -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>👑</span> Top Performing Secondary Campuses
+                </h3>
+                <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">SDO Benchmark</span>
+              </div>
+              <div id="topCampusesList" class="space-y-2.5 text-xs">
+                <div class="p-4 text-center text-slate-400">Calculating campus benchmarks...</div>
+              </div>
+            </div>
+
+            <!-- Priority Support Campuses -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <span>🎯</span> Priority Academic Support Campuses
+                </h3>
+                <span class="text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">Remediation Focus</span>
+              </div>
+              <div id="supportCampusesList" class="space-y-2.5 text-xs">
+                <div class="p-4 text-center text-slate-400">Analyzing campus support radar...</div>
+              </div>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div id="tourTargetImmediateActions" class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4 hover-lift">
               <div class="flex items-center justify-between">
@@ -1549,6 +1743,9 @@
             </div>
 
             <div class="flex items-center gap-2">
+              <button onclick="exportFacultyRegistryCSV()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-lg shadow-xs flex items-center gap-1.5 transition-all">
+                <span>🛡️</span> Export Faculty Registry (CSV)
+              </button>
               <button onclick="openCreateTeacherModal()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all">
                 <span>➕</span> Provision Educator Record
               </button>
@@ -1586,10 +1783,9 @@
               <p class="text-xs text-slate-500">Official section join codes used by students and teachers in GabAI. Click any section to inspect roster and initiation assessments.</p>
             </div>
             <div class="flex items-center gap-3">
-              <span class="text-xs font-semibold text-slate-600">Total Sections: <span id="sectionsCountDisplay" class="text-indigo-600 font-bold">0</span></span>
-              <button onclick="openCreateSectionModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-md font-display-sm flex items-center gap-1.5 transition-all">
-                <span>➕</span> Create New Section
-              </button>
+              <span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200">
+                <span>🏫</span> Created by Advisory Teachers (Mobile)
+              </span>
             </div>
           </div>
 
@@ -1623,6 +1819,14 @@
             <div>
               <h3 class="font-bold text-sm text-slate-800">Learner Academic Performance &amp; Quiz Analytics</h3>
               <p class="text-xs text-slate-500">Live score averages, quiz attempts, and reading streak data matching TeacherPerformanceActivity.kt.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="exportSupportLearnersCSV()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                <span>⚠️</span> Export Support Radar (CSV)
+              </button>
+              <button onclick="exportAllLearnersCSV()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                <span>📊</span> Export All Scholars (CSV)
+              </button>
             </div>
           </div>
 
@@ -1658,6 +1862,9 @@
               <p class="text-xs text-slate-500">Batch-generated student accounts (pending_students). Manage passwords and inspect onboarding status.</p>
             </div>
             <div class="flex items-center gap-2">
+              <button onclick="exportCredentialVaultCSV()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-lg shadow-xs flex items-center gap-1.5 transition-all">
+                <span>🔑</span> Export Credential Slips (CSV)
+              </button>
               <button onclick="openBatchStudentsModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all">
                 <span>➕</span> Batch Generate Accounts
               </button>
@@ -1671,7 +1878,7 @@
                   <tr>
                     <th class="p-3.5">Learner Full Name</th>
                     <th class="p-3.5">System Username</th>
-                    <th class="p-3.5">Default Password</th>
+                    <th class="p-3.5">Passkey Status</th>
                     <th class="p-3.5">Class Section</th>
                     <th class="p-3.5">Campus ID</th>
                     <th class="p-3.5">Onboarding State</th>
@@ -1690,22 +1897,30 @@
 
         <!-- VIEW 6: 29-SCHOOL CAMPUS ROSTER -->
         <div id="tab-school-matrix" class="tab-content hidden space-y-4">
-          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <h3 class="font-bold text-sm text-slate-800">Valenzuela City Secondary Schools Matrix</h3>
-            <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all 29 secondary high schools.</p>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Valenzuela City Secondary Schools Matrix</h3>
+              <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all 29 secondary high schools.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="exportSchoolsMatrixCSV()" class="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                <span>📊</span> Export Division Matrix (CSV)
+              </button>
+            </div>
           </div>
 
           <div id="tourTargetSchoolMatrix" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs min-w-[700px]">
+              <table class="w-full text-left text-xs min-w-[780px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
                   <tr>
                     <th class="p-3.5">DepEd ID</th>
                     <th class="p-3.5">Secondary School Name</th>
-                    <th class="p-3.5">Accredited Faculty</th>
-                    <th class="p-3.5">Class Sections</th>
+                    <th class="p-3.5">Accredited Faculty &amp; Classes</th>
+                    <th class="p-3.5">Enrolled Learners</th>
+                    <th class="p-3.5">Reading Mastery</th>
                     <th class="p-3.5">School Admin (SDO Invite)</th>
-                    <th class="p-3.5">Action</th>
+                    <th class="p-3.5 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody id="schoolsTableBody" class="divide-y divide-slate-100"></tbody>
@@ -1739,10 +1954,11 @@
                   <span>📄</span> PDF Materials &amp; Attached Quizzes (library_materials)
                 </h3>
                 <p class="text-xs text-slate-500">Reads both <code class="text-indigo-600 font-mono">pdfUrl</code> and <code class="text-indigo-600 font-mono">quiz_pool_json</code> from the mobile app.</p>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-200">
+                  <span>🔒</span> Educator-Managed Only (Mobile)
+                </span>
               </div>
-              <button onclick="openCreateMaterialModal()" class="px-3 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md font-display-sm">
-                ➕ Add PDF Document &amp; Quiz
-              </button>
             </div>
 
             <!-- Active Subject Filter Banner -->
@@ -1835,6 +2051,9 @@
               </select>
             </div>
             <div class="flex items-center gap-2">
+              <button onclick="exportWeeklyAssessmentsCSV()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                <span>📝</span> Export Ledger (CSV)
+              </button>
               <span id="assessmentsCountBadge" class="text-xs font-semibold text-slate-500">0 Assessments</span>
             </div>
           </div>
@@ -2180,6 +2399,9 @@
     // =========================================================================
     // IN-BROWSER QUIZ QUESTION INSPECTOR & EDITOR MODAL
     // =========================================================================
+    let activeInspectorIsTeacher = false;
+    let activeInspectorTeacherName = "";
+
     window.openQuizInspectorModal = function(materialId) {
       const m = cachedMaterials.find(item => item.id === materialId);
       if (!m) return;
@@ -2188,9 +2410,11 @@
       activeInspectorMaterialId = materialId;
       activeInspectorAssessmentId = null;
       activeInspectorQuestions = getMaterialQuestions(m);
+      activeInspectorIsTeacher = true; // Strictly read-only for School Admin and Super Admin
+      activeInspectorTeacherName = m.uploaderName || m.teacherName || "Faculty";
 
       document.getElementById('quizInspectorTitle').textContent = `Quiz Pool: ${m.title || 'Untitled Document'}`;
-      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json)`;
+      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json) • Read-Only Inspection`;
       
       renderQuizQuestionsList();
       document.getElementById('modalQuizInspector').classList.remove('hidden');
@@ -2203,6 +2427,8 @@
       activeInspectorType = 'assessment';
       activeInspectorAssessmentId = assessmentId;
       activeInspectorMaterialId = null;
+      activeInspectorIsTeacher = true; // Strictly read-only for School Admin and Super Admin
+      activeInspectorTeacherName = a.teacherName || "Faculty";
       
       let qs = [];
       try {
@@ -2229,23 +2455,38 @@
       activeInspectorMaterialId = null;
       activeInspectorAssessmentId = null;
       activeInspectorQuestions = [];
+      activeInspectorIsTeacher = false;
+      activeInspectorTeacherName = "";
     };
 
     function renderQuizQuestionsList() {
       const container = document.getElementById('quizQuestionsListContainer');
-      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json)`;
+      document.getElementById('quizInspectorSubtitle').textContent = `${activeInspectorQuestions.length} Questions Configured (quiz_pool_json)${activeInspectorIsTeacher ? ' • Read-Only Inspection' : ''}`;
+
+      let bannerHtml = "";
+      if (activeInspectorIsTeacher) {
+        bannerHtml = `
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center gap-2 mb-3 shadow-xs">
+            <span class="text-base">🔒</span>
+            <div>
+              <strong class="font-bold">Pedagogical Protection:</strong>
+              <span> This assessment was crafted by faculty <em>(${activeInspectorTeacherName})</em>. School &amp; Division Admins have read-only inspection access and cannot alter classroom questions.</span>
+            </div>
+          </div>
+        `;
+      }
 
       if (activeInspectorQuestions.length === 0) {
-        container.innerHTML = `
+        container.innerHTML = bannerHtml + `
           <div class="p-8 text-center bg-white rounded-xl border border-dashed border-slate-300 text-slate-500">
             <div class="text-3xl mb-2">📝</div>
             <p class="font-bold text-sm text-slate-800">No Questions in Pool Yet</p>
-            <p class="text-xs text-slate-400 mt-1">Click <strong>Add New Question</strong> below to initialize multiple-choice questions for this reading material.</p>
+            <p class="text-xs text-slate-400 mt-1">${activeInspectorIsTeacher ? 'Faculty has not configured question items yet.' : 'Click <strong>Add New Question</strong> below to initialize multiple-choice questions for this reading material.'}</p>
           </div>`;
         return;
       }
 
-      container.innerHTML = activeInspectorQuestions.map((q, idx) => {
+      container.innerHTML = bannerHtml + activeInspectorQuestions.map((q, idx) => {
         const optionsHtml = q.options.map((opt, optIdx) => {
           const isCorrect = optIdx === q.ans;
           return `
@@ -2265,14 +2506,20 @@
                 </span>
                 <h4 class="font-bold text-sm text-slate-900">${q.q}</h4>
               </div>
-              <div class="flex items-center gap-1 shrink-0">
-                <button onclick="editQuestionPrompt(${idx})" class="p-1 text-slate-400 hover:text-indigo-600 text-xs font-bold" title="Edit Question">
-                  ✏️
-                </button>
-                <button onclick="deleteQuestion(${idx})" class="p-1 text-slate-400 hover:text-red-600 text-xs font-bold" title="Delete Question">
-                  🗑️
-                </button>
-              </div>
+              ${activeInspectorIsTeacher ? `
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold border border-slate-200">
+                  Read-Only
+                </span>
+              ` : `
+                <div class="flex items-center gap-1 shrink-0">
+                  <button onclick="editQuestionPrompt(${idx})" class="p-1 text-slate-400 hover:text-indigo-600 text-xs font-bold" title="Edit Question">
+                    ✏️
+                  </button>
+                  <button onclick="deleteQuestion(${idx})" class="p-1 text-slate-400 hover:text-red-600 text-xs font-bold" title="Delete Question">
+                    🗑️
+                  </button>
+                </div>
+              `}
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
@@ -2285,16 +2532,20 @@
                   <span class="font-bold text-indigo-800">💡 Educational Explanation:</span>
                   <p class="mt-0.5 text-indigo-900">${q.explanation}</p>
                 </div>
-                <button onclick="editQuestionExplanation(${idx})" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 shrink-0">
-                  Edit
-                </button>
+                ${!activeInspectorIsTeacher ? `
+                  <button onclick="editQuestionExplanation(${idx})" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 shrink-0">
+                    Edit
+                  </button>
+                ` : ''}
               </div>
             ` : `
-              <div class="mt-2 text-right">
-                <button onclick="editQuestionExplanation(${idx})" class="text-[11px] text-slate-400 hover:text-indigo-600 font-semibold">
-                  + Add Educational Explanation
-                </button>
-              </div>
+              ${!activeInspectorIsTeacher ? `
+                <div class="mt-2 text-right">
+                  <button onclick="editQuestionExplanation(${idx})" class="text-[11px] text-slate-400 hover:text-indigo-600 font-semibold">
+                    + Add Educational Explanation
+                  </button>
+                </div>
+              ` : ''}
             `}
           </div>
         `;
@@ -2302,6 +2553,10 @@
     }
 
     window.openAddQuestionForm = function() {
+      if (activeInspectorIsTeacher) {
+        window.showToast("Classroom quiz pools are managed directly by faculty.", "warning");
+        return;
+      }
       const promptText = prompt("Enter question text:");
       if (!promptText || !promptText.trim()) return;
 
@@ -2335,6 +2590,10 @@
     };
 
     window.editQuestionExplanation = function(idx) {
+      if (activeInspectorIsTeacher) {
+        window.showToast("Classroom quiz pools are managed directly by faculty.", "warning");
+        return;
+      }
       const q = activeInspectorQuestions[idx];
       const newExp = prompt("Edit Educational Explanation:", q.explanation || "");
       if (newExp !== null) {
@@ -2344,6 +2603,10 @@
     };
 
     window.editQuestionPrompt = function(idx) {
+      if (activeInspectorIsTeacher) {
+        window.showToast("Classroom quiz pools are managed directly by faculty.", "warning");
+        return;
+      }
       const q = activeInspectorQuestions[idx];
       const newPrompt = prompt("Edit Question Text:", q.q);
       if (newPrompt && newPrompt.trim()) {
@@ -2353,6 +2616,10 @@
     };
 
     window.deleteQuestion = function(idx) {
+      if (activeInspectorIsTeacher) {
+        window.showToast("Classroom quiz pools are managed directly by faculty.", "warning");
+        return;
+      }
       if (confirm(`Remove Question ${idx + 1}?`)) {
         activeInspectorQuestions.splice(idx, 1);
         renderQuizQuestionsList();
@@ -2361,6 +2628,10 @@
     };
 
     window.saveCurrentQuizPool = async function() {
+      if (activeInspectorIsTeacher) {
+        window.showToast("Classroom quiz pools are managed directly by faculty.", "warning");
+        return;
+      }
       if (!activeInspectorMaterialId && !activeInspectorAssessmentId) return;
 
       const btn = document.getElementById('btnSaveQuizPool');
@@ -2611,11 +2882,23 @@
       const alertBox = document.getElementById('provisionAlertBox');
       alertBox.classList.add('hidden');
 
-      // Cryptographically verify passkey via SHA-256 hash using native Web Crypto
+      // Cryptographically verify passkey via SHA-256 hash using native Web Crypto against Firestore config or secure fallback
       const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key));
       const keyHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-      if (keyHash !== DIVISION_MASTER_KEY_HASH) {
+      let authorized = false;
+      try {
+        const configDoc = await getDoc(doc(db, "system_config", "admin_keys"));
+        if (configDoc.exists() && configDoc.data().masterKeyHash) {
+          authorized = (keyHash === configDoc.data().masterKeyHash);
+        } else {
+          authorized = (keyHash === DIVISION_MASTER_KEY_HASH);
+        }
+      } catch (_) {
+        authorized = (keyHash === DIVISION_MASTER_KEY_HASH);
+      }
+
+      if (!authorized) {
         document.getElementById('provMasterKey').value = '';
         alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
         alertBox.textContent = "Unauthorized: Invalid Division Master Passkey.";
@@ -2853,12 +3136,19 @@
       let classes = cachedClasses;
       let pendingStudents = cachedPendingStudents;
       let claimedStudents = cachedUsers.filter(u => u.role === 'student');
+      let assessments = cachedWeeklyAssessments;
+      let submissions = cachedSubmissions;
 
       if (selectedJurisdiction !== 'ALL') {
         teachers = teachers.filter(t => String(t.schoolId) === selectedJurisdiction);
         classes = classes.filter(c => String(c.schoolId) === selectedJurisdiction);
         pendingStudents = pendingStudents.filter(s => String(s.schoolId) === selectedJurisdiction);
         claimedStudents = claimedStudents.filter(s => String(s.schoolId) === selectedJurisdiction);
+        assessments = assessments.filter(a => String(a.schoolId) === selectedJurisdiction);
+        submissions = submissions.filter(s => {
+          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
+          return (a && String(a.schoolId) === selectedJurisdiction) || String(s.schoolId) === selectedJurisdiction;
+        });
       }
 
       const verifiedTeachers = teachers.filter(t => t.isApproved === true);
@@ -2869,6 +3159,87 @@
       document.getElementById('kpiPendingTeachers').textContent = pendingTeachers.length;
       document.getElementById('kpiTotalClasses').textContent = classes.length;
       document.getElementById('kpiTotalStudents').textContent = totalStudents;
+
+      // 1. Reading Mastery Index & Score Distribution
+      let avgReadingScore = 0;
+      if (submissions.length > 0) {
+        const sum = submissions.reduce((acc, curr) => {
+          const s = curr.score || 0;
+          const t = curr.totalQuestions || 10;
+          return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+        }, 0);
+        avgReadingScore = Math.round(sum / submissions.length);
+      }
+
+      let masteryCount = 0;
+      let proficientCount = 0;
+      let supportCount = 0;
+
+      claimedStudents.forEach(st => {
+        const stSubs = submissions.filter(s => s.studentId === st.id);
+        if (stSubs.length === 0) {
+          supportCount++;
+        } else {
+          const scoreSum = stSubs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          const stAvg = Math.round(scoreSum / stSubs.length);
+          if (stAvg >= 80) masteryCount++;
+          else if (stAvg >= 60) proficientCount++;
+          else supportCount++;
+        }
+      });
+
+      const evaluatedCount = claimedStudents.length;
+      const highPct = evaluatedCount > 0 ? Math.round((masteryCount * 100) / evaluatedCount) : 0;
+      const midPct = evaluatedCount > 0 ? Math.round((proficientCount * 100) / evaluatedCount) : 0;
+      const lowPct = evaluatedCount > 0 ? Math.max(0, 100 - highPct - midPct) : 0;
+
+      const elAvgScore = document.getElementById('kpiAvgReadingScore');
+      if (elAvgScore) elAvgScore.textContent = `${avgReadingScore}%`;
+      const elMastery = document.getElementById('kpiMasteryScholars');
+      if (elMastery) elMastery.textContent = masteryCount;
+      const elProficient = document.getElementById('kpiProficientScholars');
+      if (elProficient) elProficient.textContent = proficientCount;
+      const elSupport = document.getElementById('kpiSupportScholars');
+      if (elSupport) elSupport.textContent = supportCount;
+
+      const barHigh = document.getElementById('barMasteryHigh');
+      const barMid = document.getElementById('barMasteryMid');
+      const barLow = document.getElementById('barMasteryLow');
+      if (barHigh) barHigh.style.width = `${highPct}%`;
+      if (barMid) barMid.style.width = `${midPct}%`;
+      if (barLow) barLow.style.width = `${lowPct}%`;
+
+      const elTotalSubs = document.getElementById('kpiTotalAssessmentSubs');
+      if (elTotalSubs) elTotalSubs.textContent = submissions.length;
+      const elActiveWeekly = document.getElementById('kpiActiveWeeklyCount');
+      if (elActiveWeekly) elActiveWeekly.textContent = assessments.filter(a => a.status === 'active').length;
+
+      const activeStreakCount = claimedStudents.filter(s => (s.current_streak || 0) > 0).length;
+      const avgStreakVal = claimedStudents.length > 0 ? (claimedStudents.reduce((acc, s) => acc + (s.current_streak || 0), 0) / claimedStudents.length).toFixed(1) : "0";
+      const elReadingVelocity = document.getElementById('kpiReadingVelocity');
+      if (elReadingVelocity) elReadingVelocity.textContent = `${avgStreakVal} Days`;
+      const elActiveStreakers = document.getElementById('kpiActiveStreakers');
+      if (elActiveStreakers) elActiveStreakers.textContent = activeStreakCount;
+
+      const elAtRisk = document.getElementById('kpiAtRiskLearners');
+      if (elAtRisk) elAtRisk.textContent = supportCount;
+
+      // 2. Grade Matrix and Division Spotlight
+      renderGradeMatrix(claimedStudents, classes, submissions);
+
+      const divSpotlight = document.getElementById('divisionSpotlightSection');
+      if (divSpotlight) {
+        if (isSuperAdmin && selectedJurisdiction === 'ALL') {
+          divSpotlight.classList.remove('hidden');
+          renderDivisionSpotlight();
+        } else {
+          divSpotlight.classList.add('hidden');
+        }
+      }
 
       const badge = document.getElementById('pendingTeachersBadge');
       const badgeText = document.getElementById('pendingTeachersBadgeText');
@@ -2887,6 +3258,160 @@
       else sidebarAlert.classList.add('hidden');
 
       renderQuickPendingTable(pendingTeachers);
+    }
+
+    function renderGradeMatrix(students, classes, submissions) {
+      const tbody = document.getElementById('gradeMatrixTableBody');
+      if (!tbody) return;
+
+      const grades = ["Grade 7", "Grade 8", "Grade 9", "Grade 10"];
+      tbody.innerHTML = grades.map(gradeName => {
+        const gradeStudents = students.filter(s => (s.grade || '').trim() === gradeName);
+        const gradeClasses = classes.filter(c => (c.grade || '').trim() === gradeName);
+        const gradeSubs = submissions.filter(s => {
+          const st = students.find(item => item.id === s.studentId);
+          return st && (st.grade || '').trim() === gradeName;
+        });
+
+        let gradeAvg = 0;
+        if (gradeSubs.length > 0) {
+          const sum = gradeSubs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          gradeAvg = Math.round(sum / gradeSubs.length);
+        }
+
+        let gMastery = 0, gProf = 0, gSupp = 0;
+        gradeStudents.forEach(st => {
+          const stSubs = gradeSubs.filter(s => s.studentId === st.id);
+          if (stSubs.length === 0) gSupp++;
+          else {
+            const avg = Math.round(stSubs.reduce((acc, c) => acc + (c.percentage !== undefined ? c.percentage : (((c.score || 0) * 100) / (c.totalQuestions || 10))), 0) / stSubs.length);
+            if (avg >= 80) gMastery++;
+            else if (avg >= 60) gProf++;
+            else gSupp++;
+          }
+        });
+
+        const total = gradeStudents.length || 1;
+        const mPct = Math.round((gMastery * 100) / total);
+        const pPct = Math.round((gProf * 100) / total);
+        const sPct = Math.max(0, 100 - mPct - pPct);
+
+        let statusBadge = '';
+        if (gradeStudents.length === 0) {
+          statusBadge = '<span class="text-slate-400 text-[10px]">No Enrolled Scholars</span>';
+        } else if (gradeAvg >= 80) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">🟢 High Mastery</span>';
+        } else if (gradeAvg >= 60) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">🟡 Proficient</span>';
+        } else {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">🔴 Needs Support</span>';
+        }
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-3 font-bold text-slate-900">${gradeName}</td>
+            <td class="p-3 font-semibold text-slate-800">${gradeStudents.length} Learners</td>
+            <td class="p-3 text-slate-600">${gradeClasses.length} Sections</td>
+            <td class="p-3 font-bold ${gradeAvg >= 80 ? 'text-emerald-600' : (gradeAvg >= 60 ? 'text-amber-600' : 'text-slate-700')}">
+              ${gradeAvg > 0 ? `${gradeAvg}%` : '<span class="text-slate-400">--</span>'}
+            </td>
+            <td class="p-3">
+              <div class="w-36 bg-slate-100 h-2 rounded-full overflow-hidden flex mb-1">
+                <div style="width: ${mPct}%" class="bg-emerald-500 h-full" title="Mastery: ${gMastery}"></div>
+                <div style="width: ${pPct}%" class="bg-amber-400 h-full" title="Proficient: ${gProf}"></div>
+                <div style="width: ${sPct}%" class="bg-rose-400 h-full" title="Needs Support: ${gSupp}"></div>
+              </div>
+              <div class="text-[9px] text-slate-400 font-mono">
+                ${gMastery} High &bull; ${gProf} Mid &bull; ${gSupp} Support
+              </div>
+            </td>
+            <td class="p-3 font-semibold text-indigo-700">${gradeSubs.length} Subs</td>
+            <td class="p-3 text-right">${statusBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderDivisionSpotlight() {
+      const topList = document.getElementById('topCampusesList');
+      const supportList = document.getElementById('supportCampusesList');
+      if (!topList || !supportList) return;
+
+      const schoolStats = VALENZUELA_SCHOOLS.map(school => {
+        const sId = school.id;
+        const students = cachedUsers.filter(u => u.role === 'student' && String(u.schoolId) === sId);
+        const subs = cachedSubmissions.filter(s => {
+          const st = cachedUsers.find(item => item.id === s.studentId);
+          return st && String(st.schoolId) === sId;
+        });
+
+        let avg = 0;
+        if (subs.length > 0) {
+          const sum = subs.reduce((acc, curr) => {
+            const score = curr.score || 0;
+            const total = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((score * 100) / total));
+          }, 0);
+          avg = Math.round(sum / subs.length);
+        }
+        return {
+          school,
+          studentsCount: students.length,
+          subsCount: subs.length,
+          avgScore: avg
+        };
+      });
+
+      const sortedByAvg = [...schoolStats].filter(s => s.subsCount > 0 || s.studentsCount > 0).sort((a, b) => b.avgScore - a.avgScore);
+      const top3 = sortedByAvg.slice(0, 3);
+
+      if (top3.length === 0) {
+        topList.innerHTML = `<div class="p-4 text-center text-slate-400">No school submission records yet.</div>`;
+      } else {
+        topList.innerHTML = top3.map((item, idx) => {
+          const medals = ['🥇', '🥈', '🥉'];
+          return `
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-base">${medals[idx] || '⭐'}</span>
+                <div>
+                  <div class="font-bold text-slate-900">${item.school.name}</div>
+                  <div class="text-[10px] text-slate-400">${item.studentsCount} Learners &bull; ${item.subsCount} Submissions</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs">
+                  ${item.avgScore}% Avg
+                </span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const sortedSupport = [...schoolStats].sort((a, b) => a.avgScore - b.avgScore).slice(0, 3);
+      supportList.innerHTML = sortedSupport.map(item => {
+        return `
+          <div class="p-2.5 rounded-xl bg-rose-50/40 border border-rose-100 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base">⚠️</span>
+              <div>
+                <div class="font-bold text-slate-900">${item.school.name}</div>
+                <div class="text-[10px] text-slate-500">${item.studentsCount} Enrolled &bull; ${item.subsCount} Submissions</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <button onclick="inspectSchool('${item.school.id}')" class="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700 shadow-xs">
+                Review Campus &rarr;
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderQuickPendingTable(pendingTeachers) {
@@ -3166,10 +3691,39 @@
         window.showToast("Only Division Super Admin (SDO) has authority to permanently delete accounts.", "error");
         return;
       }
-      if (confirm(`Are you sure you want to permanently remove educator "${name}"?`)) {
+      if (confirm(`Are you sure you want to permanently remove educator "${name}"? This will safely disassociate classrooms and preserve curricular history.`)) {
         try {
+          // 🟢 CASCADE 1: Disassociate adviser and subject links in classes
+          const advisoryClasses = cachedClasses.filter(c => c.teacherId === uid);
+          for (const c of advisoryClasses) {
+            await updateDoc(doc(db, "classes", c.id), {
+              teacherId: null,
+              adviserName: "Unassigned (Vacant)",
+              vacantAdviser: true,
+              updatedAt: Date.now()
+            });
+          }
+
+          const subjectClasses = cachedClasses.filter(c => Array.isArray(c.teacherIds) && c.teacherIds.includes(uid));
+          for (const c of subjectClasses) {
+            await updateDoc(doc(db, "classes", c.id), {
+              teacherIds: arrayRemove(uid),
+              updatedAt: Date.now()
+            });
+          }
+
+          // 🟢 CASCADE 2: Retain learning materials but mark faculty as archived
+          const teacherMaterials = cachedMaterials.filter(m => m.teacherId === uid);
+          for (const m of teacherMaterials) {
+            await updateDoc(doc(db, "library_materials", m.id), {
+              uploaderStatus: "archived_faculty",
+              archivedAt: Date.now()
+            });
+          }
+
+          // 🟢 CASCADE 3: Remove user document
           await deleteDoc(doc(db, "users", uid));
-          window.showToast(`Educator "${name}" deleted.`, "info");
+          window.showToast(`Educator "${name}" removed. Classrooms flagged for reassignment and materials preserved.`, "info");
         } catch (err) {
           console.error("Delete educator error:", err);
           window.showToast("Failed to delete educator: " + err.message, "error");
@@ -3178,8 +3732,8 @@
     };
 
     window.approveTeacher = async function(uid) {
-      if (!isSchoolAdmin) {
-        window.showToast("Teacher accreditation is strictly performed by the campus School Administrator.", "warning");
+      if (!isSchoolAdmin && !isSuperAdmin) {
+        window.showToast("Teacher accreditation is performed by School Administrators or Division Super Admin.", "warning");
         return;
       }
       const teacher = cachedTeachers.find(t => t.id === uid);
@@ -3187,7 +3741,7 @@
         window.showToast("Educator record not found.", "error");
         return;
       }
-      if (String(teacher.schoolId) !== String(currentAdminUser.schoolId)) {
+      if (isSchoolAdmin && String(teacher.schoolId) !== String(currentAdminUser.schoolId)) {
         window.showToast("You can only accredit teachers belonging to your assigned campus.", "error");
         return;
       }
@@ -3197,9 +3751,9 @@
           isApproved: true,
           approvedAt: Date.now(),
           approvedBy: currentAdminUser.email,
-          approvedByName: `${currentAdminUser.firstName || ''} ${currentAdminUser.lastName || ''}`.trim() || 'Campus Principal',
-          approvedByRole: 'school_admin',
-          approvedSchoolId: String(currentAdminUser.schoolId)
+          approvedByName: `${currentAdminUser.firstName || ''} ${currentAdminUser.lastName || ''}`.trim() || (isSuperAdmin ? 'Division Superintendent' : 'Campus Principal'),
+          approvedByRole: isSuperAdmin ? 'super_admin' : 'school_admin',
+          approvedSchoolId: String(teacher.schoolId || currentAdminUser.schoolId || '')
         });
         window.showToast(`Faculty accreditation granted for ${teacher.firstName || 'educator'}. Teacher can now log in.`, "success");
       } catch (err) {
@@ -3244,14 +3798,7 @@
     };
 
     window.openCreateSectionModal = function() {
-      document.getElementById('modalSectionTitle').textContent = "Create Classroom Section";
-      document.getElementById('sectionEditId').value = "";
-      document.getElementById('sectionNameInput').value = "";
-      document.getElementById('sectionGradeSelect').value = "7";
-      document.getElementById('sectionSchoolSelect').value = selectedJurisdiction !== 'ALL' ? selectedJurisdiction : "";
-      document.getElementById('sectionInitiationItems').value = "5";
-      generateRandomJoinCode();
-      document.getElementById('modalSection').classList.remove('hidden');
+      window.showToast("Classroom sections are created exclusively by Class Advisers in the GabAI mobile application.", "warning");
     };
 
     window.openEditSectionModal = function(id) {
@@ -3287,6 +3834,11 @@
 
       try {
         if (editId) {
+          const oldClass = cachedClasses.find(c => c.id === editId);
+          const oldSection = oldClass ? (oldClass.section || oldClass.className || "") : "";
+          const oldGrade = oldClass ? oldClass.grade : null;
+          const oldSchoolId = oldClass ? oldClass.schoolId : schoolId;
+
           await updateDoc(doc(db, "classes", editId), {
             section: sectionName,
             className: sectionName,
@@ -3296,20 +3848,35 @@
             initiation_items: initiationItems,
             updatedAt: Date.now()
           });
-          window.showToast("Classroom section updated.", "success");
+
+          // 🟢 CASCADE: If section name or grade changed, synchronize active & pending students
+          if (oldClass && (oldSection !== sectionName || oldGrade !== grade)) {
+            // 1. Sync active students
+            const activeSnaps = await getDocs(query(
+              collection(db, "users"),
+              where("schoolId", "==", oldSchoolId),
+              where("role", "==", "student"),
+              where("section", "==", oldSection)
+            ));
+            for (const d of activeSnaps.docs) {
+              await updateDoc(d.ref, { section: sectionName, grade: String(grade) });
+            }
+
+            // 2. Sync pending students
+            const pendingSnaps = await getDocs(query(
+              collection(db, "pending_students"),
+              where("schoolId", "==", oldSchoolId),
+              where("section", "==", oldSection)
+            ));
+            for (const d of pendingSnaps.docs) {
+              await updateDoc(d.ref, { section: sectionName, grade: String(grade) });
+            }
+          }
+
+          window.showToast("Classroom section and student rosters updated successfully! ✅", "success");
         } else {
-          await addDoc(collection(db, "classes"), {
-            section: sectionName,
-            className: sectionName,
-            grade,
-            joinCode,
-            schoolId,
-            initiation_items: initiationItems,
-            studentIds: [],
-            teacherIds: [],
-            createdAt: Date.now()
-          });
-          window.showToast("Classroom section created with code #" + joinCode, "success");
+          window.showToast("Classroom sections are created exclusively by Class Advisers in the GabAI mobile application.", "warning");
+          return;
         }
         closeSectionModal();
       } catch (err) {
@@ -3322,10 +3889,39 @@
     };
 
     window.deleteSection = async function(id, name) {
-      if (confirm(`Delete classroom section "${name}"?`)) {
+      if (confirm(`Delete classroom section "${name}"? This will unlink students from the section and archive associated assessments.`)) {
         try {
+          const targetClass = cachedClasses.find(c => c.id === id);
+          const secName = targetClass ? (targetClass.section || targetClass.className) : name;
+          const schoolId = targetClass ? String(targetClass.schoolId) : "";
+
+          // 1. Unlink active students assigned to this section
+          const affectedStudents = cachedUsers.filter(u => u.role === 'student' && (u.section === secName || (targetClass && targetClass.joinedStudents && targetClass.joinedStudents.includes(u.id))));
+          for (const s of affectedStudents) {
+            await updateDoc(doc(db, "users", s.id), {
+              section: ""
+            });
+          }
+
+          // 2. Unlink pending students in this section
+          const affectedPending = cachedPendingStudents.filter(p => p.section === secName && String(p.schoolId) === schoolId);
+          for (const p of affectedPending) {
+            await updateDoc(doc(db, "pending_students", p.id), {
+              section: ""
+            });
+          }
+
+          // 3. Archive active weekly assessments for this section
+          const linkedAssessments = cachedWeeklyAssessments.filter(a => a.classId === id || a.className === secName);
+          for (const a of linkedAssessments) {
+            await updateDoc(doc(db, "weekly_assessments", a.id), {
+              status: "archived",
+              archivedReason: "Class section deleted by administration"
+            });
+          }
+
           await deleteDoc(doc(db, "classes", id));
-          window.showToast(`Section "${name}" deleted.`, "info");
+          window.showToast(`Section "${name}" deleted and rosters unlinked.`, "info");
         } catch (err) {
           console.error("Delete section error:", err);
           window.showToast("Failed to delete section: " + err.message, "error");
@@ -3378,7 +3974,7 @@
           <div class="py-2 flex items-center justify-between">
             <div>
               <span class="font-bold text-slate-800">${s.firstName || ''} ${s.lastName || ''}</span>
-              <div class="font-mono text-[10px] text-slate-500">User: ${s.username} | Pass: ${s.password}</div>
+              <div class="font-mono text-[10px] text-slate-500">User: @${s.username} | Passkey: •••••••• (Protected)</div>
             </div>
             <span class="badge-pending px-2 py-0.5 rounded text-[10px] font-bold">Unclaimed</span>
           </div>
@@ -3497,12 +4093,61 @@
         const streak = u.current_streak || 0;
         const quests = (u.quests_completed && u.quests_completed.length) || 0;
         const isOnboarded = u.is_onboarded === true;
+        const photoUrl = u.photoUrl || '';
+        const pendingPhotoUrl = u.pendingPhotoUrl || '';
+        const photoStatus = u.photoStatus || 'none';
+        const initials = ((u.firstName?.[0] || '') + (u.lastName?.[0] || '')).toUpperCase() || 'ST';
+
+        let avatarHtml = '';
+        if (pendingPhotoUrl) {
+          avatarHtml = `
+            <div class="relative w-9 h-9 rounded-full ring-2 ring-amber-400 overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
+              <img src="${pendingPhotoUrl}" alt="Pending Photo" class="w-full h-full object-cover" onerror="this.style.display='none'" />
+            </div>`;
+        } else if (photoUrl && photoStatus === 'approved') {
+          avatarHtml = `
+            <div class="relative w-9 h-9 rounded-full ring-1 ring-emerald-400 overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
+              <img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'" />
+            </div>`;
+        } else {
+          avatarHtml = `
+            <div class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">
+              ${initials}
+            </div>`;
+        }
+
+        let photoModerationHtml = '';
+        if (pendingPhotoUrl) {
+          photoModerationHtml = `
+            <div class="mt-1 flex items-center gap-1">
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800">⏳ Photo Review</span>
+              <button onclick="approveStudentPhoto('${u.id}', '${encodeURIComponent(pendingPhotoUrl)}')" class="px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[9px] font-bold shadow-xs">Approve</button>
+              <button onclick="declineStudentPhoto('${u.id}')" class="px-1.5 py-0.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-[9px] font-bold shadow-xs">Decline</button>
+            </div>`;
+        } else if (photoUrl && photoStatus === 'approved') {
+          photoModerationHtml = `
+            <div class="mt-1 flex items-center gap-1">
+              <span class="text-[9px] text-emerald-600 font-medium">✓ Photo Approved</span>
+              <button onclick="removeStudentPhoto('${u.id}')" class="text-[9px] text-slate-400 hover:text-rose-600 font-semibold underline ml-1">Remove</button>
+            </div>`;
+        } else if (photoStatus === 'declined' || photoStatus === 'rejected') {
+          photoModerationHtml = `
+            <div class="mt-1">
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-800">⚠️ Photo Declined</span>
+            </div>`;
+        }
 
         return `
           <tr class="hover:bg-slate-50/80 transition-colors">
             <td class="p-3.5">
-              <div class="font-bold text-slate-900">${u.firstName || ''} ${u.lastName || ''}</div>
-              <div class="text-[10px] text-slate-400 font-mono">${u.email || u.username || 'App Account'}</div>
+              <div class="flex items-center gap-2.5">
+                ${avatarHtml}
+                <div>
+                  <div class="font-bold text-slate-900">${u.firstName || ''} ${u.lastName || ''}</div>
+                  <div class="text-[10px] text-slate-400 font-mono">${u.email || u.username || 'App Account'}</div>
+                  ${photoModerationHtml}
+                </div>
+              </div>
             </td>
             <td class="p-3.5">
               <div class="font-semibold text-slate-800">${getSchoolName(u.schoolId)}</div>
@@ -3530,6 +4175,71 @@
         `;
       }).join('');
     }
+
+    window.approveStudentPhoto = async function(uid, encodedUrl) {
+      const photoUrl = decodeURIComponent(encodedUrl);
+      if (!confirm("Approve this learner's submitted photo for campus visibility?")) return;
+      try {
+        await updateDoc(doc(db, "users", uid), {
+          photoUrl: photoUrl,
+          photoStatus: "approved",
+          pendingPhotoUrl: null
+        });
+        const user = cachedUsers.find(u => u.id === uid);
+        if (user) {
+          user.photoUrl = photoUrl;
+          user.photoStatus = "approved";
+          user.pendingPhotoUrl = null;
+        }
+        window.showToast("Student photo approved successfully! ✅", "success");
+        renderPerformanceTable();
+      } catch (err) {
+        console.error("Failed to approve photo:", err);
+        window.showToast("Failed to approve photo: " + err.message, "error");
+      }
+    };
+
+    window.declineStudentPhoto = async function(uid) {
+      if (!confirm("Decline this learner's submitted photo? They will receive actionable feedback in their profile.")) return;
+      try {
+        await updateDoc(doc(db, "users", uid), {
+          photoStatus: "declined",
+          pendingPhotoUrl: null
+        });
+        const user = cachedUsers.find(u => u.id === uid);
+        if (user) {
+          user.photoStatus = "declined";
+          user.pendingPhotoUrl = null;
+        }
+        window.showToast("Student photo declined. Feedback set for student.", "info");
+        renderPerformanceTable();
+      } catch (err) {
+        console.error("Failed to decline photo:", err);
+        window.showToast("Failed to decline photo: " + err.message, "error");
+      }
+    };
+
+    window.removeStudentPhoto = async function(uid) {
+      if (!confirm("Remove this learner's current profile photo?")) return;
+      try {
+        await updateDoc(doc(db, "users", uid), {
+          photoUrl: null,
+          photoStatus: "none",
+          pendingPhotoUrl: null
+        });
+        const user = cachedUsers.find(u => u.id === uid);
+        if (user) {
+          user.photoUrl = null;
+          user.photoStatus = "none";
+          user.pendingPhotoUrl = null;
+        }
+        window.showToast("Student photo removed.", "info");
+        renderPerformanceTable();
+      } catch (err) {
+        console.error("Failed to remove photo:", err);
+        window.showToast("Failed to remove photo: " + err.message, "error");
+      }
+    };
 
     window.viewStudentQuizHistory = async function(uid) {
       const student = cachedUsers.find(item => item.id === uid);
@@ -3606,9 +4316,55 @@
       document.getElementById('modalBatchStudents').classList.add('hidden');
     };
 
+    let activeGeneratedPasskey = "";
+
+    window.openResetPasskeyModal = async function(username) {
+      const tempPass = 'gab' + Math.floor(10000 + Math.random() * 90000);
+      activeGeneratedPasskey = tempPass;
+
+      try {
+        const pDoc = await getDoc(doc(db, "pending_students", username));
+        if (pDoc.exists()) {
+          await updateDoc(doc(db, "pending_students", username), {
+            password: tempPass,
+            mustChangePassword: true
+          });
+        } else {
+          const q = query(collection(db, "users"), where("username", "==", username));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            await updateDoc(doc(db, "users", snap.docs[0].id), {
+              tempPassword: tempPass,
+              mustChangePassword: true
+            });
+          }
+        }
+
+        document.getElementById('resetTargetUsername').textContent = `@${username}`;
+        document.getElementById('resetGeneratedPasskey').textContent = tempPass;
+        document.getElementById('modalResetPasskey').classList.remove('hidden');
+        window.showToast(`Temporary passkey generated for @${username}.`, "success");
+      } catch (err) {
+        console.error("Password reset error:", err);
+        window.showToast("Failed to generate temporary passkey: " + err.message, "error");
+      }
+    };
+
+    window.copyGeneratedPasskey = function() {
+      if (activeGeneratedPasskey) {
+        copyToClipboard(activeGeneratedPasskey, "Temporary passkey copied to clipboard!");
+      }
+    };
+
+    window.closeResetPasskeyModal = function() {
+      document.getElementById('modalResetPasskey').classList.add('hidden');
+      activeGeneratedPasskey = "";
+    };
+
     window.handleBatchStudentsSubmit = async function(e) {
       e.preventDefault();
       const schoolId = document.getElementById('batchSchoolSelect').value;
+      const grade = document.getElementById('batchStudentGrade')?.value || "Grade 10";
       const sectionName = document.getElementById('batchSectionName').value.trim();
       const rawNames = document.getElementById('batchStudentNames').value;
 
@@ -3624,13 +4380,25 @@
 
       try {
         let created = 0;
+        const usedInBatch = new Set();
+
         for (const fullName of lines) {
           const parts = fullName.split(" ");
           const firstName = parts[0] || "Student";
           const lastName = parts.slice(1).join(" ") || "";
 
-          const randomNum = Math.floor(1000 + Math.random() * 9000);
-          const username = `${firstName.replace(/\s+/g, '')}${lastName.replace(/\s+/g, '')}_${randomNum}`.toLowerCase();
+          let randomNum;
+          let username;
+          let attempts = 0;
+          do {
+            randomNum = Math.floor(10000 + Math.random() * 90000);
+            username = `${firstName.replace(/\s+/g, '')}${lastName.replace(/\s+/g, '')}_${randomNum}`.toLowerCase();
+            attempts++;
+          } while ((usedInBatch.has(username) || 
+                    cachedPendingStudents.some(s => s.username === username || s.id === username) || 
+                    cachedUsers.some(u => u.username === username || u.id === username)) && attempts < 100);
+          usedInBatch.add(username);
+
           const password = Math.random().toString(36).substring(2, 8);
 
           await setDoc(doc(db, "pending_students", username), {
@@ -3639,19 +4407,21 @@
             username,
             password,
             role: "student",
+            grade: grade,
             section: sectionName,
             schoolId,
             current_xp: 0,
             level: 1,
             isApproved: true,
             is_onboarded: false,
+            mustChangePassword: true,
             quests_completed: [],
             createdAt: Date.now()
           });
           created++;
         }
 
-        window.showToast(`Success: Generated ${created} learner accounts for Section ${sectionName}!`, "success");
+        window.showToast(`Success: Generated ${created} learner accounts for ${grade} - ${sectionName}!`, "success");
         closeBatchStudentsModal();
       } catch (err) {
         console.error("Batch generate error:", err);
@@ -3662,19 +4432,8 @@
       }
     };
 
-    window.resetStudentPassword = async function(username) {
-      const newPass = prompt(`Enter new password for student account "${username}":`, Math.random().toString(36).substring(2, 8));
-      if (newPass && newPass.trim().length >= 4) {
-        try {
-          await updateDoc(doc(db, "pending_students", username), {
-            password: newPass.trim()
-          });
-          window.showToast(`Password updated for ${username}!`, "success");
-        } catch (err) {
-          console.error("Password reset error:", err);
-          window.showToast("Failed to reset password: " + err.message, "error");
-        }
-      }
+    window.resetStudentPassword = function(username) {
+      openResetPasskeyModal(username);
     };
 
     window.deleteStudentAccount = async function(username) {
@@ -3723,9 +4482,13 @@
         return `
           <tr class="hover:bg-slate-50/80 transition-colors">
             <td class="p-3.5 font-bold text-slate-900">${fullName}</td>
-            <td class="p-3.5 font-mono text-slate-700 font-semibold">${s.username || 'N/A'}</td>
-            <td class="p-3.5 font-mono text-indigo-700 font-bold">${s.password || '••••••'}</td>
-            <td class="p-3.5 text-slate-700">${s.section || 'General'}</td>
+            <td class="p-3.5 font-mono text-slate-700 font-semibold">@${s.username || 'N/A'}</td>
+            <td class="p-3.5 font-mono text-slate-600">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-mono text-xs font-bold" title="Protected: Plaintext passwords are not accessible">
+                ••••••••
+              </span>
+            </td>
+            <td class="p-3.5 text-slate-700 font-medium">${s.grade ? s.grade + ' - ' : ''}${s.section || 'General'}</td>
             <td class="p-3.5 text-slate-500">${s.schoolId || 'N/A'}</td>
             <td class="p-3.5">
               ${isClaimed 
@@ -3734,11 +4497,11 @@
             </td>
             <td class="p-3.5 text-right">
               <div class="flex items-center justify-end gap-1.5">
-                <button onclick="copyToClipboard('${s.username} / ${s.password}', 'Credentials copied!')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-[11px] font-semibold text-slate-700">
-                  Copy
+                <button onclick="copyToClipboard('${s.username}', 'Student ID @${s.username} copied!')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-[11px] font-semibold text-slate-700" title="Copy Student ID">
+                  Copy ID
                 </button>
-                <button onclick="resetStudentPassword('${s.username}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-[11px] font-semibold text-slate-700" title="Reset Password">
-                  🔑
+                <button onclick="openResetPasskeyModal('${s.username}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-[11px] font-semibold text-slate-700" title="Generate Temporary Reset Passkey">
+                  🔑 Reset
                 </button>
                 <button onclick="deleteStudentAccount('${s.username}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-[11px] font-semibold" title="Delete Credential">
                   🗑️
@@ -3792,6 +4555,8 @@
             schoolId,
             teacherName,
             teacherId: currentAdminUser ? currentAdminUser.uid : "ADMIN",
+            isShared: true,
+            scope: "school_curriculum",
             timestamp: Date.now()
           });
           window.showToast("Subject folder created.", "success");
@@ -3928,37 +4693,13 @@
       container.innerHTML = cardsHtml;
     }
 
-    // Material CRUD (library_materials)
+    // Material CRUD (library_materials) - Disabled for Admins (Teacher Mobile Only)
     window.openCreateMaterialModal = function() {
-      populateSubjectDropdown();
-      document.getElementById('modalMaterialTitle').textContent = "Add PDF Material & Attached Quiz";
-      document.getElementById('materialEditId').value = "";
-      document.getElementById('matTitleInput').value = "";
-      document.getElementById('matDownloadUrl').value = "";
-      document.getElementById('matQuizJson').value = `[
-  {
-    "q": "Sample multiple choice question?",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "ans": 0
-  }
-]`;
-      document.getElementById('modalMaterial').classList.remove('hidden');
+      window.showToast("Curricular PDF uploads are strictly managed by Teachers in the mobile application.", "warning");
     };
 
     window.openEditMaterialModal = function(id) {
-      const m = cachedMaterials.find(item => item.id === id);
-      if (!m) return;
-
-      populateSubjectDropdown();
-      document.getElementById('modalMaterialTitle').textContent = "Edit PDF Material & Quiz Pool";
-      document.getElementById('materialEditId').value = id;
-      document.getElementById('matSubjectSelect').value = m.subjectId || "";
-      document.getElementById('matTitleInput').value = m.title || "";
-      document.getElementById('matDownloadUrl').value = getMaterialPdfUrl(m);
-      
-      const questions = getMaterialQuestions(m);
-      document.getElementById('matQuizJson').value = JSON.stringify(questions, null, 2);
-      document.getElementById('modalMaterial').classList.remove('hidden');
+      window.showToast("Institutional Safeguard: Classroom materials and PDFs are authored exclusively by faculty in the mobile app. Neither School Admins nor Super Admins can edit teacher materials.", "warning");
     };
 
     window.closeMaterialModal = function() {
@@ -3966,82 +4707,13 @@
     };
 
     window.handleMaterialSubmit = async function(e) {
-      e.preventDefault();
-      const editId = document.getElementById('materialEditId').value;
-      const subjectId = document.getElementById('matSubjectSelect').value;
-      const title = document.getElementById('matTitleInput').value.trim();
-      const downloadUrl = document.getElementById('matDownloadUrl').value.trim();
-      const quizJson = document.getElementById('matQuizJson').value.trim();
-
-      // Validate JSON
-      let parsed = [];
-      try {
-        parsed = JSON.parse(quizJson);
-        if (!Array.isArray(parsed)) throw new Error("Quiz questions must be a JSON array.");
-      } catch (err) {
-        alert("Attached Quiz JSON is invalid: " + err.message);
-        return;
-      }
-
-      // Extract drive ID if present
-      let driveId = "";
-      const match = downloadUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || downloadUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (match && match[1]) driveId = match[1];
-
-      const btn = document.getElementById('btnSaveMaterial');
-      btn.disabled = true;
-      btn.textContent = "Saving...";
-
-      try {
-        if (editId) {
-          await updateDoc(doc(db, "library_materials", editId), {
-            title,
-            subjectId,
-            pdfUrl: downloadUrl,
-            downloadUrl: downloadUrl,
-            driveFileId: driveId,
-            quiz_pool_json: quizJson,
-            quiz_json: quizJson,
-            quiz_max_items: parsed.length,
-            updatedAt: Date.now()
-          });
-          window.showToast("Library material and quiz updated.", "success");
-        } else {
-          await addDoc(collection(db, "library_materials"), {
-            title,
-            subjectId,
-            pdfUrl: downloadUrl,
-            downloadUrl: downloadUrl,
-            driveFileId: driveId,
-            quiz_pool_json: quizJson,
-            quiz_json: quizJson,
-            quiz_max_items: parsed.length,
-            teacherName: currentAdminUser ? `${currentAdminUser.firstName} ${currentAdminUser.lastName}` : "Division Admin",
-            createdAt: Date.now(),
-            timestamp: Date.now()
-          });
-          window.showToast("New reading document and quiz attached.", "success");
-        }
-        closeMaterialModal();
-      } catch (err) {
-        console.error("Save material error:", err);
-        window.showToast("Error saving material: " + err.message, "error");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Save Library Material";
-      }
+      e?.preventDefault();
+      window.showToast("Curricular materials cannot be created or modified from the administrative portal.", "warning");
+      closeMaterialModal();
     };
 
     window.deleteMaterial = async function(id, title) {
-      if (confirm(`Remove reading document "${title}" from the library?`)) {
-        try {
-          await deleteDoc(doc(db, "library_materials", id));
-          window.showToast(`Document "${title}" removed.`, "info");
-        } catch (err) {
-          console.error("Delete material error:", err);
-          window.showToast("Failed to remove material: " + err.message, "error");
-        }
-      }
+      window.showToast("Institutional Safeguard: Neither School Admins nor Super Admins have permission to delete faculty learning materials or PDFs.", "warning");
     };
 
     function renderMaterialsTable() {
@@ -4137,12 +4809,9 @@
                 <button onclick="openAdminRemarksModal('material', '${m.id}', '${(m.title || 'Material').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded text-xs font-bold" title="Pedagogical Guidance & Remarks">
                   💬 Remarks
                 </button>
-                <button onclick="openEditMaterialModal('${m.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold" title="Edit Document & Quiz">
-                  ✏️
-                </button>
-                <button onclick="deleteMaterial('${m.id}', '${(m.title || 'Document').replace(/'/g, "\\'")}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold" title="Delete Document">
-                  🗑️
-                </button>
+                <span class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-[11px] font-semibold border border-slate-200 select-none flex items-center gap-1" title="Classroom Faculty Upload: Read-only inspection">
+                  🔒 Read-Only
+                </span>
               </div>
             </td>
           </tr>
@@ -4328,9 +4997,9 @@
                 <button onclick="openAssessmentSubmissionsModal('${a.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1">
                   <span>📋</span> Submissions
                 </button>
-                <button onclick="deleteAssessment('${a.id}', '${safeTitle}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold" title="Delete Assessment">
-                  🗑️
-                </button>
+                <span class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-[11px] font-semibold border border-slate-200 select-none flex items-center gap-1" title="Classroom Faculty Assessment: Read-only inspection">
+                  🔒 Read-Only
+                </span>
               </div>
             </td>
           </tr>
@@ -4339,15 +5008,7 @@
     };
 
     window.deleteAssessment = async function(id, title) {
-      if (confirm(`Are you sure you want to delete the weekly assessment "${title}"? This cannot be undone.`)) {
-        try {
-          await deleteDoc(doc(db, "weekly_assessments", id));
-          window.showToast(`Assessment "${title}" removed.`, "info");
-        } catch (err) {
-          console.error("Delete assessment error:", err);
-          window.showToast("Failed to delete assessment: " + err.message, "error");
-        }
-      }
+      window.showToast("Institutional Safeguard: Weekly assessments are created and managed exclusively by teachers in the mobile app. Neither School Admins nor Super Admins can delete faculty assessments.", "warning");
     };
 
     window.openAssessmentSubmissionsModal = function(assessmentId) {
@@ -4429,6 +5090,44 @@
         const pendingCount = teachersInSchool.filter(t => t.isApproved !== true).length;
         const classesInSchool = cachedClasses.filter(c => String(c.schoolId) === school.id).length;
 
+        // Enrolled and claimed students
+        const claimedInSchool = cachedUsers.filter(u => u.role === 'student' && String(u.schoolId) === school.id);
+        const pendingInSchool = cachedPendingStudents.filter(s => String(s.schoolId) === school.id);
+        const totalLearners = claimedInSchool.length + pendingInSchool.length;
+
+        // Reading Mastery Analytics for this campus
+        const schoolSubs = cachedSubmissions.filter(s => {
+          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
+          return (a && String(a.schoolId) === school.id) || String(s.schoolId) === school.id;
+        });
+
+        let schoolAvg = 0;
+        if (schoolSubs.length > 0) {
+          const sum = schoolSubs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          schoolAvg = Math.round(sum / schoolSubs.length);
+        }
+
+        let sMastery = 0, sProf = 0, sSupp = 0;
+        claimedInSchool.forEach(st => {
+          const stSubs = schoolSubs.filter(s => s.studentId === st.id);
+          if (stSubs.length === 0) sSupp++;
+          else {
+            const avg = Math.round(stSubs.reduce((acc, c) => acc + (c.percentage !== undefined ? c.percentage : (((c.score || 0) * 100) / (c.totalQuestions || 10))), 0) / stSubs.length);
+            if (avg >= 80) sMastery++;
+            else if (avg >= 60) sProf++;
+            else sSupp++;
+          }
+        });
+
+        const totalEvaluated = claimedInSchool.length || 1;
+        const mPct = Math.round((sMastery * 100) / totalEvaluated);
+        const pPct = Math.round((sProf * 100) / totalEvaluated);
+        const sPct = Math.max(0, 100 - mPct - pPct);
+
         // Check if school has an assigned School Admin
         const schoolAdmin = cachedUsers.find(u => u.role === 'school_admin' && String(u.schoolId) === school.id);
         // Check if an unclaimed SDO invite exists
@@ -4476,15 +5175,42 @@
         return `
           <tr class="hover:bg-slate-50/80 transition-colors">
             <td class="p-3.5 font-mono font-bold text-slate-700">${school.id}</td>
-            <td class="p-3.5 font-bold text-slate-900">${school.name}</td>
+            <td class="p-3.5">
+              <div class="font-bold text-slate-900">${school.name}</div>
+              <div class="text-[10px] text-slate-400 font-mono">SDO Valenzuela</div>
+            </td>
             <td class="p-3.5">
               <span class="font-bold text-emerald-700">${approvedCount} Verified</span>
               ${pendingCount > 0 ? `<span class="ml-1.5 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">${pendingCount} Pending</span>` : ''}
+              <div class="text-[11px] text-slate-500 font-medium mt-0.5">${classesInSchool} Section${classesInSchool === 1 ? '' : 's'}</div>
             </td>
-            <td class="p-3.5 font-semibold text-slate-700">${classesInSchool} Sections</td>
-            <td class="p-3.5">${adminColumnHtml}</td>
             <td class="p-3.5">
-              <button onclick="inspectSchool('${school.id}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-sm">
+              <div class="font-bold text-slate-800">${claimedInSchool.length} Claimed</div>
+              <div class="text-[10px] text-slate-400 font-medium">${totalLearners} Total Accounts</div>
+            </td>
+            <td class="p-3.5">
+              ${schoolSubs.length > 0 ? `
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span class="font-bold text-xs ${schoolAvg >= 80 ? 'text-emerald-700' : (schoolAvg >= 60 ? 'text-amber-700' : 'text-rose-700')}">${schoolAvg}%</span>
+                  <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold ${schoolAvg >= 80 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : (schoolAvg >= 60 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-rose-50 text-rose-700 border border-rose-200')}">
+                    ${schoolAvg >= 80 ? '🟢 Mastery' : (schoolAvg >= 60 ? '🟡 Proficient' : '🔴 Support')}
+                  </span>
+                </div>
+                <div class="w-28 bg-slate-100 h-1.5 rounded-full overflow-hidden flex">
+                  <div style="width: ${mPct}%" class="bg-emerald-500 h-full" title="Mastery: ${sMastery}"></div>
+                  <div style="width: ${pPct}%" class="bg-amber-400 h-full" title="Proficient: ${sProf}"></div>
+                  <div style="width: ${sPct}%" class="bg-rose-400 h-full" title="Needs Support: ${sSupp}"></div>
+                </div>
+                <div class="text-[9px] text-slate-400 font-mono mt-0.5">
+                  ${sMastery} High &bull; ${sProf} Mid &bull; ${sSupp} Supp
+                </div>
+              ` : `
+                <span class="text-slate-400 text-[11px] font-medium">No assessment data</span>
+              `}
+            </td>
+            <td class="p-3.5">${adminColumnHtml}</td>
+            <td class="p-3.5 text-right">
+              <button onclick="inspectSchool('${school.id}')" class="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs">
                 Filter Campus
               </button>
             </td>
@@ -4965,6 +5691,491 @@
       document.getElementById('jurisdictionSelect').value = id;
       handleJurisdictionChange(id);
       switchTab('tab-division-dashboard');
+    };
+
+    // =========================================================================
+    // EXPORT UTILITIES (CSV AUTO-GENERATION & DOWNLOAD)
+    // =========================================================================
+    function downloadCSV(filename, rows) {
+      if (!rows || rows.length <= 1) {
+        window.showToast("No data available to export.", "warning");
+        return;
+      }
+      const escapeCell = (cell) => {
+        if (cell === null || cell === undefined) return '""';
+        const str = String(cell).replace(/"/g, '""');
+        return `"${str}"`;
+      };
+      const csvContent = "\uFEFF" + rows.map(r => r.map(escapeCell).join(",")).join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      window.showToast(`Exported ${filename}`, "success");
+    }
+
+    // 1. Division Matrix Export (29 Campuses)
+    window.exportSchoolsMatrixCSV = function() {
+      const rows = [
+        [
+          "DepEd ID",
+          "Secondary School Name",
+          "Division Office",
+          "Verified Faculty",
+          "Pending Faculty",
+          "Active Sections",
+          "Active Claimed Scholars",
+          "Total Student Accounts",
+          "Reading Mastery Avg %",
+          "High Mastery Scholars (80%+)",
+          "Proficient Scholars (60-79%)",
+          "Needs Support Scholars (<60%)",
+          "School Administrator",
+          "Admin Email",
+          "Administration Status"
+        ]
+      ];
+
+      VALENZUELA_SCHOOLS.forEach(school => {
+        const teachersInSchool = cachedTeachers.filter(t => String(t.schoolId) === school.id);
+        const approvedCount = teachersInSchool.filter(t => t.isApproved === true).length;
+        const pendingCount = teachersInSchool.filter(t => t.isApproved !== true).length;
+        const classesInSchool = cachedClasses.filter(c => String(c.schoolId) === school.id).length;
+
+        const claimedInSchool = cachedUsers.filter(u => u.role === 'student' && String(u.schoolId) === school.id);
+        const pendingInSchool = cachedPendingStudents.filter(s => String(s.schoolId) === school.id);
+        const totalLearners = claimedInSchool.length + pendingInSchool.length;
+
+        const schoolSubs = cachedSubmissions.filter(s => {
+          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
+          return (a && String(a.schoolId) === school.id) || String(s.schoolId) === school.id;
+        });
+
+        let schoolAvg = 0;
+        if (schoolSubs.length > 0) {
+          const sum = schoolSubs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          schoolAvg = Math.round(sum / schoolSubs.length);
+        }
+
+        let sMastery = 0, sProf = 0, sSupp = 0;
+        claimedInSchool.forEach(st => {
+          const stSubs = schoolSubs.filter(s => s.studentId === st.id);
+          if (stSubs.length === 0) sSupp++;
+          else {
+            const avg = Math.round(stSubs.reduce((acc, c) => acc + (c.percentage !== undefined ? c.percentage : (((c.score || 0) * 100) / (c.totalQuestions || 10))), 0) / stSubs.length);
+            if (avg >= 80) sMastery++;
+            else if (avg >= 60) sProf++;
+            else sSupp++;
+          }
+        });
+
+        const schoolAdmin = cachedUsers.find(u => u.role === 'school_admin' && String(u.schoolId) === school.id);
+        const pendingInvite = cachedSchoolInvites.find(inv => String(inv.schoolId) === school.id && !inv.claimed);
+
+        let adminName = "Unassigned";
+        let adminEmail = "--";
+        let adminStatus = "Pending Provisioning";
+        if (schoolAdmin) {
+          adminName = `${schoolAdmin.firstName || ''} ${schoolAdmin.lastName || 'Admin'}`.trim();
+          adminEmail = schoolAdmin.email || '';
+          adminStatus = "Active Administrator";
+        } else if (pendingInvite) {
+          adminName = `Invite Code: ${pendingInvite.inviteCode}`;
+          adminStatus = "SDO Invite Issued";
+        }
+
+        rows.push([
+          school.id,
+          school.name,
+          "SDO Valenzuela City",
+          approvedCount,
+          pendingCount,
+          classesInSchool,
+          claimedInSchool.length,
+          totalLearners,
+          `${schoolAvg}%`,
+          sMastery,
+          sProf,
+          sSupp,
+          adminName,
+          adminEmail,
+          adminStatus
+        ]);
+      });
+
+      downloadCSV(`SDO_Valenzuela_29_Schools_Matrix_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    };
+
+    // 2. Grade 7–10 Benchmark Export
+    window.exportGradeMatrixCSV = function() {
+      let students = cachedUsers.filter(u => u.role === 'student');
+      let classes = cachedClasses;
+      let submissions = cachedSubmissions;
+
+      if (selectedJurisdiction !== 'ALL') {
+        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
+        classes = classes.filter(c => String(c.schoolId) === selectedJurisdiction);
+        submissions = submissions.filter(s => {
+          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
+          return (a && String(a.schoolId) === selectedJurisdiction) || String(s.schoolId) === selectedJurisdiction;
+        });
+      }
+
+      const rows = [
+        [
+          "Grade Level",
+          "Campus Jurisdiction",
+          "Enrolled Scholars",
+          "Active Sections",
+          "Reading Comprehension Avg %",
+          "Mastery Tier Count (80%+)",
+          "Proficient Tier Count (60-79%)",
+          "Needs Support Tier Count (<60%)",
+          "Submissions Count",
+          "Benchmark Status"
+        ]
+      ];
+
+      const grades = ["Grade 7", "Grade 8", "Grade 9", "Grade 10"];
+      grades.forEach(gradeName => {
+        const gradeStudents = students.filter(s => (s.grade || '').trim() === gradeName);
+        const gradeClasses = classes.filter(c => (c.grade || '').trim() === gradeName);
+        const gradeSubs = submissions.filter(s => {
+          const st = students.find(item => item.id === s.studentId);
+          return st && (st.grade || '').trim() === gradeName;
+        });
+
+        let gradeAvg = 0;
+        if (gradeSubs.length > 0) {
+          const sum = gradeSubs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          gradeAvg = Math.round(sum / gradeSubs.length);
+        }
+
+        let gMastery = 0, gProf = 0, gSupp = 0;
+        gradeStudents.forEach(st => {
+          const stSubs = gradeSubs.filter(s => s.studentId === st.id);
+          if (stSubs.length === 0) gSupp++;
+          else {
+            const avg = Math.round(stSubs.reduce((acc, c) => acc + (c.percentage !== undefined ? c.percentage : (((c.score || 0) * 100) / (c.totalQuestions || 10))), 0) / stSubs.length);
+            if (avg >= 80) gMastery++;
+            else if (avg >= 60) gProf++;
+            else gSupp++;
+          }
+        });
+
+        let statusText = "No Enrolled Scholars";
+        if (gradeStudents.length > 0) {
+          statusText = gradeAvg >= 80 ? "High Mastery" : (gradeAvg >= 60 ? "Proficient" : "Needs Support");
+        }
+
+        rows.push([
+          gradeName,
+          selectedJurisdiction === 'ALL' ? 'Division-Wide (29 Schools)' : getSchoolName(selectedJurisdiction),
+          gradeStudents.length,
+          gradeClasses.length,
+          `${gradeAvg}%`,
+          gMastery,
+          gProf,
+          gSupp,
+          gradeSubs.length,
+          statusText
+        ]);
+      });
+
+      const scopeName = selectedJurisdiction === 'ALL' ? 'Division' : selectedJurisdiction;
+      downloadCSV(`Grade_Benchmark_Matrix_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    };
+
+    // 3. Academic Support Radar Export (<60% or Inactive)
+    window.exportSupportLearnersCSV = function() {
+      let students = cachedUsers.filter(u => u.role === 'student');
+      let submissions = cachedSubmissions;
+
+      if (selectedJurisdiction !== 'ALL') {
+        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
+        submissions = submissions.filter(s => {
+          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
+          return (a && String(a.schoolId) === selectedJurisdiction) || String(s.schoolId) === selectedJurisdiction;
+        });
+      }
+
+      const rows = [
+        [
+          "Student Full Name",
+          "Username",
+          "Email / ID",
+          "DepEd School ID",
+          "Campus Name",
+          "Grade Level",
+          "Section",
+          "Assessments Completed",
+          "Average Score %",
+          "Reading Streak (Days)",
+          "Academic Support Priority"
+        ]
+      ];
+
+      students.forEach(st => {
+        const stSubs = submissions.filter(s => s.studentId === st.id);
+        let avg = 0;
+        if (stSubs.length > 0) {
+          const sum = stSubs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          avg = Math.round(sum / stSubs.length);
+        }
+
+        const isSupport = stSubs.length === 0 || avg < 60;
+        if (isSupport) {
+          const fullName = `${st.firstName || ''} ${st.lastName || 'Learner'}`.trim() || 'Learner';
+          const priority = stSubs.length === 0 ? "High (Zero Submissions / Inactive)" : (avg < 50 ? "Critical (<50% Comprehension)" : "Moderate (50%-59% Comprehension)");
+
+          rows.push([
+            fullName,
+            st.username ? `@${st.username}` : (st.email || ''),
+            st.email || st.id || '',
+            st.schoolId || '',
+            getSchoolName(st.schoolId),
+            st.grade || 'Unassigned',
+            st.section || 'General',
+            stSubs.length,
+            `${avg}%`,
+            st.current_streak || 0,
+            priority
+          ]);
+        }
+      });
+
+      const scopeName = selectedJurisdiction === 'ALL' ? 'Division' : selectedJurisdiction;
+      downloadCSV(`Academic_Support_Radar_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    };
+
+    // 4. All Enrolled Learners Performance Export
+    window.exportAllLearnersCSV = function() {
+      let students = cachedUsers.filter(u => u.role === 'student');
+      let submissions = cachedSubmissions;
+
+      if (selectedJurisdiction !== 'ALL') {
+        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
+        submissions = submissions.filter(s => {
+          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
+          return (a && String(a.schoolId) === selectedJurisdiction) || String(s.schoolId) === selectedJurisdiction;
+        });
+      }
+
+      const rows = [
+        [
+          "Student Full Name",
+          "Username",
+          "Email / ID",
+          "DepEd School ID",
+          "Campus Name",
+          "Grade Level",
+          "Section",
+          "Gamification Level",
+          "Current XP",
+          "Reading Streak (Days)",
+          "Quests Completed",
+          "Assessments Completed",
+          "Average Score %",
+          "Mastery Tier"
+        ]
+      ];
+
+      students.forEach(st => {
+        const stSubs = submissions.filter(s => s.studentId === st.id);
+        let avg = 0;
+        if (stSubs.length > 0) {
+          const sum = stSubs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          avg = Math.round(sum / stSubs.length);
+        }
+
+        const fullName = `${st.firstName || ''} ${st.lastName || 'Learner'}`.trim() || 'Learner';
+        let tier = "Needs Support (<60%)";
+        if (stSubs.length > 0) {
+          if (avg >= 80) tier = "Mastery (80%+)";
+          else if (avg >= 60) tier = "Proficient (60%-79%)";
+        }
+
+        rows.push([
+          fullName,
+          st.username ? `@${st.username}` : (st.email || ''),
+          st.email || st.id || '',
+          st.schoolId || '',
+          getSchoolName(st.schoolId),
+          st.grade || 'Unassigned',
+          st.section || 'General',
+          st.level || 1,
+          st.current_xp || 0,
+          st.current_streak || 0,
+          Array.isArray(st.quests_completed) ? st.quests_completed.length : 0,
+          stSubs.length,
+          `${avg}%`,
+          tier
+        ]);
+      });
+
+      const scopeName = selectedJurisdiction === 'ALL' ? 'Division' : selectedJurisdiction;
+      downloadCSV(`Learner_Performance_Roster_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    };
+
+    // 5. Credential Vault Export (Login Slips)
+    window.exportCredentialVaultCSV = function() {
+      let pending = cachedPendingStudents;
+      if (selectedJurisdiction !== 'ALL') {
+        pending = pending.filter(s => String(s.schoolId) === selectedJurisdiction);
+      }
+
+      const rows = [
+        [
+          "First Name",
+          "Last Name",
+          "Username",
+          "Temporary Passkey",
+          "Grade Level",
+          "Class Section",
+          "DepEd School ID",
+          "Campus Name",
+          "Onboarding Status",
+          "Generated Date"
+        ]
+      ];
+
+      pending.forEach(s => {
+        const isClaimed = cachedUsers.some(u => u.username === s.username || u.id === s.username);
+        const dateStr = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'Recorded';
+
+        rows.push([
+          s.firstName || '',
+          s.lastName || '',
+          s.username ? `@${s.username}` : '',
+          s.password || '******',
+          s.grade || 'Grade 10',
+          s.section || 'Class Section',
+          s.schoolId || '',
+          getSchoolName(s.schoolId),
+          isClaimed ? 'Claimed by Student' : 'Pending Claim (Unclaimed)',
+          dateStr
+        ]);
+      });
+
+      const scopeName = selectedJurisdiction === 'ALL' ? 'Division' : selectedJurisdiction;
+      downloadCSV(`Student_Credential_Vault_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    };
+
+    // 6. Weekly Assessments Ledger Export
+    window.exportWeeklyAssessmentsCSV = function() {
+      let list = cachedWeeklyAssessments;
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(a => String(a.schoolId) === selectedJurisdiction);
+      }
+
+      const rows = [
+        [
+          "Assessment Title",
+          "Subject",
+          "Target Class Section",
+          "Grade Level",
+          "DepEd School ID",
+          "Campus Name",
+          "Educator Name",
+          "Due Date",
+          "Total Items",
+          "Turned In Submissions",
+          "Class Average %",
+          "Assessment Status"
+        ]
+      ];
+
+      list.forEach(a => {
+        const subs = cachedSubmissions.filter(s => s.assessmentId === a.id);
+        let avg = 0;
+        if (subs.length > 0) {
+          const sum = subs.reduce((acc, curr) => {
+            const s = curr.score || 0;
+            const t = curr.totalQuestions || a.questionCount || 10;
+            return acc + (curr.percentage !== undefined ? curr.percentage : ((s * 100) / t));
+          }, 0);
+          avg = Math.round(sum / subs.length);
+        }
+
+        const isExpired = a.dueDate && a.dueDate < Date.now();
+        const isActive = a.status === 'active' && !isExpired;
+        const dueDateStr = a.dueDate ? new Date(a.dueDate).toLocaleDateString() : 'No Limit';
+
+        rows.push([
+          a.title || 'Weekly Assessment',
+          a.subjectName || a.subject || 'General Subject',
+          a.className || 'Class Section',
+          a.grade || 'All Grades',
+          a.schoolId || '',
+          getSchoolName(a.schoolId),
+          a.teacherName || 'Faculty',
+          dueDateStr,
+          a.questionCount || 10,
+          subs.length,
+          `${avg}%`,
+          isActive ? 'Active' : 'Closed / Expired'
+        ]);
+      });
+
+      const scopeName = selectedJurisdiction === 'ALL' ? 'Division' : selectedJurisdiction;
+      downloadCSV(`Weekly_Assessments_Ledger_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+    };
+
+    // 7. Faculty Accreditation Registry Export
+    window.exportFacultyRegistryCSV = function() {
+      let list = cachedTeachers;
+      if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(t => String(t.schoolId) === selectedJurisdiction);
+      }
+
+      const rows = [
+        [
+          "Faculty Full Name",
+          "Official Email",
+          "DepEd School ID",
+          "Campus Name",
+          "Accreditation Status",
+          "Registration Date"
+        ]
+      ];
+
+      list.forEach(t => {
+        const fullName = `${t.firstName || ''} ${t.lastName || 'Faculty'}`.trim() || 'Educator';
+        const dateStr = t.createdAt ? new Date(t.createdAt).toLocaleDateString() : 'Recorded';
+
+        rows.push([
+          fullName,
+          t.email || '',
+          t.schoolId || '',
+          getSchoolName(t.schoolId),
+          t.isApproved === true ? 'Accredited (Verified)' : 'Pending Campus Accreditation',
+          dateStr
+        ]);
+      });
+
+      const scopeName = selectedJurisdiction === 'ALL' ? 'Division' : selectedJurisdiction;
+      downloadCSV(`Faculty_Registry_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
     };
 
     // =========================================================================
