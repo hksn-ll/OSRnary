@@ -640,6 +640,7 @@ class SubjectDetailActivity : AppCompatActivity() {
 
                             val allStudentCheckboxes = mutableListOf<Pair<String, CheckBox>>() // (studentId, cb)
                             val allSectionCheckboxes = mutableListOf<Pair<CheckBox, List<CheckBox>>>() // (sectionCb, childCbs)
+                            val sectionCleanNamesWithCheckboxes = mutableListOf<Pair<String, CheckBox>>()
 
                             val btnSelectAll = TextView(this).apply {
                                 text = "✓ Select All"
@@ -694,8 +695,10 @@ class SubjectDetailActivity : AppCompatActivity() {
                                     setPadding(0, 10, 0, 10)
                                 }
 
+                                val cleanClassName = className.replace(" (Advisory Section)", "").replace(" (Subject Section)", "").trim()
                                 val sectionCheckbox = CheckBox(this)
-                                sectionCheckbox.isChecked = students.all { selectedStudentIds.contains(it["id"]) }
+                                sectionCheckbox.isChecked = currentlyAssigned.contains(cleanClassName) || (students.isNotEmpty() && students.all { selectedStudentIds.contains(it["id"]) })
+                                sectionCleanNamesWithCheckboxes.add(cleanClassName to sectionCheckbox)
 
                                 val sectionTitle = TextView(this).apply {
                                     text = className
@@ -831,8 +834,19 @@ class SubjectDetailActivity : AppCompatActivity() {
                                 onConfirm = { dialog ->
                                     dialog.dismiss()
                                     uploadProgress.visibility = View.VISIBLE
+                                    val selectedClasses = mutableListOf<String>()
+                                    for ((cleanName, secCb) in sectionCleanNamesWithCheckboxes) {
+                                        if (secCb.isChecked) {
+                                            selectedClasses.add(cleanName)
+                                            val secOnly = cleanName.substringAfter("-").trim()
+                                            if (secOnly.isNotEmpty()) {
+                                                selectedClasses.add(secOnly)
+                                            }
+                                        }
+                                    }
+                                    val finalAssignedList = (selectedStudentIds + selectedClasses).distinct()
                                     db.collection("library_materials").document(materialId)
-                                        .update("assignedSections", selectedStudentIds)
+                                        .update("assignedSections", finalAssignedList)
                                         .addOnSuccessListener {
                                             uploadProgress.visibility = View.GONE
                                             GabAIUtils.showSnackbar(this, "Access updated successfully!")

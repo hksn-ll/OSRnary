@@ -117,8 +117,10 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         btnClose.setOnClickListener { dismiss() }
 
         val tvMasteryPill = view.findViewById<TextView>(R.id.tv_profile_mastery_pill)
+        val tvPhilIriPill = view.findViewById<TextView>(R.id.tv_profile_phil_iri_pill)
         val tvWordsMastered = view.findViewById<TextView>(R.id.tv_stat_words_mastered)
         val tvAccuracy = view.findViewById<TextView>(R.id.tv_stat_accuracy)
+        var cachedPhilIriTier: String? = null
 
         val btnShare = view.findViewById<MaterialButton>(R.id.btn_share_profile)
         btnShare?.setOnClickListener {
@@ -128,6 +130,9 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
                 appendLine("Learner: $studentName")
                 appendLine("Class: $classLabel")
                 appendLine("Reading Mastery: ${tvMasteryPill?.text ?: "In Progress"}")
+                if (!cachedPhilIriTier.isNullOrEmpty()) {
+                    appendLine("Phil-IRI Diagnostic: $cachedPhilIriTier")
+                }
                 appendLine("Quiz Accuracy: ${tvAccuracy?.text ?: "--"}")
                 appendLine("Words Mastered: ${tvWordsMastered?.text ?: "0 Words"}")
                 appendLine("Reading Streak: ${tvStatStreak.text}")
@@ -150,6 +155,22 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             val liveLevel = doc.getLong("level")?.toInt() ?: level
             val streak = (doc.getLong("current_streak") ?: doc.getLong("streak"))?.toInt() ?: 1
             val photoUrl = doc.getString("photoUrl")
+            val philIriTier = doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier")
+            cachedPhilIriTier = philIriTier
+
+            if (!philIriTier.isNullOrEmpty()) {
+                tvPhilIriPill?.visibility = View.VISIBLE
+                tvPhilIriPill?.text = "Phil-IRI: $philIriTier"
+                val (pBg, pTxt) = when (philIriTier.lowercase()) {
+                    "independent" -> Pair("#E0E7FF", "#4338CA")
+                    "instructional" -> Pair("#FEF3C7", "#D97706")
+                    else -> Pair("#FEE2E2", "#DC2626")
+                }
+                tvPhilIriPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor(pBg))
+                tvPhilIriPill?.setTextColor(Color.parseColor(pTxt))
+            } else {
+                tvPhilIriPill?.visibility = View.GONE
+            }
 
             tvStatXp.text = "$liveXp XP"
             tvStatLevel.text = "Lvl $liveLevel"

@@ -34,6 +34,7 @@ class StudentSubjectActivity : AppCompatActivity() {
         val subjectId = intent.getStringExtra("SUBJECT_ID") ?: return finish()
         val subjectName = intent.getStringExtra("SUBJECT_NAME") ?: ""
         val studentSection = intent.getStringExtra("STUDENT_SECTION") ?: ""
+        val studentGrade = intent.getStringExtra("STUDENT_GRADE") ?: ""
 
         findViewById<TextView>(R.id.tv_subject_title).text = subjectName
 
@@ -44,29 +45,34 @@ class StudentSubjectActivity : AppCompatActivity() {
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }
 
-        loadPdfs(subjectId, studentSection)
+        loadPdfs(subjectId, studentSection, studentGrade)
     }
 
-    private fun loadPdfs(subjectId: String, studentSection: String) {
+    private fun loadPdfs(subjectId: String, studentSection: String, studentGrade: String) {
         val container = findViewById<LinearLayout>(R.id.pdf_list_container)
         val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         GabAIUtils.showGlobalLoading(this)
 
-        db.collection("library_materials")
-            .whereEqualTo("subjectId", subjectId)
-            .whereArrayContains("assignedSections", uid)
-            .addSnapshotListener { snapshots, e ->
-                GabAIUtils.hideGlobalLoading(this@StudentSubjectActivity)
+        val executeQuery = { sec: String, grd: String ->
+            val queryKeys = mutableListOf(uid)
+            if (sec.isNotBlank()) queryKeys.add(sec)
+            if (grd.isNotBlank() && sec.isNotBlank()) queryKeys.add("$grd - $sec")
 
-                if (e != null || snapshots == null) return@addSnapshotListener
-                container.removeAllViews()
+            db.collection("library_materials")
+                .whereEqualTo("subjectId", subjectId)
+                .whereArrayContainsAny("assignedSections", queryKeys.distinct())
+                .addSnapshotListener { snapshots, e ->
+                    GabAIUtils.hideGlobalLoading(this@StudentSubjectActivity)
 
-                if (snapshots.isEmpty) {
-                    showEmptyState("No lesson materials have been uploaded for this subject yet.")
-                    return@addSnapshotListener
-                }
+                    if (e != null || snapshots == null) return@addSnapshotListener
+                    container.removeAllViews()
+
+                    if (snapshots.isEmpty) {
+                        showEmptyState("No lesson materials have been uploaded for this subject yet.")
+                        return@addSnapshotListener
+                    }
 
                 val rowViews = mutableListOf<View>()
                 for (doc in snapshots) {
@@ -121,6 +127,19 @@ class StudentSubjectActivity : AppCompatActivity() {
 
                 GabAIUtils.animateCascade(rowViews, 30L)
             }
+        }
+
+        if (studentSection.isBlank()) {
+            db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
+                val sec = userDoc.getString("section")?.trim() ?: ""
+                val grd = (userDoc.getString("grade") ?: userDoc.getString("gradeLevel") ?: "").trim()
+                executeQuery(sec, grd)
+            }.addOnFailureListener {
+                executeQuery("", "")
+            }
+        } else {
+            executeQuery(studentSection, studentGrade)
+        }
     }
 
     private fun showEmptyState(msg: String) {

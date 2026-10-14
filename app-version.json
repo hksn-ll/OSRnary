@@ -1,11 +1,11 @@
 {
-  "versionCode": 33,
-  "versionName": "0.4.19",
-  "minRequiredVersionCode": 33,
+  "versionCode": 34,
+  "versionName": "0.4.20",
+  "minRequiredVersionCode": 34,
   "forceUpdate": true,
-  "title": "AI Document Validation & Reading Mastery Analytics (v0.4.19)",
-  "message": "Enforced AI validation to reject unrelated documents (Math, Science formulas), revamped teacher & admin metrics to modern Reading Mastery standards, and enabled full CSV and mobile roster exports.",
+  "title": "User Workflow & Multi-User Security Hardening (v0.4.20)",
+  "message": "Fixed multi-user session leaks on shared devices, enforced mandatory password updates on launch, enabled late enrollee reading material access, unhidden subject teacher performance analytics, and surfaced Phil-IRI Diagnostic Reading Tiers.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.19/GabAI-v0.4.19.apk",
-  "changelog": "• AI Document Upload Validation: Automatically inspects teacher PDFs and strictly rejects non-reading documents (Math problem sets, Science formulas, lab logs, coding scripts), ensuring only reading comprehension materials and literature are accepted.\n• Reading Mastery Analytics: Overhauled teacher mobile statistics and admin portal dashboards with modern reading fluency metrics.\n• Universal Data Export: Added client-side CSV downloads in the web admin portal and Android Share Sheet exports for student rosters and support radar.\n• Zero Jargon & Clean UI: Enforced modern literacy mastery benchmarks throughout."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.20/GabAI-v0.4.20.apk",
+  "changelog": "• Multi-User & Shared Device Integrity: Scoped Apprentice Quest progress and active quiz states by user UID, ensuring zero cache leakage on shared school devices.\n• Late Enrollee Access: Teacher material assignments now dynamically support late enrollees via section-level matching.\n• Launch Security Gatekeepers: Enforced mandatory temporary password changes and educator authorization checks on cold start.\n• Subject Teacher Performance: Unlocked class performance and learner analytics for subject teachers.\n• Phil-IRI Diagnostic Tiers: Surfaced DepEd Phil-IRI reading diagnostic levels across teacher rosters, CSV exports, and scholar profile slips.\n• Multi-Teacher Classroom Isolation: Scoped student join records to individual educators to prevent subject roster collisions."
 }

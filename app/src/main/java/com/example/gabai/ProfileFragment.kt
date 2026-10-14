@@ -188,8 +188,27 @@ class ProfileFragment : Fragment() {
                 if (currentCtx != null && currentAct != null) {
                     // Stop the bubble service and reset toggle
                     currentCtx.stopService(Intent(currentCtx, FloatingControlService::class.java))
-                    currentCtx.getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
-                        .edit().putBoolean("bubble_enabled", false).apply()
+                    val prefs = currentCtx.getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+                    val editor = prefs.edit()
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid
+                    if (!uid.isNullOrEmpty()) {
+                        editor.remove("cached_completed_quests_$uid")
+                        editor.remove("cached_max_combo_$uid")
+                        editor.remove("cached_quizzes_taken_$uid")
+                        editor.remove("cached_quiz_accuracy_$uid")
+                    }
+                    editor.remove("cached_user_role")
+                        .remove("cached_first_name")
+                        .remove("cached_last_name")
+                        .remove("cached_full_name")
+                        .remove("cached_user_grade")
+                        .remove("cached_user_section")
+                        .remove("cached_user_school")
+                        .remove("cached_user_photo_url")
+                        .remove("cached_user_photo_status")
+                        .remove("cached_completed_quests")
+                        .putBoolean("bubble_enabled", false)
+                        .apply()
 
                     FirebaseAuth.getInstance().signOut()
                     val intent = Intent(currentCtx, AuthActivity::class.java).apply {

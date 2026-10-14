@@ -27,10 +27,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import android.text.InputType
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.gabai.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
@@ -116,28 +122,14 @@ class MainActivity : AppCompatActivity() {
         val cachedRole = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
             .getString("cached_user_role", null)
 
-        if (userRole != null) {
-            loadDashboard(userRole)
-            // Background verification of account status to catch deleted accounts or role shifts
-            FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
-                .get().addOnSuccessListener { doc ->
-                    if (!doc.exists()) {
-                        showAccountDeletedDialog()
-                    }
-                }
-        } else if (cachedRole != null) {
+        val initialDisplayRole = userRole ?: cachedRole
+
+        if (initialDisplayRole != null) {
             // 🟢 ZERO-LATENCY INSTANT LAUNCH (Eliminates placeholder loading flickers)
-            loadDashboard(cachedRole)
+            loadDashboard(initialDisplayRole)
             FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
                 .get().addOnSuccessListener { doc ->
-                    if (!doc.exists()) {
-                        showAccountDeletedDialog()
-                        return@addOnSuccessListener
-                    }
-                    val remoteRole = doc.getString("role") ?: "student"
-                    if (remoteRole != cachedRole) {
-                        loadDashboard(remoteRole)
-                    }
+                    checkAccountStatusAndProceed(doc, currentUser, initialDisplayRole)
                 }
         } else {
             GabAIUtils.showGlobalLoading(this, "Verifying Account...")
@@ -145,14 +137,7 @@ class MainActivity : AppCompatActivity() {
             FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
                 .get().addOnSuccessListener { doc ->
                     GabAIUtils.hideGlobalLoading(this)
-
-                    if (!doc.exists()) {
-                        showAccountDeletedDialog()
-                        return@addOnSuccessListener
-                    }
-
-                    val role = doc.getString("role") ?: "student"
-                    loadDashboard(role)
+                    checkAccountStatusAndProceed(doc, currentUser, null)
                 }.addOnFailureListener {
                     GabAIUtils.hideGlobalLoading(this)
                     GabAIUtils.showSnackbar(this, "Unable to sync with server. Please check your internet connection.")
@@ -261,23 +246,174 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ==========================================
-    // ==========================================
     // 🟢 FORCE LOGOUT DIALOGS 🟢
     // ==========================================
+
+    private fun checkAccountStatusAndProceed(
+        doc: DocumentSnapshot,
+        currentUser: FirebaseUser,
+        currentDisplayRole: String?
+    ): Boolean {
+        if (!doc.exists()) {
+            showAccountDeletedDialog()
+            return false
+        }
+
+        val role = doc.getString("role") ?: "student"
+
+        // 🟢 RESTRICT ADMIN ROLES TO WEB PORTAL
+        if (role == "super_admin" || role == "school_admin" || role == "admin") {
+            showAdminWebOnlyDialog()
+            return false
+        }
+
+        // 🟢 CHECK TEACHER APPROVAL STATUS
+        if (role == "teacher") {
+            val isApproved = doc.getBoolean("isApproved") ?: false
+            if (!isApproved) {
+                showTeacherPendingDialog()
+                return false
+            }
+        }
+
+        // 🟢 FORCE PASSWORD CHANGE FOR STUDENTS IF REQUIRED
+        if (role == "student") {
+            val mustChange = doc.getBoolean("mustChangePassword") ?: false
+            if (mustChange) {
+                showForcePasswordChangeDialog(currentUser, currentUser.uid)
+                return false
+            }
+        }
+
+        // All checks passed! Ensure correct dashboard is loaded
+        if (currentDisplayRole != role) {
+            loadDashboard(role)
+        }
+        return true
+    }
+
     private fun showAdminWebOnlyDialog() {
         GabAIDialogs.showNoticeDialog(
             context = this,
             title = "Web Administrative Portal Only",
-            message = "Super Admin and School Admin accounts must sign in using the GabAI Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students.",
-            buttonText = "Log Out",
-            badgeIcon = "💻",
+            message = "Super Admin and School Admin accounts must access GabAI using the Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students.",
+            buttonText = "Understood",
+            badgeIcon = "🛡️",
             cancelable = false,
             onAction = {
+                getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
                 FirebaseAuth.getInstance().signOut()
                 startActivity(Intent(this, AuthActivity::class.java))
                 finish()
             }
         )
+    }
+
+    private fun showTeacherPendingDialog() {
+        GabAIDialogs.showNoticeDialog(
+            context = this,
+            title = "Account Pending Approval",
+            message = "Your educator account is awaiting verification by the Division/School Administrator.\n\nPlease contact your admin for activation.",
+            buttonText = "Understood",
+            badgeIcon = "⏳",
+            cancelable = false,
+            onAction = {
+                getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
+                FirebaseAuth.getInstance().signOut()
+                startActivity(Intent(this, AuthActivity::class.java))
+                finish()
+            }
+        )
+    }
+
+    private fun showForcePasswordChangeDialog(user: FirebaseUser, uid: String) {
+        val density = resources.displayMetrics.density
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, (8 * density).toInt(), 0, (8 * density).toInt())
+        }
+
+        val etNewPass = EditText(this).apply {
+            hint = "Enter new password (min. 6 chars)"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding((16 * density).toInt(), (14 * density).toInt(), (16 * density).toInt(), (14 * density).toInt())
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#A0AEC0"))
+            textSize = 14f
+        }
+
+        val etConfirmPass = EditText(this).apply {
+            hint = "Confirm new password"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding((16 * density).toInt(), (14 * density).toInt(), (16 * density).toInt(), (14 * density).toInt())
+            setTextColor(Color.parseColor("#2D3436"))
+            setHintTextColor(Color.parseColor("#A0AEC0"))
+            textSize = 14f
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = (12 * density).toInt()
+            }
+            layoutParams = params
+        }
+
+        container.addView(etNewPass)
+        container.addView(etConfirmPass)
+
+        val forceDialog = GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Create New Password",
+            subtitle = "For your account security, you must update your temporary password before accessing GabAI.",
+            customView = container,
+            confirmText = "Update & Continue",
+            cancelText = "Sign Out",
+            badgeIcon = "🔑",
+            onConfirm = { dialog ->
+                val newPass = etNewPass.text.toString().trim()
+                val confirmPass = etConfirmPass.text.toString().trim()
+
+                if (newPass.length < 6) {
+                    GabAIUtils.showSnackbar(this, "Password must be at least 6 characters")
+                    return@showCustomDialog
+                }
+                if (newPass != confirmPass) {
+                    GabAIUtils.showSnackbar(this, "Passwords do not match")
+                    return@showCustomDialog
+                }
+
+                GabAIUtils.showGlobalLoading(this, "Updating Password...")
+                user.updatePassword(newPass).addOnCompleteListener { updateTask ->
+                    if (updateTask.isSuccessful) {
+                        FirebaseFirestore.getInstance().collection("users").document(uid).update(
+                            mapOf(
+                                "mustChangePassword" to false,
+                                "tempPassword" to FieldValue.delete()
+                            )
+                        ).addOnCompleteListener {
+                            GabAIUtils.hideGlobalLoading(this)
+                            dialog.dismiss()
+                            GabAIUtils.showSnackbar(this, "Password updated successfully! Welcome! 🎉")
+                            loadDashboard("student")
+                        }
+                    } else {
+                        GabAIUtils.hideGlobalLoading(this)
+                        GabAIUtils.showSnackbar(this, updateTask.exception?.localizedMessage ?: "Failed to update password")
+                    }
+                }
+            },
+            onCancel = { dialog ->
+                getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
+                FirebaseAuth.getInstance().signOut()
+                dialog.dismiss()
+                startActivity(Intent(this, AuthActivity::class.java))
+                finish()
+            }
+        )
+        forceDialog.setCancelable(false)
+        forceDialog.setCanceledOnTouchOutside(false)
     }
 
     private fun showAccountDeletedDialog() {
@@ -289,6 +425,7 @@ class MainActivity : AppCompatActivity() {
             badgeIcon = "🚫",
             cancelable = false,
             onAction = {
+                getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
                 FirebaseAuth.getInstance().signOut()
                 startActivity(Intent(this, AuthActivity::class.java))
                 finish()

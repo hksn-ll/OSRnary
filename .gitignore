@@ -20,4 +20,5 @@ graphify-out/20*/
 *.log
 *serviceAccount*.json
 *firebase-adminsdk*.json
+graphify-out/.vocab.txt
 

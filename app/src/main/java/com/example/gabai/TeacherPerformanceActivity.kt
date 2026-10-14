@@ -1,8 +1,12 @@
 package com.example.gabai
 
 import android.content.Intent
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
+import android.graphics.pdf.PdfDocument
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -22,6 +26,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TeacherPerformanceActivity : AppCompatActivity() {
 
@@ -45,7 +53,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         var masteryTier: String = "Needs Support",
         var isAtRisk: Boolean = false,
         val photoUrl: String? = null,
-        var totalXp: Int = 0
+        var totalXp: Int = 0,
+        var philIriTier: String? = null
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +86,21 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         val btnExport = findViewById<View>(R.id.btn_export_roster)
         if (btnExport != null) {
             GabAIUtils.addSpringPressEffect(btnExport) {
-                exportRosterToCsv(allCompiledStats, "roster")
+                GabAIDialogs.showSelectionDialog(
+                    context = this,
+                    title = "Export Class Report",
+                    subtitle = "Select format for $className",
+                    items = listOf(
+                        "📄  PDF Report (Printable)",
+                        "📊  CSV Spreadsheet (Excel)"
+                    ),
+                    badgeIcon = "📄"
+                ) { index, _ ->
+                    when (index) {
+                        0 -> exportRosterToPdf(allCompiledStats, isSupportOnly = false)
+                        1 -> exportRosterToCsv(allCompiledStats, "roster")
+                    }
+                }
             }
         }
 
@@ -185,6 +208,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                         else -> "Needs Support"
                     }
                     stats.isAtRisk = (stats.totalQuizzes == 0 || stats.averageScore < 60)
+                    stats.philIriTier = userDoc.getString("phil_iri_tier") ?: userDoc.getString("diagnostic_tier")
 
                     classTotalScore += studentScore
                     classTotalAttempts += studentAttempts
@@ -261,7 +285,21 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     if (btnExportAtRisk != null) {
                         GabAIUtils.addSpringPressEffect(btnExportAtRisk) {
                             val atRiskList = allCompiledStats.filter { it.isAtRisk }
-                            exportRosterToCsv(atRiskList, "support_learners")
+                            GabAIDialogs.showSelectionDialog(
+                                context = this@TeacherPerformanceActivity,
+                                title = "Export Support List",
+                                subtitle = "Learners needing reading assistance (${atRiskList.size})",
+                                items = listOf(
+                                    "📄  PDF Report (Printable)",
+                                    "📊  CSV Spreadsheet (Excel)"
+                                ),
+                                badgeIcon = "⚠️"
+                            ) { index, _ ->
+                                when (index) {
+                                    0 -> exportRosterToPdf(atRiskList, isSupportOnly = true)
+                                    1 -> exportRosterToCsv(atRiskList, "support_learners")
+                                }
+                            }
                         }
                     }
 
@@ -378,6 +416,32 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
                         topRow.addView(nameText)
                         topRow.addView(tierBadge)
+
+                        if (!student.philIriTier.isNullOrEmpty()) {
+                            val philBadge = TextView(this@TeacherPerformanceActivity).apply {
+                                text = "Phil-IRI: ${student.philIriTier}"
+                                textSize = 9.5f
+                                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                                val (pBg, pTxt) = when (student.philIriTier?.lowercase()) {
+                                    "independent" -> Pair("#E0E7FF", "#4338CA")
+                                    "instructional" -> Pair("#FEF3C7", "#D97706")
+                                    else -> Pair("#FEE2E2", "#DC2626")
+                                }
+                                background = android.graphics.drawable.GradientDrawable().apply {
+                                    cornerRadius = resources.displayMetrics.density * 10
+                                    setColor(Color.parseColor(pBg))
+                                }
+                                setTextColor(Color.parseColor(pTxt))
+                                val hp = (resources.displayMetrics.density * 6).toInt()
+                                val vp = (resources.displayMetrics.density * 2).toInt()
+                                setPadding(hp, vp, hp, vp)
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).apply { marginStart = (resources.displayMetrics.density * 6).toInt() }
+                            }
+                            topRow.addView(philBadge)
+                        }
 
                         val statsText = TextView(this@TeacherPerformanceActivity).apply {
                             text = "Lvl ${student.level} • ${student.totalQuizzes} Quizzes • ${student.wordsMastered} Words 📚 • Streak ${student.streak} 🔥"
@@ -544,17 +608,18 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
         try {
             val safeSection = if (sectionName.isNotBlank()) sectionName else className
-            val cleanPrefix = if (filenamePrefix == "support_learners") "Academic_Support_Radar" else "Class_Reading_Mastery"
+            val cleanPrefix = if (filenamePrefix == "support_learners") "Reading_Support_List" else "Class_Reading_Report"
             val fileName = "${cleanPrefix}_${safeSection.replace("\\s+".toRegex(), "_")}.csv"
             val file = File(cacheDir, fileName)
 
             val csvContent = buildString {
                 append("\uFEFF") // UTF-8 BOM for Microsoft Excel compatibility
-                appendLine("Student Name,Mastery Tier,Quiz Accuracy (%),Words Retained,Quizzes Taken,Streak (Days),Level,Total XP")
+                appendLine("Student Name,Status,Phil-IRI Tier,Quiz Accuracy (%),Words Retained,Quizzes Taken,Streak (Days),Level,Total XP")
                 for (s in studentsToExport) {
                     val cleanName = s.name.replace("\"", "\"\"")
                     val cleanTier = s.masteryTier.replace("\"", "\"\"")
-                    appendLine("\"$cleanName\",\"$cleanTier\",${s.averageScore},${s.wordsMastered},${s.totalQuizzes},${s.streak},${s.level},${s.totalXp}")
+                    val cleanPhilIri = (s.philIriTier ?: "N/A").replace("\"", "\"\"")
+                    appendLine("\"$cleanName\",\"$cleanTier\",\"$cleanPhilIri\",${s.averageScore},${s.wordsMastered},${s.totalQuizzes},${s.streak},${s.level},${s.totalXp}")
                 }
             }
 
@@ -568,13 +633,329 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/csv"
-                putExtra(Intent.EXTRA_SUBJECT, "GabAI Class Analytics - $className")
+                putExtra(Intent.EXTRA_SUBJECT, "Class Reading Report - $className")
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            startActivity(Intent.createChooser(intent, "Export Class Performance CSV"))
+            startActivity(Intent.createChooser(intent, "Share or Save CSV"))
         } catch (e: Exception) {
             Toast.makeText(this, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun exportRosterToPdf(studentsToExport: List<StudentStats>, isSupportOnly: Boolean = false) {
+        if (studentsToExport.isEmpty()) {
+            Toast.makeText(this, "No learner data available to export.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            val pdfDoc = PdfDocument()
+            val pageWidth = 595
+            val pageHeight = 842
+            val margin = 36f
+            val usableWidth = pageWidth - (margin * 2)
+
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+            val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.STROKE
+            }
+            val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.FILL
+            }
+
+            var pageNumber = 1
+            var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            var page = pdfDoc.startPage(pageInfo)
+            var canvas = page.canvas
+
+            val dateStr = SimpleDateFormat("MMMM d, yyyy", Locale.US).format(Date())
+
+            // Function to draw header
+            fun drawHeader(c: Canvas, isFirstPage: Boolean) {
+                // Top accent line
+                fillPaint.color = Color.parseColor("#5341CD")
+                c.drawRect(margin, 24f, pageWidth - margin, 27f, fillPaint)
+
+                if (isFirstPage) {
+                    paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    paint.textSize = 9.5f
+                    paint.color = Color.parseColor("#475569")
+                    c.drawText("REPUBLIC OF THE PHILIPPINES • DEPARTMENT OF EDUCATION", margin, 44f, paint)
+
+                    paint.textSize = 8.5f
+                    paint.color = Color.parseColor("#64748B")
+                    c.drawText("Schools Division of Valenzuela City", margin, 56f, paint)
+
+                    paint.textSize = 17f
+                    paint.color = Color.parseColor("#0F172A")
+                    val titleText = if (isSupportOnly) "Reading Support List" else "Class Reading Report"
+                    c.drawText(titleText, margin, 78f, paint)
+
+                    // Metadata Box
+                    val boxTop = 90f
+                    val boxBottom = 148f
+                    fillPaint.color = Color.parseColor("#F8FAFC")
+                    strokePaint.color = Color.parseColor("#E2E8F0")
+                    strokePaint.strokeWidth = 1f
+                    val metaRect = RectF(margin, boxTop, pageWidth - margin, boxBottom)
+                    c.drawRoundRect(metaRect, 8f, 8f, fillPaint)
+                    c.drawRoundRect(metaRect, 8f, 8f, strokePaint)
+
+                    paint.textSize = 9f
+                    paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    paint.color = Color.parseColor("#334155")
+                    c.drawText("Class: $className", margin + 14f, boxTop + 18f, paint)
+                    c.drawText("Section: ${if (sectionName.isNotBlank()) sectionName else "General"}", margin + 14f, boxTop + 33f, paint)
+                    c.drawText("Grade: ${if (grade.isNotBlank()) grade else "Secondary"}", margin + 14f, boxTop + 48f, paint)
+
+                    val midX = margin + (usableWidth / 2f)
+                    c.drawText("School ID: ${if (schoolId.isNotBlank()) schoolId else "Valenzuela"}", midX, boxTop + 18f, paint)
+                    c.drawText("Date: $dateStr", midX, boxTop + 33f, paint)
+                    c.drawText("Total Learners: ${studentsToExport.size}", midX, boxTop + 48f, paint)
+
+                    // Summary KPI Cards
+                    val kpiTop = 158f
+                    val kpiHeight = 42f
+                    val kpiGap = 8f
+                    val kpiWidth = (usableWidth - (kpiGap * 2)) / 3f
+
+                    val avgScoreVal = if (studentsToExport.isNotEmpty()) {
+                        studentsToExport.map { it.averageScore }.average().toInt()
+                    } else 0
+                    val avgStreakVal = if (studentsToExport.isNotEmpty()) {
+                        studentsToExport.map { it.streak }.average().toInt()
+                    } else 0
+                    val supportCount = studentsToExport.count { it.averageScore < 60 || it.isAtRisk }
+                    val highCount = studentsToExport.count { it.averageScore >= 85 }
+                    val midCount = (studentsToExport.size - highCount - supportCount).coerceAtLeast(0)
+
+                    // KPI 1: Class Average
+                    val kpi1Rect = RectF(margin, kpiTop, margin + kpiWidth, kpiTop + kpiHeight)
+                    fillPaint.color = Color.parseColor("#F0FDF4")
+                    strokePaint.color = Color.parseColor("#BBF7D0")
+                    c.drawRoundRect(kpi1Rect, 6f, 6f, fillPaint)
+                    c.drawRoundRect(kpi1Rect, 6f, 6f, strokePaint)
+
+                    paint.textSize = 13f
+                    paint.color = Color.parseColor("#15803D")
+                    c.drawText("$avgScoreVal%", margin + 10f, kpiTop + 22f, paint)
+                    paint.textSize = 8f
+                    paint.color = Color.parseColor("#166534")
+                    c.drawText("Average Score", margin + 10f, kpiTop + 34f, paint)
+
+                    // KPI 2: Average Streak
+                    val kpi2X = margin + kpiWidth + kpiGap
+                    val kpi2Rect = RectF(kpi2X, kpiTop, kpi2X + kpiWidth, kpiTop + kpiHeight)
+                    fillPaint.color = Color.parseColor("#FFFBEB")
+                    strokePaint.color = Color.parseColor("#FDE68A")
+                    c.drawRoundRect(kpi2Rect, 6f, 6f, fillPaint)
+                    c.drawRoundRect(kpi2Rect, 6f, 6f, strokePaint)
+
+                    paint.textSize = 13f
+                    paint.color = Color.parseColor("#B45309")
+                    c.drawText("$avgStreakVal Days", kpi2X + 10f, kpiTop + 22f, paint)
+                    paint.textSize = 8f
+                    paint.color = Color.parseColor("#92400E")
+                    c.drawText("Average Streak", kpi2X + 10f, kpiTop + 34f, paint)
+
+                    // KPI 3: Breakdown
+                    val kpi3X = kpi2X + kpiWidth + kpiGap
+                    val kpi3Rect = RectF(kpi3X, kpiTop, kpi3X + kpiWidth, kpiTop + kpiHeight)
+                    fillPaint.color = Color.parseColor("#F8FAFC")
+                    strokePaint.color = Color.parseColor("#E2E8F0")
+                    c.drawRoundRect(kpi3Rect, 6f, 6f, fillPaint)
+                    c.drawRoundRect(kpi3Rect, 6f, 6f, strokePaint)
+
+                    paint.textSize = 10.5f
+                    paint.color = Color.parseColor("#1E293B")
+                    c.drawText("$highCount High • $midCount Mid • $supportCount Support", kpi3X + 8f, kpiTop + 21f, paint)
+                    paint.textSize = 8f
+                    paint.color = Color.parseColor("#64748B")
+                    c.drawText("Mastery Breakdown", kpi3X + 8f, kpiTop + 34f, paint)
+                } else {
+                    paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    paint.textSize = 10f
+                    paint.color = Color.parseColor("#475569")
+                    c.drawText("$className — Reading Report (Page $pageNumber)", margin, 44f, paint)
+                }
+            }
+
+            // Function to draw Table Header
+            fun drawTableHeader(c: Canvas, topY: Float) {
+                fillPaint.color = Color.parseColor("#EEF2FF")
+                strokePaint.color = Color.parseColor("#C7D2FE")
+                val headerRect = RectF(margin, topY, pageWidth - margin, topY + 20f)
+                c.drawRoundRect(headerRect, 4f, 4f, fillPaint)
+                c.drawRoundRect(headerRect, 4f, 4f, strokePaint)
+
+                paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                paint.textSize = 8f
+                paint.color = Color.parseColor("#3730A3")
+
+                c.drawText("#", margin + 6f, topY + 14f, paint)
+                c.drawText("Learner Name", margin + 28f, topY + 14f, paint)
+                c.drawText("Status", margin + 220f, topY + 14f, paint)
+                c.drawText("Score", margin + 310f, topY + 14f, paint)
+                c.drawText("Words", margin + 365f, topY + 14f, paint)
+                c.drawText("Quizzes", margin + 420f, topY + 14f, paint)
+                c.drawText("Streak", margin + 475f, topY + 14f, paint)
+            }
+
+            // Draw first page header
+            drawHeader(canvas, true)
+            var currentY = 212f
+            drawTableHeader(canvas, currentY)
+            currentY += 24f
+
+            val rowHeight = 17f
+            val maxRowsY = pageHeight - 110f // room for signatures or footer
+
+            studentsToExport.forEachIndexed { index, s ->
+                if (currentY + rowHeight > maxRowsY) {
+                    // Draw page footer before closing
+                    paint.textSize = 7.5f
+                    paint.color = Color.parseColor("#94A3B8")
+                    paint.typeface = Typeface.DEFAULT
+                    canvas.drawText("GabAI Reading Assistant • Official DepEd Classroom Record", margin, pageHeight - 20f, paint)
+                    canvas.drawText("Page $pageNumber", pageWidth - margin - 35f, pageHeight - 20f, paint)
+
+                    pdfDoc.finishPage(page)
+                    pageNumber++
+                    pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                    page = pdfDoc.startPage(pageInfo)
+                    canvas = page.canvas
+
+                    drawHeader(canvas, false)
+                    currentY = 56f
+                    drawTableHeader(canvas, currentY)
+                    currentY += 24f
+                }
+
+                // Row background (zebra striping)
+                if (index % 2 == 1) {
+                    fillPaint.color = Color.parseColor("#F8FAFC")
+                    canvas.drawRect(margin, currentY, pageWidth - margin, currentY + rowHeight, fillPaint)
+                }
+
+                // Row bottom border
+                strokePaint.color = Color.parseColor("#F1F5F9")
+                strokePaint.strokeWidth = 0.8f
+                canvas.drawLine(margin, currentY + rowHeight, pageWidth - margin, currentY + rowHeight, strokePaint)
+
+                // Text
+                paint.textSize = 8f
+                paint.typeface = Typeface.DEFAULT
+                paint.color = Color.parseColor("#475569")
+                canvas.drawText("${index + 1}", margin + 6f, currentY + 12f, paint)
+
+                paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                paint.color = Color.parseColor("#0F172A")
+                val cleanName = if (s.name.length > 28) s.name.substring(0, 26) + "…" else s.name
+                canvas.drawText(cleanName, margin + 28f, currentY + 12f, paint)
+
+                // Status label
+                val (tierColor, tierText) = when {
+                    s.averageScore >= 85 -> Pair("#059669", "Mastery")
+                    s.averageScore >= 60 -> Pair("#D97706", "Proficient")
+                    else -> Pair("#E11D48", "Needs Support")
+                }
+                paint.color = Color.parseColor(tierColor)
+                paint.textSize = 7.5f
+                paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                canvas.drawText(tierText, margin + 220f, currentY + 12f, paint)
+
+                paint.color = Color.parseColor("#334155")
+                paint.typeface = Typeface.DEFAULT
+                canvas.drawText("${s.averageScore}%", margin + 310f, currentY + 12f, paint)
+                canvas.drawText("${s.wordsMastered}", margin + 365f, currentY + 12f, paint)
+                canvas.drawText("${s.totalQuizzes}", margin + 420f, currentY + 12f, paint)
+                canvas.drawText("${s.streak}d", margin + 475f, currentY + 12f, paint)
+
+                currentY += rowHeight
+            }
+
+            // Signatory Block (Check if enough room, else create last page)
+            if (currentY + 70f > pageHeight - 35f) {
+                paint.textSize = 7.5f
+                paint.color = Color.parseColor("#94A3B8")
+                paint.typeface = Typeface.DEFAULT
+                canvas.drawText("GabAI Reading Assistant • Official DepEd Classroom Record", margin, pageHeight - 20f, paint)
+                canvas.drawText("Page $pageNumber", pageWidth - margin - 35f, pageHeight - 20f, paint)
+
+                pdfDoc.finishPage(page)
+                pageNumber++
+                pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                page = pdfDoc.startPage(pageInfo)
+                canvas = page.canvas
+                drawHeader(canvas, false)
+                currentY = 65f
+            } else {
+                currentY += 20f
+            }
+
+            // Draw signatures
+            val sigLineY = currentY + 26f
+            strokePaint.color = Color.parseColor("#94A3B8")
+            strokePaint.strokeWidth = 1f
+
+            // Left: Prepared by Teacher
+            canvas.drawLine(margin + 16f, sigLineY, margin + 180f, sigLineY, strokePaint)
+            paint.textSize = 8f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            paint.color = Color.parseColor("#334155")
+            canvas.drawText("Prepared by:", margin + 16f, sigLineY - 6f, paint)
+            paint.typeface = Typeface.DEFAULT
+            paint.color = Color.parseColor("#64748B")
+            canvas.drawText("Subject Teacher / Class Adviser", margin + 16f, sigLineY + 12f, paint)
+
+            // Right: Noted by Principal
+            val rightSigX = pageWidth - margin - 180f
+            canvas.drawLine(rightSigX, sigLineY, pageWidth - margin - 16f, sigLineY, strokePaint)
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            paint.color = Color.parseColor("#334155")
+            canvas.drawText("Noted by:", rightSigX, sigLineY - 6f, paint)
+            paint.typeface = Typeface.DEFAULT
+            paint.color = Color.parseColor("#64748B")
+            canvas.drawText("School Head / Principal", rightSigX, sigLineY + 12f, paint)
+
+            // Final page footer
+            paint.textSize = 7.5f
+            paint.color = Color.parseColor("#94A3B8")
+            paint.typeface = Typeface.DEFAULT
+            canvas.drawText("GabAI Reading Assistant • Official DepEd Classroom Record", margin, pageHeight - 20f, paint)
+            canvas.drawText("Page $pageNumber", pageWidth - margin - 35f, pageHeight - 20f, paint)
+
+            pdfDoc.finishPage(page)
+
+            // Save PDF to cache
+            val safeSection = if (sectionName.isNotBlank()) sectionName else className
+            val cleanPrefix = if (isSupportOnly) "Reading_Support_Report" else "Class_Reading_Report"
+            val fileName = "${cleanPrefix}_${safeSection.replace("\\s+".toRegex(), "_")}.pdf"
+            val file = File(cacheDir, fileName)
+
+            val outputStream = FileOutputStream(file)
+            pdfDoc.writeTo(outputStream)
+            outputStream.flush()
+            outputStream.close()
+            pdfDoc.close()
+
+            // Share / Print via Android Intent
+            val uri = FileProvider.getUriForFile(
+                this,
+                "${packageName}.fileprovider",
+                file
+            )
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_SUBJECT, "Class Reading Report - $className")
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, "Share or Print PDF Report"))
+        } catch (e: Exception) {
+            Toast.makeText(this, "PDF export failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }

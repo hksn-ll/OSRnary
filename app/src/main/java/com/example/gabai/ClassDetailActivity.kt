@@ -115,22 +115,22 @@ class ClassDetailActivity : AppCompatActivity() {
             btnGenerate?.visibility = View.GONE
             bottomActionContainer?.visibility = View.GONE
             btnManageInitiation?.visibility = View.GONE
-            btnViewPerformance?.visibility = View.GONE
             tvLabelUnclaimed?.visibility = View.GONE
         } else {
             btnManageInitiation?.let { view ->
                 GabAIUtils.addSpringPressEffect(view) { openInitiationSettings() }
             }
-            btnViewPerformance?.let { view ->
-                GabAIUtils.addSpringPressEffect(view) {
-                    val perfIntent = android.content.Intent(this, TeacherPerformanceActivity::class.java)
-                    perfIntent.putExtra("CLASS_ID", classId)
-                    perfIntent.putExtra("CLASS_NAME", className)
-                    perfIntent.putExtra("SECTION_NAME", sectionName)
-                    perfIntent.putExtra("SCHOOL_ID", schoolId)
-                    perfIntent.putExtra("GRADE", grade)
-                    startActivity(perfIntent)
-                }
+        }
+
+        btnViewPerformance?.let { view ->
+            GabAIUtils.addSpringPressEffect(view) {
+                val perfIntent = android.content.Intent(this, TeacherPerformanceActivity::class.java)
+                perfIntent.putExtra("CLASS_ID", classId)
+                perfIntent.putExtra("CLASS_NAME", className)
+                perfIntent.putExtra("SECTION_NAME", sectionName)
+                perfIntent.putExtra("SCHOOL_ID", schoolId)
+                perfIntent.putExtra("GRADE", grade)
+                startActivity(perfIntent)
             }
         }
 
@@ -197,6 +197,8 @@ class ClassDetailActivity : AppCompatActivity() {
         // 1. Fetch the class document to get the joinedStudents list
         db.collection("classes").document(classId).get().addOnSuccessListener { classDoc ->
             val joinedStudents = classDoc.get("joinedStudents") as? List<String> ?: listOf()
+            @Suppress("UNCHECKED_CAST")
+            val subjectEnrollments = classDoc.get("subjectEnrollments") as? Map<String, List<String>>
 
             // ==========================================
             // PATH A: ADVISER VIEW (FULL PRIVILEGE)
@@ -370,6 +372,9 @@ class ClassDetailActivity : AppCompatActivity() {
                 pendingContainer.visibility = View.GONE
                 pendingItemViews.clear()
 
+                val currentTeacherUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                val teacherJoined = subjectEnrollments?.get(currentTeacherUid)
+
                 db.collection("users")
                     .whereEqualTo("role", "student")
                     .whereEqualTo("schoolId", schoolId)
@@ -380,8 +385,14 @@ class ClassDetailActivity : AppCompatActivity() {
                         activeContainer.removeAllViews()
                         activeItemViews.clear()
 
-                        // GATEKEEPER: Only allow students in the joinedStudents array
-                        val activeDocs = snapshots.documents.filter { joinedStudents.contains(it.id) }
+                        // GATEKEEPER: Scoped to students enrolled with this teacher, falling back to joinedStudents if legacy
+                        val activeDocs = snapshots.documents.filter { doc ->
+                            if (teacherJoined != null) {
+                                teacherJoined.contains(doc.id)
+                            } else {
+                                joinedStudents.contains(doc.id)
+                            }
+                        }
 
                         if (activeDocs.isEmpty()) {
                             activeHeaderView = null

@@ -757,7 +757,7 @@
                 android:layout_height="38dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="Export CSV"
+                android:text="Export"
                 android:textColor="#5341CD"
                 android:textSize="12sp"
                 android:textStyle="bold"

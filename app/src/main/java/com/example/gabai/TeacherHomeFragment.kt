@@ -229,7 +229,8 @@ class TeacherHomeFragment : Fragment() {
 
                 if (snapshots.size() == 1) {
                     val doc = snapshots.documents[0]
-                    launchPerformanceForClass(doc.id, doc.getString("className") ?: "", doc.getString("sectionName") ?: "", doc.getString("schoolId") ?: "", doc.getString("grade") ?: "")
+                    val section = doc.getString("section") ?: doc.getString("sectionName") ?: ""
+                    launchPerformanceForClass(doc.id, doc.getString("className") ?: "", section, doc.getString("schoolId") ?: "", doc.getString("grade") ?: "")
                 } else {
                     val classNames = snapshots.documents.map {
                         val cName = it.getString("className") ?: "Class"
@@ -245,7 +246,8 @@ class TeacherHomeFragment : Fragment() {
                         badgeIcon = "📊",
                         onSelected = { which, _ ->
                             val doc = snapshots.documents[which]
-                            launchPerformanceForClass(doc.id, doc.getString("className") ?: "", doc.getString("sectionName") ?: "", doc.getString("schoolId") ?: "", doc.getString("grade") ?: "")
+                            val section = doc.getString("section") ?: doc.getString("sectionName") ?: ""
+                            launchPerformanceForClass(doc.id, doc.getString("className") ?: "", section, doc.getString("schoolId") ?: "", doc.getString("grade") ?: "")
                         }
                     )
                 }

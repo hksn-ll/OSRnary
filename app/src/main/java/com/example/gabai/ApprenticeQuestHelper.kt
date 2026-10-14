@@ -96,7 +96,8 @@ object ApprenticeQuestHelper {
         }
 
         val prefs = activity.getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
-        val cachedCompleted = prefs.getStringSet("cached_completed_quests", emptySet())?.toMutableSet() ?: mutableSetOf()
+        val cacheKey = "cached_completed_quests_$uid"
+        val cachedCompleted = prefs.getStringSet(cacheKey, emptySet())?.toMutableSet() ?: mutableSetOf()
         val isAlreadyDone = if (normalizedKey == QUEST_TEST) {
             cachedCompleted.contains(QUEST_TEST) || cachedCompleted.contains("read")
         } else {
@@ -134,7 +135,7 @@ object ApprenticeQuestHelper {
 
                 if (remoteAlreadyDone) {
                     cachedCompleted.addAll(remoteCompleted)
-                    prefs.edit().putStringSet("cached_completed_quests", cachedCompleted).apply()
+                    prefs.edit().putStringSet(cacheKey, cachedCompleted).apply()
                     onDismiss?.invoke()
                     return@addOnSuccessListener
                 }
@@ -147,7 +148,7 @@ object ApprenticeQuestHelper {
 
                 remoteCompleted.addAll(keysToAdd)
                 cachedCompleted.addAll(keysToAdd)
-                prefs.edit().putStringSet("cached_completed_quests", cachedCompleted).apply()
+                prefs.edit().putStringSet(cacheKey, cachedCompleted).apply()
 
                 val keysArray = keysToAdd.toTypedArray()
                 userRef.update("quests_completed", FieldValue.arrayUnion(*keysArray))

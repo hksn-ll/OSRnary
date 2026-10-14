@@ -31,7 +31,7 @@ class MaterialQuizActivity : AppCompatActivity() {
     private var materialId = ""
 
     private val prefName: String
-        get() = "material_quiz_session_${materialId}"
+        get() = "material_quiz_session_${materialId}_${auth.currentUser?.uid ?: ""}"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

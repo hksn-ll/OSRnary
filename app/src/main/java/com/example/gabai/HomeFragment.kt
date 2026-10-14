@@ -493,23 +493,32 @@ class HomeFragment : Fragment() {
                                 val classDocId = classDoc.id
                                 val joinedList = classDoc.get("joinedStudents") as? List<*> ?: emptyList<Any>()
                                 val teacherIds = classDoc.get("teacherIds") as? List<*> ?: emptyList<Any>()
+                                @Suppress("UNCHECKED_CAST")
+                                val subjectEnrollments = classDoc.get("subjectEnrollments") as? Map<String, List<*>>
+                                val teacherStudentList = subjectEnrollments?.get(teacherId) ?: emptyList<Any>()
 
-                                val alreadyStudentJoined = joinedList.contains(uid)
-                                val alreadyTeacherLinked = teacherIds.contains(teacherId)
+                                val alreadyStudentJoined = teacherStudentList.contains(uid) || (joinedList.contains(uid) && teacherIds.contains(teacherId) && subjectEnrollments == null)
 
-                                if (alreadyStudentJoined && alreadyTeacherLinked) {
+                                if (alreadyStudentJoined) {
                                     GabAIUtils.showSnackbar(requireContext(), "You are already enrolled in $teacherName's class for $fullClassName!")
                                     return@addOnSuccessListener
                                 }
 
                                 val updates = hashMapOf<String, Any>(
                                     "teacherIds" to com.google.firebase.firestore.FieldValue.arrayUnion(teacherId),
-                                    "joinedStudents" to com.google.firebase.firestore.FieldValue.arrayUnion(uid)
+                                    "joinedStudents" to com.google.firebase.firestore.FieldValue.arrayUnion(uid),
+                                    "subjectEnrollments.$teacherId" to com.google.firebase.firestore.FieldValue.arrayUnion(uid)
                                 )
 
                                 db.collection("classes").document(classDocId)
                                     .update(updates)
                                     .addOnSuccessListener {
+                                        db.collection("users").document(uid).update(
+                                            mapOf(
+                                                "enrolledTeacherIds" to com.google.firebase.firestore.FieldValue.arrayUnion(teacherId),
+                                                "enrolledClasses" to com.google.firebase.firestore.FieldValue.arrayUnion(classDocId)
+                                            )
+                                        )
                                         GabAIUtils.showSnackbar(requireContext(), "Successfully joined $teacherName's class for $fullClassName! 🎉")
                                     }
                                     .addOnFailureListener { e ->

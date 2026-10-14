@@ -117,6 +117,25 @@
                     android:backgroundTint="#d1fae5"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"/>
+                <TextView
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#4338ca"
+                    android:id="@+id/tv_profile_phil_iri_pill"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:paddingLeft="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="8dp"
+                    android:paddingBottom="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phil-IRI: Independent"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:layout_marginStart="6dp"
+                    android:backgroundTint="#e0e7ff"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

@@ -49,11 +49,18 @@ class LibraryActivity : AppCompatActivity() {
         GabAIUtils.showGlobalLoading(this)
 
         db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
-            val studentSection = userDoc.getString("section") ?: ""
+            val studentSection = userDoc.getString("section")?.trim() ?: ""
+            val studentGrade = (userDoc.getString("grade") ?: userDoc.getString("gradeLevel") ?: "").trim()
+            val fullClassName = if (studentGrade.isNotEmpty() && studentSection.isNotEmpty()) "$studentGrade - $studentSection" else ""
 
-            // 1. Find all materials assigned to this student's section
+            val queryKeys = mutableListOf<String>()
+            if (uid.isNotEmpty()) queryKeys.add(uid)
+            if (studentSection.isNotEmpty()) queryKeys.add(studentSection)
+            if (fullClassName.isNotEmpty()) queryKeys.add(fullClassName)
+
+            // 1. Find all materials assigned to this student or their section
             db.collection("library_materials")
-                .whereArrayContains("assignedSections", uid)
+                .whereArrayContainsAny("assignedSections", queryKeys.distinct())
                 .get()
                 .addOnSuccessListener { materials ->
                     container.removeAllViews()
@@ -90,7 +97,7 @@ class LibraryActivity : AppCompatActivity() {
                             for (subject in subjects) {
                                 val subjectName = subject.getString("name") ?: "Unnamed Subject"
                                 val teacherName = subject.getString("teacherName") ?: "Teacher"
-                                val v = addFolderView(subject.id, subjectName, teacherName, studentSection)
+                                val v = addFolderView(subject.id, subjectName, teacherName, studentSection, studentGrade)
                                 views.add(v)
                             }
                             GabAIUtils.hideGlobalLoading(this@LibraryActivity)
@@ -142,7 +149,7 @@ class LibraryActivity : AppCompatActivity() {
         return row
     }
 
-    private fun addFolderView(subjectId: String, subjectName: String, teacherName: String, studentSection: String): View {
+    private fun addFolderView(subjectId: String, subjectName: String, teacherName: String, studentSection: String, studentGrade: String = ""): View {
         val container = findViewById<LinearLayout>(R.id.library_list_container)
         val itemView = layoutInflater.inflate(R.layout.item_folder, container, false)
 
@@ -159,6 +166,7 @@ class LibraryActivity : AppCompatActivity() {
                 putExtra("SUBJECT_ID", subjectId)
                 putExtra("SUBJECT_NAME", subjectName)
                 putExtra("STUDENT_SECTION", studentSection)
+                putExtra("STUDENT_GRADE", studentGrade)
             }
             startActivity(intent)
         }
