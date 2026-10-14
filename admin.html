@@ -1326,7 +1326,7 @@
         <div id="tourTargetJurisdiction" class="hidden md:flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
           <span class="text-slate-400 font-medium">Jurisdiction:</span>
           <select id="jurisdictionSelect" onchange="handleJurisdictionChange(this.value)" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs">
-            <option value="ALL">All Secondary Schools (29 Campuses)</option>
+            <option value="ALL">All Secondary Schools (28 Campuses)</option>
           </select>
         </div>
 
@@ -1406,7 +1406,7 @@
                   <span>🏛️</span> Executive Overview
                 </button>
                 <button onclick="switchTab('tab-school-matrix')" id="btn-tab-school-matrix" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
-                  <span>🏢</span> 29-School Campus Roster
+                  <span>🏢</span> 28-School Campus Roster
                 </button>
               </nav>
             </div>
@@ -1466,7 +1466,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
           <div>
             <h2 id="currentTabTitle" class="text-xl sm:text-2xl font-bold text-slate-900 font-display">Division Executive Overview</h2>
-            <p id="currentTabSubtitle" class="text-xs text-slate-500">Live indicators across all 29 secondary institutions in the Schools Division of Valenzuela City.</p>
+            <p id="currentTabSubtitle" class="text-xs text-slate-500">Live indicators across all 28 secondary institutions in the Schools Division of Valenzuela City.</p>
           </div>
           <div class="flex items-center gap-3">
             <div class="relative">
@@ -1696,12 +1696,12 @@
                 <span>🏛️</span> SDO Valenzuela Jurisdiction
               </h3>
               <p class="text-xs text-slate-500">
-                Institutional literacy governance across all 29 secondary public high schools in Valenzuela City.
+                Institutional literacy governance across all 28 secondary public high schools in Valenzuela City.
               </p>
               <div class="space-y-2 pt-2 text-xs">
                 <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
                   <span class="text-slate-600">Total Secondary Schools</span>
-                  <span class="font-bold text-slate-900">29 Campuses</span>
+                  <span class="font-bold text-slate-900">28 Campuses</span>
                 </div>
                 <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
                   <span class="text-slate-600">Target Grade Levels</span>
@@ -1897,12 +1897,12 @@
           </div>
         </div>
 
-        <!-- VIEW 6: 29-SCHOOL CAMPUS ROSTER -->
+        <!-- VIEW 6: 28-SCHOOL CAMPUS ROSTER -->
         <div id="tab-school-matrix" class="tab-content hidden space-y-4">
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 class="font-bold text-sm text-slate-800">Valenzuela City Secondary Schools Matrix</h3>
-              <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all 29 secondary high schools.</p>
+              <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all 28 secondary high schools.</p>
             </div>
             <div class="flex items-center gap-2">
               <button onclick="exportSchoolsMatrixCSV()" class="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
@@ -2151,11 +2151,10 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Valenzuela 29 Secondary Schools
+    // Valenzuela 28 Secondary Schools
     const VALENZUELA_SCHOOLS = [
       { name: "Caruhatan National High School", id: "305445" },
       { name: "Sitero Francisco Memorial National High School", id: "305446" },
-      { name: "Punturin Senior High School", id: "305565" },
       { name: "Justice Eliezer R. De Los Santos High School", id: "305566" },
       { name: "Lingunan National High School", id: "305567" },
       { name: "Paso De Blas National High School", id: "305568" },
@@ -2807,7 +2806,7 @@
         if (roleBanner) roleBanner.className = "p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-3 bg-purple-50/80 border-purple-200 text-purple-950";
         if (roleBannerIcon) roleBannerIcon.textContent = "🏛️";
         if (roleBannerTitle) roleBannerTitle.textContent = "Division Oversight (Schools Division Office - SDO)";
-        if (roleBannerDesc) roleBannerDesc.textContent = "Viewing faculty across all 29 secondary schools. Teacher accreditation is granted directly by the designated campus School Administrator. SDO maintains read-only audit and registry oversight.";
+        if (roleBannerDesc) roleBannerDesc.textContent = "Viewing faculty across all 28 secondary schools. Teacher accreditation is granted directly by the designated campus School Administrator. SDO maintains read-only audit and registry oversight.";
         if (roleBannerTag) {
           roleBannerTag.textContent = "Division Audit";
           roleBannerTag.className = "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white border border-purple-200 text-purple-700 shadow-xs shrink-0";
@@ -3067,7 +3066,7 @@
       ];
 
       const mainSelect = dropdowns[0];
-      mainSelect.innerHTML = `<option value="ALL">All Secondary Schools (29 Campuses)</option>`;
+      mainSelect.innerHTML = `<option value="ALL">All Secondary Schools (28 Campuses)</option>`;
       VALENZUELA_SCHOOLS.forEach(school => {
         const opt = document.createElement('option');
         opt.value = school.id;
@@ -5080,7 +5079,7 @@
     };
 
     // =========================================================================
-    // 6. 29-SCHOOL MATRIX
+    // 6. 28-SCHOOL MATRIX
     // =========================================================================
     function renderSchoolsMatrix() {
       const tbody = document.getElementById('schoolsTableBody');
@@ -5721,7 +5720,7 @@
       window.showToast(`Exported ${filename}`, "success");
     }
 
-    // 1. Division Matrix Export (29 Campuses)
+    // 1. Division Matrix Export (28 Campuses)
     window.exportSchoolsMatrixCSV = function() {
       const rows = [
         [
@@ -5885,7 +5884,7 @@
 
         rows.push([
           gradeName,
-          selectedJurisdiction === 'ALL' ? 'Division-Wide (29 Schools)' : getSchoolName(selectedJurisdiction),
+          selectedJurisdiction === 'ALL' ? 'Division-Wide (28 Schools)' : getSchoolName(selectedJurisdiction),
           gradeStudents.length,
           gradeClasses.length,
           `${gradeAvg}%`,
@@ -6210,14 +6209,14 @@
       const titles = {
         'tab-division-dashboard': isSchoolAdmin 
           ? ['Campus Overview', `Live indicators for ${getSchoolName(currentAdminUser?.schoolId)}.`]
-          : ['Division Executive Overview', 'Live indicators across all 29 secondary institutions in Valenzuela City.'],
+          : ['Division Executive Overview', 'Live indicators across all 28 secondary institutions in Valenzuela City.'],
         'tab-faculty-verification': isSchoolAdmin
           ? ['Campus Faculty Accreditation', 'Review and grant accreditation to teachers registered for your campus.']
-          : ['Division Faculty Registry & Audit', 'Directory of educators across 29 high schools. Accreditation managed by campus school administrators.'],
+          : ['Division Faculty Registry & Audit', 'Directory of educators across 28 high schools. Accreditation managed by campus school administrators.'],
         'tab-classroom-sections': ['Classroom Sections & Join Codes', 'Inspect class rosters, master codes, and initiation assessments (ClassDetailActivity.kt).'],
         'tab-learner-performance': ['Learner Academic Performance', 'Real quiz history, average scores, and streaks (TeacherPerformanceActivity.kt).'],
         'tab-batch-credentials': ['Student Credential Vault', 'Manage batch-generated student accounts (pending_students) & onboarding states.'],
-        'tab-school-matrix': ['Valenzuela City School Matrix', 'Overview of all 29 secondary schools with DepEd IDs.'],
+        'tab-school-matrix': ['Valenzuela City School Matrix', 'Overview of all 28 secondary schools with DepEd IDs.'],
         'tab-library-management': ['Library Subjects & PDF Materials', 'PDF documents (pdfUrl) and interactive multiple-choice question pools (quiz_pool_json).'],
         'tab-weekly-assessments': ['Weekly Student Assessments', 'Manage, inspect, and evaluate classroom weekly diagnostic reading assessments across the division.']
       };
@@ -6245,15 +6244,15 @@
         targetId: 'tourTargetJurisdiction',
         title: 'Division Scope & Jurisdiction',
         icon: '🏛️',
-        description: 'You have division-wide administrative oversight across all 29 secondary institutions in Valenzuela City. Use this Jurisdiction dropdown at any time to focus the entire portal on a single school campus.',
+        description: 'You have division-wide administrative oversight across all 28 secondary institutions in Valenzuela City. Use this Jurisdiction dropdown at any time to focus the entire portal on a single school campus.',
         tip: 'Filtering by a specific campus instantly scopes faculty, sections, and learner diagnostics to that school.'
       },
       {
         tabId: 'tab-school-matrix',
         targetId: 'tourTargetSchoolMatrix',
-        title: '29-School Campus Matrix & SDO Invites',
+        title: '28-School Campus Matrix & SDO Invites',
         icon: '🏢',
-        description: 'This master matrix rosters all 29 public secondary high schools with their official DepEd IDs. As Super Admin, click "➕ Issue Invite" to generate confidential invite codes for School Principals and IT Coordinators.',
+        description: 'This master matrix rosters all 28 public secondary high schools with their official DepEd IDs. As Super Admin, click "➕ Issue Invite" to generate confidential invite codes for School Principals and IT Coordinators.',
         tip: 'Each SDO code (e.g. SDO-305445-XXXX) is single-use and irreversibly binds the claiming administrator to their campus.'
       },
       {
@@ -6378,7 +6377,7 @@
               <span>Schools Division Office (SDO) Super Admin</span>
             </div>
             <ul class="list-disc list-inside space-y-1 text-slate-600 mt-1">
-              <li><strong>Division Oversight:</strong> View-only monitoring across all 29 public secondary schools in Valenzuela City.</li>
+              <li><strong>Division Oversight:</strong> View-only monitoring across all 28 public secondary schools in Valenzuela City.</li>
               <li><strong>SDO School Manager:</strong> Generate and issue confidential invite codes (<code>SDO-XXXX-YYYY</code>) for School Principals and direct-provision campus administrators.</li>
               <li><strong>Faculty Oversight:</strong> Audit accreditation status across campuses (teacher approvals are performed exclusively by campus school administrators).</li>
               <li><strong>Curriculum & Intervention Guidance:</strong> Monitor weekly diagnostic assessments and submit administrative remarks to educators.</li>

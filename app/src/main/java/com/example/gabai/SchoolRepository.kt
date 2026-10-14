@@ -33,7 +33,6 @@ object SchoolRepository {
     val defaultSchools = listOf(
         School("305445", "Caruhatan National High School", "Valenzuela City"),
         School("305446", "Sitero Francisco Memorial National High School", "Valenzuela City"),
-        School("305565", "Punturin Senior High School", "Valenzuela City"),
         School("305566", "Justice Eliezer R. De Los Santos High School", "Valenzuela City"),
         School("305567", "Lingunan National High School", "Valenzuela City"),
         School("305568", "Paso De Blas National High School", "Valenzuela City"),

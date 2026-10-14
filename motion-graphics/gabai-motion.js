@@ -1099,12 +1099,47 @@
     const P = { x: 760, y: 290, w: 400, h: 700 };
     const sx = P.x + 14, sy = P.y + 14, sw = P.w - 28;
     const wb = wordBox(sx, sy);
-    const start = { x: sx + sw - 44, y: sy + 300 }, ctrl = { x: sx + sw - 30, y: sy + 470 }, end = { x: wb.cx, y: wb.cy };
-    const mv = E.inOutCubic(prog(t, 1.6, 1.0));
-    let bp = mv > 0 ? quadPt(start, ctrl, end, mv) : { x: start.x, y: start.y + Math.sin(t * 3) * 6 };
-    const tapP = prog(t, 2.6, 0.45);
-    const edge = E.outCubic(tapP);
-    bp = { x: bp.x + edge * 44, y: bp.y - edge * 44 };
+    const dockX = sx + sw - 42, dockY = sy + 320;
+    const enterStartX = sx + sw + 45;
+
+    // 1. Entrance: slide in smoothly from phone right edge instead of popping statically in place
+    const entP = prog(t, 0.7, 0.7);
+    const curDockX = lerp(enterStartX, dockX, clamp(E.outBack(entP), 0, 1.06));
+
+    // 2. Idle breathing before glide: continuous blend with zero teleport snap
+    const pTakeoff = prog(t, 1.85, 0.25);
+    const idleWeight = prog(t, 1.3, 0.3) * (1 - pTakeoff * pTakeoff);
+    const idleY = Math.sin((t - 1.3) * 3.5) * 4.5 * idleWeight;
+
+    // 3. Graceful glide arc curving inward toward target word (safe margin from right bezel)
+    const moveP = prog(t, 1.85, 0.75);
+    const mv = E.inOutCubic(moveP);
+    const p0 = { x: curDockX, y: dockY };
+    const ctrl = { x: sx + sw - 70, y: sy + 440 };
+    const target = { x: wb.cx, y: wb.cy };
+    const arcPt = quadPt(p0, ctrl, target, mv);
+    let bx = arcPt.x, by = arcPt.y + idleY;
+
+    // 4. Tactile tap & scan on target word
+    const tapP = prog(t, 2.6, 0.4);
+
+    // 5. Post-scan retreat: float smoothly along curve back to dock, keeping text & reticle unobstructed
+    const retP = prog(t, 3.0, 0.8);
+    if (retP > 0) {
+      const retE = E.inOutCubic(retP);
+      const retPt = quadPt(target, { x: 1090, y: 680 }, { x: dockX, y: dockY }, retE);
+      bx = retPt.x;
+      by = retPt.y;
+      const postIdle = Math.sin((t - 3.8) * 3.0) * 4.0 * prog(t, 3.8, 0.3);
+      by += postIdle;
+    }
+
+    // Scale calculation: spring pop on entrance + tactile bounce when tapping word
+    let bScale = lerp(0.6, 1.0, clamp(E.outBack(clamp(entP * 1.25)), 0, 1.15));
+    if (tapP > 0 && tapP < 1.0) {
+      bScale *= (1.0 - 0.14 * Math.sin(tapP * Math.PI));
+    }
+    const bAlpha = clamp(prog(t, 0.7, 0.25));
 
     const pp = E.spring(prog(t, 0.3, 1.1));
     at(P.x + P.w / 2, P.y + P.h / 2, lerp(0.9, 1, pp), prog(t, 0.3, 0.3), () => {
@@ -1147,8 +1182,7 @@
           ctx.restore();
         }
 
-        const ba = E.spring(prog(t, 0.8, 0.8));
-        at(bp.x, bp.y, ba, prog(t, 0.8, 0.2), () => drawBubble(bp.x, bp.y, 34));
+        at(bx, by, bScale, bAlpha, () => drawBubble(bx, by, 34));
       });
     });
 
