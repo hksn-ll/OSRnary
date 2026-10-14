@@ -26,7 +26,7 @@
             android:layout_height="44dp"
             android:background="@drawable/bg_avatar_squircle_border"
             android:clipToOutline="true"
-            android:layout_marginEnd="14dp">
+            android:layout_marginEnd="12dp">
 
             <TextView
                 android:id="@+id/tv_student_avatar_monogram"
@@ -54,26 +54,76 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_student_name"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="Juan Cruz"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#0F172A" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tv_student_details"
+                <TextView
+                    android:id="@+id/tv_student_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Juan Cruz"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#0F172A" />
+
+                <TextView
+                    android:id="@+id/tv_student_status_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="1.5dp"
+                    android:text="Unclaimed"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#B45309"
+                    android:background="@drawable/bg_pill_amber_subtle"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="User: juancruz_102 | Pass: ••••••"
-                android:textSize="12sp"
-                android:textColor="#64748B"
-                android:layout_marginTop="3dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="3dp">
+
+                <TextView
+                    android:id="@+id/tv_student_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="User: juancruz_102 | Pass: gab5634"
+                    android:textSize="12sp"
+                    android:textColor="#64748B" />
+
+                <ImageButton
+                    android:id="@+id/btn_toggle_pass"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_visibility_off"
+                    app:tint="#64748B"
+                    android:visibility="gone"
+                    android:contentDescription="Toggle Password Visibility" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Actions -->
+        <ImageButton
+            android:id="@+id/btn_copy_student"
+            android:contentDescription="Copy Credentials"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_copy"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#5341CD"
+            android:layout_marginEnd="2dp"
+            android:visibility="gone" />
+
         <ImageButton
             android:id="@+id/btn_edit_student"
             android:contentDescription="@string/cd_edit"
@@ -82,7 +132,7 @@
             android:src="@drawable/ic_edit"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:tint="#5341CD"
-            android:layout_marginEnd="4dp" />
+            android:layout_marginEnd="2dp" />
 
         <ImageButton
             android:id="@+id/btn_delete_student"

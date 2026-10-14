@@ -284,6 +284,7 @@
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="#EF4444"
+                    android:visibility="gone"
                     android:layout_marginBottom="10dp" />
 
                 <LinearLayout

@@ -1,9 +1,9 @@
 # Graph Report - OSRnary  (2026-10-15)
 
 ## Corpus Check
-- 72 files · ~198,439 words
+- 72 files · ~198,738 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 295 file(s) not represented in the graph (top: .xml 266, .ttf 7, (none) 5)
+- Unclassified: 299 file(s) not represented in the graph (top: .xml 270, .ttf 7, (none) 5)
 
 ## Summary
 - 1464 nodes · 4017 edges · 70 communities (25 shown, 45 thin omitted)
@@ -209,7 +209,7 @@ Nodes (4): 1. Always Use Graphify (Token Efficiency & Navigation), 2. Engineerin
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `QuizActivity` connect `QuizActivity` to `3. The 6 Critical Loopholes: Status & Resolution`, `OverviewActivity.kt`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `FloatingControlService` (e.g. with `Executive Summary: You Are Not Failing, The System Is Massive` and `Loophole 4: Unwanted Floating Bubble on Quiz Exit`) actually correct?**
   _`FloatingControlService` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `WORD`, `PHRASE`, `SENTENCE` to the rest of the system?**
@@ -217,7 +217,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `MainActivity.kt` be split into smaller, more focused modules?**
   _Cohesion score 0.09047619047619047 - nodes in this community are weakly interconnected._
 - **Why does `GabAIUtils` connect `GabAIUtils` to `TextSpanType`, `.applyHardwareMaxRefreshRate`, `ScanResultActivity`, `OverviewActivity`, `QuizActivity`, `.showSnackbar`, `.addSpringPressEffect`, `ProfileFragment`, `.loadBadges`, `OverviewActivity.kt`, `.showGlobalLoading`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Should `CameraActivity.kt` be split into smaller, more focused modules?**
   _Cohesion score 0.0531986531986532 - nodes in this community are weakly interconnected._
 - **Why does `MainActivity` connect `MainActivity.kt` to `OverviewActivity`, `QuizActivity`, `.showSnackbar`, `.showGlobalLoading`?**

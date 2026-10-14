@@ -1,11 +1,11 @@
 {
-  "versionCode": 34,
-  "versionName": "0.4.20",
-  "minRequiredVersionCode": 34,
+  "versionCode": 35,
+  "versionName": "0.4.21",
+  "minRequiredVersionCode": 35,
   "forceUpdate": true,
-  "title": "User Workflow & Multi-User Security Hardening (v0.4.20)",
-  "message": "Fixed multi-user session leaks on shared devices, enforced mandatory password updates on launch, enabled late enrollee reading material access, unhidden subject teacher performance analytics, and surfaced Phil-IRI Diagnostic Reading Tiers.",
+  "title": "Student Account Activation & Unclaimed Roster Ergonomics (v0.4.21)",
+  "message": "Overhauled teacher roster management with clear passwords, show/hide eye toggle, 1-tap copy, and native Android roster sharing. Resolved student account activation spinner lockup and normalized login handles.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.20/GabAI-v0.4.20.apk",
-  "changelog": "• Multi-User & Shared Device Integrity: Scoped Apprentice Quest progress and active quiz states by user UID, ensuring zero cache leakage on shared school devices.\n• Late Enrollee Access: Teacher material assignments now dynamically support late enrollees via section-level matching.\n• Launch Security Gatekeepers: Enforced mandatory temporary password changes and educator authorization checks on cold start.\n• Subject Teacher Performance: Unlocked class performance and learner analytics for subject teachers.\n• Phil-IRI Diagnostic Tiers: Surfaced DepEd Phil-IRI reading diagnostic levels across teacher rosters, CSV exports, and scholar profile slips.\n• Multi-Teacher Classroom Isolation: Scoped student join records to individual educators to prevent subject roster collisions."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.21/GabAI-v0.4.21.apk",
+  "changelog": "• Unclaimed Accounts Ergonomics: Unmasked clear passwords by default with an interactive eye toggle to mask/unmask on demand.\n• 1-Tap Credential Copy & Native Sharing: Added a 1-tap copy button for individual credentials and a native Android Share Sheet button to dispatch the entire section roster to messaging apps.\n• Student Claiming Stability: Fixed an issue where claiming an account could get stuck on the loading spinner by adding resilient error handling and null UID fallbacks.\n• Login Normalization: Automatically strip leading @ symbols and normalize case on student login to ensure seamless credential matching.\n• Teacher Registration UI: Streamlined the teacher sign-up email hint to 'Email Address' for improved clarity."
 }

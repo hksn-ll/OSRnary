@@ -178,7 +178,7 @@ class ClassDetailActivity : AppCompatActivity() {
             if (matches) visiblePending++
         }
         pendingHeaderView?.visibility = if (studentSearchQuery.isEmpty() || visiblePending > 0) View.VISIBLE else View.GONE
-        findViewById<View>(R.id.tv_label_unclaimed)?.visibility = if (isAdviser && (studentSearchQuery.isEmpty() || visiblePending > 0)) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.tv_label_unclaimed)?.visibility = View.GONE
 
         var visibleActive = 0
         for ((view, name) in activeItemViews) {
@@ -232,9 +232,36 @@ class ClassDetailActivity : AppCompatActivity() {
                             val headerTitle = TextView(this).apply {
                                 text = "Unclaimed Accounts (${snapshots.size()})"
                                 setTypeface(null, android.graphics.Typeface.BOLD)
-                                setTextColor(Color.DKGRAY)
+                                setTextColor(Color.parseColor("#B45309"))
+                                textSize = 14f
                                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                             }
+
+                            val btnShareAll = com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
+                                text = "Share 📤"
+                                textSize = 12f
+                                isAllCaps = false
+                                setOnClickListener {
+                                    val rosterBuilder = StringBuilder()
+                                    rosterBuilder.append("Section: $sectionName ($grade)\n")
+                                    rosterBuilder.append("Unclaimed Student Accounts (${snapshots.size()}):\n\n")
+                                    for (d in snapshots) {
+                                        val fn = "${d.getString("firstName") ?: ""} ${d.getString("lastName") ?: ""}".trim()
+                                        val u = d.getString("username") ?: ""
+                                        val p = d.getString("password") ?: ""
+                                        rosterBuilder.append("• $fn\n  Username: @$u\n  Password: $p\n\n")
+                                    }
+                                    val sendIntent = android.content.Intent().apply {
+                                        action = android.content.Intent.ACTION_SEND
+                                        putExtra(android.content.Intent.EXTRA_TEXT, rosterBuilder.toString().trim())
+                                        putExtra(android.content.Intent.EXTRA_SUBJECT, "$sectionName Unclaimed Student Accounts")
+                                        type = "text/plain"
+                                    }
+                                    startActivity(android.content.Intent.createChooser(sendIntent, "Share Student Credentials"))
+                                    GabAIUtils.performHaptic(this, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                                }
+                            }
+
                             val btnCopyAll = com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
                                 text = "Copy All 📋"
                                 textSize = 12f
@@ -242,12 +269,12 @@ class ClassDetailActivity : AppCompatActivity() {
                                 setOnClickListener {
                                     val rosterBuilder = StringBuilder()
                                     rosterBuilder.append("Section: $sectionName ($grade)\n")
-                                    rosterBuilder.append("Unclaimed Student Accounts:\n\n")
+                                    rosterBuilder.append("Unclaimed Student Accounts (${snapshots.size()}):\n\n")
                                     for (d in snapshots) {
                                         val fn = "${d.getString("firstName") ?: ""} ${d.getString("lastName") ?: ""}".trim()
                                         val u = d.getString("username") ?: ""
                                         val p = d.getString("password") ?: ""
-                                        rosterBuilder.append("• $fn\n  Username: $u\n  Password: $p\n\n")
+                                        rosterBuilder.append("• $fn\n  Username: @$u\n  Password: $p\n\n")
                                     }
                                     val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                                     val clip = android.content.ClipData.newPlainText("Class Roster Credentials", rosterBuilder.toString().trim())
@@ -256,7 +283,9 @@ class ClassDetailActivity : AppCompatActivity() {
                                     GabAIUtils.showSnackbar(this@ClassDetailActivity, "Copied all credentials to clipboard! 📋")
                                 }
                             }
+
                             headerLayout.addView(headerTitle)
+                            headerLayout.addView(btnShareAll)
                             headerLayout.addView(btnCopyAll)
                             pendingHeaderView = headerLayout
                             pendingContainer.addView(headerLayout)
@@ -273,16 +302,41 @@ class ClassDetailActivity : AppCompatActivity() {
                                 val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
                                 val initial = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
                                 tvMonogram?.text = initial
+
+                                val tvStatusBadge = view.findViewById<TextView>(R.id.tv_student_status_badge)
+                                tvStatusBadge?.visibility = View.VISIBLE
+                                tvStatusBadge?.text = "Unclaimed"
+
                                 val detailsView = view.findViewById<TextView>(R.id.tv_student_details)
-                                val maskedPass = "•".repeat(password.length.coerceIn(6, 10))
-                                detailsView.text = "User: $username | Pass: $maskedPass  📋 Tap to copy"
-                                detailsView.setOnClickListener {
-                                    val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                    val clip = android.content.ClipData.newPlainText("Student Credentials", "Username: $username\nPassword: $password")
-                                    clipboard.setPrimaryClip(clip)
+                                val btnTogglePass = view.findViewById<ImageButton>(R.id.btn_toggle_pass)
+                                val btnCopyStudent = view.findViewById<ImageButton>(R.id.btn_copy_student)
+
+                                var isPassVisible = true
+                                fun updatePassDisplay() {
+                                    val passText = if (isPassVisible) password else "•".repeat(password.length.coerceIn(6, 10))
+                                    detailsView.text = "User: @$username | Pass: $passText"
+                                    btnTogglePass?.setImageResource(if (isPassVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility)
+                                }
+                                updatePassDisplay()
+
+                                btnTogglePass?.visibility = View.VISIBLE
+                                btnTogglePass?.setOnClickListener {
+                                    isPassVisible = !isPassVisible
+                                    updatePassDisplay()
                                     GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                                }
+
+                                val copyCredentials = {
+                                    val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                    val clip = android.content.ClipData.newPlainText("Student Credentials", "Username: @$username\nPassword: $password")
+                                    clipboard.setPrimaryClip(clip)
+                                    GabAIUtils.performHaptic(view, android.view.HapticFeedbackConstants.CLOCK_TICK)
                                     GabAIUtils.showSnackbar(this, "Copied credentials for $fullName! 📋")
                                 }
+
+                                btnCopyStudent?.visibility = View.VISIBLE
+                                btnCopyStudent?.setOnClickListener { copyCredentials() }
+                                detailsView.setOnClickListener { copyCredentials() }
 
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password) }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }

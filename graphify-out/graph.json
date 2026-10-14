@@ -9257,7 +9257,7 @@
       "file_type": "code",
       "norm_label": ".checkactivestudentfallback()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L478"
+      "source_location": "L525"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_checktemppasswordreset",
@@ -9269,7 +9269,7 @@
       "file_type": "code",
       "norm_label": ".checktemppasswordreset()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L532"
+      "source_location": "L579"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_completestudentaccountclaim",
@@ -9281,7 +9281,7 @@
       "file_type": "code",
       "norm_label": ".completestudentaccountclaim()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L399"
+      "source_location": "L410"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_navigatetomain",
@@ -9293,7 +9293,7 @@
       "file_type": "code",
       "norm_label": ".navigatetomain()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L905"
+      "source_location": "L952"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_oncreate",
@@ -9329,7 +9329,7 @@
       "file_type": "code",
       "norm_label": ".performregistration()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L669"
+      "source_location": "L716"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_selectrole",
@@ -9353,7 +9353,7 @@
       "file_type": "code",
       "norm_label": ".sendpasswordreset()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L878"
+      "source_location": "L925"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_setupautofill",
@@ -9413,7 +9413,7 @@
       "file_type": "code",
       "norm_label": ".showerrordialog()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L891"
+      "source_location": "L938"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_showforcepasswordchangedialog",
@@ -9425,7 +9425,7 @@
       "file_type": "code",
       "norm_label": ".showforcepasswordchangedialog()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L789"
+      "source_location": "L836"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_showforgotpassworddialog",
@@ -9437,7 +9437,7 @@
       "file_type": "code",
       "norm_label": ".showforgotpassworddialog()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L764"
+      "source_location": "L811"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_showlogin",
@@ -9473,7 +9473,7 @@
       "file_type": "code",
       "norm_label": ".toggleloading()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L916"
+      "source_location": "L963"
     },
     {
       "id": "app_src_main_java_com_example_gabai_gabaiaccessibilityservice_gabaiaccessibilityservice_capturescreen",
@@ -9953,7 +9953,7 @@
       "file_type": "code",
       "norm_label": ".confirmdelete()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L652"
+      "source_location": "L706"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_createphotomoderationcard",
@@ -9965,7 +9965,7 @@
       "file_type": "code",
       "norm_label": ".createphotomoderationcard()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1319"
+      "source_location": "L1373"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_extracttextfromuri",
@@ -9977,7 +9977,7 @@
       "file_type": "code",
       "norm_label": ".extracttextfromuri()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1031"
+      "source_location": "L1085"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_generatestudentaccounts",
@@ -9989,7 +9989,7 @@
       "file_type": "code",
       "norm_label": ".generatestudentaccounts()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L479"
+      "source_location": "L533"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_getfilenamefromuri",
@@ -10001,7 +10001,7 @@
       "file_type": "code",
       "norm_label": ".getfilenamefromuri()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1045"
+      "source_location": "L1099"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_handleassessmentpdfselected",
@@ -10013,7 +10013,7 @@
       "file_type": "code",
       "norm_label": ".handleassessmentpdfselected()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L922"
+      "source_location": "L976"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_loadstudents",
@@ -10037,7 +10037,7 @@
       "file_type": "code",
       "norm_label": ".loadweeklyassessments()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1056"
+      "source_location": "L1110"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_oncreate",
@@ -10061,7 +10061,7 @@
       "file_type": "code",
       "norm_label": ".openinitiationsettings()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L676"
+      "source_location": "L730"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_openstudentprofile",
@@ -10073,7 +10073,7 @@
       "file_type": "code",
       "norm_label": ".openstudentprofile()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1302"
+      "source_location": "L1356"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_promptforinitiationpdftitle",
@@ -10085,7 +10085,7 @@
       "file_type": "code",
       "norm_label": ".promptforinitiationpdftitle()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L773"
+      "source_location": "L827"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_promptuploadassessmentpdf",
@@ -10097,7 +10097,7 @@
       "file_type": "code",
       "norm_label": ".promptuploadassessmentpdf()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L908"
+      "source_location": "L962"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_resetstudenttemporarypassword",
@@ -10109,7 +10109,7 @@
       "file_type": "code",
       "norm_label": ".resetstudenttemporarypassword()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L619"
+      "source_location": "L673"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_setupstudentsearch",
@@ -10133,7 +10133,7 @@
       "file_type": "code",
       "norm_label": ".showaddteacherremarkdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1271"
+      "source_location": "L1325"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showcreateassessmentdialog",
@@ -10145,7 +10145,7 @@
       "file_type": "code",
       "norm_label": ".showcreateassessmentdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L887"
+      "source_location": "L941"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showeditstudentdialog",
@@ -10157,7 +10157,7 @@
       "file_type": "code",
       "norm_label": ".showeditstudentdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L538"
+      "source_location": "L592"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showgeneratestudentsdialog",
@@ -10169,7 +10169,7 @@
       "file_type": "code",
       "norm_label": ".showgeneratestudentsdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L460"
+      "source_location": "L514"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showinitiationdialogui",
@@ -10181,7 +10181,7 @@
       "file_type": "code",
       "norm_label": ".showinitiationdialogui()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L695"
+      "source_location": "L749"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_showsubmissionsreviewdialog",
@@ -10193,7 +10193,7 @@
       "file_type": "code",
       "norm_label": ".showsubmissionsreviewdialog()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1158"
+      "source_location": "L1212"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_uploadinitiationpdftodrive",
@@ -10205,7 +10205,7 @@
       "file_type": "code",
       "norm_label": ".uploadinitiationpdftodrive()",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L796"
+      "source_location": "L850"
     },
     {
       "id": "app_src_main_java_com_example_gabai_studentprofilebottomsheet_studentprofilebottomsheet_newinstance",
@@ -17744,7 +17744,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L503",
+      "source_location": "L550",
       "weight": 1.0
     },
     {
@@ -17756,7 +17756,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L504",
+      "source_location": "L551",
       "weight": 1.0
     },
     {
@@ -17768,7 +17768,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L505",
+      "source_location": "L552",
       "weight": 1.0
     },
     {
@@ -17780,7 +17780,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L513",
+      "source_location": "L560",
       "weight": 1.0
     },
     {
@@ -17792,7 +17792,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L521",
+      "source_location": "L568",
       "weight": 1.0
     },
     {
@@ -17804,7 +17804,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L522",
+      "source_location": "L569",
       "weight": 1.0
     },
     {
@@ -17816,7 +17816,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L646",
+      "source_location": "L693",
       "weight": 1.0
     },
     {
@@ -17828,7 +17828,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L649",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -17840,7 +17840,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L650",
+      "source_location": "L697",
       "weight": 1.0
     },
     {
@@ -17852,7 +17852,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L658",
+      "source_location": "L705",
       "weight": 1.0
     },
     {
@@ -17864,7 +17864,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L659",
+      "source_location": "L706",
       "weight": 1.0
     },
     {
@@ -17876,31 +17876,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L412",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_completestudentaccountclaim",
-      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showforcepasswordchangedialog",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L415",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_completestudentaccountclaim",
-      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_navigatetomain",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L416",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
@@ -17912,7 +17888,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L463",
+      "source_location": "L422",
       "weight": 1.0
     },
     {
@@ -17924,7 +17900,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L464",
+      "source_location": "L423",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_completestudentaccountclaim",
+      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showforcepasswordchangedialog",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L433",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_completestudentaccountclaim",
+      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_navigatetomain",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L434",
       "weight": 1.0
     },
     {
@@ -18056,7 +18056,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L353",
+      "source_location": "L354",
       "weight": 1.0
     },
     {
@@ -18068,7 +18068,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L384",
+      "source_location": "L395",
       "weight": 1.0
     },
     {
@@ -18080,7 +18080,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L387",
+      "source_location": "L398",
       "weight": 1.0
     },
     {
@@ -18092,7 +18092,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L691",
+      "source_location": "L738",
       "weight": 1.0
     },
     {
@@ -18104,7 +18104,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L708",
+      "source_location": "L755",
       "weight": 1.0
     },
     {
@@ -18116,7 +18116,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L748",
+      "source_location": "L795",
       "weight": 1.0
     },
     {
@@ -18128,7 +18128,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L759",
+      "source_location": "L806",
       "weight": 1.0
     },
     {
@@ -18140,7 +18140,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L879",
+      "source_location": "L926",
       "weight": 1.0
     },
     {
@@ -18152,7 +18152,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L883",
+      "source_location": "L930",
       "weight": 1.0
     },
     {
@@ -18164,7 +18164,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L884",
+      "source_location": "L931",
       "weight": 1.0
     },
     {
@@ -18260,7 +18260,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L896",
+      "source_location": "L943",
       "weight": 1.0
     },
     {
@@ -18272,7 +18272,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L827",
+      "source_location": "L874",
       "weight": 1.0
     },
     {
@@ -18284,7 +18284,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L840",
+      "source_location": "L887",
       "weight": 1.0
     },
     {
@@ -18296,7 +18296,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L848",
+      "source_location": "L895",
       "weight": 1.0
     },
     {
@@ -18308,7 +18308,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L871",
+      "source_location": "L918",
       "weight": 1.0
     },
     {
@@ -18320,7 +18320,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L766",
+      "source_location": "L813",
       "weight": 1.0
     },
     {
@@ -18332,7 +18332,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L776",
+      "source_location": "L823",
       "weight": 1.0
     },
     {
@@ -18344,7 +18344,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L784",
+      "source_location": "L831",
       "weight": 1.0
     },
     {
@@ -18368,7 +18368,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L918",
+      "source_location": "L965",
       "weight": 1.0
     },
     {
@@ -18380,7 +18380,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L920",
+      "source_location": "L967",
       "weight": 1.0
     },
     {
@@ -18548,7 +18548,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L653",
+      "source_location": "L707",
       "weight": 1.0
     },
     {
@@ -18560,7 +18560,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L669",
+      "source_location": "L723",
       "weight": 1.0
     },
     {
@@ -18572,7 +18572,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1385",
+      "source_location": "L1439",
       "weight": 1.0
     },
     {
@@ -18584,7 +18584,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1388",
+      "source_location": "L1442",
       "weight": 1.0
     },
     {
@@ -18596,7 +18596,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1399",
+      "source_location": "L1453",
       "weight": 1.0
     },
     {
@@ -18608,7 +18608,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L485",
+      "source_location": "L539",
       "weight": 1.0
     },
     {
@@ -18620,7 +18620,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L923",
+      "source_location": "L977",
       "weight": 1.0
     },
     {
@@ -18632,7 +18632,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L924",
+      "source_location": "L978",
       "weight": 1.0
     },
     {
@@ -18644,7 +18644,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L928",
+      "source_location": "L982",
       "weight": 1.0
     },
     {
@@ -18656,7 +18656,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L931",
+      "source_location": "L985",
       "weight": 1.0
     },
     {
@@ -18668,7 +18668,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L932",
+      "source_location": "L986",
       "weight": 1.0
     },
     {
@@ -18680,7 +18680,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L938",
+      "source_location": "L992",
       "weight": 1.0
     },
     {
@@ -18692,7 +18692,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L942",
+      "source_location": "L996",
       "weight": 1.0
     },
     {
@@ -18704,7 +18704,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L255",
+      "source_location": "L261",
       "weight": 1.0
     },
     {
@@ -18716,7 +18716,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L256",
+      "source_location": "L283",
       "weight": 1.0
     },
     {
@@ -18728,7 +18728,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L287",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -18740,7 +18740,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L288",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -18752,7 +18752,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L293",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -18764,7 +18764,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L323",
+      "source_location": "L377",
       "weight": 1.0
     },
     {
@@ -18776,7 +18776,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L353",
+      "source_location": "L407",
       "weight": 1.0
     },
     {
@@ -18788,7 +18788,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L355",
+      "source_location": "L409",
       "weight": 1.0
     },
     {
@@ -18800,7 +18800,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1112",
+      "source_location": "L1166",
       "weight": 1.0
     },
     {
@@ -18944,7 +18944,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L677",
+      "source_location": "L731",
       "weight": 1.0
     },
     {
@@ -18956,7 +18956,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L680",
+      "source_location": "L734",
       "weight": 1.0
     },
     {
@@ -18968,7 +18968,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L688",
+      "source_location": "L742",
       "weight": 1.0
     },
     {
@@ -18980,7 +18980,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L691",
+      "source_location": "L745",
       "weight": 1.0
     },
     {
@@ -18992,7 +18992,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1308",
+      "source_location": "L1362",
       "weight": 1.0
     },
     {
@@ -19004,7 +19004,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L781",
+      "source_location": "L835",
       "weight": 1.0
     },
     {
@@ -19016,7 +19016,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L791",
+      "source_location": "L845",
       "weight": 1.0
     },
     {
@@ -19028,7 +19028,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L909",
+      "source_location": "L963",
       "weight": 1.0
     },
     {
@@ -19040,7 +19040,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L632",
+      "source_location": "L686",
       "weight": 1.0
     },
     {
@@ -19052,7 +19052,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L642",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -19088,7 +19088,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1281",
+      "source_location": "L1335",
       "weight": 1.0
     },
     {
@@ -19100,7 +19100,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1295",
+      "source_location": "L1349",
       "weight": 1.0
     },
     {
@@ -19112,7 +19112,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1296",
+      "source_location": "L1350",
       "weight": 1.0
     },
     {
@@ -19124,7 +19124,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L895",
+      "source_location": "L949",
       "weight": 1.0
     },
     {
@@ -19136,7 +19136,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L903",
+      "source_location": "L957",
       "weight": 1.0
     },
     {
@@ -19148,7 +19148,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L583",
+      "source_location": "L637",
       "weight": 1.0
     },
     {
@@ -19160,7 +19160,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L609",
+      "source_location": "L663",
       "weight": 1.0
     },
     {
@@ -19172,7 +19172,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L614",
+      "source_location": "L668",
       "weight": 1.0
     },
     {
@@ -19184,7 +19184,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L461",
+      "source_location": "L515",
       "weight": 1.0
     },
     {
@@ -19196,7 +19196,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L473",
+      "source_location": "L527",
       "weight": 1.0
     },
     {
@@ -19208,7 +19208,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L756",
+      "source_location": "L810",
       "weight": 1.0
     },
     {
@@ -19220,7 +19220,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L767",
+      "source_location": "L821",
       "weight": 1.0
     },
     {
@@ -19232,7 +19232,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1246",
+      "source_location": "L1300",
       "weight": 1.0
     },
     {
@@ -19244,7 +19244,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1260",
+      "source_location": "L1314",
       "weight": 1.0
     },
     {
@@ -19256,7 +19256,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L797",
+      "source_location": "L851",
       "weight": 1.0
     },
     {
@@ -19268,7 +19268,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L806",
+      "source_location": "L860",
       "weight": 1.0
     },
     {
@@ -19280,7 +19280,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L807",
+      "source_location": "L861",
       "weight": 1.0
     },
     {
@@ -19292,7 +19292,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L813",
+      "source_location": "L867",
       "weight": 1.0
     },
     {
@@ -19304,7 +19304,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L817",
+      "source_location": "L871",
       "weight": 1.0
     },
     {
@@ -19316,7 +19316,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L824",
+      "source_location": "L878",
       "weight": 1.0
     },
     {
@@ -36248,7 +36248,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L773",
+      "source_location": "L827",
       "weight": 1.0
     },
     {
@@ -36260,7 +36260,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L922",
+      "source_location": "L976",
       "weight": 1.0
     },
     {
@@ -37508,7 +37508,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L478",
+      "source_location": "L525",
       "weight": 1.0
     },
     {
@@ -37520,7 +37520,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1158",
+      "source_location": "L1212",
       "weight": 1.0
     },
     {
@@ -52556,7 +52556,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L532",
+      "source_location": "L579",
       "weight": 1.0
     },
     {
@@ -52568,7 +52568,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L399",
+      "source_location": "L410",
       "weight": 1.0
     },
     {
@@ -52592,7 +52592,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L789",
+      "source_location": "L836",
       "weight": 1.0
     },
     {
@@ -52640,7 +52640,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1031",
+      "source_location": "L1085",
       "weight": 1.0
     },
     {
@@ -52652,7 +52652,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1045",
+      "source_location": "L1099",
       "weight": 1.0
     },
     {
@@ -52664,7 +52664,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L922",
+      "source_location": "L976",
       "weight": 1.0
     },
     {
@@ -52688,7 +52688,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1302",
+      "source_location": "L1356",
       "weight": 1.0
     },
     {
@@ -52700,7 +52700,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L773",
+      "source_location": "L827",
       "weight": 1.0
     },
     {
@@ -52724,7 +52724,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L796",
+      "source_location": "L850",
       "weight": 1.0
     },
     {
@@ -55796,7 +55796,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1319",
+      "source_location": "L1373",
       "weight": 1.0
     },
     {
@@ -60062,7 +60062,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L399",
+      "source_location": "L410",
       "weight": 1.0
     },
     {
@@ -60073,7 +60073,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L478",
+      "source_location": "L525",
       "weight": 1.0
     },
     {
@@ -60095,7 +60095,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L532",
+      "source_location": "L579",
       "weight": 1.0
     },
     {
@@ -60106,7 +60106,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L669",
+      "source_location": "L716",
       "weight": 1.0
     },
     {
@@ -60128,7 +60128,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L764",
+      "source_location": "L811",
       "weight": 1.0
     },
     {
@@ -60139,7 +60139,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L789",
+      "source_location": "L836",
       "weight": 1.0
     },
     {
@@ -60150,7 +60150,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L878",
+      "source_location": "L925",
       "weight": 1.0
     },
     {
@@ -60161,7 +60161,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L891",
+      "source_location": "L938",
       "weight": 1.0
     },
     {
@@ -60172,7 +60172,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L905",
+      "source_location": "L952",
       "weight": 1.0
     },
     {
@@ -60183,7 +60183,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L916",
+      "source_location": "L963",
       "weight": 1.0
     },
     {
@@ -60304,7 +60304,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1031",
+      "source_location": "L1085",
       "weight": 1.0
     },
     {
@@ -60315,7 +60315,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1045",
+      "source_location": "L1099",
       "weight": 1.0
     },
     {
@@ -60326,7 +60326,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1056",
+      "source_location": "L1110",
       "weight": 1.0
     },
     {
@@ -60337,7 +60337,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1158",
+      "source_location": "L1212",
       "weight": 1.0
     },
     {
@@ -60348,7 +60348,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1271",
+      "source_location": "L1325",
       "weight": 1.0
     },
     {
@@ -60359,7 +60359,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1302",
+      "source_location": "L1356",
       "weight": 1.0
     },
     {
@@ -60370,7 +60370,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L1319",
+      "source_location": "L1373",
       "weight": 1.0
     },
     {
@@ -60414,7 +60414,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L460",
+      "source_location": "L514",
       "weight": 1.0
     },
     {
@@ -60425,7 +60425,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L479",
+      "source_location": "L533",
       "weight": 1.0
     },
     {
@@ -60436,7 +60436,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L538",
+      "source_location": "L592",
       "weight": 1.0
     },
     {
@@ -60447,7 +60447,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L619",
+      "source_location": "L673",
       "weight": 1.0
     },
     {
@@ -60458,7 +60458,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L652",
+      "source_location": "L706",
       "weight": 1.0
     },
     {
@@ -60469,7 +60469,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L676",
+      "source_location": "L730",
       "weight": 1.0
     },
     {
@@ -60480,7 +60480,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L695",
+      "source_location": "L749",
       "weight": 1.0
     },
     {
@@ -60502,7 +60502,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L796",
+      "source_location": "L850",
       "weight": 1.0
     },
     {
@@ -60513,7 +60513,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L887",
+      "source_location": "L941",
       "weight": 1.0
     },
     {
@@ -60524,7 +60524,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/ClassDetailActivity.kt",
-      "source_location": "L908",
+      "source_location": "L962",
       "weight": 1.0
     },
     {

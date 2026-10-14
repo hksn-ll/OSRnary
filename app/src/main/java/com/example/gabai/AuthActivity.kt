@@ -329,7 +329,8 @@ class AuthActivity : AppCompatActivity() {
             }
         } else {
             // --- STUDENT LOGIN (Account Claiming Flow) ---
-            val fakeEmail = "$inputId@gabai.app"
+            val cleanInputId = inputId.removePrefix("@").trim().lowercase()
+            val fakeEmail = "$cleanInputId@gabai.app"
 
             auth.signInWithEmailAndPassword(fakeEmail, pass).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -372,19 +373,29 @@ class AuthActivity : AppCompatActivity() {
                                 showErrorDialog("System Error", "Could not verify your account status.")
                                 showLogin()
                             }
+                    } else {
+                        toggleLoading(false)
+                        showErrorDialog("Login Error", "Could not verify session.")
+                        showLogin()
                     }
                 } else {
                     // Check pending_students for first-time account activation
-                    db.collection("pending_students").document(inputId).get()
+                    db.collection("pending_students").document(cleanInputId).get()
                         .addOnSuccessListener { doc ->
                             if (doc.exists() && doc.getString("password") == pass) {
-                                val studentData = doc.data?.toMutableMap() ?: return@addOnSuccessListener
+                                val studentData = doc.data?.toMutableMap()
+                                if (studentData == null) {
+                                    toggleLoading(false)
+                                    showErrorDialog("Data Error", "Student record is missing details.")
+                                    showLogin()
+                                    return@addOnSuccessListener
+                                }
                                 studentData["mustChangePassword"] = true
 
-                                completeStudentAccountClaim(inputId, fakeEmail, pass, studentData, doc.reference)
+                                completeStudentAccountClaim(cleanInputId, fakeEmail, pass, studentData, doc.reference)
                             } else {
                                 // Fallback: Check if student is an active user (e.g. custom authEmail or teacher-reset tempPassword)
-                                checkActiveStudentFallback(inputId, pass, defaultTask = task)
+                                checkActiveStudentFallback(cleanInputId, pass, defaultTask = task)
                             }
                         }.addOnFailureListener {
                             toggleLoading(false)
@@ -405,59 +416,95 @@ class AuthActivity : AppCompatActivity() {
     ) {
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener { claimTask ->
             if (claimTask.isSuccessful) {
-                val newUid = auth.currentUser?.uid ?: return@addOnCompleteListener
-                studentData["authEmail"] = email
-                db.collection("users").document(newUid).set(studentData).addOnSuccessListener {
-                    pendingDocRef.delete()
+                val newUid = claimTask.result?.user?.uid ?: auth.currentUser?.uid
+                if (newUid == null) {
                     toggleLoading(false)
-                    val claimedUser = auth.currentUser
-                    if (claimedUser != null) {
-                        showForcePasswordChangeDialog(claimedUser, newUid) {
+                    showErrorDialog("Activation Error", "Could not verify account identity.")
+                    showLogin()
+                    return@addOnCompleteListener
+                }
+                studentData["authEmail"] = email
+                db.collection("users").document(newUid).set(studentData)
+                    .addOnSuccessListener {
+                        pendingDocRef.delete()
+                        toggleLoading(false)
+                        val claimedUser = auth.currentUser
+                        if (claimedUser != null) {
+                            showForcePasswordChangeDialog(claimedUser, newUid) {
+                                navigateToMain("student")
+                            }
+                        } else {
                             navigateToMain("student")
                         }
-                    } else {
-                        navigateToMain("student")
                     }
-                }
+                    .addOnFailureListener { setErr ->
+                        toggleLoading(false)
+                        showErrorDialog("Profile Creation Error", "Failed to initialize student profile: ${setErr.localizedMessage ?: "Unknown error"}")
+                        showLogin()
+                    }
             } else {
                 val ex = claimTask.exception
                 if (ex is com.google.firebase.auth.FirebaseAuthUserCollisionException) {
                     // Collision fallback: try signing into existing Auth user with pass
                     auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener { reLoginTask ->
                         if (reLoginTask.isSuccessful) {
-                            val recoveredUid = auth.currentUser?.uid ?: return@addOnCompleteListener
-                            studentData["authEmail"] = email
-                            db.collection("users").document(recoveredUid).set(studentData).addOnSuccessListener {
-                                pendingDocRef.delete()
+                            val recoveredUid = reLoginTask.result?.user?.uid ?: auth.currentUser?.uid
+                            if (recoveredUid == null) {
                                 toggleLoading(false)
-                                val claimedUser = auth.currentUser
-                                if (claimedUser != null) {
-                                    showForcePasswordChangeDialog(claimedUser, recoveredUid) {
+                                showErrorDialog("Activation Error", "Could not verify existing account identity.")
+                                showLogin()
+                                return@addOnCompleteListener
+                            }
+                            studentData["authEmail"] = email
+                            db.collection("users").document(recoveredUid).set(studentData)
+                                .addOnSuccessListener {
+                                    pendingDocRef.delete()
+                                    toggleLoading(false)
+                                    val claimedUser = auth.currentUser
+                                    if (claimedUser != null) {
+                                        showForcePasswordChangeDialog(claimedUser, recoveredUid) {
+                                            navigateToMain("student")
+                                        }
+                                    } else {
                                         navigateToMain("student")
                                     }
-                                } else {
-                                    navigateToMain("student")
                                 }
-                            }
+                                .addOnFailureListener { recErr ->
+                                    toggleLoading(false)
+                                    showErrorDialog("Profile Recovery Error", "Failed to link student profile: ${recErr.localizedMessage ?: "Unknown error"}")
+                                    showLogin()
+                                }
                         } else {
                             // Suffix a unique salt to email to guarantee clean claim
                             val saltedEmail = "${inputId}.${System.currentTimeMillis() % 100000}@gabai.app"
                             auth.createUserWithEmailAndPassword(saltedEmail, pass).addOnCompleteListener { retryTask ->
                                 if (retryTask.isSuccessful) {
-                                    val retryUid = auth.currentUser?.uid ?: return@addOnCompleteListener
-                                    studentData["authEmail"] = saltedEmail
-                                    db.collection("users").document(retryUid).set(studentData).addOnSuccessListener {
-                                        pendingDocRef.delete()
+                                    val retryUid = retryTask.result?.user?.uid ?: auth.currentUser?.uid
+                                    if (retryUid == null) {
                                         toggleLoading(false)
-                                        val claimedUser = auth.currentUser
-                                        if (claimedUser != null) {
-                                            showForcePasswordChangeDialog(claimedUser, retryUid) {
+                                        showErrorDialog("Activation Error", "Could not verify retry account identity.")
+                                        showLogin()
+                                        return@addOnCompleteListener
+                                    }
+                                    studentData["authEmail"] = saltedEmail
+                                    db.collection("users").document(retryUid).set(studentData)
+                                        .addOnSuccessListener {
+                                            pendingDocRef.delete()
+                                            toggleLoading(false)
+                                            val claimedUser = auth.currentUser
+                                            if (claimedUser != null) {
+                                                showForcePasswordChangeDialog(claimedUser, retryUid) {
+                                                    navigateToMain("student")
+                                                }
+                                            } else {
                                                 navigateToMain("student")
                                             }
-                                        } else {
-                                            navigateToMain("student")
                                         }
-                                    }
+                                        .addOnFailureListener { retryErr ->
+                                            toggleLoading(false)
+                                            showErrorDialog("Profile Salt Error", "Failed to initialize student profile: ${retryErr.localizedMessage ?: "Unknown error"}")
+                                            showLogin()
+                                        }
                                 } else {
                                     toggleLoading(false)
                                     showErrorDialog("Account Conflict", "This student account encountered a credentials conflict. Please contact your adviser to reset your login.")

@@ -557,7 +557,7 @@
                             android:id="@+id/et_reg_email"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:hint="Official School Email Address"
+                            android:hint="Email Address"
                             android:textColor="#0F172A"
                             android:textColorHint="#94A3B8"
                             android:textSize="13sp"
