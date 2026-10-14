@@ -1,11 +1,11 @@
 {
-  "versionCode": 37,
-  "versionName": "0.4.23",
-  "minRequiredVersionCode": 37,
+  "versionCode": 38,
+  "versionName": "0.4.24",
+  "minRequiredVersionCode": 38,
   "forceUpdate": true,
-  "title": "Initiation Trial Assessment Precision & PDF Extraction (v0.4.23)",
-  "message": "Initiation Trial now directly extracts embedded multiple-choice questions, choices, and answer keys verbatim from custom reading materials (such as Pre-Test and Post-Test documents), preserves question order, dynamically expands item counts, and invalidates stale quiz caches.",
+  "title": "Bento Circuit Defusal Quiz Overhaul (v0.4.24)",
+  "message": "Overhauled the Grammar Landmine wired quiz mechanic with a modern Bento Circuit Defusal layout. Eliminated bracket artifacts, restored natural sentence flow with numbered indicators, and added tactile, color-coded interactive wire cards with real-time defusal feedback.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.23/GabAI-v0.4.23.apk",
-  "changelog": "• PDF Embedded Quiz Extraction: Initiation Trial now extracts exact questions, options, and answer keys verbatim from custom reading PDFs rather than inventing generic AI questions.\n• Deterministic Local Parser: Integrated offline-safe regex extraction for structured questionnaires if AI or network is temporarily unavailable.\n• Sequential Order & Item Count Expansion: Preserved original question numbering and allowed target quiz items to scale with the document's question count.\n• Quiz Schema Invalidation: Introduced schema_version = 2 to bypass and refresh stale, previously hallucinated quizzes.\n• Multi-Material Sequence Support: Loaded all configured teacher custom slots (1 through 4) in sequential order with dynamic title tracking."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.24/GabAI-v0.4.24.apk",
+  "changelog": "• Bento Circuit Defusal: Replaced clunky square brackets [ ] with an unbroken sentence view featuring numbered markers (①, ②, ③, ④) and matching wire colors.\n• Interactive Wire Cards: Redesigned the 4 wire choices into dedicated Bento cards with wire indicators, clear segment typography, cut actions, and spring touch physics.\n• Real-Time Defusal Feedback: Cutting the faulty wire triggers immediate defusal confirmation with grammatical correction, while safe wires indicate harmless status.\n• Lifeline & Session Support: Full Cross-Out lifeline and session pause/resume support for wire defusal cards."
 }

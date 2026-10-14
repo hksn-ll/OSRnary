@@ -142,6 +142,14 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var cardImpostorB: MaterialCardView
     private lateinit var tvImpostorBText: TextView
     private var impostorCorrectCardIsA = true
+    private lateinit var layoutWireContainer: View
+    private lateinit var wireCards: List<MaterialCardView>
+    private lateinit var wireBadgeLayouts: List<View>
+    private lateinit var wireNumTexts: List<TextView>
+    private lateinit var wireLabelTexts: List<TextView>
+    private lateinit var wireTexts: List<TextView>
+    private lateinit var wireCutPills: List<View>
+    private lateinit var wireCutTexts: List<TextView>
     private lateinit var layoutRapidMatch: View
     private lateinit var rapidWordButtons: List<MaterialButton>
     private lateinit var rapidDefButtons: List<MaterialButton>
@@ -244,6 +252,54 @@ class QuizActivity : AppCompatActivity() {
         tvImpostorAText = findViewById(R.id.tv_impostor_a_text)
         cardImpostorB = findViewById(R.id.card_impostor_b)
         tvImpostorBText = findViewById(R.id.tv_impostor_b_text)
+
+        layoutWireContainer = findViewById(R.id.layout_wire_container)
+        wireCards = listOf(
+            findViewById(R.id.card_wire_1),
+            findViewById(R.id.card_wire_2),
+            findViewById(R.id.card_wire_3),
+            findViewById(R.id.card_wire_4)
+        )
+        wireBadgeLayouts = listOf(
+            findViewById(R.id.layout_wire_badge_1),
+            findViewById(R.id.layout_wire_badge_2),
+            findViewById(R.id.layout_wire_badge_3),
+            findViewById(R.id.layout_wire_badge_4)
+        )
+        wireNumTexts = listOf(
+            findViewById(R.id.tv_wire_num_1),
+            findViewById(R.id.tv_wire_num_2),
+            findViewById(R.id.tv_wire_num_3),
+            findViewById(R.id.tv_wire_num_4)
+        )
+        wireLabelTexts = listOf(
+            findViewById(R.id.tv_wire_label_1),
+            findViewById(R.id.tv_wire_label_2),
+            findViewById(R.id.tv_wire_label_3),
+            findViewById(R.id.tv_wire_label_4)
+        )
+        wireTexts = listOf(
+            findViewById(R.id.tv_wire_text_1),
+            findViewById(R.id.tv_wire_text_2),
+            findViewById(R.id.tv_wire_text_3),
+            findViewById(R.id.tv_wire_text_4)
+        )
+        wireCutPills = listOf(
+            findViewById(R.id.btn_wire_cut_1),
+            findViewById(R.id.btn_wire_cut_2),
+            findViewById(R.id.btn_wire_cut_3),
+            findViewById(R.id.btn_wire_cut_4)
+        )
+        wireCutTexts = listOf(
+            findViewById(R.id.tv_wire_cut_1),
+            findViewById(R.id.tv_wire_cut_2),
+            findViewById(R.id.tv_wire_cut_3),
+            findViewById(R.id.tv_wire_cut_4)
+        )
+
+        for (card in wireCards) {
+            GabAIUtils.addSpringPressEffect(card)
+        }
 
         layoutRapidMatch = findViewById(R.id.layout_rapid_match)
         rapidWordButtons = listOf(
@@ -853,59 +909,174 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun renderGrammarLandmineMechanic(item: QuizQuestionItem) {
-        tvQuestionBadge.text = "GRAMMAR LANDMINE 💣"
+        tvQuestionBadge.text = "GRAMMAR CIRCUIT ⚡"
         tvQuestionStepHint.text = "CUT THE FAULTY WIRE"
 
         val rawSentence = item.landmineSentence.ifBlank { item.question }
         var formattedSentence = rawSentence
 
-        val wireColors = listOf("#2563EB", "#D97706", "#DC2626", "#7C3AED")
+        val wireColors = listOf("#2563EB", "#D97706", "#E11D48", "#7C3AED")
+        val wireNumbers = listOf("①", "②", "③", "④")
+
         item.options.forEachIndexed { idx, segment ->
             if (segment.isNotBlank() && formattedSentence.contains(segment, ignoreCase = true)) {
-                val wireNum = idx + 1
                 val color = wireColors.getOrElse(idx) { "#2563EB" }
+                val num = wireNumbers.getOrElse(idx) { "(${idx + 1})" }
                 val escapedSeg = Regex.escape(segment)
                 formattedSentence = formattedSentence.replaceFirst(
                     Regex("(?i)$escapedSeg"),
-                    "<font color='$color'><b>[Wire $wireNum: $segment]</b></font>"
+                    "<u><font color='$color'><b>$segment</b></font></u> <font color='$color'><b>$num</b></font>"
                 )
             }
         }
 
-        val promptHtml = "<b>⚠️ Rigged Sentence:</b><br><br><i>\"$formattedSentence\"</i><br><br>One segment breaks grammar rules. <b>Cut the faulty wire to defuse the trap!</b>"
-        questionText.text = HtmlCompat.fromHtml(promptHtml, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        questionText.text = HtmlCompat.fromHtml("“$formattedSentence”", HtmlCompat.FROM_HTML_MODE_LEGACY)
 
         layoutLifelines.visibility = View.VISIBLE
         layoutClozeSlot.visibility = View.VISIBLE
-        tvClozeSlotText.text = "⚡ Select the wire segment with the grammatical error"
+        tvClozeSlotText.text = "⚡ Tap the wire with the grammatical error to cut and repair it"
         tvClozeSlotText.setTextColor(Color.parseColor("#B45309"))
         layoutClozeSlot.setBackgroundResource(R.drawable.bg_pill_translucent)
         layoutClozeSlot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFBEB"))
 
+        optionsContainer.visibility = View.GONE
         layoutImpostorContainer.visibility = View.GONE
         layoutRapidMatch.visibility = View.GONE
-        optionsContainer.visibility = View.VISIBLE
+        layoutWireContainer.visibility = View.VISIBLE
 
         layoutGuidanceStrip.visibility = View.VISIBLE
         viewGuidanceDivider.visibility = View.VISIBLE
         tvGuidanceTip.text = "Look for subject-verb agreement, tense mismatch, or broken prepositions."
 
-        resetOptionButtonStyles()
+        resetWireCardStyles()
 
-        val wireLabels = listOf("Wire 1", "Wire 2", "Wire 3", "Wire 4")
-        for (i in optionButtons.indices) {
+        for (i in wireCards.indices) {
             if (i < item.options.size) {
                 val opt = item.options[i]
-                val wire = wireLabels.getOrElse(i) { "Wire ${i + 1}" }
-                optionButtons[i].visibility = View.VISIBLE
-                optionButtons[i].isEnabled = true
-                optionButtons[i].text = "✂️ $wire: \"$opt\""
-                optionButtons[i].setOnClickListener {
-                    checkAnswer(opt, optionButtons[i], item)
+                wireCards[i].visibility = View.VISIBLE
+                wireCards[i].isEnabled = true
+                wireTexts[i].text = opt
+
+                wireCards[i].setOnClickListener {
+                    handleWireSelection(opt, i, item)
                 }
             } else {
-                optionButtons[i].visibility = View.GONE
+                wireCards[i].visibility = View.GONE
             }
+        }
+    }
+
+    private fun resetWireCardStyles() {
+        val strokeColors = listOf("#BFDBFE", "#FDE68A", "#FECDD3", "#DDD6FE")
+        val badgeBgColors = listOf("#EFF6FF", "#FFFBEB", "#FFF1F2", "#F5F3FF")
+        val textColors = listOf("#2563EB", "#D97706", "#E11D48", "#7C3AED")
+        val numbers = listOf("①", "②", "③", "④")
+        val labels = listOf("WIRE 1", "WIRE 2", "WIRE 3", "WIRE 4")
+
+        for (i in wireCards.indices) {
+            val card = wireCards[i]
+            card.isEnabled = true
+            card.alpha = 1.0f
+            card.setCardBackgroundColor(Color.WHITE)
+            card.strokeColor = Color.parseColor(strokeColors.getOrElse(i) { "#E2E8F0" })
+            card.strokeWidth = (1.5f * resources.displayMetrics.density).toInt()
+
+            val primaryCol = Color.parseColor(textColors.getOrElse(i) { "#2563EB" })
+            val bgCol = Color.parseColor(badgeBgColors.getOrElse(i) { "#EFF6FF" })
+
+            wireBadgeLayouts[i].backgroundTintList = ColorStateList.valueOf(bgCol)
+            wireNumTexts[i].text = numbers.getOrElse(i) { "(${i + 1})" }
+            wireNumTexts[i].setTextColor(primaryCol)
+            wireLabelTexts[i].text = labels.getOrElse(i) { "WIRE ${i + 1}" }
+            wireLabelTexts[i].setTextColor(primaryCol)
+
+            wireTexts[i].paintFlags = wireTexts[i].paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            wireTexts[i].setTextColor(Color.parseColor("#0F172A"))
+
+            wireCutPills[i].backgroundTintList = ColorStateList.valueOf(bgCol)
+            wireCutTexts[i].text = "✂️ CUT"
+            wireCutTexts[i].setTextColor(primaryCol)
+        }
+    }
+
+    private fun handleWireSelection(selectedOption: String, wireIndex: Int, item: QuizQuestionItem) {
+        for (card in wireCards) {
+            card.isEnabled = false
+        }
+
+        val cleanSelected = selectedOption.replace("*", "").trim().removeSuffix(".")
+        val cleanCorrect = item.landmineFaultySegment.ifBlank { item.correct }.replace("*", "").trim().removeSuffix(".")
+        val isCorrect = cleanSelected.equals(cleanCorrect, ignoreCase = true)
+
+        val selectedCard = wireCards.getOrNull(wireIndex)
+        val density = resources.displayMetrics.density
+
+        if (isCorrect) {
+            selectedCard?.setCardBackgroundColor(Color.parseColor("#ECFDF5"))
+            selectedCard?.strokeColor = Color.parseColor("#059669")
+            selectedCard?.strokeWidth = (2.5f * density).toInt()
+
+            if (wireIndex in wireBadgeLayouts.indices) {
+                wireBadgeLayouts[wireIndex].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                wireNumTexts[wireIndex].text = "🛡️"
+                wireLabelTexts[wireIndex].text = "DEFUSED"
+                wireLabelTexts[wireIndex].setTextColor(Color.parseColor("#059669"))
+                wireTexts[wireIndex].text = "\"$cleanCorrect\" ➔ ${item.landmineCorrection}"
+                wireTexts[wireIndex].setTextColor(Color.parseColor("#065F46"))
+                wireCutPills[wireIndex].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                wireCutTexts[wireIndex].text = "✔ FIXED"
+                wireCutTexts[wireIndex].setTextColor(Color.parseColor("#059669"))
+            }
+
+            layoutClozeSlot.setBackgroundResource(R.drawable.bg_pill_translucent)
+            layoutClozeSlot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+            tvClozeSlotText.text = "🛡️ DEFUSED: Faulty wire cut and corrected!"
+            tvClozeSlotText.setTextColor(Color.parseColor("#059669"))
+
+            GabAIUtils.performHaptic(selectedCard ?: questionCard, HapticFeedbackConstants.CONFIRM)
+            checkAnswer(selectedOption, null, item, forceCorrect = true, customCorrectAnswer = cleanCorrect)
+        } else {
+            selectedCard?.setCardBackgroundColor(Color.parseColor("#FEF2F2"))
+            selectedCard?.strokeColor = Color.parseColor("#EF4444")
+            selectedCard?.strokeWidth = (2.5f * density).toInt()
+
+            if (wireIndex in wireBadgeLayouts.indices) {
+                wireBadgeLayouts[wireIndex].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEE2E2"))
+                wireNumTexts[wireIndex].text = "💥"
+                wireLabelTexts[wireIndex].text = "DETONATED"
+                wireLabelTexts[wireIndex].setTextColor(Color.parseColor("#DC2626"))
+                wireCutPills[wireIndex].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEE2E2"))
+                wireCutTexts[wireIndex].text = "✘ SAFE"
+                wireCutTexts[wireIndex].setTextColor(Color.parseColor("#DC2626"))
+            }
+
+            // Highlight the true faulty wire in mint green so student learns
+            for ((idx, opt) in item.options.withIndex()) {
+                val cleanOpt = opt.replace("*", "").trim().removeSuffix(".")
+                if (cleanOpt.equals(cleanCorrect, ignoreCase = true) && idx in wireCards.indices) {
+                    val correctCard = wireCards[idx]
+                    correctCard.setCardBackgroundColor(Color.parseColor("#ECFDF5"))
+                    correctCard.strokeColor = Color.parseColor("#10B981")
+                    correctCard.strokeWidth = (2f * density).toInt()
+                    wireBadgeLayouts[idx].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                    wireNumTexts[idx].text = "⚠️"
+                    wireLabelTexts[idx].text = "FAULTY WIRE"
+                    wireLabelTexts[idx].setTextColor(Color.parseColor("#059669"))
+                    wireTexts[idx].text = "\"$cleanCorrect\" ➔ ${item.landmineCorrection}"
+                    wireTexts[idx].setTextColor(Color.parseColor("#065F46"))
+                    wireCutPills[idx].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                    wireCutTexts[idx].text = "REPAIR"
+                    wireCutTexts[idx].setTextColor(Color.parseColor("#059669"))
+                }
+            }
+
+            layoutClozeSlot.setBackgroundResource(R.drawable.bg_pill_translucent)
+            layoutClozeSlot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF2F2"))
+            tvClozeSlotText.text = "💥 DETONATED: You cut a grammatically safe wire!"
+            tvClozeSlotText.setTextColor(Color.parseColor("#DC2626"))
+
+            GabAIUtils.performHaptic(selectedCard ?: questionCard, HapticFeedbackConstants.REJECT)
+            checkAnswer(selectedOption, null, item, forceCorrect = false, customCorrectAnswer = cleanCorrect)
         }
     }
 
@@ -926,6 +1097,7 @@ class QuizActivity : AppCompatActivity() {
 
         layoutImpostorContainer.visibility = View.GONE
         layoutRapidMatch.visibility = View.GONE
+        layoutWireContainer.visibility = View.GONE
         optionsContainer.visibility = View.VISIBLE
 
         resetOptionButtonStyles()
@@ -968,6 +1140,7 @@ class QuizActivity : AppCompatActivity() {
         layoutClozeSlot.visibility = View.GONE
         layoutImpostorContainer.visibility = View.GONE
         layoutRapidMatch.visibility = View.GONE
+        layoutWireContainer.visibility = View.GONE
         optionsContainer.visibility = View.VISIBLE
 
         layoutGuidanceStrip.visibility = View.VISIBLE
@@ -1001,6 +1174,7 @@ class QuizActivity : AppCompatActivity() {
         layoutClozeSlot.visibility = View.GONE
         optionsContainer.visibility = View.GONE
         layoutRapidMatch.visibility = View.GONE
+        layoutWireContainer.visibility = View.GONE
         layoutImpostorContainer.visibility = View.VISIBLE
         layoutGuidanceStrip.visibility = View.GONE
         viewGuidanceDivider.visibility = View.GONE
@@ -1069,6 +1243,7 @@ class QuizActivity : AppCompatActivity() {
         layoutClozeSlot.visibility = View.GONE
         optionsContainer.visibility = View.GONE
         layoutImpostorContainer.visibility = View.GONE
+        layoutWireContainer.visibility = View.GONE
         layoutRapidMatch.visibility = View.VISIBLE
         layoutGuidanceStrip.visibility = View.GONE
         viewGuidanceDivider.visibility = View.GONE
@@ -1206,8 +1381,26 @@ class QuizActivity : AppCompatActivity() {
         btnCrossOut.text = "✏️ Cross-Out (Used)"
         btnCrossOut.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
 
-        val cleanCorrect = item.correct.replace("*", "").trim().removeSuffix(".")
+        val cleanCorrect = (if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) item.landmineFaultySegment.ifBlank { item.correct } else item.correct).replace("*", "").trim().removeSuffix(".")
         var crossedOut = 0
+
+        if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
+            for ((idx, card) in wireCards.withIndex()) {
+                val opt = item.options.getOrNull(idx) ?: wireTexts[idx].text.toString()
+                val cleanOption = opt.replace("*", "").trim().removeSuffix(".")
+                if (!cleanOption.equals(cleanCorrect, ignoreCase = true) && crossedOut < 2 && card.visibility == View.VISIBLE) {
+                    wireTexts[idx].paintFlags = wireTexts[idx].paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    card.alpha = 0.40f
+                    card.isEnabled = false
+                    wireCutTexts[idx].text = "✕ SAFE"
+                    crossedOut++
+                }
+            }
+            GabAIUtils.performHaptic(btnCrossOut, HapticFeedbackConstants.CLOCK_TICK)
+            AchievementManager.recordCrossOutUse(this)
+            return
+        }
+
         for ((idx, btn) in optionButtons.withIndex()) {
             val opt = item.options.getOrNull(idx) ?: btn.text.toString().substringAfter(") ").trim()
             val cleanOption = opt.replace("*", "").trim().removeSuffix(".")
@@ -1334,13 +1527,7 @@ class QuizActivity : AppCompatActivity() {
             selectedBtn?.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
             selectedBtn?.setTextColor(Color.parseColor("#065F46"))
 
-            if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
-                layoutClozeSlot.setBackgroundResource(R.drawable.bg_pill_translucent)
-                layoutClozeSlot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
-                tvClozeSlotText.text = "🛡️ DEFUSED: Faulty wire cut successfully!"
-                tvClozeSlotText.setTextColor(Color.parseColor("#059669"))
-                selectedBtn?.text = "🛡️ DEFUSED: \"$cleanCorrect\" ➔ ${item.landmineCorrection}"
-            } else {
+            if (item.mechanic != MechanicType.GRAMMAR_LANDMINE) {
                 layoutClozeSlot.setBackgroundResource(R.drawable.bg_cloze_slot_filled)
                 tvClozeSlotText.text = "✔ $cleanCorrect"
                 tvClozeSlotText.setTextColor(Color.parseColor("#059669"))
@@ -1363,29 +1550,22 @@ class QuizActivity : AppCompatActivity() {
             selectedBtn?.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
             selectedBtn?.setTextColor(Color.parseColor("#991B1B"))
 
-            if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
-                layoutClozeSlot.setBackgroundResource(R.drawable.bg_pill_translucent)
-                layoutClozeSlot.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF2F2"))
-                tvClozeSlotText.text = "💥 DETONATED: Cut a safe wire!"
-                tvClozeSlotText.setTextColor(Color.parseColor("#DC2626"))
-                selectedBtn?.text = "💥 DETONATED: Safe Wire"
-            } else if (item.mechanic == MechanicType.CLOZE) {
+            if (item.mechanic == MechanicType.CLOZE) {
                 layoutClozeSlot.setBackgroundResource(R.drawable.bg_cloze_slot)
                 tvClozeSlotText.text = "✘ $cleanSelected"
                 tvClozeSlotText.setTextColor(Color.parseColor("#991B1B"))
             }
 
             // Highlight the correct answer in mint so the user learns
-            for ((idx, opt) in item.options.withIndex()) {
-                val cleanOpt = opt.replace("*", "").trim().removeSuffix(".")
-                if (cleanOpt.equals(cleanCorrect, ignoreCase = true) && idx < optionButtons.size) {
-                    val correctBtn = optionButtons[idx]
-                    correctBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
-                    correctBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#00B894"))
-                    correctBtn.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
-                    correctBtn.setTextColor(Color.parseColor("#065F46"))
-                    if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
-                        correctBtn.text = "🛡️ TRAP WIRE: \"$cleanCorrect\" ➔ ${item.landmineCorrection}"
+            if (item.mechanic != MechanicType.GRAMMAR_LANDMINE) {
+                for ((idx, opt) in item.options.withIndex()) {
+                    val cleanOpt = opt.replace("*", "").trim().removeSuffix(".")
+                    if (cleanOpt.equals(cleanCorrect, ignoreCase = true) && idx < optionButtons.size) {
+                        val correctBtn = optionButtons[idx]
+                        correctBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+                        correctBtn.strokeColor = ColorStateList.valueOf(Color.parseColor("#00B894"))
+                        correctBtn.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
+                        correctBtn.setTextColor(Color.parseColor("#065F46"))
                     }
                 }
             }
@@ -1483,6 +1663,7 @@ class QuizActivity : AppCompatActivity() {
         optionsContainer.animate().alpha(0f).setDuration(120).start()
         layoutImpostorContainer.animate().alpha(0f).setDuration(120).start()
         layoutRapidMatch.animate().alpha(0f).setDuration(120).start()
+        layoutWireContainer.animate().alpha(0f).setDuration(120).start()
         questionCard.animate()
             .rotationY(90f)
             .setDuration(130)
@@ -1492,6 +1673,7 @@ class QuizActivity : AppCompatActivity() {
                 optionsContainer.alpha = 1f
                 layoutImpostorContainer.alpha = 1f
                 layoutRapidMatch.alpha = 1f
+                layoutWireContainer.alpha = 1f
                 questionCard.rotationY = -90f
                 questionCard.animate()
                     .rotationY(0f)
@@ -1851,7 +2033,45 @@ class QuizActivity : AppCompatActivity() {
             tvExplanation.text = item.explanation
             layoutLifelines.visibility = View.GONE
 
-            if (item.mechanic == MechanicType.CLOZE || item.mechanic == MechanicType.CONTEXT_MEANING || item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
+            if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
+                val cleanCorrect = item.landmineFaultySegment.ifBlank { item.correct }.replace("*", "").trim().removeSuffix(".")
+                val cleanSelected = lastSelectedOptionText?.replace("*", "")?.trim()?.removeSuffix(".")
+                val density = resources.displayMetrics.density
+                for ((idx, card) in wireCards.withIndex()) {
+                    card.isEnabled = false
+                    val opt = item.options.getOrNull(idx) ?: wireTexts[idx].text.toString()
+                    val cleanOpt = opt.replace("*", "").trim().removeSuffix(".")
+                    if (cleanOpt.equals(cleanCorrect, ignoreCase = true)) {
+                        card.setCardBackgroundColor(Color.parseColor("#ECFDF5"))
+                        card.strokeColor = Color.parseColor("#059669")
+                        card.strokeWidth = (2.5f * density).toInt()
+                        if (idx in wireBadgeLayouts.indices) {
+                            wireBadgeLayouts[idx].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                            wireNumTexts[idx].text = "🛡️"
+                            wireLabelTexts[idx].text = "DEFUSED"
+                            wireLabelTexts[idx].setTextColor(Color.parseColor("#059669"))
+                            wireTexts[idx].text = "\"$cleanCorrect\" ➔ ${item.landmineCorrection}"
+                            wireTexts[idx].setTextColor(Color.parseColor("#065F46"))
+                            wireCutPills[idx].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                            wireCutTexts[idx].text = "✔ FIXED"
+                            wireCutTexts[idx].setTextColor(Color.parseColor("#059669"))
+                        }
+                    } else if (cleanOpt.equals(cleanSelected, ignoreCase = true)) {
+                        card.setCardBackgroundColor(Color.parseColor("#FEF2F2"))
+                        card.strokeColor = Color.parseColor("#EF4444")
+                        card.strokeWidth = (2.5f * density).toInt()
+                        if (idx in wireBadgeLayouts.indices) {
+                            wireBadgeLayouts[idx].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEE2E2"))
+                            wireNumTexts[idx].text = "💥"
+                            wireLabelTexts[idx].text = "DETONATED"
+                            wireLabelTexts[idx].setTextColor(Color.parseColor("#DC2626"))
+                            wireCutPills[idx].backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEE2E2"))
+                            wireCutTexts[idx].text = "✘ SAFE"
+                            wireCutTexts[idx].setTextColor(Color.parseColor("#DC2626"))
+                        }
+                    }
+                }
+            } else if (item.mechanic == MechanicType.CLOZE || item.mechanic == MechanicType.CONTEXT_MEANING) {
                 val cleanCorrect = item.correct.replace("*", "").trim().removeSuffix(".")
                 val cleanSelected = lastSelectedOptionText?.replace("*", "")?.trim()?.removeSuffix(".")
                 for ((idx, btn) in optionButtons.withIndex()) {
@@ -1863,17 +2083,11 @@ class QuizActivity : AppCompatActivity() {
                         btn.strokeColor = ColorStateList.valueOf(Color.parseColor("#00B894"))
                         btn.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
                         btn.setTextColor(Color.parseColor("#065F46"))
-                        if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
-                            btn.text = "🛡️ DEFUSED: \"$cleanCorrect\" ➔ ${item.landmineCorrection}"
-                        }
                     } else if (cleanOpt.equals(cleanSelected, ignoreCase = true)) {
                         btn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF2F2"))
                         btn.strokeColor = ColorStateList.valueOf(Color.parseColor("#EF4444"))
                         btn.strokeWidth = (2.5f * resources.displayMetrics.density).toInt()
                         btn.setTextColor(Color.parseColor("#991B1B"))
-                        if (item.mechanic == MechanicType.GRAMMAR_LANDMINE) {
-                            btn.text = "💥 DETONATED: Safe Wire"
-                        }
                     }
                 }
             } else if (item.mechanic == MechanicType.IMPOSTOR) {
