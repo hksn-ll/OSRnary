@@ -44,7 +44,7 @@ class InitiationActivity : AppCompatActivity() {
     private var currentQuizIndex = 0
     private var currentGeneratedQuestions: List<GeneratedQuestion> = emptyList()
 
-    private val scores = intArrayOf(0, 0, 0, 0)
+    private val scores = IntArray(16) { 0 }
     private var currentScore = 0
     private var isPassageVisibleInQuiz = false
 
@@ -172,14 +172,21 @@ class InitiationActivity : AppCompatActivity() {
 
                             // 2. Override the PDFs with Custom Ones
                             val customPdfs = classDoc.get("initiation_pdfs") as? Map<String, Map<String, String>>
-                            if (customPdfs != null) {
-                                val slot = customPdfs["1"]
-                                if (slot != null) {
-                                    val url = slot["url"] ?: ""
-                                    val title = slot["title"] ?: "Custom Material 1"
-                                    if (url.isNotEmpty()) {
-                                        materials[0] = InitiationMaterial(true, url, title)
+                            if (customPdfs != null && customPdfs.isNotEmpty()) {
+                                val loadedCustoms = mutableListOf<InitiationMaterial>()
+                                for (slotIdx in 1..4) {
+                                    val slot = customPdfs[slotIdx.toString()]
+                                    if (slot != null) {
+                                        val url = slot["url"] ?: ""
+                                        val title = slot["title"] ?: "Custom Material $slotIdx"
+                                        if (url.isNotEmpty()) {
+                                            loadedCustoms.add(InitiationMaterial(true, url, title))
+                                        }
                                     }
+                                }
+                                if (loadedCustoms.isNotEmpty()) {
+                                    materials.clear()
+                                    materials.addAll(loadedCustoms)
                                 }
                             }
                         }
@@ -295,6 +302,59 @@ class InitiationActivity : AppCompatActivity() {
         )
     }
 
+    private fun extractEmbeddedQuestionsLocally(text: String): List<GeneratedQuestion> {
+        val questions = mutableListOf<GeneratedQuestion>()
+        if (text.isBlank()) return questions
+
+        // 1. Search for an Answer Key block or table in the document
+        // Matches forms like: "1 B", "1. B", "1-B", "Item No. ... 1 B"
+        val answerKeyMap = mutableMapOf<Int, Int>()
+        val keyRegex = Regex("""(?im)(?:^|\n)\s*(\d+)[\.\s:-]+([A-Da-d])\b""")
+        for (km in keyRegex.findAll(text)) {
+            val qNum = km.groupValues[1].toIntOrNull() ?: continue
+            val letter = km.groupValues[2].uppercase()
+            val ansIdx = when (letter) {
+                "A" -> 0
+                "B" -> 1
+                "C" -> 2
+                "D" -> 3
+                else -> 0
+            }
+            answerKeyMap[qNum] = ansIdx
+        }
+
+        // 2. Parse Multiple-Choice Questions (Question text followed by A, B, C, D choices)
+        val qBlockRegex = Regex(
+            """(?m)(?:^|\n)\s*(\d+)[\.\)]\s*([^\n]+(?:\n(?!\s*[A-Da-d][\.\)]|\s*\d+[\.\)]).*)*)\s*""" +
+            """\n\s*A[\.\)]\s*([^\n]+(?:\n(?!\s*[B-Db-d][\.\)]|\s*\d+[\.\)]).*)*)\s*""" +
+            """\n\s*B[\.\)]\s*([^\n]+(?:\n(?!\s*[C-Dc-d][\.\)]|\s*\d+[\.\)]).*)*)\s*""" +
+            """\n\s*C[\.\)]\s*([^\n]+(?:\n(?!\s*[D-Dd-d][\.\)]|\s*\d+[\.\)]).*)*)\s*""" +
+            """\n\s*D[\.\)]\s*([^\n]+(?:\n(?!\s*[A-Da-d][\.\)]|\s*\d+[\.\)]).*)*)"""
+        )
+
+        for (m in qBlockRegex.findAll(text)) {
+            val qNum = m.groupValues[1].toIntOrNull() ?: (questions.size + 1)
+            val qText = m.groupValues[2].trim().replace(Regex("""\s+"""), " ")
+            val optA = m.groupValues[3].trim().replace(Regex("""\s+"""), " ")
+            val optB = m.groupValues[4].trim().replace(Regex("""\s+"""), " ")
+            val optC = m.groupValues[5].trim().replace(Regex("""\s+"""), " ")
+            val optD = m.groupValues[6].trim().replace(Regex("""\s+"""), " ")
+
+            if (qText.isNotEmpty() && optA.isNotEmpty() && optB.isNotEmpty() && optC.isNotEmpty() && optD.isNotEmpty()) {
+                val correctIdx = answerKeyMap[qNum] ?: 0
+                questions.add(
+                    GeneratedQuestion(
+                        question = qText,
+                        options = listOf(optA, optB, optC, optD),
+                        correctIndex = correctIdx
+                    )
+                )
+            }
+        }
+
+        return questions
+    }
+
     private fun generateQuizFromPdf(stepIndex: Int) {
         findViewById<LinearLayout>(R.id.reading_container).visibility = View.GONE
         findViewById<LinearLayout>(R.id.ai_loading_container).visibility = View.VISIBLE
@@ -306,7 +366,7 @@ class InitiationActivity : AppCompatActivity() {
 
         if (!mat.isCustom) {
             // Standard Phil-IRI Diagnostic Assessment: 100% deterministic, zero network flakiness
-            val questions = getPhilIriDiagnosticQuestions().shuffled().take(targetQuizItems)
+            val questions = getPhilIriDiagnosticQuestions().take(targetQuizItems)
             currentGeneratedQuestions = questions
             currentQuizIndex = 0
             currentScore = 0
@@ -318,18 +378,18 @@ class InitiationActivity : AppCompatActivity() {
         val docId = mat.pathOrUrl.hashCode().toString()
         db.collection("initiation_quizzes").document(docId).get()
             .addOnSuccessListener { doc ->
-                if (doc.exists() && doc.contains("quiz_json")) {
+                if (doc.exists() && doc.contains("quiz_json") && doc.getLong("schema_version") == 2L) {
                     val savedJson = doc.getString("quiz_json") ?: "[]"
                     val jsonArray = JSONArray(savedJson)
 
                     if (jsonArray.length() >= targetQuizItems) {
                         findViewById<TextView>(R.id.tv_loading_text).text = "Quiz found! Starting..."
-                        parseAndStartQuiz(savedJson)
+                        parseAndStartQuiz(savedJson, isCustom = true)
                     } else {
                         generateAndCacheQuiz(stepIndex, docId, db)
                     }
                 } else {
-                    findViewById<TextView>(R.id.tv_loading_text).text = "AI is preparing custom quiz..."
+                    findViewById<TextView>(R.id.tv_loading_text).text = "AI is preparing custom quiz from material..."
                     generateAndCacheQuiz(stepIndex, docId, db)
                 }
             }
@@ -343,48 +403,90 @@ class InitiationActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tv_loading_text).text = "AI is reading the material..."
 
         lifecycleScope.launch {
+            var extractedPdfText = ""
             try {
-                val pdfText = withContext(Dispatchers.IO) {
+                extractedPdfText = withContext(Dispatchers.IO) {
                     if (mat.isCustom) {
                         val file = downloadedCustomFiles[stepIndex] ?: throw Exception("File not downloaded")
                         val document = PDDocument.load(file)
                         val stripper = PDFTextStripper()
-                        val text = stripper.getText(document)
+                        val text = stripper.getText(document) ?: ""
                         document.close()
                         text
                     } else {
                         val inputStream = assets.open(mat.pathOrUrl)
                         val document = PDDocument.load(inputStream)
                         val stripper = PDFTextStripper()
-                        val text = stripper.getText(document)
+                        val text = stripper.getText(document) ?: ""
                         document.close()
                         inputStream.close()
                         text
                     }
                 }
 
-                if (pdfText.isBlank()) {
-                    GabAIUtils.showSnackbar(this@InitiationActivity, "Could not parse text. Loading standardized diagnostic questions.")
-                    currentGeneratedQuestions = getPhilIriDiagnosticQuestions().shuffled().take(targetQuizItems)
-                    currentQuizIndex = 0
-                    currentScore = 0
-                    showCurrentQuestion()
+                if (extractedPdfText.isBlank()) {
+                    if (!mat.isCustom) {
+                        currentGeneratedQuestions = getPhilIriDiagnosticQuestions().take(targetQuizItems)
+                        currentQuizIndex = 0
+                        currentScore = 0
+                        showCurrentQuestion()
+                    } else {
+                        GabAIUtils.showSnackbar(this@InitiationActivity, "Could not extract text from document.")
+                        loadStep(stepIndex)
+                    }
                     return@launch
                 }
 
+                // First, check if deterministic local regex finds embedded questions immediately
+                val localExtracted = extractEmbeddedQuestionsLocally(extractedPdfText)
+                if (localExtracted.size >= targetQuizItems) {
+                    // Document contains formatted questions and choices — cache and start!
+                    val jsonArray = JSONArray()
+                    for (q in localExtracted) {
+                        val obj = org.json.JSONObject()
+                        obj.put("q", q.question)
+                        val opts = JSONArray()
+                        q.options.forEach { opts.put(it) }
+                        obj.put("options", opts)
+                        obj.put("ans", q.correctIndex)
+                        jsonArray.put(obj)
+                    }
+                    val jsonStr = jsonArray.toString()
+                    db.collection("initiation_quizzes").document(docId).set(
+                        hashMapOf(
+                            "quiz_json" to jsonStr,
+                            "schema_version" to 2L
+                        )
+                    )
+                    parseAndStartQuiz(jsonStr, isCustom = true)
+                    return@launch
+                }
+
+                val sampleText = extractedPdfText.take(60000)
+
                 val prompt = """
-                    You are an AI teacher. Read the following text from a student's reading material:
+                    You are an expert reading comprehension assessment parser for GabAI.
+                    Read the following text extracted from a student's reading material:
                     
-                    TEXT:
-                    ${pdfText.take(8000)}
+                    DOCUMENT TEXT:
+                    $sampleText
                     
-                    Create a ${targetQuizItems + 5}-question multiple choice quiz based ONLY on the text above.
-                    Return ONLY a valid JSON array of objects. Do not use markdown.
-                    Format exactly like this:
+                    CRITICAL TASK INSTRUCTIONS:
+                    1. FIRST, check if this document ALREADY CONTAINS multiple-choice questions (e.g., questions with options A, B, C, D).
+                    2. IF multiple-choice questions ALREADY EXIST in the document:
+                       - YOU MUST EXTRACT THOSE EXACT QUESTIONS AND CHOICES directly from the text.
+                       - DO NOT invent, rewrite, or replace them.
+                       - Determine the correct answer index (0 for A, 1 for B, 2 for C, 3 for D) from the answer key if present in the document, or by carefully evaluating the passage.
+                       - Keep the exact question numbering and order as printed in the document.
+                    3. ONLY IF the document contains NO pre-existing questions (it is a pure reading story or passage with no questions):
+                       - Generate a $targetQuizItems-question multiple choice reading comprehension quiz based strictly on the reading passage.
+                    
+                    Return ONLY a valid JSON array of objects. Do not use markdown code blocks or explanatory text.
+                    Format:
                     [
                       {
-                        "q": "Question text goes here?",
-                        "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+                        "q": "Exact question text here?",
+                        "options": ["Choice A", "Choice B", "Choice C", "Choice D"],
                         "ans": 0
                       }
                     ]
@@ -399,40 +501,91 @@ class InitiationActivity : AppCompatActivity() {
                     jsonStr = jsonStr.substring(startIndex, endIndex + 1)
                 }
 
-                db.collection("initiation_quizzes").document(docId).set(hashMapOf("quiz_json" to jsonStr))
-                parseAndStartQuiz(jsonStr)
+                db.collection("initiation_quizzes").document(docId).set(
+                    hashMapOf(
+                        "quiz_json" to jsonStr,
+                        "schema_version" to 2L
+                    )
+                )
+                parseAndStartQuiz(jsonStr, isCustom = true)
 
             } catch (e: Exception) {
-                GabAIUtils.showSnackbar(this@InitiationActivity, "AI generation unavailable. Loading standardized diagnostic questions.")
-                currentGeneratedQuestions = getPhilIriDiagnosticQuestions().shuffled().take(targetQuizItems)
-                currentQuizIndex = 0
-                currentScore = 0
-                showCurrentQuestion()
+                // Defensive Fallback: Try local regex parser if AI is unavailable/offline
+                val localFallback = extractEmbeddedQuestionsLocally(extractedPdfText)
+                if (localFallback.isNotEmpty()) {
+                    val jsonArray = JSONArray()
+                    for (q in localFallback) {
+                        val obj = org.json.JSONObject()
+                        obj.put("q", q.question)
+                        val opts = JSONArray()
+                        q.options.forEach { opts.put(it) }
+                        obj.put("options", opts)
+                        obj.put("ans", q.correctIndex)
+                        jsonArray.put(obj)
+                    }
+                    parseAndStartQuiz(jsonArray.toString(), isCustom = true)
+                } else if (!mat.isCustom) {
+                    GabAIUtils.showSnackbar(this@InitiationActivity, "Loading standardized diagnostic questions.")
+                    currentGeneratedQuestions = getPhilIriDiagnosticQuestions().take(targetQuizItems)
+                    currentQuizIndex = 0
+                    currentScore = 0
+                    showCurrentQuestion()
+                } else {
+                    GabAIUtils.showSnackbar(this@InitiationActivity, "Could not load quiz for this material: ${e.localizedMessage ?: "Network error"}")
+                    loadStep(stepIndex)
+                }
             }
         }
     }
 
-    private fun parseAndStartQuiz(jsonStr: String) {
+    private fun parseAndStartQuiz(jsonStr: String, isCustom: Boolean = false) {
         try {
             val jsonArray = JSONArray(jsonStr)
             val questions = mutableListOf<GeneratedQuestion>()
 
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
-                val q = obj.getString("q")
-                val opts = obj.getJSONArray("options")
-                val optList = listOf(opts.getString(0), opts.getString(1), opts.getString(2), opts.getString(3))
-                val ans = obj.getInt("ans")
-                questions.add(GeneratedQuestion(q, optList, ans))
+                val q = obj.optString("q", obj.optString("question", "")).trim()
+                val opts = obj.optJSONArray("options") ?: obj.optJSONArray("choices")
+                if (q.isBlank() || opts == null || opts.length() < 4) continue
+
+                val optList = listOf(
+                    opts.getString(0).trim(),
+                    opts.getString(1).trim(),
+                    opts.getString(2).trim(),
+                    opts.getString(3).trim()
+                )
+
+                val rawAns = obj.opt("ans") ?: obj.opt("correctIndex") ?: obj.opt("correctAnswer") ?: 0
+                val ansIndex = when (rawAns) {
+                    is Number -> rawAns.toInt().coerceIn(0, 3)
+                    is String -> when (rawAns.trim().uppercase()) {
+                        "A", "0" -> 0
+                        "B", "1" -> 1
+                        "C", "2" -> 2
+                        "D", "3" -> 3
+                        else -> 0
+                    }
+                    else -> 0
+                }
+                questions.add(GeneratedQuestion(q, optList, ansIndex))
             }
 
             if (questions.isNotEmpty()) {
-                currentGeneratedQuestions = questions.shuffled().take(targetQuizItems)
+                if (isCustom) {
+                    // For custom materials, adapt quiz item count to available questions and preserve document order
+                    if (questions.size >= targetQuizItems) {
+                        targetQuizItems = questions.size
+                    }
+                    currentGeneratedQuestions = questions.take(targetQuizItems)
+                } else {
+                    currentGeneratedQuestions = questions.take(targetQuizItems)
+                }
                 currentQuizIndex = 0
                 currentScore = 0 // Reset score
                 showCurrentQuestion()
             } else {
-                throw Exception("No questions generated")
+                throw Exception("No valid questions generated")
             }
         } catch (e: Exception) {
             GabAIUtils.showSnackbar(this, "Failed to parse quiz data.")
@@ -538,7 +691,8 @@ class InitiationActivity : AppCompatActivity() {
             }
 
             val title = TextView(this).apply {
-                text = "CHAPTER ${i + 1}"
+                val materialTitle = materials.getOrNull(i)?.title
+                text = if (!materialTitle.isNullOrBlank()) materialTitle.uppercase() else "MATERIAL ${i + 1}"
                 textSize = 12f
                 setTypeface(null, android.graphics.Typeface.BOLD)
                 setTextColor(android.graphics.Color.parseColor("#636E72"))
@@ -586,6 +740,7 @@ class InitiationActivity : AppCompatActivity() {
             lastTotalScore = totalScore
             lastTotalPossible = targetQuizItems * materials.size
             rewardsBox.visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tv_quests_completed_summary)?.text = "✅ Read the ${materials.size} Required Material${if (materials.size > 1) "s" else ""}\n✅ Pass the Initiation Test"
 
             if (totalScore == (targetQuizItems * materials.size)) {
                 titleText.text = "Flawless Theory! 👑"

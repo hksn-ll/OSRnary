@@ -14,8 +14,6 @@ object OverviewCache {
         val partOfSpeech: String,
         val definition: String,
         val inSentenceRole: String,
-        val isVisualFeasible: Boolean,
-        val visualSearchTerm: String,
         val relatedQuestions: List<String>
     )
 

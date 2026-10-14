@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1792003852.583936,
-    "seen": 1792003870.469451,
-    "ast_hash": "49a0e7458cf8c04920e2cbb33a599d6d",
+    "mtime": 1792005742.1588304,
+    "seen": 1792006558.5233874,
+    "ast_hash": "277f68a9af4eee6d36a75b5b3d3ed536",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GabAIApp.kt": {
-    "mtime": 1792005172.839261,
-    "seen": 1792005730.90096,
-    "ast_hash": "41181b19058191468cad878cfd78525c",
+    "mtime": 1792006601.5705202,
+    "seen": 1792007143.7278488,
+    "ast_hash": "8139c0ee3cda53b5720bef66027c535d",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GabAIUtils.kt": {
@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/InitiationActivity.kt": {
-    "mtime": 1791759635.6372612,
-    "seen": 1791759849.2015798,
-    "ast_hash": "4ad7ac95bb7de7be8e50e0479e650e0d",
+    "mtime": 1792007041.9829235,
+    "seen": 1792007143.7278621,
+    "ast_hash": "767b45cec474f2a36ba4bd8d2123141e",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/LeaderboardActivity.kt": {
@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/OverviewActivity.kt": {
-    "mtime": 1791745131.5316632,
-    "seen": 1791745728.93607,
-    "ast_hash": "dfd3a888581e22f033da75993a27182c",
+    "mtime": 1792006384.8598397,
+    "seen": 1792006558.523435,
+    "ast_hash": "61175d455dc89e13b1e4572d0fe3cd02",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/PdfViewerActivity.kt": {
@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1792003862.1454606,
-    "seen": 1792003870.469448,
-    "ast_hash": "4d094a8a168b211273759288cc5f5cf4",
+    "mtime": 1792005752.1365094,
+    "seen": 1792006558.5233848,
+    "ast_hash": "26e9257f9373741970a656ca006196ec",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/OverviewCache.kt": {
-    "mtime": 1791630779.9767776,
-    "seen": 1791636064.3372264,
-    "ast_hash": "80837fdf21b0e28ab9804c30b09690ce",
+    "mtime": 1792006223.19587,
+    "seen": 1792006558.5234363,
+    "ast_hash": "82a316494c89c9e16ff7394c59811b0d",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/DevEasterEggActivity.kt": {

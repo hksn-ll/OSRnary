@@ -1,6 +1,11 @@
 package com.example.gabai
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.FirebaseApp
@@ -18,6 +23,8 @@ class GabAIApp : Application() {
         // Prioritize IPv4 to prevent blackholing on devices with broken cellular/VoWiFi IPv6 tunnels
         System.setProperty("java.net.preferIPv4Stack", "true")
         System.setProperty("java.net.preferIPv6Addresses", "false")
+
+        bindToValidInternetNetwork()
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
@@ -43,6 +50,45 @@ class GabAIApp : Application() {
             } catch (e: Exception) {
                 Log.w("GabAIApp", "Async AppCheck initialization notice: ${e.message}")
             }
+        }
+    }
+
+    private fun bindToValidInternetNetwork() {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
+        try {
+            // Find active Wi-Fi or valid internet network that isn't a restricted carrier IMS/VoWiFi tunnel
+            val validNetwork = cm.allNetworks.firstOrNull { net ->
+                val caps = cm.getNetworkCapabilities(net) ?: return@firstOrNull false
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED) &&
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+            } ?: cm.activeNetwork
+
+            if (validNetwork != null) {
+                cm.bindProcessToNetwork(validNetwork)
+                Log.i("GabAIApp", "Successfully bound app network process to validated interface: $validNetwork")
+            }
+
+            val request = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
+                .build()
+
+            cm.registerNetworkCallback(request, object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    val caps = cm.getNetworkCapabilities(network)
+                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        cm.bindProcessToNetwork(network)
+                        Log.i("GabAIApp", "Dynamic Wi-Fi interface bound: $network")
+                    }
+                }
+
+                override fun onLost(network: Network) {
+                    cm.bindProcessToNetwork(null)
+                }
+            })
+        } catch (e: Exception) {
+            Log.w("GabAIApp", "Could not bind process to network: ${e.message}")
         }
     }
 }

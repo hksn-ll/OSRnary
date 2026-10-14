@@ -1,11 +1,11 @@
 {
-  "versionCode": 36,
-  "versionName": "0.4.22",
-  "minRequiredVersionCode": 36,
+  "versionCode": 37,
+  "versionName": "0.4.23",
+  "minRequiredVersionCode": 37,
   "forceUpdate": true,
-  "title": "Instant Student Activation & Carrier IPv4 Resilience (v0.4.22)",
-  "message": "Resolved student activation lockup with instant fast-path Firestore claiming, prioritized IPv4 routing to bypass carrier VoWiFi IPv6 blackholes, and introduced a 15-second fail-safe watchdog on all loading states.",
+  "title": "Initiation Trial Assessment Precision & PDF Extraction (v0.4.23)",
+  "message": "Initiation Trial now directly extracts embedded multiple-choice questions, choices, and answer keys verbatim from custom reading materials (such as Pre-Test and Post-Test documents), preserves question order, dynamically expands item counts, and invalidates stale quiz caches.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.22/GabAI-v0.4.22.apk",
-  "changelog": "• Instant Student Activation: Prioritized Firestore pending_students lookup before touching Firebase Auth, cutting claim latency from minutes to instant.\n• Carrier VoWiFi IPv6 Resilience: Enforced preferIPv4Stack in application runtime to eliminate connection freezes caused by broken cellular VoWiFi IPv6 tunnels.\n• 15-Second Fail-Safe Watchdog: Protected global loading spinners with an automatic 15-second timeout watchdog so UI never hangs indefinitely.\n• Dialog Crash Protection: Safeguarded custom and notice dialogs against Activity lifecycle BadTokenException crashes.\n• Debug App Check: Dynamically enabled DebugAppCheckProviderFactory for development and debug testing."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.23/GabAI-v0.4.23.apk",
+  "changelog": "• PDF Embedded Quiz Extraction: Initiation Trial now extracts exact questions, options, and answer keys verbatim from custom reading PDFs rather than inventing generic AI questions.\n• Deterministic Local Parser: Integrated offline-safe regex extraction for structured questionnaires if AI or network is temporarily unavailable.\n• Sequential Order & Item Count Expansion: Preserved original question numbering and allowed target quiz items to scale with the document's question count.\n• Quiz Schema Invalidation: Introduced schema_version = 2 to bypass and refresh stale, previously hallucinated quizzes.\n• Multi-Material Sequence Support: Loaded all configured teacher custom slots (1 through 4) in sequential order with dynamic title tracking."
 }

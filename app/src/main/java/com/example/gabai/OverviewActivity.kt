@@ -1,11 +1,7 @@
 package com.example.gabai
 
-import android.app.Dialog
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
@@ -14,15 +10,9 @@ import android.text.SpannableStringBuilder
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -41,12 +31,8 @@ import io.noties.markwon.Markwon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.json.JSONObject
-import java.net.URLEncoder
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 class OverviewActivity : AppCompatActivity() {
 
@@ -71,45 +57,6 @@ class OverviewActivity : AppCompatActivity() {
     // In-memory cache for on-demand related question answers (pay-per-need token optimization)
     private val questionAnswers = mutableMapOf<String, String>()
 
-    // Visual Context State
-    private var curatedBitmap: Bitmap? = null
-    private var curatedTitle: String = ""
-    private var curatedCaption: String = ""
-    private var currentVisualTerm: String = ""
-    private var defaultVisualQuery: String = ""
-    private var isVisualFeasible: Boolean = true
-    private var isCuratedWikipediaActive: Boolean = false
-
-    private fun updateFullscreenButtonVisibility() {
-        val btnFullscreen = findViewById<ImageButton>(R.id.btn_fullscreen_visual)
-        btnFullscreen?.visibility = if (isCuratedWikipediaActive && curatedBitmap != null) View.VISIBLE else View.GONE
-    }
-
-    private fun isGrammaticalStopWordOrSentence(text: String, isSentence: Boolean): Boolean {
-        if (isSentence) return true
-        val clean = text.trim().lowercase()
-        val words = clean.split(Regex("\\s+")).filter { it.isNotBlank() }
-        if (words.size > 3) return true
-        val nonVisualConnectives = setOf(
-            "furthermore", "moreover", "however", "therefore", "nevertheless", "nonetheless",
-            "although", "though", "whereas", "while", "despite", "meanwhile", "consequently",
-            "additionally", "similarly", "conversely", "alternatively", "otherwise", "accordingly",
-            "hence", "thus", "instead", "besides", "indeed", "likewise", "finally", "initially",
-            "namely", "specifically", "especially", "particularly", "notably", "significantly",
-            "subsequently", "eventually", "ultimately", "overall", "in conclusion", "for example"
-        )
-        return nonVisualConnectives.contains(clean)
-    }
-
-    private val httpClient by lazy {
-        OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .followRedirects(true)
-            .followSslRedirects(true)
-            .build()
-    }
-
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3.5-flash-lite",
         apiKey = BuildConfig.GEMINI_API_KEY,
@@ -121,7 +68,6 @@ class OverviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_overview)
-        WebView.setWebContentsDebuggingEnabled(true)
 
         // Handle Window Insets for top header
         val header = findViewById<View>(R.id.header_container)
@@ -308,10 +254,6 @@ class OverviewActivity : AppCompatActivity() {
             )
             populateRelatedQuestions(preloadedQuestions, scannedText, surroundingSentence)
 
-            // Feasibility Gating for Preloaded Item: Keep visuals collapsed to prevent heavy background WebView loading
-            isVisualFeasible = false
-            findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
-
             // Cache preloaded explanation to avoid re-querying Gemini
             OverviewCache.put(
                 scannedText,
@@ -322,8 +264,6 @@ class OverviewActivity : AppCompatActivity() {
                     partOfSpeech = lastPartOfSpeech,
                     definition = lastAiResult,
                     inSentenceRole = lastInSentenceRole,
-                    isVisualFeasible = isVisualFeasible,
-                    visualSearchTerm = currentVisualTerm,
                     relatedQuestions = preloadedQuestions
                 )
             )
@@ -331,10 +271,6 @@ class OverviewActivity : AppCompatActivity() {
             // Trigger Detail Quest progress
             ApprenticeQuestHelper.completeQuest(this, ApprenticeQuestHelper.QUEST_DETAIL)
         } else if (scannedText.isNotEmpty()) {
-            // Smart visual context: initially hidden, only displayed if Gemini or cache verifies feasibility
-            isVisualFeasible = false
-            findViewById<View>(R.id.visuals_container)?.visibility = View.GONE
-
             // Generate AI Overview and Question Prompts
             generateAIOverview(scannedText, surroundingSentence, isSingleWord, isPhrase, isSentence)
         } else {
@@ -365,14 +301,6 @@ class OverviewActivity : AppCompatActivity() {
                 } catch (_: Exception) {}
             }.start()
         }
-        try {
-            webView?.let { wv ->
-                (wv.parent as? ViewGroup)?.removeView(wv)
-                wv.stopLoading()
-                wv.destroy()
-            }
-            webView = null
-        } catch (_: Exception) {}
         super.onDestroy()
     }
 
@@ -483,401 +411,7 @@ class OverviewActivity : AppCompatActivity() {
     }
 
     // =========================================================================
-    // 2. ZERO-AI DETERMINISTIC VISUAL CONTEXT SEARCH & CURATED DIAGRAM
-    // =========================================================================
-    private fun extractCoreSubject(sentence: String): String {
-        val stopWords = setOf(
-            "the", "a", "an", "is", "are", "was", "were", "in", "on", "at", "by", "for", "with",
-            "about", "against", "between", "into", "through", "during", "before", "after", "above",
-            "below", "to", "from", "up", "down", "off", "over", "under", "again", "further", "then",
-            "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each",
-            "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own",
-            "same", "so", "than", "too", "very", "can", "will", "just", "should", "now", "and",
-            "or", "but", "if", "because", "as", "until", "while", "of", "that", "this", "these",
-            "those", "their", "they", "its", "it", "which", "what", "who", "whom"
-        )
-        val words = sentence
-            .replace(Regex("[^a-zA-Z0-9\\s]"), " ")
-            .split(Regex("\\s+"))
-            .filter { it.length > 3 && it.lowercase() !in stopWords }
-
-        return words.maxByOrNull { it.length } ?: sentence.take(20)
-    }
-
-    private fun buildDeterministicVisualQuery(
-        targetText: String,
-        surroundingSentence: String,
-        isSentence: Boolean
-    ): String {
-        val stopWords = setOf(
-            "the", "a", "an", "is", "are", "was", "were", "in", "on", "at", "by", "for", "with",
-            "about", "against", "between", "into", "through", "during", "before", "after", "above",
-            "below", "to", "from", "up", "down", "in", "out", "off", "over", "under", "again",
-            "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any",
-            "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not",
-            "only", "own", "same", "so", "than", "too", "very", "can", "will", "just", "should",
-            "now", "and", "or", "but", "if", "because", "as", "until", "while", "of", "that",
-            "this", "these", "those", "their", "they", "its", "it", "which", "what", "who", "whom"
-        )
-
-        if (!isSentence) {
-            val targetClean = targetText.trim().replace(Regex("[^a-zA-Z0-9\\s]"), "")
-            // Extract top context noun from surrounding sentence that isn't the target word
-            val sentenceWords = surroundingSentence
-                .replace(Regex("[^a-zA-Z0-9\\s]"), " ")
-                .split(Regex("\\s+"))
-                .filter { it.length > 3 && it.lowercase() !in stopWords && !targetClean.contains(it, ignoreCase = true) }
-
-            val contextNoun = sentenceWords.firstOrNull() ?: ""
-            return if (contextNoun.isNotEmpty()) {
-                "$targetClean $contextNoun"
-            } else {
-                targetClean
-            }
-        } else {
-            // For a full sentence: extract top 2-3 longest keywords
-            val keywords = surroundingSentence
-                .replace(Regex("[^a-zA-Z0-9\\s]"), " ")
-                .split(Regex("\\s+"))
-                .filter { it.length > 3 && it.lowercase() !in stopWords }
-                .distinctBy { it.lowercase() }
-                .sortedByDescending { it.length }
-                .take(2)
-                .joinToString(" ")
-
-            return if (keywords.isNotEmpty()) keywords else targetText
-        }
-    }
-
-    private var webView: WebView? = null
-
-    private fun getOrCreateWebView(): WebView {
-        val existing = webView
-        if (existing != null) return existing
-        val container = findViewById<FrameLayout>(R.id.webview_container)
-        val wv = WebView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-        }
-        container?.addView(wv)
-        webView = wv
-        return wv
-    }
-
-    private fun setupVisualContainer(term: String, fallbackQuery: String) {
-        val visualsContainer = findViewById<View>(R.id.visuals_container)
-        val btnFullscreen = findViewById<ImageButton>(R.id.btn_fullscreen_visual)
-        val ivDiagram = findViewById<ImageView>(R.id.iv_curated_diagram)
-        val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
-        val webviewContainer = findViewById<FrameLayout>(R.id.webview_container)
-        val progressVisual = findViewById<View>(R.id.progress_visual)
-
-        isCuratedWikipediaActive = false
-        updateFullscreenButtonVisibility()
-
-        if (!isVisualFeasible && curatedBitmap == null) {
-            visualsContainer?.visibility = View.GONE
-            return
-        }
-
-        visualsContainer?.visibility = View.VISIBLE
-        progressVisual?.visibility = View.VISIBLE
-        curatedContainer?.visibility = View.GONE
-        webviewContainer?.visibility = View.GONE
-
-        // Lightbox trigger: only active when curatedBitmap != null
-        btnFullscreen?.setOnClickListener {
-            if (curatedBitmap != null) {
-                showFullscreenLightbox(curatedBitmap, curatedTitle, curatedCaption)
-            }
-        }
-        ivDiagram?.setOnClickListener {
-            if (curatedBitmap != null) {
-                showFullscreenLightbox(curatedBitmap, curatedTitle, curatedCaption)
-            }
-        }
-
-        // Fetch curated diagram asynchronously
-        fetchCuratedDiagram(term, fallbackQuery)
-    }
-
-    private fun fetchCuratedDiagram(term: String, fallbackQuery: String) {
-        val cleanTerm = term.replace(Regex("[^a-zA-Z0-9\\s-]"), "").trim()
-        if (cleanTerm.isEmpty()) {
-            fallbackToWebSearch(fallbackQuery)
-            return
-        }
-
-        val encodedTerm = URLEncoder.encode(cleanTerm.replace(" ", "_"), "UTF-8")
-        val summaryUrl = "https://en.wikipedia.org/api/rest_v1/page/summary/$encodedTerm"
-
-        val request = Request.Builder()
-            .url(summaryUrl)
-            .header("User-Agent", "GabAI-Android-App/1.0 (educational-reading-assistant)")
-            .build()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = httpClient.newCall(request).execute()
-                val body = response.body?.string()
-                if (response.isSuccessful && !body.isNullOrBlank()) {
-                    val json = JSONObject(body)
-                    val title = json.optString("title", cleanTerm)
-                    val description = json.optString("description", "")
-                    val thumbnailObj = json.optJSONObject("thumbnail")
-                    val originalObj = json.optJSONObject("originalimage")
-
-                    var imageUrl = thumbnailObj?.optString("source") ?: ""
-                    if (imageUrl.isEmpty()) {
-                        val orig = originalObj?.optString("source") ?: ""
-                        if (!orig.endsWith(".svg", ignoreCase = true)) {
-                            imageUrl = orig
-                        }
-                    }
-
-                    if (imageUrl.isNotEmpty()) {
-                        if (imageUrl.startsWith("//")) {
-                            imageUrl = "https:$imageUrl"
-                        }
-                        // Sharpen thumbnail if available by requesting 640px preview
-                        val hiresUrl = if (imageUrl.contains("/320px-")) {
-                            imageUrl.replace("/320px-", "/640px-")
-                        } else {
-                            imageUrl
-                        }
-
-                        var imgReq = Request.Builder()
-                            .url(hiresUrl)
-                            .header("User-Agent", "GabAI-Android-App/1.0 (educational-reading-assistant)")
-                            .build()
-                        var imgResp = httpClient.newCall(imgReq).execute()
-
-                        if (!imgResp.isSuccessful && hiresUrl != imageUrl) {
-                            imgReq = Request.Builder()
-                                .url(imageUrl)
-                                .header("User-Agent", "GabAI-Android-App/1.0 (educational-reading-assistant)")
-                                .build()
-                            imgResp = httpClient.newCall(imgReq).execute()
-                        }
-
-                        if (imgResp.isSuccessful) {
-                            val inputStream = imgResp.body?.byteStream()
-                            val bitmap = BitmapFactory.decodeStream(inputStream)
-                            if (bitmap != null) {
-                                curatedBitmap = bitmap
-                                curatedTitle = title
-                                curatedCaption = if (description.isNotBlank()) description else title
-
-                                launch(Dispatchers.Main) {
-                                    val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
-                                    val ivDiagram = findViewById<ImageView>(R.id.iv_curated_diagram)
-                                    val tvCaption = findViewById<TextView>(R.id.tv_diagram_caption)
-                                    val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
-                                    val progressVisual = findViewById<View>(R.id.progress_visual)
-                                    val webviewContainer = findViewById<FrameLayout>(R.id.webview_container)
-                                    val visualsContainer = findViewById<View>(R.id.visuals_container)
-
-                                    progressVisual?.visibility = View.GONE
-                                    ivDiagram?.setImageBitmap(bitmap)
-                                    tvCaption?.text = curatedCaption
-                                    visualsContainer?.visibility = View.VISIBLE
-
-                                    isCuratedWikipediaActive = true
-                                    updateFullscreenButtonVisibility()
-                                    tvBadge?.text = "ENCYCLOPEDIA"
-                                    curatedContainer?.visibility = View.VISIBLE
-                                    webviewContainer?.visibility = View.GONE
-                                }
-                                return@launch
-                            }
-                        }
-                    }
-                }
-                // Fallback to web search
-                launch(Dispatchers.Main) {
-                    fallbackToWebSearch(fallbackQuery)
-                }
-            } catch (_: Exception) {
-                launch(Dispatchers.Main) {
-                    fallbackToWebSearch(fallbackQuery)
-                }
-            }
-        }
-    }
-
-    private fun fallbackToWebSearch(query: String) {
-        isCuratedWikipediaActive = false
-        updateFullscreenButtonVisibility()
-
-        val progressVisual = findViewById<View>(R.id.progress_visual)
-        val curatedContainer = findViewById<View>(R.id.container_curated_diagram)
-        val webviewContainer = findViewById<FrameLayout>(R.id.webview_container)
-        val tvBadge = findViewById<TextView>(R.id.tv_visual_badge)
-        val visualsContainer = findViewById<View>(R.id.visuals_container)
-
-        progressVisual?.visibility = View.GONE
-        curatedContainer?.visibility = View.GONE
-
-        // Feasibility Gate: Only load web images if the concept is genuinely visually feasible!
-        if (!isVisualFeasible) {
-            visualsContainer?.visibility = View.GONE
-            webviewContainer?.visibility = View.GONE
-            return
-        }
-
-        visualsContainer?.visibility = View.VISIBLE
-        webviewContainer?.visibility = View.VISIBLE
-        tvBadge?.text = "WEB VISUALS"
-
-        val wv = getOrCreateWebView()
-        loadGoogleImages(wv, query)
-    }
-
-    private fun showFullscreenLightbox(bitmap: Bitmap?, title: String?, caption: String?) {
-        if (bitmap == null) return
-        val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#EE0F172A")))
-
-        val root = FrameLayout(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
-
-        val imageView = ImageView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            ).apply {
-                gravity = Gravity.CENTER
-                setMargins(24, 140, 24, 160)
-            }
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            setImageBitmap(bitmap)
-        }
-        root.addView(imageView)
-
-        // Top Bar
-        val header = LinearLayout(this).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.TOP
-                setMargins(40, 60, 40, 0)
-            }
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        val tvHeader = TextView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            text = title ?: "Educational Diagram"
-            setTextColor(Color.WHITE)
-            textSize = 18f
-            typeface = Typeface.DEFAULT_BOLD
-        }
-        header.addView(tvHeader)
-
-        val btnClose = TextView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            text = "✕"
-            setTextColor(Color.WHITE)
-            textSize = 24f
-            setPadding(20, 20, 20, 20)
-            setOnClickListener { dialog.dismiss() }
-        }
-        header.addView(btnClose)
-        root.addView(header)
-
-        // Bottom Caption
-        if (!caption.isNullOrBlank()) {
-            val tvCaption = TextView(this).apply {
-                layoutParams = FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    gravity = Gravity.BOTTOM
-                    setMargins(32, 0, 32, 60)
-                }
-                text = caption
-                setTextColor(Color.parseColor("#CBD5E1"))
-                textSize = 13f
-                gravity = Gravity.CENTER
-            }
-            root.addView(tvCaption)
-        }
-
-        root.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        dialog.setContentView(root)
-        dialog.show()
-    }
-
-    private fun loadGoogleImages(webView: WebView, query: String) {
-        val visualsContainer = findViewById<View>(R.id.visuals_container)
-        visualsContainer?.visibility = View.VISIBLE
-        webView.visibility = View.VISIBLE
-
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-        webView.settings.userAgentString =
-            "Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.101 Mobile Safari/537.36"
-
-        // Prevent parent NestedScrollView from stealing touch events
-        webView.setOnTouchListener { v, _ ->
-            v.parent?.requestDisallowInterceptTouchEvent(true)
-            false
-        }
-
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                // Clean Google Images clutter while allowing smooth scrolling
-                view?.evaluateJavascript(
-                    """
-                    (function() {
-                        function hide(selector) {
-                            var elements = document.querySelectorAll(selector);
-                            for (var i = 0; i < elements.length; i++) {
-                                elements[i].style.display = 'none';
-                            }
-                        }
-                        hide('.eK9Ieb'); 
-                        hide('.dmFHw');
-                        hide('header');
-                        hide('#header');
-                        document.addEventListener('click', function(e) {
-                            e.stopImmediatePropagation();
-                            e.preventDefault();
-                            return false;
-                        }, true);
-                    })();
-                    """.trimIndent(), null
-                )
-            }
-
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                return false
-            }
-        }
-
-        val encodedQuery = URLEncoder.encode(query, "UTF-8")
-        val searchUrl = "https://www.google.com/search?tbm=isch&q=$encodedQuery"
-        webView.loadUrl(searchUrl)
-    }
-
-    // =========================================================================
-    // 3. AI OVERVIEW & STRUCTURED RESPONSE GENERATION
+    // 2. AI OVERVIEW & STRUCTURED RESPONSE GENERATION
     // =========================================================================
     private fun generateAIOverview(
         inputText: String,
@@ -952,18 +486,6 @@ class OverviewActivity : AppCompatActivity() {
             }
 
             populateRelatedQuestions(cached.relatedQuestions, inputText, surroundingSentence)
-
-            isVisualFeasible = cached.isVisualFeasible && !isSentence && cached.visualSearchTerm.isNotBlank()
-            val visualsContainer = findViewById<View>(R.id.visuals_container)
-            if (!isVisualFeasible) {
-                if (curatedBitmap == null) {
-                    visualsContainer?.visibility = View.GONE
-                }
-            } else {
-                currentVisualTerm = cached.visualSearchTerm.trim()
-                defaultVisualQuery = "$currentVisualTerm diagram"
-                setupVisualContainer(currentVisualTerm, defaultVisualQuery)
-            }
             completeScanQuestIfApplicable()
             return
         }
@@ -1064,12 +586,6 @@ class OverviewActivity : AppCompatActivity() {
                     Selection Type: $selectionType
                     ${langConfig.directive}
 
-                    CRITICAL VISUAL FEASIBILITY ASSESSMENT:
-                    - Assess whether "Target Selection" has a concrete, meaningful visual representation (e.g. biological cell, anatomical organ, animal, plant, machine, physical apparatus, scientific process diagram, historical figure/artifact, geometric shape, chemical structure).
-                    - Set "isVisuallyFeasible" to TRUE for concrete, visually depictable physical entities or textbook-illustrated scientific mechanisms.
-                    - Set "isVisuallyFeasible" to FALSE for abstract concepts (e.g. freedom, justice, sadness), verbs/actions without distinct apparatus, grammatical transition words (e.g. furthermore, whereas, although, nevertheless), linguistic clauses, idioms, or general sentences.
-                    - If "isVisuallyFeasible" is TRUE, provide "visualSearchTerm": a clean, 1-3 word noun or diagram keyword optimal for retrieving an accurate educational illustration. If FALSE, set "visualSearchTerm" to "".
-
                     CRITICAL SAFETY & TRUTHFULNESS DIRECTIVES:
                     1. FACTUAL ACCURACY (NO HALLUCINATIONS):
                        State what the entity actually is with 100% truth. DO NOT hallucinate, assume, or invent that an unknown brand, commercial app, game, company, or website is an "educational platform" or "study hub" just because you are an educational tutor.
@@ -1083,8 +599,6 @@ class OverviewActivity : AppCompatActivity() {
                       "partOfSpeech": "noun / verb / adjective / phrase / clause / statement",
                       "definition": "${langConfig.definitionDesc}",
                       "inSentenceRole": "${langConfig.roleDesc}",
-                      "isVisuallyFeasible": true,
-                      "visualSearchTerm": "concrete entity or diagram keyword",
                       "relatedQuestions": [
                         "${langConfig.questionDescs[0]}",
                         "${langConfig.questionDescs[1]}",
@@ -1112,8 +626,6 @@ class OverviewActivity : AppCompatActivity() {
                 var partOfSpeech = if (isSingleWord) "WORD" else if (isPhrase) "PHRASE" else "SENTENCE"
                 var definition = ""
                 var inSentenceRole = ""
-                var isAiVisuallyFeasible = !isSentence && !isGrammaticalStopWordOrSentence(inputText, isSentence)
-                var visualSearchTerm = ""
                 val relatedQuestions = mutableListOf<String>()
 
                 try {
@@ -1122,10 +634,6 @@ class OverviewActivity : AppCompatActivity() {
                     partOfSpeech = json.optString("partOfSpeech", partOfSpeech).trim().uppercase()
                     definition = json.optString("definition", "").trim()
                     inSentenceRole = json.optString("inSentenceRole", "").trim()
-                    if (json.has("isVisuallyFeasible")) {
-                        isAiVisuallyFeasible = json.optBoolean("isVisuallyFeasible", isAiVisuallyFeasible)
-                    }
-                    visualSearchTerm = json.optString("visualSearchTerm", "").trim()
                     val questionsArray = json.optJSONArray("relatedQuestions")
                     if (questionsArray != null) {
                         for (i in 0 until questionsArray.length()) {
@@ -1203,19 +711,6 @@ class OverviewActivity : AppCompatActivity() {
                 // Populate Related Questions Vertically
                 populateRelatedQuestions(relatedQuestions, inputText, surroundingSentence)
 
-                // Apply Dynamic Visual Feasibility Gate based on AI Evaluation
-                isVisualFeasible = isAiVisuallyFeasible && !isSentence && visualSearchTerm.isNotBlank()
-                val visualsContainer = findViewById<View>(R.id.visuals_container)
-                if (!isVisualFeasible) {
-                    if (curatedBitmap == null) {
-                        visualsContainer?.visibility = View.GONE
-                    }
-                } else {
-                    currentVisualTerm = visualSearchTerm.trim()
-                    defaultVisualQuery = "$currentVisualTerm diagram"
-                    setupVisualContainer(currentVisualTerm, defaultVisualQuery)
-                }
-
                 // Save to History with actual enclosing sentence as originalContext and grammatical metadata
                 saveToHistory(
                     text = GabAIUtils.sanitizeVocabularyWord(inputText).ifBlank { inputText },
@@ -1236,8 +731,6 @@ class OverviewActivity : AppCompatActivity() {
                         partOfSpeech = partOfSpeech,
                         definition = definition,
                         inSentenceRole = if (isAllSelected) "" else inSentenceRole,
-                        isVisualFeasible = isAiVisuallyFeasible,
-                        visualSearchTerm = visualSearchTerm,
                         relatedQuestions = relatedQuestions
                     )
                 )
