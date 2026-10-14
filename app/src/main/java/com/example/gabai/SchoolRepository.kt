@@ -36,11 +36,9 @@ object SchoolRepository {
         School("305566", "Justice Eliezer R. De Los Santos High School", "Valenzuela City"),
         School("305567", "Lingunan National High School", "Valenzuela City"),
         School("305568", "Paso De Blas National High School", "Valenzuela City"),
-        School("305576", "Ugong Senior High School", "Valenzuela City"),
         School("305705", "Disiplina Village-Bignay National High School", "Valenzuela City"),
         School("305706", "Malanday National High School", "Valenzuela City"),
         School("305707", "Veinte Reales National High School", "Valenzuela City"),
-        School("305708", "Lingunan Senior High School", "Valenzuela City"),
         School("320401", "Valenzuela City School of Mathematics and Science", "Valenzuela City"),
         School("320402", "Vicente Trinidad National High School (Punturin NHS)", "Valenzuela City"),
         School("320403", "Mapulang Lupa National High School", "Valenzuela City"),
@@ -49,7 +47,6 @@ object SchoolRepository {
         School("320406", "Canumay East National High School", "Valenzuela City"),
         School("320407", "Wawang Pulo National High School", "Valenzuela City"),
         School("320408", "Bagbaguin National High School", "Valenzuela City"),
-        School("340729", "Paso de Blas Senior High School", "Valenzuela City"),
         School("305436", "Polo National High School", "Valenzuela City"),
         School("305437", "Dalandanan National High School", "Valenzuela City"),
         School("305438", "Malinta National High School", "Valenzuela City"),
@@ -61,30 +58,38 @@ object SchoolRepository {
         School("305444", "Maysan National High School", "Valenzuela City")
     )
 
+    private var cachedSchools: List<School> = defaultSchools
+
     fun getSchoolName(schoolId: String?): String {
         if (schoolId.isNullOrBlank()) return "School"
-        return defaultSchools.firstOrNull { it.schoolId == schoolId }?.schoolName ?: schoolId
+        return cachedSchools.firstOrNull { it.schoolId == schoolId }?.schoolName
+            ?: defaultSchools.firstOrNull { it.schoolId == schoolId }?.schoolName
+            ?: schoolId
     }
 
     fun fetchSchools(onResult: (List<School>) -> Unit) {
         db.collection("schools").get()
             .addOnSuccessListener { snapshots ->
                 if (snapshots == null || snapshots.isEmpty) {
-                    // Seed fallback
+                    cachedSchools = defaultSchools
                     onResult(defaultSchools)
                     seedDefaultSchools()
                 } else {
                     val list = snapshots.documents.mapNotNull { doc ->
                         doc.toObject(School::class.java)
-                    }.sortedBy { it.schoolName }
+                    }.filter { it.status != "deleted" && it.status != "inactive" }
+                     .sortedBy { it.schoolName }
                     if (list.isEmpty()) {
+                        cachedSchools = defaultSchools
                         onResult(defaultSchools)
                     } else {
+                        cachedSchools = list
                         onResult(list)
                     }
                 }
             }
             .addOnFailureListener {
+                cachedSchools = defaultSchools
                 onResult(defaultSchools)
             }
     }
@@ -104,7 +109,23 @@ object SchoolRepository {
             return
         }
         db.collection("schools").document(school.schoolId).set(school)
-            .addOnSuccessListener { onSuccess() }
+            .addOnSuccessListener {
+                cachedSchools = (cachedSchools.filter { it.schoolId != school.schoolId } + school).sortedBy { it.schoolName }
+                onSuccess()
+            }
+            .addOnFailureListener { onFailure(it) }
+    }
+
+    fun removeSchool(schoolId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        if (schoolId.isEmpty()) {
+            onFailure(IllegalArgumentException("School ID cannot be empty."))
+            return
+        }
+        db.collection("schools").document(schoolId).delete()
+            .addOnSuccessListener {
+                cachedSchools = cachedSchools.filter { it.schoolId != schoolId }
+                onSuccess()
+            }
             .addOnFailureListener { onFailure(it) }
     }
 

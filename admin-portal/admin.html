@@ -551,6 +551,51 @@
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- 2C-3. ADD SCHOOL MODAL (SUPER ADMIN ONLY) -->
+  <!-- ========================================================================= -->
+  <div id="modalAddSchool" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏢</span>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900 font-display">Add Junior High School Campus</h3>
+            <p class="text-[11px] text-slate-500">Register a new institution into SDO Valenzuela network</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeAddSchoolModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+
+      <form id="addSchoolForm" onsubmit="saveNewSchool(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">DepEd School ID</label>
+          <input type="text" id="newSchoolId" required placeholder="e.g. 305447" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-[#5341CD]/20 focus:border-[#5341CD] focus:outline-none">
+          <p class="text-[10px] text-slate-400 mt-1">Official 6-digit DepEd institution code</p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">School Name</label>
+          <input type="text" id="newSchoolName" required placeholder="e.g. Punturin Junior High School" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#5341CD]/20 focus:border-[#5341CD] focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Schools Division Office</label>
+          <input type="text" id="newSchoolDivision" value="Valenzuela City" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-[#5341CD]/20 focus:border-[#5341CD] focus:outline-none">
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeAddSchoolModal()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 font-display">
+            <span>💾</span> Save Campus
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <!-- ========================================================================= -->
   <!-- 2D. ADMINISTRATIVE REMARKS & GUIDANCE DRAWER -->
@@ -1326,7 +1371,7 @@
         <div id="tourTargetJurisdiction" class="hidden md:flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
           <span class="text-slate-400 font-medium">Jurisdiction:</span>
           <select id="jurisdictionSelect" onchange="handleJurisdictionChange(this.value)" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs">
-            <option value="ALL">All Secondary Schools (28 Campuses)</option>
+            <option value="ALL">All Junior High Schools (25 Campuses)</option>
           </select>
         </div>
 
@@ -1406,7 +1451,7 @@
                   <span>🏛️</span> Executive Overview
                 </button>
                 <button onclick="switchTab('tab-school-matrix')" id="btn-tab-school-matrix" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
-                  <span>🏢</span> 28-School Campus Roster
+                  <span>🏢</span> Campus Roster (Junior High)
                 </button>
               </nav>
             </div>
@@ -1466,7 +1511,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
           <div>
             <h2 id="currentTabTitle" class="text-xl sm:text-2xl font-bold text-slate-900 font-display">Division Executive Overview</h2>
-            <p id="currentTabSubtitle" class="text-xs text-slate-500">Live indicators across all 28 secondary institutions in the Schools Division of Valenzuela City.</p>
+            <p id="currentTabSubtitle" class="text-xs text-slate-500">Live indicators across all <span class="school-count-text font-bold">25</span> junior high schools in the Schools Division of Valenzuela City.</p>
           </div>
           <div class="flex items-center gap-3">
             <div class="relative">
@@ -1696,12 +1741,12 @@
                 <span>🏛️</span> SDO Valenzuela Jurisdiction
               </h3>
               <p class="text-xs text-slate-500">
-                Institutional literacy governance across all 28 secondary public high schools in Valenzuela City.
+                Institutional literacy governance across all <span class="school-count-text font-bold">25</span> junior high public schools in Valenzuela City.
               </p>
               <div class="space-y-2 pt-2 text-xs">
                 <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                  <span class="text-slate-600">Total Secondary Schools</span>
-                  <span class="font-bold text-slate-900">28 Campuses</span>
+                  <span class="text-slate-600">Total Junior High Schools</span>
+                  <span id="totalSchoolsCountBadge" class="font-bold text-slate-900"><span class="school-count-text">25</span> Campuses</span>
                 </div>
                 <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
                   <span class="text-slate-600">Target Grade Levels</span>
@@ -1897,15 +1942,18 @@
           </div>
         </div>
 
-        <!-- VIEW 6: 28-SCHOOL CAMPUS ROSTER -->
+        <!-- VIEW 6: JUNIOR HIGH SCHOOL CAMPUS ROSTER -->
         <div id="tab-school-matrix" class="tab-content hidden space-y-4">
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 class="font-bold text-sm text-slate-800">Valenzuela City Secondary Schools Matrix</h3>
-              <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all 28 secondary high schools.</p>
+              <h3 class="font-bold text-sm text-slate-800">Valenzuela City Junior High Schools Matrix</h3>
+              <p class="text-xs text-slate-500">DepEd Institutional codes and summary breakdown across all <span class="school-count-text font-bold">25</span> junior high schools.</p>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="exportSchoolsMatrixCSV()" class="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+              <button type="button" onclick="openAddSchoolModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+                <span>➕</span> Add School
+              </button>
+              <button type="button" onclick="exportSchoolsMatrixCSV()" class="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
                 <span>📊</span> Export Division Matrix (CSV)
               </button>
             </div>
@@ -2151,18 +2199,16 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Valenzuela 28 Secondary Schools
-    const VALENZUELA_SCHOOLS = [
+    // Valenzuela 25 Junior High Schools (Default seed & fallback)
+    const DEFAULT_VALENZUELA_SCHOOLS = [
       { name: "Caruhatan National High School", id: "305445" },
       { name: "Sitero Francisco Memorial National High School", id: "305446" },
       { name: "Justice Eliezer R. De Los Santos High School", id: "305566" },
       { name: "Lingunan National High School", id: "305567" },
       { name: "Paso De Blas National High School", id: "305568" },
-      { name: "Ugong Senior High School", id: "305576" },
       { name: "Disiplina Village-Bignay National High School", id: "305705" },
       { name: "Malanday National High School", id: "305706" },
       { name: "Veinte Reales National High School", id: "305707" },
-      { name: "Lingunan Senior High School", id: "305708" },
       { name: "Valenzuela City School of Mathematics and Science", id: "320401" },
       { name: "Vicente Trinidad National High School (Punturin NHS)", id: "320402" },
       { name: "Mapulang Lupa National High School", id: "320403" },
@@ -2171,7 +2217,6 @@
       { name: "Canumay East National High School", id: "320406" },
       { name: "Wawang Pulo National High School", id: "320407" },
       { name: "Bagbaguin National High School", id: "320408" },
-      { name: "Paso de Blas Senior High School", id: "340729" },
       { name: "Polo National High School", id: "305436" },
       { name: "Dalandanan National High School", id: "305437" },
       { name: "Malinta National High School", id: "305438" },
@@ -2182,6 +2227,9 @@
       { name: "Gen. Tiburcio de Leon National High School", id: "305443" },
       { name: "Maysan National High School", id: "305444" }
     ];
+
+    // Dynamic School Roster synced in real-time with Firestore
+    let VALENZUELA_SCHOOLS = [...DEFAULT_VALENZUELA_SCHOOLS];
 
     // Global State
     let currentAdminUser = null;
@@ -2806,7 +2854,7 @@
         if (roleBanner) roleBanner.className = "p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-3 bg-purple-50/80 border-purple-200 text-purple-950";
         if (roleBannerIcon) roleBannerIcon.textContent = "🏛️";
         if (roleBannerTitle) roleBannerTitle.textContent = "Division Oversight (Schools Division Office - SDO)";
-        if (roleBannerDesc) roleBannerDesc.textContent = "Viewing faculty across all 28 secondary schools. Teacher accreditation is granted directly by the designated campus School Administrator. SDO maintains read-only audit and registry oversight.";
+        if (roleBannerDesc) roleBannerDesc.textContent = `Viewing faculty across all ${VALENZUELA_SCHOOLS.length} junior high schools. Teacher accreditation is granted directly by the designated campus School Administrator. SDO maintains read-only audit and registry oversight.`;
         if (roleBannerTag) {
           roleBannerTag.textContent = "Division Audit";
           roleBannerTag.className = "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white border border-purple-200 text-purple-700 shadow-xs shrink-0";
@@ -3044,6 +3092,48 @@
         renderSchoolsMatrix();
       }, (err) => console.warn("Invites listener:", err));
       unsubs.push(unsubInvites);
+
+      // 10. schools collection (Dynamic systemwide junior high school roster)
+      const unsubSchools = onSnapshot(collection(db, "schools"), (snapshot) => {
+        if (!snapshot.empty) {
+          // If super admin is connected, clean up any legacy non-junior high schools from Firestore
+          if (isSuperAdmin) {
+            const NON_JUNIOR_IDS = ['305565', '305576', '305708', '340729'];
+            snapshot.docs.forEach(d => {
+              if (NON_JUNIOR_IDS.includes(d.id)) {
+                deleteDoc(doc(db, "schools", d.id)).catch(() => {});
+              }
+            });
+          }
+
+          const remoteSchools = snapshot.docs.map(d => {
+            const data = d.data();
+            return {
+              id: d.id,
+              name: data.schoolName || data.name || d.id,
+              division: data.division || "Valenzuela City",
+              status: data.status || "active",
+              adminUid: data.adminUid || "",
+              adminEmail: data.adminEmail || "",
+              adminName: data.adminName || ""
+            };
+          }).filter(s => s.status !== 'deleted' && s.status !== 'inactive' && !['305565', '305576', '305708', '340729'].includes(s.id));
+
+          if (remoteSchools.length > 0) {
+            VALENZUELA_SCHOOLS = remoteSchools.sort((a, b) => a.name.localeCompare(b.name));
+          } else {
+            VALENZUELA_SCHOOLS = [...DEFAULT_VALENZUELA_SCHOOLS];
+          }
+        } else {
+          VALENZUELA_SCHOOLS = [...DEFAULT_VALENZUELA_SCHOOLS];
+        }
+
+        updateSchoolsCountUI();
+        populateSchoolsDropdowns();
+        renderSchoolsMatrix();
+        updateDashboardMetrics();
+      }, (err) => console.warn("Schools real-time listener error:", err));
+      unsubs.push(unsubSchools);
     }
 
     function stopRealtimeListeners() {
@@ -3056,6 +3146,15 @@
       window.showToast("Synchronizing with division data network...", "info");
     };
 
+    function updateSchoolsCountUI() {
+      const count = VALENZUELA_SCHOOLS.length;
+      document.querySelectorAll('.school-count-text').forEach(el => el.textContent = count);
+      const totalSecBadge = document.getElementById('totalSchoolsCountBadge');
+      if (totalSecBadge) totalSecBadge.textContent = `${count} Campuses`;
+      const jurisOpt = document.querySelector('#jurisdictionSelect option[value="ALL"]');
+      if (jurisOpt) jurisOpt.textContent = `All Junior High Schools (${count} Campuses)`;
+    }
+
     function populateSchoolsDropdowns() {
       const dropdowns = [
         document.getElementById('jurisdictionSelect'),
@@ -3066,17 +3165,23 @@
       ];
 
       const mainSelect = dropdowns[0];
-      mainSelect.innerHTML = `<option value="ALL">All Secondary Schools (28 Campuses)</option>`;
-      VALENZUELA_SCHOOLS.forEach(school => {
-        const opt = document.createElement('option');
-        opt.value = school.id;
-        // clean option styling
-        opt.textContent = `${school.name} (${school.id})`;
-        mainSelect.appendChild(opt);
-      });
+      if (mainSelect) {
+        const prevVal = mainSelect.value;
+        mainSelect.innerHTML = `<option value="ALL">All Junior High Schools (${VALENZUELA_SCHOOLS.length} Campuses)</option>`;
+        VALENZUELA_SCHOOLS.forEach(school => {
+          const opt = document.createElement('option');
+          opt.value = school.id;
+          opt.textContent = `${school.name} (${school.id})`;
+          mainSelect.appendChild(opt);
+        });
+        if (prevVal && (prevVal === 'ALL' || VALENZUELA_SCHOOLS.some(s => s.id === prevVal))) {
+          mainSelect.value = prevVal;
+        }
+      }
 
       dropdowns.slice(1).forEach(sel => {
         if (!sel) return;
+        const prevVal = sel.value;
         sel.innerHTML = `<option value="">Select Campus...</option>`;
         VALENZUELA_SCHOOLS.forEach(s => {
           const opt = document.createElement('option');
@@ -3084,6 +3189,9 @@
           opt.textContent = `${s.name} (${s.id})`;
           sel.appendChild(opt);
         });
+        if (prevVal && VALENZUELA_SCHOOLS.some(s => s.id === prevVal)) {
+          sel.value = prevVal;
+        }
       });
     }
 
@@ -5211,14 +5319,112 @@
             </td>
             <td class="p-3.5">${adminColumnHtml}</td>
             <td class="p-3.5 text-right">
-              <button onclick="inspectSchool('${school.id}')" class="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs">
-                Filter Campus
-              </button>
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="inspectSchool('${school.id}')" class="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs">
+                  Filter Campus
+                </button>
+                ${isSuperAdmin ? `
+                  <button type="button" onclick="removeSchoolPrompt('${school.id}', '${school.name.replace(/'/g, "\\'")}')" class="px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold shadow-2xs flex items-center gap-1 transition" title="Delete School from Division">
+                    <span>🗑️</span> Remove
+                  </button>
+                ` : ''}
+              </div>
             </td>
           </tr>
         `;
       }).join('');
     }
+
+    // =========================================================================
+    // DYNAMIC SCHOOL MANAGEMENT (SUPER ADMIN ADD / REMOVE - SYSTEMWIDE)
+    // =========================================================================
+    window.openAddSchoolModal = function() {
+      if (!isSuperAdmin) {
+        window.showToast("Only Division Super Admin can add new schools.", "error");
+        return;
+      }
+      document.getElementById('addSchoolForm')?.reset();
+      document.getElementById('modalAddSchool')?.classList.remove('hidden');
+    };
+
+    window.closeAddSchoolModal = function() {
+      document.getElementById('modalAddSchool')?.classList.add('hidden');
+    };
+
+    window.saveNewSchool = async function(e) {
+      if (e) e.preventDefault();
+      if (!isSuperAdmin) {
+        window.showToast("Only Division Super Admin can add new schools.", "error");
+        return;
+      }
+      const idInput = document.getElementById('newSchoolId');
+      const nameInput = document.getElementById('newSchoolName');
+      const divInput = document.getElementById('newSchoolDivision');
+
+      const schoolId = idInput?.value.trim();
+      const schoolName = nameInput?.value.trim();
+      const division = divInput?.value.trim() || 'Valenzuela City';
+
+      if (!schoolId || !schoolName) {
+        alert("Please enter both DepEd School ID and School Name.");
+        return;
+      }
+
+      if (VALENZUELA_SCHOOLS.some(s => s.id === schoolId)) {
+        alert(`A school with ID "${schoolId}" already exists in the system.`);
+        return;
+      }
+
+      try {
+        await setDoc(doc(db, "schools", schoolId), {
+          schoolId: schoolId,
+          schoolName: schoolName,
+          division: division,
+          status: "active",
+          createdAt: Date.now()
+        });
+
+        if (!VALENZUELA_SCHOOLS.some(s => s.id === schoolId)) {
+          VALENZUELA_SCHOOLS.push({ id: schoolId, name: schoolName, division: division, status: "active" });
+          VALENZUELA_SCHOOLS.sort((a, b) => a.name.localeCompare(b.name));
+          updateSchoolsCountUI();
+          populateSchoolsDropdowns();
+          renderSchoolsMatrix();
+          updateDashboardMetrics();
+        }
+
+        window.closeAddSchoolModal();
+        window.showToast(`School "${schoolName}" (${schoolId}) successfully added systemwide!`, 'success');
+      } catch (err) {
+        console.error("Error adding school:", err);
+        alert("Failed to add school: " + err.message);
+      }
+    };
+
+    window.removeSchoolPrompt = async function(schoolId, schoolName) {
+      if (!isSuperAdmin) {
+        window.showToast("Only Division Super Admin can remove schools.", "error");
+        return;
+      }
+      const confirmed = confirm(`Are you sure you want to remove "${schoolName}" (ID: ${schoolId}) from the system?\n\nThis will remove the school systemwide across the admin portal and mobile app.`);
+      if (!confirmed) return;
+
+      try {
+        await deleteDoc(doc(db, "schools", String(schoolId)));
+
+        // Optimistic local update
+        VALENZUELA_SCHOOLS = VALENZUELA_SCHOOLS.filter(s => s.id !== String(schoolId));
+        updateSchoolsCountUI();
+        populateSchoolsDropdowns();
+        renderSchoolsMatrix();
+        updateDashboardMetrics();
+
+        window.showToast(`School "${schoolName}" has been removed systemwide.`, 'success');
+      } catch (err) {
+        console.error("Error removing school:", err);
+        alert("Failed to remove school: " + err.message);
+      }
+    };
 
     // =========================================================================
     // SDO INVITE ISSUANCE & SCHOOL ADMIN CLAIM LOGIC
@@ -5720,7 +5926,7 @@
       window.showToast(`Exported ${filename}`, "success");
     }
 
-    // 1. Division Matrix Export (28 Campuses)
+    // 1. Division Matrix Export
     window.exportSchoolsMatrixCSV = function() {
       const rows = [
         [
@@ -5813,7 +6019,7 @@
         ]);
       });
 
-      downloadCSV(`SDO_Valenzuela_29_Schools_Matrix_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+      downloadCSV(`SDO_Valenzuela_Junior_High_Schools_Matrix_${new Date().toISOString().slice(0, 10)}.csv`, rows);
     };
 
     // 2. Grade 7–10 Benchmark Export
@@ -5884,7 +6090,7 @@
 
         rows.push([
           gradeName,
-          selectedJurisdiction === 'ALL' ? 'Division-Wide (28 Schools)' : getSchoolName(selectedJurisdiction),
+          selectedJurisdiction === 'ALL' ? `Division-Wide (${VALENZUELA_SCHOOLS.length} Schools)` : getSchoolName(selectedJurisdiction),
           gradeStudents.length,
           gradeClasses.length,
           `${gradeAvg}%`,
@@ -6209,14 +6415,14 @@
       const titles = {
         'tab-division-dashboard': isSchoolAdmin 
           ? ['Campus Overview', `Live indicators for ${getSchoolName(currentAdminUser?.schoolId)}.`]
-          : ['Division Executive Overview', 'Live indicators across all 28 secondary institutions in Valenzuela City.'],
+          : ['Division Executive Overview', `Live indicators across all ${VALENZUELA_SCHOOLS.length} junior high schools in Valenzuela City.`],
         'tab-faculty-verification': isSchoolAdmin
           ? ['Campus Faculty Accreditation', 'Review and grant accreditation to teachers registered for your campus.']
-          : ['Division Faculty Registry & Audit', 'Directory of educators across 28 high schools. Accreditation managed by campus school administrators.'],
+          : ['Division Faculty Registry & Audit', `Directory of educators across ${VALENZUELA_SCHOOLS.length} junior high schools. Accreditation managed by campus school administrators.`],
         'tab-classroom-sections': ['Classroom Sections & Join Codes', 'Inspect class rosters, master codes, and initiation assessments (ClassDetailActivity.kt).'],
         'tab-learner-performance': ['Learner Academic Performance', 'Real quiz history, average scores, and streaks (TeacherPerformanceActivity.kt).'],
         'tab-batch-credentials': ['Student Credential Vault', 'Manage batch-generated student accounts (pending_students) & onboarding states.'],
-        'tab-school-matrix': ['Valenzuela City School Matrix', 'Overview of all 28 secondary schools with DepEd IDs.'],
+        'tab-school-matrix': ['Valenzuela City School Matrix', `Overview of all ${VALENZUELA_SCHOOLS.length} junior high schools with DepEd IDs.`],
         'tab-library-management': ['Library Subjects & PDF Materials', 'PDF documents (pdfUrl) and interactive multiple-choice question pools (quiz_pool_json).'],
         'tab-weekly-assessments': ['Weekly Student Assessments', 'Manage, inspect, and evaluate classroom weekly diagnostic reading assessments across the division.']
       };
@@ -6244,15 +6450,15 @@
         targetId: 'tourTargetJurisdiction',
         title: 'Division Scope & Jurisdiction',
         icon: '🏛️',
-        description: 'You have division-wide administrative oversight across all 28 secondary institutions in Valenzuela City. Use this Jurisdiction dropdown at any time to focus the entire portal on a single school campus.',
+        description: 'You have division-wide administrative oversight across all junior high schools in Valenzuela City. Use this Jurisdiction dropdown at any time to focus the entire portal on a single school campus.',
         tip: 'Filtering by a specific campus instantly scopes faculty, sections, and learner diagnostics to that school.'
       },
       {
         tabId: 'tab-school-matrix',
         targetId: 'tourTargetSchoolMatrix',
-        title: '28-School Campus Matrix & SDO Invites',
+        title: 'Campus Matrix & SDO Management',
         icon: '🏢',
-        description: 'This master matrix rosters all 28 public secondary high schools with their official DepEd IDs. As Super Admin, click "➕ Issue Invite" to generate confidential invite codes for School Principals and IT Coordinators.',
+        description: 'This master matrix rosters all public junior high schools with their official DepEd IDs. As Super Admin, you can add new schools, remove schools, and issue invite codes for School Administrators.',
         tip: 'Each SDO code (e.g. SDO-305445-XXXX) is single-use and irreversibly binds the claiming administrator to their campus.'
       },
       {

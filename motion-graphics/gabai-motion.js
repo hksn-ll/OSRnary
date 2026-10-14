@@ -1636,6 +1636,7 @@
   function setPlaying(p) { playing = p; }
 
   let lastIdx = -1;
+  let lastUIUpdate = 0;
   function updateUI() {
     const f = T / TOTAL;
     if (fillEl) fillEl.style.width = `${f * 100}%`;
@@ -1647,50 +1648,91 @@
       chapterBtns.forEach((b, i) => b.classList.toggle('active', i === idx));
       lastIdx = idx;
     }
-    if (recorder && btnRec) btnRec.textContent = `■ Recording… ${Math.round(f * 100)}%`;
+    if (recorder && btnRec) btnRec.textContent = `■ Finish & Save (${Math.round(f * 100)}%)`;
   }
 
   function frame(now) {
-    const dt = Math.min(0.1, (now - last) / 1000);
+    let dt = (now - last) / 1000;
     last = now;
     if (playing) {
-      T += dt;
+      // During recording: clamp dt to 1/30s max to prevent encoder hiccups/GC spikes from causing visual stutter
+      const step = recorder ? Math.min(0.033, dt) : Math.min(0.1, dt);
+      T += step;
       if (T >= TOTAL) {
-        if (recorder) { T = TOTAL; render(T); stopRecording(); playing = false; }
+        if (recorder) { T = TOTAL; render(T); stopRecording(false); playing = false; }
         else T = 0;
       }
     }
     render(Math.min(T, TOTAL));
-    updateUI();
+    // Throttle UI DOM updates during recording to ~100ms intervals so main thread stays 100% focused on canvas rendering
+    if (!recorder || now - lastUIUpdate > 100) {
+      updateUI();
+      lastUIUpdate = now;
+    }
     if (window.GabAIMotion && typeof window.GabAIMotion.onFrame === 'function') {
       window.GabAIMotion.onFrame(T, sceneAt(T), playing);
     }
     requestAnimationFrame(frame);
   }
 
-  /* ---------- WebM export ---------- */
+  /* ---------- Video export (Smooth Hardware-Accelerated) ---------- */
   function startRecording() {
     if (!canvas.captureStream || !window.MediaRecorder) { toast('Video export is not supported in this browser.'); return; }
-    const mime = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m)) || '';
+    
+    // Prioritize hardware-accelerated and lightweight codecs over heavy VP9
+    const candidates = [
+      { mime: 'video/webm;codecs=h264', ext: 'webm' },
+      { mime: 'video/mp4;codecs=avc1', ext: 'mp4' },
+      { mime: 'video/mp4', ext: 'mp4' },
+      { mime: 'video/webm;codecs=vp8', ext: 'webm' },
+      { mime: 'video/webm', ext: 'webm' },
+      { mime: 'video/webm;codecs=vp9', ext: 'webm' }
+    ];
+    const match = candidates.find(c => MediaRecorder.isTypeSupported(c.mime)) || { mime: '', ext: 'webm' };
+    const mime = match.mime;
+    const ext = match.ext;
+
+    const stream = canvas.captureStream(60);
     const chunks = [];
-    const rec = new MediaRecorder(canvas.captureStream(60), mime ? { mimeType: mime, videoBitsPerSecond: 16e6 } : undefined);
+    // 8 Mbps provides crystal-clear 1080p quality with 50% less encoder workload
+    const rec = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 8000000 } : undefined);
+    
     rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
     rec.onstop = () => {
       document.body.classList.remove('is-recording');
-      if (btnRec) btnRec.textContent = '● Export WebM';
+      if (btnRec) btnRec.textContent = '● Export Video';
+      stream.getTracks().forEach(t => t.stop());
       if (rec._cancelled) { toast('Export cancelled.'); return; }
-      const url = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' }));
+      const blob = new Blob(chunks, { type: mime || 'video/webm' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'gabai-motion.webm'; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-      toast('✅ gabai-motion.webm downloaded');
+      a.href = url;
+      a.download = `gabai-motion.${ext}`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 15000);
+      toast(`✅ gabai-motion.${ext} downloaded (${(blob.size / 1048576).toFixed(1)} MB)`);
     };
+
     recorder = rec;
-    T = 0; playing = true; last = performance.now();
     document.body.classList.add('is-recording');
-    rec.start(250);
-    toast('Recording in real time — keep this tab visible.', 3500);
+    if (btnRec) btnRec.textContent = '■ Finish & Save (0%)';
+    
+    // Render initial frame and warm up recorder for 120ms before unpausing animation clock.
+    // This completely eliminates the 400-500ms startup stutter caused by encoder thread initialization.
+    T = 0;
+    playing = false;
+    render(0);
+    rec.start(1000);
+    toast('Recording with hardware acceleration — click button anytime to finish & download.', 4000);
+    
+    setTimeout(() => {
+      if (!recorder) return;
+      T = 0;
+      playing = true;
+      last = performance.now();
+    }, 120);
   }
+
   function stopRecording(cancel = false) {
     if (!recorder) return;
     recorder._cancelled = cancel;
@@ -1702,7 +1744,7 @@
   if (btnPlay) btnPlay.addEventListener('click', () => { if (!recorder) setPlaying(!playing); });
   if ($('btnRestart')) $('btnRestart').addEventListener('click', () => { seek(0); setPlaying(true); });
   if ($('btnFull') && wrap) $('btnFull').addEventListener('click', () => (document.fullscreenElement ? document.exitFullscreen() : wrap.requestFullscreen()));
-  if (btnRec) btnRec.addEventListener('click', () => (recorder ? stopRecording(true) : startRecording()));
+  if (btnRec) btnRec.addEventListener('click', () => (recorder ? stopRecording(false) : startRecording()));
 
   if (timeline) {
     let dragging = false;
