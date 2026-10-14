@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/AuthActivity.kt": {
-    "mtime": 1792003445.75567,
-    "seen": 1792003745.2083626,
-    "ast_hash": "9b6f26bd88d2430acc61dddf6b224c2f",
+    "mtime": 1792005554.3799188,
+    "seen": 1792005730.9009454,
+    "ast_hash": "c5c6ec20fe6309aebadfbe99a7aba906",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/CameraActivity.kt": {
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GabAIApp.kt": {
-    "mtime": 1791631975.6663475,
-    "seen": 1791636064.3372042,
-    "ast_hash": "98e583ca1256d91a6ffa44c196c62364",
+    "mtime": 1792005172.839261,
+    "seen": 1792005730.90096,
+    "ast_hash": "41181b19058191468cad878cfd78525c",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GabAIUtils.kt": {
@@ -438,9 +438,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GabAIDialogs.kt": {
-    "mtime": 1791632526.7389662,
-    "seen": 1791636064.3372056,
-    "ast_hash": "a347ba8b8ef5a831e0020d613b88b861",
+    "mtime": 1792005533.7962596,
+    "seen": 1792005730.9009616,
+    "ast_hash": "fd778e385106703431cb26ea207c629c",
     "semantic_hash": ""
   },
   "admin-portal/admin.html": {

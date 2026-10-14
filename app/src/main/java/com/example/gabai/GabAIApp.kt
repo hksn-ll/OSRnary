@@ -15,6 +15,10 @@ class GabAIApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // Prioritize IPv4 to prevent blackholing on devices with broken cellular/VoWiFi IPv6 tunnels
+        System.setProperty("java.net.preferIPv4Stack", "true")
+        System.setProperty("java.net.preferIPv6Addresses", "false")
+
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         // Initialize centralized GitHub update monitor with lifecycle tracking and idle poller
@@ -26,9 +30,15 @@ class GabAIApp : Application() {
             try {
                 if (FirebaseApp.getApps(this@GabAIApp).isNotEmpty()) {
                     val firebaseAppCheck = FirebaseAppCheck.getInstance()
-                    firebaseAppCheck.installAppCheckProviderFactory(
-                        PlayIntegrityAppCheckProviderFactory.getInstance()
-                    )
+                    if (BuildConfig.DEBUG) {
+                        firebaseAppCheck.installAppCheckProviderFactory(
+                            com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory.getInstance()
+                        )
+                    } else {
+                        firebaseAppCheck.installAppCheckProviderFactory(
+                            PlayIntegrityAppCheckProviderFactory.getInstance()
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 Log.w("GabAIApp", "Async AppCheck initialization notice: ${e.message}")

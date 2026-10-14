@@ -5,6 +5,8 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.transition.AutoTransition
 import android.transition.TransitionManager
@@ -328,81 +330,90 @@ class AuthActivity : AppCompatActivity() {
                 }
             }
         } else {
-            // --- STUDENT LOGIN (Account Claiming Flow) ---
+            // --- STUDENT LOGIN (Account Claiming & Active Flow) ---
             val cleanInputId = inputId.removePrefix("@").trim().lowercase()
             val fakeEmail = "$cleanInputId@gabai.app"
 
-            auth.signInWithEmailAndPassword(fakeEmail, pass).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null) {
-                        db.collection("users").document(user.uid).get()
-                            .addOnSuccessListener { doc ->
-                                if (doc.exists()) {
-                                    val role = doc.getString("role") ?: "student"
-                                    if (role != "student") {
-                                        auth.signOut()
-                                        toggleLoading(false)
-                                        showErrorDialog("Access Denied", "This portal login is exclusively for students.")
-                                        showLogin()
-                                        return@addOnSuccessListener
-                                    }
+            // 1. FAST PATH: Check pending_students first for instant account activation
+            db.collection("pending_students").document(cleanInputId).get()
+                .addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        val expectedPass = doc.getString("password") ?: ""
+                        if (expectedPass == pass) {
+                            val studentData = doc.data?.toMutableMap()
+                            if (studentData == null) {
+                                toggleLoading(false)
+                                showErrorDialog("Data Error", "Student record is missing details.")
+                                showLogin()
+                                return@addOnSuccessListener
+                            }
+                            studentData["mustChangePassword"] = true
+                            completeStudentAccountClaim(cleanInputId, fakeEmail, pass, studentData, doc.reference)
+                        } else {
+                            toggleLoading(false)
+                            showErrorDialog("Invalid Password", "The password you entered does not match your assigned student account.")
+                            showLogin()
+                        }
+                    } else {
+                        // 2. ACTIVE STUDENT PATH: Account was already claimed, sign in with Firebase Auth
+                        performActiveStudentSignIn(cleanInputId, fakeEmail, pass)
+                    }
+                }
+                .addOnFailureListener {
+                    // Fallback to active sign in if Firestore pending check fails
+                    performActiveStudentSignIn(cleanInputId, fakeEmail, pass)
+                }
+        }
+    }
 
-                                    val mustChange = doc.getBoolean("mustChangePassword") ?: false
-                                    if (mustChange) {
-                                        toggleLoading(false)
-                                        showForcePasswordChangeDialog(user, user.uid) {
-                                            navigateToMain("student")
-                                        }
-                                    } else {
-                                        toggleLoading(false)
-                                        navigateToMain("student")
-                                    }
-                                } else {
-                                    // Account was deleted by the Adviser
-                                    user.delete()
+    private fun performActiveStudentSignIn(cleanInputId: String, fakeEmail: String, pass: String) {
+        auth.signInWithEmailAndPassword(fakeEmail, pass).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val user = auth.currentUser
+                if (user != null) {
+                    db.collection("users").document(user.uid).get()
+                        .addOnSuccessListener { doc ->
+                            if (doc.exists()) {
+                                val role = doc.getString("role") ?: "student"
+                                if (role != "student") {
                                     auth.signOut()
                                     toggleLoading(false)
-                                    showErrorDialog("Access Denied", "Your account has been removed from the class section by your adviser.")
-                                    showLogin()
-                                }
-                            }
-                            .addOnFailureListener {
-                                auth.signOut()
-                                toggleLoading(false)
-                                showErrorDialog("System Error", "Could not verify your account status.")
-                                showLogin()
-                            }
-                    } else {
-                        toggleLoading(false)
-                        showErrorDialog("Login Error", "Could not verify session.")
-                        showLogin()
-                    }
-                } else {
-                    // Check pending_students for first-time account activation
-                    db.collection("pending_students").document(cleanInputId).get()
-                        .addOnSuccessListener { doc ->
-                            if (doc.exists() && doc.getString("password") == pass) {
-                                val studentData = doc.data?.toMutableMap()
-                                if (studentData == null) {
-                                    toggleLoading(false)
-                                    showErrorDialog("Data Error", "Student record is missing details.")
+                                    showErrorDialog("Access Denied", "This portal login is exclusively for students.")
                                     showLogin()
                                     return@addOnSuccessListener
                                 }
-                                studentData["mustChangePassword"] = true
 
-                                completeStudentAccountClaim(cleanInputId, fakeEmail, pass, studentData, doc.reference)
+                                val mustChange = doc.getBoolean("mustChangePassword") ?: false
+                                if (mustChange) {
+                                    toggleLoading(false)
+                                    showForcePasswordChangeDialog(user, user.uid) {
+                                        navigateToMain("student")
+                                    }
+                                } else {
+                                    toggleLoading(false)
+                                    navigateToMain("student")
+                                }
                             } else {
-                                // Fallback: Check if student is an active user (e.g. custom authEmail or teacher-reset tempPassword)
-                                checkActiveStudentFallback(cleanInputId, pass, defaultTask = task)
+                                user.delete()
+                                auth.signOut()
+                                toggleLoading(false)
+                                showErrorDialog("Access Denied", "Your account has been removed from the class section by your adviser.")
+                                showLogin()
                             }
-                        }.addOnFailureListener {
+                        }
+                        .addOnFailureListener {
+                            auth.signOut()
                             toggleLoading(false)
-                            showErrorDialog("Database Error", "Could not verify credentials.")
+                            showErrorDialog("System Error", "Could not verify your account status.")
                             showLogin()
                         }
+                } else {
+                    toggleLoading(false)
+                    showErrorDialog("Login Error", "Could not verify session.")
+                    showLogin()
                 }
+            } else {
+                checkActiveStudentFallback(cleanInputId, pass, defaultTask = task)
             }
         }
     }
@@ -960,9 +971,27 @@ class AuthActivity : AppCompatActivity() {
         finish()
     }
 
+    private var loadingWatchdogRunnable: Runnable? = null
+    private val loadingHandler = Handler(Looper.getMainLooper())
+
     private fun toggleLoading(isLoading: Boolean) {
+        val activeWatchdog = loadingWatchdogRunnable
+        if (activeWatchdog != null) {
+            loadingHandler.removeCallbacks(activeWatchdog)
+        }
+        loadingWatchdogRunnable = null
+
         if (isLoading) {
             GabAIUtils.showGlobalLoading(this)
+            val watchdog = Runnable {
+                if (!isFinishing && !isDestroyed) {
+                    GabAIUtils.hideGlobalLoading(this)
+                    showErrorDialog("Connection Timeout", "The server is taking too long to respond. Please check your internet connection and try again.")
+                    showLogin()
+                }
+            }
+            loadingWatchdogRunnable = watchdog
+            loadingHandler.postDelayed(watchdog, 15000L)
         } else {
             GabAIUtils.hideGlobalLoading(this)
         }

@@ -21,6 +21,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.*
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
+import android.util.Log
 
 object GabAIDialogs {
 
@@ -415,8 +416,16 @@ object GabAIDialogs {
             onAction?.invoke() ?: onDismiss?.invoke()
         }
 
-        dialog.show()
-        applyDialogDimensions(dialog)
+        if (context is android.app.Activity && (context.isFinishing || context.isDestroyed)) {
+            return dialog
+        }
+
+        try {
+            dialog.show()
+            applyDialogDimensions(dialog)
+        } catch (e: Exception) {
+            Log.w("GabAIDialogs", "Unable to show notice dialog safely: ${e.message}")
+        }
         return dialog
     }
 
@@ -541,8 +550,16 @@ object GabAIDialogs {
             btnCancel.visibility = View.GONE
         }
 
-        dialog.show()
-        applyDialogDimensions(dialog)
+        if (context is android.app.Activity && (context.isFinishing || context.isDestroyed)) {
+            return dialog
+        }
+
+        try {
+            dialog.show()
+            applyDialogDimensions(dialog)
+        } catch (e: Exception) {
+            Log.w("GabAIDialogs", "Unable to show custom dialog safely: ${e.message}")
+        }
         return dialog
     }
 

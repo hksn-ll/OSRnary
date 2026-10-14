@@ -1,11 +1,11 @@
 {
-  "versionCode": 35,
-  "versionName": "0.4.21",
-  "minRequiredVersionCode": 35,
+  "versionCode": 36,
+  "versionName": "0.4.22",
+  "minRequiredVersionCode": 36,
   "forceUpdate": true,
-  "title": "Student Account Activation & Unclaimed Roster Ergonomics (v0.4.21)",
-  "message": "Overhauled teacher roster management with clear passwords, show/hide eye toggle, 1-tap copy, and native Android roster sharing. Resolved student account activation spinner lockup and normalized login handles.",
+  "title": "Instant Student Activation & Carrier IPv4 Resilience (v0.4.22)",
+  "message": "Resolved student activation lockup with instant fast-path Firestore claiming, prioritized IPv4 routing to bypass carrier VoWiFi IPv6 blackholes, and introduced a 15-second fail-safe watchdog on all loading states.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.21/GabAI-v0.4.21.apk",
-  "changelog": "• Unclaimed Accounts Ergonomics: Unmasked clear passwords by default with an interactive eye toggle to mask/unmask on demand.\n• 1-Tap Credential Copy & Native Sharing: Added a 1-tap copy button for individual credentials and a native Android Share Sheet button to dispatch the entire section roster to messaging apps.\n• Student Claiming Stability: Fixed an issue where claiming an account could get stuck on the loading spinner by adding resilient error handling and null UID fallbacks.\n• Login Normalization: Automatically strip leading @ symbols and normalize case on student login to ensure seamless credential matching.\n• Teacher Registration UI: Streamlined the teacher sign-up email hint to 'Email Address' for improved clarity."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.22/GabAI-v0.4.22.apk",
+  "changelog": "• Instant Student Activation: Prioritized Firestore pending_students lookup before touching Firebase Auth, cutting claim latency from minutes to instant.\n• Carrier VoWiFi IPv6 Resilience: Enforced preferIPv4Stack in application runtime to eliminate connection freezes caused by broken cellular VoWiFi IPv6 tunnels.\n• 15-Second Fail-Safe Watchdog: Protected global loading spinners with an automatic 15-second timeout watchdog so UI never hangs indefinitely.\n• Dialog Crash Protection: Safeguarded custom and notice dialogs against Activity lifecycle BadTokenException crashes.\n• Debug App Check: Dynamically enabled DebugAppCheckProviderFactory for development and debug testing."
 }
