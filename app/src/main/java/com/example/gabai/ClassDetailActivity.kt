@@ -1,5 +1,7 @@
 package com.example.gabai
 
+import com.google.firebase.auth.FirebaseAuth
+
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -43,6 +45,7 @@ class ClassDetailActivity : AppCompatActivity() {
     private lateinit var schoolId: String
     private lateinit var grade: String // 🟢 NEW
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
     private var isAdviser: Boolean = true
     // --- INITIATION MANAGEMENT VARIABLES ---
     private var currentPdfSlot = 1
@@ -140,6 +143,19 @@ class ClassDetailActivity : AppCompatActivity() {
 
         btnGenerate?.let { view ->
             GabAIUtils.addSpringPressEffect(view) { showGenerateStudentsDialog() }
+        }
+
+        val btnRecycleVault = findViewById<ImageButton>(R.id.btn_recycle_vault)
+        btnRecycleVault?.let { btn ->
+            GabAIUtils.addSpringPressEffect(btn) {
+                GabAIDialogs.showArchiveVaultDialog(
+                    context = this,
+                    schoolId = schoolId,
+                    initialFilter = "student"
+                ) {
+                    loadStudents()
+                }
+            }
         }
 
         setupStudentSearch()
@@ -671,7 +687,7 @@ class ClassDetailActivity : AppCompatActivity() {
     }
 
     private fun resetStudentTemporaryPassword(docId: String, isPending: Boolean, studentName: String) {
-        val tempPass = "gab" + (1000..9999).random()
+        val tempPass = "gab" + (10000..99999).random()
         val collection = if (isPending) "pending_students" else "users"
         val updates = mutableMapOf<String, Any>(
             "password" to tempPass,
@@ -707,21 +723,63 @@ class ClassDetailActivity : AppCompatActivity() {
         GabAIDialogs.showConfirmDialog(
             this,
             title = "Remove Student?",
-            message = "Are you sure you want to remove $studentName from this section?",
+            message = "Are you sure you want to remove $studentName from this section? You can restore them anytime from the Recycle Vault.",
             confirmText = "Remove",
             cancelText = "Cancel",
             isDestructive = true,
             badgeIcon = "👤"
         ) {
-            val collection = if (isPending) "pending_students" else "users"
-            db.collection(collection).document(docId).delete()
-                .addOnSuccessListener {
-                    // 🟢 Clean up ghost UID from class document
+            GabAIUtils.showGlobalLoading(this, "Moving student to Recycle Vault...")
+            val currentUser = auth.currentUser
+            val operatorUid = currentUser?.uid ?: ""
+            val operatorName = currentUser?.displayName ?: "Teacher"
+
+            ArchiveVaultRepository.archiveStudent(
+                studentDocId = docId,
+                isPending = isPending,
+                schoolId = schoolId,
+                operatorUid = operatorUid,
+                operatorName = operatorName,
+                operatorRole = "teacher",
+                reason = "Removed from section: $className",
+                onSuccess = { archiveId ->
+                    GabAIUtils.hideGlobalLoading(this)
+                    // Clean up joinedStudents from class document
                     db.collection("classes").document(classId).update(
                         "joinedStudents", com.google.firebase.firestore.FieldValue.arrayRemove(docId)
                     )
-                    com.example.gabai.GabAIUtils.showSnackbar(this, "Student removed from section")
+                    loadStudents()
+
+                    val rootLayout = findViewById<View>(android.R.id.content)
+                    GabAIUtils.showUndoSnackbar(
+                        view = rootLayout,
+                        message = "$studentName moved to Recycle Vault",
+                        actionText = "Undo"
+                    ) {
+                        GabAIUtils.showGlobalLoading(this, "Restoring student...")
+                        ArchiveVaultRepository.restoreEntity(
+                            archiveId = archiveId,
+                            restoredByUid = operatorUid,
+                            onSuccess = {
+                                GabAIUtils.hideGlobalLoading(this)
+                                db.collection("classes").document(classId).update(
+                                    "joinedStudents", com.google.firebase.firestore.FieldValue.arrayUnion(docId)
+                                )
+                                loadStudents()
+                                GabAIUtils.showSnackbar(this, "Restored $studentName successfully!")
+                            },
+                            onFailure = { e ->
+                                GabAIUtils.hideGlobalLoading(this)
+                                GabAIUtils.showSnackbar(this, "Failed to restore: ${e.message}")
+                            }
+                        )
+                    }
+                },
+                onFailure = { e ->
+                    GabAIUtils.hideGlobalLoading(this)
+                    GabAIUtils.showSnackbar(this, "Failed to remove student: ${e.message}")
                 }
+            )
         }
     }
     // ==============================================================

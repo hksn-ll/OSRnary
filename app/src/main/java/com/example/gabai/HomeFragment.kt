@@ -24,6 +24,8 @@ class HomeFragment : Fragment() {
     private var currentCompletedQuests: List<String> = emptyList()
     private var userListener: ListenerRegistration? = null
     private var assessmentListener: ListenerRegistration? = null
+    private var announcementListener: ListenerRegistration? = null
+    private var latestAnnouncement: Announcement? = null
 
     // This handles the pop-up result
     private val requestPermissionLauncher = registerForActivityResult(
@@ -53,6 +55,7 @@ class HomeFragment : Fragment() {
         if (_binding == null || !isAdded) return
         val viewsToAnimate = listOfNotNull(
             binding.containerGreeting,
+            binding.cardAnnouncementBanner.takeIf { it.visibility == View.VISIBLE },
             binding.cardHeroXp,
             binding.questBoardContainer.takeIf { it.visibility == View.VISIBLE },
             binding.sectionWeeklyAssessments.takeIf { it.visibility == View.VISIBLE },
@@ -76,6 +79,7 @@ class HomeFragment : Fragment() {
         super.onResume()
         updateFeatureLockState(XPManager.canEarnXP(requireContext()))
         loadActiveWeeklyAssessments()
+        loadActiveAnnouncements()
     }
 
     private fun setupDashboard() {
@@ -84,6 +88,9 @@ class HomeFragment : Fragment() {
         if (!cachedName.isNullOrEmpty()) {
             binding.tvGreetingTitle.text = "Hello, $cachedName!"
         }
+
+        // Zero-latency pre-cache announcement display
+        loadCachedAnnouncement()
 
         // Check lock status for the Leaderboard and Daily Quests UI
         updateFeatureLockState(XPManager.canEarnXP(requireContext()))
@@ -646,12 +653,83 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun loadCachedAnnouncement() {
+        val context = context ?: return
+        val cached = AnnouncementRepository.getCachedAnnouncement(context)
+        if (cached != null && _binding != null) {
+            latestAnnouncement = cached
+            binding.tvBannerTitle.text = cached.title.ifEmpty { "Official Bulletin" }
+            binding.tvBannerSnippet.text = cached.content
+            binding.tvBannerAuthor.text = cached.authorName.ifEmpty { "Administration" }
+            val seenCount = (cached.seenCount).coerceAtLeast(cached.seenUserIds.size.toLong())
+            binding.tvBannerSeen.text = "👁️ $seenCount views"
+            binding.cardAnnouncementBanner.visibility = View.VISIBLE
+        }
+    }
+
+    private fun loadActiveAnnouncements() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
+            if (!isAdded || _binding == null) return@addOnSuccessListener
+            val studentSchoolId = userDoc.getString("schoolId") ?: ""
+            val studentName = "${userDoc.getString("firstName") ?: ""} ${userDoc.getString("lastName") ?: ""}".trim().ifEmpty { "Learner" }
+            @Suppress("UNCHECKED_CAST")
+            val classIds = userDoc.get("enrolledClasses") as? List<String> ?: emptyList()
+
+            announcementListener?.remove()
+            announcementListener = AnnouncementRepository.listenAnnouncementsForStudent(studentSchoolId, classIds) { announcements ->
+                if (!isAdded || _binding == null) return@listenAnnouncementsForStudent
+
+                if (announcements.isEmpty()) {
+                    binding.cardAnnouncementBanner.visibility = View.GONE
+                    context?.let { ctx -> AnnouncementRepository.cacheLatestAnnouncement(ctx, null) }
+                    return@listenAnnouncementsForStudent
+                }
+
+                val newest = announcements.first()
+                latestAnnouncement = newest
+                context?.let { ctx -> AnnouncementRepository.cacheLatestAnnouncement(ctx, newest) }
+
+                binding.tvBannerTitle.text = newest.title.ifEmpty { "Official Bulletin" }
+                binding.tvBannerSnippet.text = newest.content
+                binding.tvBannerAuthor.text = newest.authorName.ifEmpty { "Administration" }
+                val isDivision = newest.schoolId == "ALL" || newest.scope == "division"
+                binding.tvBannerScope.text = if (isDivision) "DIVISION-WIDE BULLETIN" else "CAMPUS ADVISORY"
+
+                val seenCount = (newest.seenCount).coerceAtLeast(newest.seenUserIds.size.toLong())
+                binding.tvBannerSeen.text = "👁️ $seenCount views"
+
+                val hasSeen = AnnouncementRepository.hasUserSeen(newest, uid)
+                binding.badgeAnnouncementUnread.visibility = if (!hasSeen) View.VISIBLE else View.GONE
+
+                GabAIUtils.addSpringPressEffect(binding.cardAnnouncementBanner) {
+                    GabAIUtils.performHaptic(binding.cardAnnouncementBanner)
+                    binding.badgeAnnouncementUnread.visibility = View.GONE
+                    GabAIDialogs.showAnnouncementDetailDialog(
+                        context = requireContext(),
+                        announcement = newest,
+                        currentUid = uid,
+                        currentRole = "student",
+                        currentUserName = studentName,
+                        userSchoolId = studentSchoolId
+                    )
+                }
+
+                binding.cardAnnouncementBanner.visibility = View.VISIBLE
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         userListener?.remove()
         userListener = null
         assessmentListener?.remove()
         assessmentListener = null
+        announcementListener?.remove()
+        announcementListener = null
         _binding = null
     }
 }

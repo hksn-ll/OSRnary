@@ -20,6 +20,7 @@ class TeacherLibraryActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
     private var teacherFullName: String = "Teacher"
+    private var teacherSchoolId: String = ""
     private val driveApiUrl = GabAIApp.DRIVE_API_URL
 
     private var allFolders = listOf<com.google.firebase.firestore.DocumentSnapshot>()
@@ -46,11 +47,25 @@ class TeacherLibraryActivity : AppCompatActivity() {
         val btnCreate = findViewById<View>(R.id.btn_create_folder)
         GabAIUtils.addSpringPressEffect(btnCreate) { showFolderDialog(null, "") }
 
+        val btnRecycleVault = findViewById<ImageButton>(R.id.btn_recycle_vault)
+        btnRecycleVault?.let { btn ->
+            GabAIUtils.addSpringPressEffect(btn) {
+                GabAIDialogs.showArchiveVaultDialog(
+                    context = this,
+                    schoolId = teacherSchoolId,
+                    initialFilter = "subject"
+                ) {
+                    loadFolders()
+                }
+            }
+        }
+
         setupSearch()
         loadFolders()
         if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener { doc ->
                 teacherFullName = "${doc.getString("firstName")} ${doc.getString("lastName")}"
+                teacherSchoolId = doc.getString("schoolId") ?: ""
             }
         }
     }
@@ -178,82 +193,78 @@ class TeacherLibraryActivity : AppCompatActivity() {
         ) { newName ->
             if (newName.isNotEmpty()) {
                 if (docId == null) {
-                    val data = hashMapOf("name" to newName, "teacherId" to uid, "teacherName" to teacherFullName, "timestamp" to System.currentTimeMillis())
+                    val data = hashMapOf(
+                        "name" to newName,
+                        "teacherId" to uid,
+                        "teacherName" to teacherFullName,
+                        "schoolId" to teacherSchoolId,
+                        "timestamp" to System.currentTimeMillis()
+                    )
                     db.collection("library_subjects").add(data)
                 } else {
-                    db.collection("library_subjects").document(docId).update("name", newName)
+                    val updateMap = hashMapOf<String, Any>("name" to newName)
+                    if (teacherSchoolId.isNotEmpty()) {
+                        updateMap["schoolId"] = teacherSchoolId
+                    }
+                    db.collection("library_subjects").document(docId).update(updateMap)
                 }
             }
         }
     }
 
-    // 1. UPDATED DELETION CONFIRMATION
+    // 1. UPDATED DELETION WITH RECYCLE VAULT ARCHIVE
     private fun confirmDelete(subjectId: String, subjectName: String) {
         GabAIDialogs.showConfirmDialog(
             this,
             title = "Delete $subjectName?",
-            message = "This will permanently delete this folder AND all the PDFs inside it from both the app and your Google Drive. Are you sure?",
-            confirmText = "Delete",
+            message = "This subject folder and all its materials will be safely moved to the Recycle Vault. You can restore them anytime within 30 days.",
+            confirmText = "Archive & Delete",
             cancelText = "Cancel",
             isDestructive = true,
             badgeIcon = "🗑️"
         ) {
-            deleteSubjectAndContents(subjectId)
-        }
-    }
+            GabAIUtils.showGlobalLoading(this, "Moving to Recycle Vault...")
+            val currentUid = uid ?: ""
+            val currentName = teacherFullName.ifBlank { "Teacher" }
 
-    // 2. THE NEW CASCADE DELETE LOGIC
-    // 2. THE NEW CASCADE DELETE LOGIC
-    private fun deleteSubjectAndContents(subjectId: String) {
-        // TURN ON SPINNER
-        GabAIUtils.showGlobalLoading(this)
+            ArchiveVaultRepository.archiveSubject(
+                subjectId = subjectId,
+                schoolId = teacherSchoolId,
+                operatorUid = currentUid,
+                operatorName = currentName,
+                operatorRole = "teacher",
+                reason = "Curriculum subject deleted: $subjectName",
+                onSuccess = { archiveId ->
+                    GabAIUtils.hideGlobalLoading(this)
+                    loadFolders()
 
-        // Step A: Find all PDFs inside this subject
-        db.collection("library_materials")
-            .whereEqualTo("subjectId", subjectId)
-            .get()
-            .addOnSuccessListener { snapshots ->
-
-                lifecycleScope.launch(Dispatchers.IO) {
-                    try {
-                        val client = okhttp3.OkHttpClient()
-
-                        // Step B: Loop through every PDF and tell Google Drive to trash it
-                        for (doc in snapshots.documents) {
-                            val fileId = doc.getString("driveFileId") ?: ""
-
-                            if (fileId.isNotEmpty()) {
-                                val formBody = okhttp3.FormBody.Builder()
-                                    .add("action", "delete")
-                                    .add("fileId", fileId)
-                                    .build()
-                                val request = okhttp3.Request.Builder().url(driveApiUrl).post(formBody).build()
-                                client.newCall(request).execute() // Execute delete command
+                    val rootLayout = findViewById<View>(android.R.id.content)
+                    GabAIUtils.showUndoSnackbar(
+                        view = rootLayout,
+                        message = "$subjectName moved to Recycle Vault",
+                        actionText = "Undo"
+                    ) {
+                        GabAIUtils.showGlobalLoading(this, "Restoring subject...")
+                        ArchiveVaultRepository.restoreEntity(
+                            archiveId = archiveId,
+                            restoredByUid = currentUid,
+                            onSuccess = {
+                                GabAIUtils.hideGlobalLoading(this)
+                                loadFolders()
+                                GabAIUtils.showSnackbar(this@TeacherLibraryActivity, "Subject restored successfully!")
+                            },
+                            onFailure = { e ->
+                                GabAIUtils.hideGlobalLoading(this)
+                                GabAIUtils.showSnackbar(this@TeacherLibraryActivity, "Failed to restore: ${e.message}")
                             }
-
-                            // Delete the PDF metadata from Firestore
-                            db.collection("library_materials").document(doc.id).delete()
-                        }
-
-                        // Step C: Finally, delete the actual Subject Folder
-                        withContext(Dispatchers.Main) {
-                            db.collection("library_subjects").document(subjectId).delete()
-                            // TURN OFF SPINNER
-                            GabAIUtils.hideGlobalLoading(this@TeacherLibraryActivity)
-                            GabAIUtils.showSnackbar(this@TeacherLibraryActivity, "Subject and all files deleted!")
-                        }
-
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            GabAIUtils.hideGlobalLoading(this@TeacherLibraryActivity)
-                            GabAIUtils.showSnackbar(this@TeacherLibraryActivity, "Error deleting files: ${e.message}")
-                        }
+                        )
                     }
+                },
+                onFailure = { e ->
+                    GabAIUtils.hideGlobalLoading(this)
+                    GabAIUtils.showSnackbar(this@TeacherLibraryActivity, "Failed to delete: ${e.message}")
                 }
-            }
-            .addOnFailureListener { e ->
-                GabAIUtils.hideGlobalLoading(this)
-                GabAIUtils.showSnackbar(this, "Error fetching files: ${e.message}")
-            }
+            )
+        }
     }
 }

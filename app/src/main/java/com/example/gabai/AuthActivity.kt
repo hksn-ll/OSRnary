@@ -394,11 +394,47 @@ class AuthActivity : AppCompatActivity() {
                                     navigateToMain("student")
                                 }
                             } else {
-                                user.delete()
-                                auth.signOut()
-                                toggleLoading(false)
-                                showErrorDialog("Access Denied", "Your account has been removed from the class section by your adviser.")
-                                showLogin()
+                                // Fallback lookup: Link existing student profile if user.uid doc wasn't found directly
+                                db.collection("users")
+                                    .whereEqualTo("role", "student")
+                                    .whereEqualTo("username", cleanInputId)
+                                    .get()
+                                    .addOnSuccessListener { snaps ->
+                                        if (!snaps.isEmpty) {
+                                            val matchedDoc = snaps.documents[0]
+                                            val matchedData = matchedDoc.data?.toMutableMap() ?: mutableMapOf()
+                                            matchedData["authEmail"] = fakeEmail
+                                            db.collection("users").document(user.uid).set(matchedData)
+                                                .addOnSuccessListener {
+                                                    toggleLoading(false)
+                                                    val mustChange = matchedDoc.getBoolean("mustChangePassword") ?: false
+                                                    if (mustChange) {
+                                                        showForcePasswordChangeDialog(user, user.uid) {
+                                                            navigateToMain("student")
+                                                        }
+                                                    } else {
+                                                        navigateToMain("student")
+                                                    }
+                                                }
+                                                .addOnFailureListener {
+                                                    auth.signOut()
+                                                    toggleLoading(false)
+                                                    showErrorDialog("System Error", "Could not synchronize student profile.")
+                                                    showLogin()
+                                                }
+                                        } else {
+                                            auth.signOut()
+                                            toggleLoading(false)
+                                            showErrorDialog("Access Denied", "Your student record could not be found.")
+                                            showLogin()
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        auth.signOut()
+                                        toggleLoading(false)
+                                        showErrorDialog("System Error", "Could not verify your account status.")
+                                        showLogin()
+                                    }
                             }
                         }
                         .addOnFailureListener {
@@ -538,46 +574,72 @@ class AuthActivity : AppCompatActivity() {
         pass: String,
         defaultTask: com.google.android.gms.tasks.Task<com.google.firebase.auth.AuthResult>
     ) {
+        val handleMatch: (com.google.firebase.firestore.QuerySnapshot) -> Unit = { snaps ->
+            // Prioritize document where pass matches tempPassword or password; otherwise latest created
+            val studentDoc = snaps.documents.firstOrNull { d ->
+                val tPass = d.getString("tempPassword") ?: ""
+                val pPass = d.getString("password") ?: ""
+                (tPass.isNotBlank() && tPass == pass) || (pPass.isNotBlank() && pPass == pass)
+            } ?: snaps.documents.maxByOrNull { it.getLong("createdAt") ?: 0L } ?: snaps.documents[0]
+
+            val customEmail = studentDoc.getString("authEmail") ?: ""
+            val tempPassword = studentDoc.getString("tempPassword") ?: ""
+            val directPassword = studentDoc.getString("password") ?: ""
+            val defaultEmail = "$inputId@gabai.app"
+
+            // Case A: Student has a custom/salted authEmail and typed their permanent password
+            if (customEmail.isNotBlank() && customEmail != defaultEmail) {
+                auth.signInWithEmailAndPassword(customEmail, pass).addOnCompleteListener { altTask ->
+                    if (altTask.isSuccessful) {
+                        val user = auth.currentUser
+                        if (user != null) {
+                            val mustChange = studentDoc.getBoolean("mustChangePassword") ?: false
+                            if (mustChange) {
+                                toggleLoading(false)
+                                showForcePasswordChangeDialog(user, user.uid) {
+                                    navigateToMain("student")
+                                }
+                            } else {
+                                toggleLoading(false)
+                                navigateToMain("student")
+                            }
+                        }
+                    } else {
+                        checkTempPasswordReset(studentDoc, pass, tempPassword, directPassword)
+                    }
+                }
+            } else {
+                checkTempPasswordReset(studentDoc, pass, tempPassword, directPassword)
+            }
+        }
+
         db.collection("users")
             .whereEqualTo("role", "student")
             .whereEqualTo("username", inputId)
             .get()
             .addOnSuccessListener { snaps ->
                 if (!snaps.isEmpty) {
-                    val studentDoc = snaps.documents[0]
-                    val customEmail = studentDoc.getString("authEmail") ?: ""
-                    val tempPassword = studentDoc.getString("tempPassword") ?: ""
-                    val directPassword = studentDoc.getString("password") ?: ""
-                    val defaultEmail = "$inputId@gabai.app"
-
-                    // Case A: Student has a custom/salted authEmail and typed their permanent password
-                    if (customEmail.isNotBlank() && customEmail != defaultEmail) {
-                        auth.signInWithEmailAndPassword(customEmail, pass).addOnCompleteListener { altTask ->
-                            if (altTask.isSuccessful) {
-                                val user = auth.currentUser
-                                if (user != null) {
-                                    val mustChange = studentDoc.getBoolean("mustChangePassword") ?: false
-                                    if (mustChange) {
-                                        toggleLoading(false)
-                                        showForcePasswordChangeDialog(user, user.uid) {
-                                            navigateToMain("student")
-                                        }
-                                    } else {
-                                        toggleLoading(false)
-                                        navigateToMain("student")
-                                    }
-                                }
+                    handleMatch(snaps)
+                } else {
+                    // Fallback to query with leading @ if needed
+                    db.collection("users")
+                        .whereEqualTo("role", "student")
+                        .whereEqualTo("username", "@$inputId")
+                        .get()
+                        .addOnSuccessListener { altSnaps ->
+                            if (!altSnaps.isEmpty) {
+                                handleMatch(altSnaps)
                             } else {
-                                checkTempPasswordReset(studentDoc, pass, tempPassword, directPassword)
+                                toggleLoading(false)
+                                showErrorDialog("Login Failed", "Invalid Username or Password.")
+                                showLogin()
                             }
                         }
-                    } else {
-                        checkTempPasswordReset(studentDoc, pass, tempPassword, directPassword)
-                    }
-                } else {
-                    toggleLoading(false)
-                    showErrorDialog("Login Failed", "Invalid Username or Password.")
-                    showLogin()
+                        .addOnFailureListener {
+                            toggleLoading(false)
+                            showErrorDialog("Login Failed", defaultTask.exception?.localizedMessage ?: "Invalid credentials")
+                            showLogin()
+                        }
                 }
             }
             .addOnFailureListener {
@@ -698,8 +760,8 @@ class AuthActivity : AppCompatActivity() {
                         // 8. Clear stale SharedPreferences caches
                         getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).edit().clear().apply()
 
-                        // 8. Delete old user doc
-                        studentDoc.reference.delete()
+                        // 8. Clean up old user doc safely (ignoring permission restriction if non-superadmin)
+                        studentDoc.reference.delete().addOnFailureListener { /* ignore if not superadmin */ }
 
                         toggleLoading(false)
                         val claimedUser = auth.currentUser

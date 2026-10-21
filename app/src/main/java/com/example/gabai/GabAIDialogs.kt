@@ -730,4 +730,723 @@ object GabAIDialogs {
         dialog.show()
         return dialog
     }
+
+    /**
+     * Shows comprehensive announcement detail dialog with Seen By and discreet reply support.
+     */
+    fun showAnnouncementDetailDialog(
+        context: Context,
+        announcement: Announcement,
+        currentUid: String,
+        currentRole: String,
+        currentUserName: String,
+        userSchoolId: String,
+        onReplySubmitted: (() -> Unit)? = null
+    ): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_announcement_detail, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        // Automatically mark as seen
+        AnnouncementRepository.markAnnouncementSeen(
+            announcementId = announcement.id,
+            userUid = currentUid,
+            userName = currentUserName,
+            userRole = currentRole,
+            schoolId = userSchoolId
+        )
+
+        val tvScope = view.findViewById<TextView>(R.id.tv_announcement_scope)
+        val tvMeta = view.findViewById<TextView>(R.id.tv_announcement_meta)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_announcement_title)
+        val tvBody = view.findViewById<TextView>(R.id.tv_announcement_body)
+        val tvPriority = view.findViewById<TextView>(R.id.tv_announcement_priority_banner)
+        val btnSeen = view.findViewById<TextView>(R.id.btn_announcement_seen)
+        val btnClose = view.findViewById<Button>(R.id.btn_dialog_close)
+
+        val layoutReplies = view.findViewById<LinearLayout>(R.id.layout_discreet_replies)
+        val tvPrivacyNote = view.findViewById<TextView>(R.id.tv_reply_privacy_note)
+        val btnToggleReply = view.findViewById<TextView>(R.id.btn_toggle_reply)
+        val layoutComposer = view.findViewById<LinearLayout>(R.id.layout_reply_composer)
+        val etReply = view.findViewById<EditText>(R.id.et_reply_message)
+        val btnSendReply = view.findViewById<Button>(R.id.btn_send_reply)
+        val containerThread = view.findViewById<LinearLayout>(R.id.container_thread_messages)
+
+        val isDivision = announcement.schoolId == "ALL" || announcement.scope == "division"
+        val scopeName = if (isDivision) "DIVISION-WIDE BULLETIN" else "${SchoolRepository.getSchoolName(announcement.schoolId).uppercase()} ADVISORY"
+        tvScope.text = scopeName
+
+        val dateStr = if (announcement.createdAt > 0) {
+            java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date(announcement.createdAt))
+        } else {
+            "Recently"
+        }
+        val authorDisplay = announcement.authorName.ifEmpty { "Administration" }
+        tvMeta.text = "$authorDisplay • $dateStr"
+        tvTitle.text = announcement.title.ifEmpty { "Official Bulletin" }
+        tvBody.text = announcement.content
+
+        if (announcement.priority == "urgent") {
+            tvPriority.visibility = View.VISIBLE
+        } else {
+            tvPriority.visibility = View.GONE
+        }
+
+        val seenCount = (announcement.seenCount).coerceAtLeast(announcement.seenUserIds.size.toLong())
+        btnSeen.text = "👁️ $seenCount"
+
+        val canInspectViews = currentRole == "teacher" || announcement.authorUid == currentUid
+        if (canInspectViews) {
+            GabAIUtils.addSpringPressEffect(btnSeen) {
+                showAnnouncementViewsDialog(context, announcement)
+            }
+        }
+
+        // Configure Discreet Replies
+        if (!announcement.allowReplies) {
+            layoutReplies.visibility = View.GONE
+        } else {
+            layoutReplies.visibility = View.VISIBLE
+
+            val isAuthorTeacher = currentRole == "teacher" && announcement.authorUid == currentUid
+            if (isAuthorTeacher) {
+                // Teacher authored this announcement: Allow inspecting student inquiries
+                tvPrivacyNote.text = "🔒 Student feedback is strictly private. Only you and school leadership can view replies."
+                btnToggleReply.text = "📋 Review Student Inquiries (${announcement.replyCount})"
+                layoutComposer.visibility = View.GONE
+                GabAIUtils.addSpringPressEffect(btnToggleReply) {
+                    showAnnouncementRepliesDialog(
+                        context,
+                        announcement,
+                        currentUid,
+                        currentRole,
+                        currentUserName,
+                        userSchoolId
+                    )
+                }
+            } else {
+                // Student or Teacher recipient
+                if (currentRole == "teacher") {
+                    tvPrivacyNote.text = "🔒 Private feedback to Division and School Administrators."
+                    btnToggleReply.text = "💬 Reply to Administration..."
+                } else {
+                    tvPrivacyNote.text = "🔒 Private message: Only visible to your teacher & school administration."
+                    btnToggleReply.text = "💬 Send a Private Response..."
+                }
+
+                GabAIUtils.addSpringPressEffect(btnToggleReply) {
+                    val isOpening = layoutComposer.visibility != View.VISIBLE
+                    layoutComposer.visibility = if (isOpening) View.VISIBLE else View.GONE
+                    if (isOpening) etReply.requestFocus()
+                }
+
+                GabAIUtils.addSpringPressEffect(btnSendReply) {
+                    val msgText = etReply.text.toString().trim()
+                    if (msgText.isEmpty()) {
+                        Toast.makeText(context, "Please type a message first.", Toast.LENGTH_SHORT).show()
+                        return@addSpringPressEffect
+                    }
+
+                    btnSendReply.isEnabled = false
+                    val reply = AnnouncementReply(
+                        announcementId = announcement.id,
+                        senderUid = currentUid,
+                        senderName = currentUserName,
+                        senderRole = currentRole,
+                        senderSchoolId = userSchoolId,
+                        message = msgText,
+                        isAuthorResponse = false,
+                        isPrivate = true
+                    )
+
+                    AnnouncementRepository.sendReply(reply) { success, _ ->
+                        btnSendReply.isEnabled = true
+                        if (success) {
+                            etReply.setText("")
+                            layoutComposer.visibility = View.GONE
+                            Toast.makeText(context, "Response sent discreetly.", Toast.LENGTH_SHORT).show()
+                            onReplySubmitted?.invoke()
+                        } else {
+                            Toast.makeText(context, "Failed to send response.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                // Listen to this user's private thread
+                var replyListener: com.google.firebase.firestore.ListenerRegistration? = null
+                replyListener = AnnouncementRepository.observeRepliesForAnnouncement(announcement.id) { replies ->
+                    containerThread.removeAllViews()
+                    val myThread = replies.filter { r ->
+                        r.senderUid == currentUid || (r.isAuthorResponse && r.replyToUid == currentUid)
+                    }
+
+                    for (m in myThread) {
+                        val isStaff = m.isAuthorResponse || m.senderRole != "student"
+                        val tvBubble = TextView(context).apply {
+                            text = "${if (isStaff) "Staff Response: " else "You: "}${m.message}"
+                            textSize = 11.5f
+                            setTextColor(if (isStaff) Color.parseColor("#4338CA") else Color.parseColor("#1E293B"))
+                            setBackgroundResource(if (isStaff) R.drawable.bg_btn_modern_secondary else R.drawable.bg_btn_modern_secondary)
+                            setPadding(24, 16, 24, 16)
+                            val params = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                topMargin = 8
+                            }
+                            layoutParams = params
+                        }
+                        containerThread.addView(tvBubble)
+                    }
+                }
+
+                dialog.setOnDismissListener {
+                    replyListener.remove()
+                }
+            }
+        }
+
+        GabAIUtils.addSpringPressEffect(btnClose) {
+            GabAIUtils.performHaptic(btnClose)
+            dialog.dismiss()
+        }
+
+        applyDialogDimensions(dialog)
+        dialog.show()
+        return dialog
+    }
+
+    /**
+     * Dialog for Teachers to broadcast announcements to their enrolled classes.
+     */
+    fun showCreateAnnouncementDialog(
+        context: Context,
+        teacherUid: String,
+        teacherName: String,
+        schoolId: String,
+        classes: List<Pair<String, String>>, // (classId, className)
+        onCreated: () -> Unit
+    ): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_create_announcement, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val etTitle = view.findViewById<EditText>(R.id.et_create_announcement_title)
+        val etContent = view.findViewById<EditText>(R.id.et_create_announcement_content)
+        val spinnerClass = view.findViewById<Spinner>(R.id.spinner_target_class)
+        val cbUrgent = view.findViewById<CheckBox>(R.id.cb_is_urgent)
+        val btnCancel = view.findViewById<Button>(R.id.btn_cancel_create_announcement)
+        val btnPublish = view.findViewById<Button>(R.id.btn_publish_announcement)
+
+        val classOptions = mutableListOf("All My Enrolled Classes")
+        classOptions.addAll(classes.map { it.second })
+
+        val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item, classOptions)
+        spinnerClass.adapter = adapter
+
+        GabAIUtils.addSpringPressEffect(btnCancel) {
+            dialog.dismiss()
+        }
+
+        GabAIUtils.addSpringPressEffect(btnPublish) {
+            val title = etTitle.text.toString().trim()
+            val content = etContent.text.toString().trim()
+            val selectedIndex = spinnerClass.selectedItemPosition
+
+            if (title.isEmpty()) {
+                Toast.makeText(context, "Please enter a title.", Toast.LENGTH_SHORT).show()
+                return@addSpringPressEffect
+            }
+            if (content.isEmpty()) {
+                Toast.makeText(context, "Please enter announcement content.", Toast.LENGTH_SHORT).show()
+                return@addSpringPressEffect
+            }
+
+            btnPublish.isEnabled = false
+            btnPublish.text = "Publishing..."
+
+            val targetClassId = if (selectedIndex > 0 && selectedIndex - 1 < classes.size) {
+                classes[selectedIndex - 1].first
+            } else {
+                null
+            }
+
+            val announcement = Announcement(
+                title = title,
+                content = content,
+                authorUid = teacherUid,
+                authorName = teacherName,
+                authorRole = "teacher",
+                authorSchoolId = schoolId,
+                scope = if (targetClassId != null) "class" else "school",
+                schoolId = schoolId,
+                classId = targetClassId,
+                targetRoles = listOf("student"),
+                priority = if (cbUrgent.isChecked) "urgent" else "normal",
+                allowReplies = true,
+                createdAt = System.currentTimeMillis()
+            )
+
+            AnnouncementRepository.createAnnouncement(announcement) { success, _ ->
+                btnPublish.isEnabled = true
+                btnPublish.text = "Publish"
+                if (success) {
+                    Toast.makeText(context, "Announcement broadcast successfully!", Toast.LENGTH_SHORT).show()
+                    onCreated()
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(context, "Failed to publish notice.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        applyDialogDimensions(dialog)
+        dialog.show()
+        return dialog
+    }
+
+    /**
+     * Dialog for Teachers to review student inquiries and reply directly.
+     */
+    fun showAnnouncementRepliesDialog(
+        context: Context,
+        announcement: Announcement,
+        currentUid: String,
+        currentRole: String,
+        currentUserName: String,
+        userSchoolId: String
+    ): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_announcement_replies, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val tvTitle = view.findViewById<TextView>(R.id.tv_replies_dialog_title)
+        val tvSubtitle = view.findViewById<TextView>(R.id.tv_replies_dialog_subtitle)
+        val container = view.findViewById<LinearLayout>(R.id.container_student_threads)
+        val tvNoReplies = view.findViewById<TextView>(R.id.tv_no_replies)
+        val btnClose = view.findViewById<Button>(R.id.btn_close_replies)
+
+        tvTitle.text = "Inquiries: ${announcement.title}"
+        tvSubtitle.text = "Private student questions"
+
+        val listener = AnnouncementRepository.observeRepliesForAnnouncement(announcement.id) { replies ->
+            val studentReplies = replies.filter { it.senderRole == "student" }
+            if (studentReplies.isEmpty()) {
+                tvNoReplies.visibility = View.VISIBLE
+                container.removeAllViews()
+                container.addView(tvNoReplies)
+                return@observeRepliesForAnnouncement
+            }
+
+            tvNoReplies.visibility = View.GONE
+            container.removeAllViews()
+
+            val studentUids = studentReplies.map { it.senderUid }.distinct()
+            for (sUid in studentUids) {
+                val studentMessages = replies.filter { it.senderUid == sUid }
+                val studentName = studentMessages.firstOrNull()?.senderName ?: "Student"
+                val staffAnswers = replies.filter { it.isAuthorResponse && it.replyToUid == sUid }
+                val thread = (studentMessages + staffAnswers).sortedBy { it.createdAt }
+
+                val card = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setBackgroundResource(R.drawable.bg_btn_modern_secondary)
+                    setPadding(24, 20, 24, 20)
+                    val params = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = 14
+                    }
+                    layoutParams = params
+                }
+
+                val header = TextView(context).apply {
+                    text = "👤 $studentName"
+                    textSize = 13f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setTextColor(Color.parseColor("#1E1B4B"))
+                }
+                card.addView(header)
+
+                for (msg in thread) {
+                    val isStaff = msg.isAuthorResponse || msg.senderRole != "student"
+                    val msgView = TextView(context).apply {
+                        text = "${if (isStaff) "You: " else "$studentName: "}${msg.message}"
+                        textSize = 11.5f
+                        setTextColor(if (isStaff) Color.parseColor("#4338CA") else Color.parseColor("#334155"))
+                        setPadding(0, 6, 0, 4)
+                    }
+                    card.addView(msgView)
+                }
+
+                // Quick reply row
+                val replyRow = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = 10
+                    }
+                }
+
+                val etResponse = EditText(context).apply {
+                    hint = "Reply directly to $studentName..."
+                    textSize = 11.5f
+                    setPadding(16, 12, 16, 12)
+                    setBackgroundResource(android.R.drawable.editbox_background_normal)
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                }
+
+                val btnSend = Button(context).apply {
+                    text = "Send"
+                    textSize = 11.5f
+                    setBackgroundResource(R.drawable.bg_btn_modern_primary)
+                    setTextColor(Color.WHITE)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        (36 * context.resources.displayMetrics.density).toInt()
+                    ).apply {
+                        marginStart = 8
+                    }
+                }
+
+                GabAIUtils.addSpringPressEffect(btnSend) {
+                    val answerText = etResponse.text.toString().trim()
+                    if (answerText.isEmpty()) return@addSpringPressEffect
+
+                    btnSend.isEnabled = false
+                    val answerReply = AnnouncementReply(
+                        announcementId = announcement.id,
+                        senderUid = currentUid,
+                        senderName = currentUserName,
+                        senderRole = currentRole,
+                        senderSchoolId = userSchoolId,
+                        message = answerText,
+                        isAuthorResponse = true,
+                        isPrivate = true,
+                        replyToUid = sUid
+                    )
+
+                    AnnouncementRepository.sendReply(answerReply) { ok, _ ->
+                        btnSend.isEnabled = true
+                        if (ok) {
+                            etResponse.setText("")
+                            Toast.makeText(context, "Direct guidance sent to $studentName.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                replyRow.addView(etResponse)
+                replyRow.addView(btnSend)
+                card.addView(replyRow)
+
+                container.addView(card)
+            }
+        }
+
+        dialog.setOnDismissListener {
+            listener.remove()
+        }
+
+        GabAIUtils.addSpringPressEffect(btnClose) {
+            dialog.dismiss()
+        }
+
+        applyDialogDimensions(dialog)
+        dialog.show()
+        return dialog
+    }
+
+    /**
+     * Dialog for inspecting Seen By read receipts.
+     */
+    fun showAnnouncementViewsDialog(
+        context: Context,
+        announcement: Announcement
+    ): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_announcement_views, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val tvSubtitle = view.findViewById<TextView>(R.id.tv_views_dialog_subtitle)
+        val container = view.findViewById<LinearLayout>(R.id.container_viewers_list)
+        val tvNoViewers = view.findViewById<TextView>(R.id.tv_no_viewers)
+        val btnClose = view.findViewById<Button>(R.id.btn_close_views)
+
+        AnnouncementRepository.fetchAnnouncementViewers(announcement.id) { viewers ->
+            if (viewers.isEmpty()) {
+                tvSubtitle.text = "0 Total Viewers"
+                tvNoViewers.visibility = View.VISIBLE
+                return@fetchAnnouncementViewers
+            }
+
+            tvSubtitle.text = "${viewers.size} Total Viewers"
+            tvNoViewers.visibility = View.GONE
+            container.removeAllViews()
+
+            for (v in viewers) {
+                val row = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    setPadding(16, 12, 16, 12)
+                    setBackgroundResource(R.drawable.bg_btn_modern_secondary)
+                    val params = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        bottomMargin = 8
+                    }
+                    layoutParams = params
+                }
+
+                val infoLayout = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                }
+
+                val tvName = TextView(context).apply {
+                    text = v.userName.ifEmpty { "User" }
+                    textSize = 12.5f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setTextColor(Color.parseColor("#1E293B"))
+                }
+
+                val roleLabel = when (v.userRole) {
+                    "teacher" -> "Faculty"
+                    "school_admin", "super_admin" -> "Administrator"
+                    else -> "Learner"
+                }
+                val tvRole = TextView(context).apply {
+                    text = "$roleLabel • ${SchoolRepository.getSchoolName(v.schoolId)}"
+                    textSize = 10.5f
+                    setTextColor(Color.parseColor("#64748B"))
+                }
+                infoLayout.addView(tvName)
+                infoLayout.addView(tvRole)
+
+                val dateStr = if (v.seenAt > 0) {
+                    java.text.SimpleDateFormat("MMM dd, h:mm a", java.util.Locale.getDefault()).format(java.util.Date(v.seenAt))
+                } else {
+                    "Recently"
+                }
+                val tvTime = TextView(context).apply {
+                    text = dateStr
+                    textSize = 10.5f
+                    setTextColor(Color.parseColor("#94A3B8"))
+                }
+
+                row.addView(infoLayout)
+                row.addView(tvTime)
+                container.addView(row)
+            }
+        }
+
+        GabAIUtils.addSpringPressEffect(btnClose) {
+            dialog.dismiss()
+        }
+
+        applyDialogDimensions(dialog)
+        dialog.show()
+        return dialog
+    }
+
+    /**
+     * Archive & Recycle Vault Dialog: Review and restore accidentally deleted records (30-day retention).
+     */
+    fun showArchiveVaultDialog(
+        context: Context,
+        schoolId: String,
+        initialFilter: String = "ALL",
+        onRestored: (() -> Unit)? = null
+    ): Dialog {
+        val dialog = Dialog(context)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_archive_vault, null)
+        dialog.setContentView(view)
+        applyModernWindowStyles(dialog)
+
+        val tvSubtitle = view.findViewById<TextView>(R.id.tv_vault_subtitle)
+        val container = view.findViewById<LinearLayout>(R.id.container_archive_list)
+        val tvNoArchives = view.findViewById<TextView>(R.id.tv_no_archives)
+        val btnClose = view.findViewById<Button>(R.id.btn_close_vault)
+
+        val chipAll = view.findViewById<Button>(R.id.chip_filter_all)
+        val chipStudents = view.findViewById<Button>(R.id.chip_filter_students)
+        val chipMaterials = view.findViewById<Button>(R.id.chip_filter_materials)
+        val chipClasses = view.findViewById<Button>(R.id.chip_filter_classes)
+
+        var activeFilter = initialFilter
+        val currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        val loadVault: () -> Unit = {
+            tvNoArchives.text = "Loading campus archives..."
+            tvNoArchives.visibility = View.VISIBLE
+            container.removeAllViews()
+
+            ArchiveVaultRepository.fetchCampusArchives(schoolId, activeFilter, { records ->
+                if (records.isEmpty()) {
+                    tvSubtitle.text = "0 Archived Records (Campus Safety Net)"
+                    tvNoArchives.text = "No archived records found in this vault."
+                    tvNoArchives.visibility = View.VISIBLE
+                } else {
+                    tvSubtitle.text = "${records.size} Recoverable Records (30-Day Auto Purge)"
+                    tvNoArchives.visibility = View.GONE
+                    container.removeAllViews()
+
+                    val density = context.resources.displayMetrics.density
+
+                    for (rec in records) {
+                        val card = LinearLayout(context).apply {
+                            orientation = LinearLayout.VERTICAL
+                            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
+                            setBackgroundResource(R.drawable.bg_btn_modern_secondary)
+                            val params = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                bottomMargin = (10 * density).toInt()
+                            }
+                            layoutParams = params
+                        }
+
+                        val topRow = LinearLayout(context).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            gravity = android.view.Gravity.CENTER_VERTICAL
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                        }
+
+                        val iconText = when (rec.entityType) {
+                            "student" -> "👤"
+                            "material" -> "📄"
+                            "subject" -> "📁"
+                            "class" -> "🏫"
+                            else -> "📦"
+                        }
+
+                        val tvIcon = TextView(context).apply {
+                            text = iconText
+                            textSize = 18f
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                marginEnd = (10 * density).toInt()
+                            }
+                        }
+
+                        val infoLayout = LinearLayout(context).apply {
+                            orientation = LinearLayout.VERTICAL
+                            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                        }
+
+                        val tvTitle = TextView(context).apply {
+                            text = rec.displayName
+                            textSize = 13f
+                            setTypeface(null, android.graphics.Typeface.BOLD)
+                            setTextColor(Color.parseColor("#1E293B"))
+                        }
+
+                        val tvSub = TextView(context).apply {
+                            text = rec.subtitle
+                            textSize = 11f
+                            setTextColor(Color.parseColor("#64748B"))
+                        }
+
+                        infoLayout.addView(tvTitle)
+                        infoLayout.addView(tvSub)
+
+                        val btnRestore = Button(context).apply {
+                            text = "Restore"
+                            textSize = 11.5f
+                            setTypeface(null, android.graphics.Typeface.BOLD)
+                            setTextColor(Color.WHITE)
+                            setBackgroundResource(R.drawable.bg_btn_modern_primary)
+                            stateListAnimator = null
+                            layoutParams = LinearLayout.LayoutParams(
+                                (82 * density).toInt(),
+                                (34 * density).toInt()
+                            ).apply {
+                                marginStart = (8 * density).toInt()
+                            }
+                        }
+
+                        topRow.addView(tvIcon)
+                        topRow.addView(infoLayout)
+                        topRow.addView(btnRestore)
+
+                        val dateFormatted = java.text.SimpleDateFormat("MMM dd, yyyy • h:mm a", java.util.Locale.getDefault()).format(java.util.Date(rec.archivedAt))
+                        val tvFooter = TextView(context).apply {
+                            text = "Archived by ${rec.archivedByName} on $dateFormatted"
+                            textSize = 10f
+                            setTextColor(Color.parseColor("#94A3B8"))
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                topMargin = (6 * density).toInt()
+                            }
+                        }
+
+                        card.addView(topRow)
+                        card.addView(tvFooter)
+
+                        GabAIUtils.addSpringPressEffect(btnRestore) {
+                            btnRestore.isEnabled = false
+                            btnRestore.text = "Restoring..."
+                            ArchiveVaultRepository.restoreEntity(rec.archiveId, currentUid, { restoredName ->
+                                GabAIUtils.showSnackbar(context, "Restored $restoredName to active campus! ✨")
+                                onRestored?.invoke()
+                                card.visibility = View.GONE
+                            }, { err ->
+                                btnRestore.isEnabled = true
+                                btnRestore.text = "Restore"
+                                GabAIUtils.showSnackbar(context, "Restore failed: ${err.message}")
+                            })
+                        }
+
+                        container.addView(card)
+                    }
+                }
+            }, { err ->
+                tvNoArchives.text = "Error loading archives: ${err.message}"
+                tvNoArchives.visibility = View.VISIBLE
+            })
+        }
+
+        val updateChipStyles = {
+            val chips = listOf(chipAll, chipStudents, chipMaterials, chipClasses)
+            val filters = listOf("ALL", "student", "material", "class")
+            for (i in chips.indices) {
+                if (activeFilter.equals(filters[i], ignoreCase = true)) {
+                    chips[i].setBackgroundResource(R.drawable.bg_btn_modern_primary)
+                    chips[i].setTextColor(Color.WHITE)
+                } else {
+                    chips[i].setBackgroundResource(R.drawable.bg_btn_modern_secondary)
+                    chips[i].setTextColor(Color.parseColor("#64748B"))
+                }
+            }
+        }
+
+        chipAll.setOnClickListener { activeFilter = "ALL"; updateChipStyles(); loadVault() }
+        chipStudents.setOnClickListener { activeFilter = "student"; updateChipStyles(); loadVault() }
+        chipMaterials.setOnClickListener { activeFilter = "material"; updateChipStyles(); loadVault() }
+        chipClasses.setOnClickListener { activeFilter = "class"; updateChipStyles(); loadVault() }
+
+        loadVault()
+
+        GabAIUtils.addSpringPressEffect(btnClose) {
+            dialog.dismiss()
+        }
+
+        applyDialogDimensions(dialog)
+        dialog.show()
+        return dialog
+    }
 }

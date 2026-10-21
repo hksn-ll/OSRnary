@@ -1,434 +1,547 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="@drawable/bg_stitch_card"
-    android:paddingLeft="20dp"
-    android:paddingTop="12dp"
-    android:paddingRight="20dp"
-    android:paddingBottom="24dp"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="20dp">
-    <View
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/bg_pill_translucent"
-        android:layout_width="40dp"
-        android:layout_height="4dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="#cbd5e1"/>
+    android:background="@drawable/bg_stitch_card"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none">
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
-        <FrameLayout
-            android:id="@+id/frame_profile_avatar"
-            android:background="@drawable/bg_bento_purple"
-            android:layout_width="60dp"
-            android:layout_height="60dp">
-            <TextView
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="#5341cd"
-                android:layout_gravity="center"
-                android:id="@+id/tv_profile_monogram"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🎓"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-            <ImageView
-                android:id="@+id/iv_profile_photo"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"/>
-        </FrameLayout>
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp">
+
+        <!-- Top Drag Pill Indicator -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#cbd5e1" />
+
+        <!-- Scholar Profile Identity Bento Header -->
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="14dp">
-            <TextView
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#0f172a"
-                android:id="@+id/tv_profile_full_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Student Name"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:layout_marginBottom="16dp">
+
+            <!-- Monogram / Photo Squircle -->
+            <FrameLayout
+                android:id="@+id/frame_profile_avatar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_bento_purple">
+
                 <TextView
-                    android:textSize="11sp"
-                    android:textStyle="bold"
+                    android:id="@+id/tv_profile_monogram"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="🎓"
                     android:textColor="#5341cd"
-                    android:id="@+id/tv_profile_class_badge"
-                    android:background="@drawable/bg_pill_translucent"
-                    android:paddingLeft="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingRight="8dp"
-                    android:paddingBottom="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Grade 10 - Emerald"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:backgroundTint="#eef2ff"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"/>
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/iv_profile_photo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Name and Scholar Badges -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="14dp"
+                android:orientation="vertical">
+
                 <TextView
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:textColor="#d97706"
-                    android:id="@+id/tv_profile_rank_pill"
-                    android:background="@drawable/bg_pill_translucent"
-                    android:paddingLeft="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingRight="8dp"
-                    android:paddingBottom="2dp"
+                    android:id="@+id/tv_profile_full_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🏆 #1 Rank"
                     android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:layout_marginStart="6dp"
-                    android:backgroundTint="#fef3c7"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"/>
-                <TextView
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:textColor="#059669"
-                    android:id="@+id/tv_profile_mastery_pill"
-                    android:background="@drawable/bg_pill_translucent"
-                    android:paddingLeft="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingRight="8dp"
-                    android:paddingBottom="2dp"
-                    android:layout_width="wrap_content"
+                    android:text="Student Name"
+                    android:textColor="#0f172a"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🟢 Advanced"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:layout_marginStart="6dp"
-                    android:backgroundTint="#d1fae5"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"/>
-                <TextView
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:textColor="#4338ca"
-                    android:id="@+id/tv_profile_phil_iri_pill"
-                    android:background="@drawable/bg_pill_translucent"
-                    android:paddingLeft="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingRight="8dp"
-                    android:paddingBottom="2dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Phil-IRI: Independent"
-                    android:fontFamily="@font/font_plus_jakarta_sans"
-                    android:layout_marginStart="6dp"
-                    android:backgroundTint="#e0e7ff"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:visibility="gone"/>
+                    android:layout_marginTop="4dp"
+                    android:overScrollMode="never"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_profile_class_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#eef2ff"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:text="Grade 10 - Emerald"
+                            android:textColor="#5341cd"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_profile_rank_pill"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#fef3c7"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:text="🏆 #1 Rank"
+                            android:textColor="#d97706"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_profile_mastery_pill"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#d1fae5"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:text="🟢 Advanced"
+                            android:textColor="#059669"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_profile_phil_iri_pill"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#e0e7ff"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:text="Phil-IRI: Independent"
+                            android:textColor="#4338ca"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </HorizontalScrollView>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:baselineAligned="false">
-        <LinearLayout
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="@drawable/bg_pill_translucent"
-            android:padding="12dp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:backgroundTint="#f8fafc">
-            <TextView
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#5341cd"
-                android:id="@+id/tv_stat_xp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="450 XP"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-            <TextView
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#94a3b8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TOTAL XP"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.05"/>
-        </LinearLayout>
-        <LinearLayout
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="@drawable/bg_pill_translucent"
-            android:padding="12dp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_weight="1"
-            android:backgroundTint="#f8fafc"
-            android:layout_marginHorizontal="3dp">
-            <TextView
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#e11d48"
-                android:id="@+id/tv_stat_streak"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔥 5 Days"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-            <TextView
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#94a3b8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="STREAK"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.05"/>
-        </LinearLayout>
-        <LinearLayout
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="@drawable/bg_pill_translucent"
-            android:padding="12dp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:backgroundTint="#f8fafc">
-            <TextView
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#10b981"
-                android:id="@+id/tv_stat_level"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Lvl 4"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-            <TextView
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#94a3b8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="EXPLORER"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.05"/>
-        </LinearLayout>
-    </LinearLayout>
 
-    <!-- Literacy & Vocabulary Retention Bento Grid -->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:baselineAligned="false">
+        <!-- Stats Row 1: XP, Streak, Level -->
         <LinearLayout
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="@drawable/bg_pill_translucent"
-            android:padding="12dp"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:backgroundTint="#f8fafc">
-            <TextView
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#5341cd"
-                android:id="@+id/tv_stat_words_mastered"
-                android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0 Words"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-            <TextView
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#94a3b8"
-                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#f8fafc"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tv_stat_xp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="0 XP"
+                    android:textColor="#5341cd"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.05"
+                    android:text="TOTAL XP"
+                    android:textColor="#94a3b8"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="WORDS MASTERED"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.05"/>
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#f8fafc"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tv_stat_streak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="🔥 1 Day"
+                    android:textColor="#e11d48"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.05"
+                    android:text="STREAK"
+                    android:textColor="#94a3b8"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#f8fafc"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tv_stat_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="Lvl 1"
+                    android:textColor="#10b981"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.05"
+                    android:text="EXPLORER"
+                    android:textColor="#94a3b8"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
+
+        <!-- Stats Row 2: Words Mastered + Quiz Accuracy Bento Cards -->
         <LinearLayout
-            android:gravity="center"
-            android:orientation="vertical"
-            android:background="@drawable/bg_pill_translucent"
-            android:padding="12dp"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:backgroundTint="#f8fafc">
-            <TextView
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#059669"
-                android:id="@+id/tv_stat_accuracy"
-                android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0%"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-            <TextView
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#94a3b8"
-                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#f8fafc"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tv_stat_words_mastered"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="0 Words"
+                    android:textColor="#5341cd"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.05"
+                    android:text="WORDS MASTERED"
+                    android:textColor="#94a3b8"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="QUIZ ACCURACY"
-                android:fontFamily="@font/font_plus_jakarta_sans"
-                android:letterSpacing="0.05"/>
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#f8fafc"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tv_stat_accuracy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="0%"
+                    android:textColor="#059669"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.05"
+                    android:text="QUIZ ACCURACY"
+                    android:textColor="#94a3b8"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-    <TextView
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:textColor="#1e293b"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="Recall Mastery Benchmark"
-        android:fontFamily="@font/font_plus_jakarta_sans"/>
-    <LinearLayout
-        android:id="@+id/layout_max_combo_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="14dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_pill_translucent"
-        android:backgroundTint="#F8FAFC">
-
+        <!-- Recall Mastery Benchmark Header & Card -->
         <TextView
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:gravity="center"
-            android:text="⚡"
-            android:textSize="22sp"
-            android:background="@drawable/bg_pill_translucent"
-            android:backgroundTint="#EEF2FF"/>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MAX RECALL QUIZ COMBO"
-                android:textColor="#64748B"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.05"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-
-            <TextView
-                android:id="@+id/tv_profile_max_combo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0x Combo"
-                android:textColor="#4F46E5"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/font_plus_jakarta_sans"/>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_profile_combo_streak_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Peak Streak 🔥"
-            android:textColor="#D97706"
-            android:textStyle="bold"
-            android:textSize="11sp"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:background="@drawable/bg_pill_translucent"
-            android:backgroundTint="#FEF3C7"
-            android:fontFamily="@font/font_plus_jakarta_sans"/>
-    </LinearLayout>
-    <TextView
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:textColor="#1e293b"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="Achievement Showcase"
-        android:fontFamily="@font/font_plus_jakarta_sans"/>
-    <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:id="@+id/layout_trophy_showcase"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"/>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.button.MaterialButton
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:text="Recall Mastery Benchmark"
+            android:textColor="#1e293b"
             android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#5341cd"
-            android:id="@+id/btn_share_profile"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp"
-            android:layout_marginEnd="8dp"
-            android:text="Share Slip 📤"
-            android:fontFamily="@font/font_plus_jakarta_sans"
-            android:backgroundTint="#EEF2FF"
-            app:cornerRadius="14dp"
-            app:strokeWidth="1.2dp"
-            app:strokeColor="#C7D2FE"
-            app:icon="@drawable/ic_share"
-            app:iconTint="#5341CD"
-            app:iconSize="16dp"
-            app:iconPadding="4dp"
-            style="@style/Widget.Material3.Button.TonalButton"/>
+            android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#ffffff"
-            android:id="@+id/btn_close_sheet"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp"
-            android:text="Close"
+        <LinearLayout
+            android:id="@+id/layout_max_combo_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#F8FAFC"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#EEF2FF"
+                android:gravity="center"
+                android:text="⚡"
+                android:textSize="22sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.05"
+                    android:text="MAX RECALL QUIZ COMBO"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_profile_max_combo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="0x Combo"
+                    android:textColor="#4F46E5"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_profile_combo_streak_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#FEF3C7"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:text="Peak Streak 🔥"
+                android:textColor="#D97706"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Achievement Showcase Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:fontFamily="@font/font_plus_jakarta_sans"
-            android:backgroundTint="#5341cd"
-            app:cornerRadius="14dp"
-            style="@style/Widget.Material3.Button"/>
+            android:text="Achievement Showcase"
+            android:textColor="#1e293b"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/layout_trophy_showcase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <!-- Student Quiz Journey & Recent Submissions Section -->
+        <LinearLayout
+            android:id="@+id/layout_student_quizzes_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:text="Recent Quiz Submissions"
+                    android:textColor="#1e293b"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_quiz_count_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#EEF2FF"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="0 Quizzes"
+                    android:textColor="#5341cd"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/container_student_quiz_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <ProgressBar
+                android:id="@+id/pb_loading_quizzes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:indeterminateTint="#5341cd"
+                android:layout_marginVertical="12dp" />
+
+            <TextView
+                android:id="@+id/tv_empty_quizzes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="No quiz submissions yet."
+                android:textColor="#94A3B8"
+                android:textSize="13sp"
+                android:fontFamily="@font/font_nunito_sans"
+                android:paddingVertical="12dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share_profile"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#EEF2FF"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Share Slip 📤"
+                android:textColor="#5341cd"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_share"
+                app:iconPadding="4dp"
+                app:iconSize="16dp"
+                app:iconTint="#5341CD"
+                app:strokeColor="#C7D2FE"
+                app:strokeWidth="1.2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_close_sheet"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:backgroundTint="#5341cd"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Close"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:cornerRadius="14dp" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

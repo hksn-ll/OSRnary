@@ -8,9 +8,17 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.graphics.Typeface
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.ProgressBar
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.firestore.FirebaseFirestore
@@ -58,6 +66,19 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.dialog_student_profile, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.let { d ->
+            val bottomSheet = d.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.let { sheet ->
+                sheet.background = null
+                val behavior = BottomSheetBehavior.from(sheet)
+                behavior.skipCollapsed = true
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -114,7 +135,11 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         tvStatLevel.text = "Lvl $level"
         tvStatStreak.text = "🔥 1 Day"
 
-        btnClose.setOnClickListener { dismiss() }
+        btnClose.setOnClickListener {
+            GabAIUtils.performHaptic(it)
+            dismiss()
+        }
+        GabAIUtils.addSpringPressEffect(btnClose)
 
         val tvMasteryPill = view.findViewById<TextView>(R.id.tv_profile_mastery_pill)
         val tvPhilIriPill = view.findViewById<TextView>(R.id.tv_profile_phil_iri_pill)
@@ -123,7 +148,9 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         var cachedPhilIriTier: String? = null
 
         val btnShare = view.findViewById<MaterialButton>(R.id.btn_share_profile)
+        btnShare?.let { GabAIUtils.addSpringPressEffect(it) }
         btnShare?.setOnClickListener {
+            GabAIUtils.performHaptic(it)
             val slip = buildString {
                 appendLine("🌟 GabAI Scholar Reading Slip")
                 appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -264,6 +291,7 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             }
 
         loadAchievementsShowcase(layoutTrophies, studentId)
+        loadStudentQuizHistory(view, studentId)
     }
 
     private fun loadAchievementsShowcase(container: LinearLayout, studentId: String) {
@@ -315,6 +343,185 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
                     badgeFrame.addView(labelView)
                     container.addView(badgeFrame)
                 }
+            }
+    }
+
+    private fun loadStudentQuizHistory(view: View, studentId: String) {
+        val container = view.findViewById<LinearLayout>(R.id.container_student_quiz_items) ?: return
+        val pbLoading = view.findViewById<ProgressBar>(R.id.pb_loading_quizzes)
+        val tvEmpty = view.findViewById<TextView>(R.id.tv_empty_quizzes)
+        val tvCountBadge = view.findViewById<TextView>(R.id.tv_quiz_count_badge)
+
+        val density = resources.displayMetrics.density
+        val fontJakarta = try {
+            androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.font_plus_jakarta_sans)
+        } catch (_: Exception) {
+            null
+        }
+        val dateFormat = SimpleDateFormat("MMM dd • hh:mm a", Locale.getDefault())
+
+        db.collection("users").document(studentId)
+            .collection("quiz_history")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(10)
+            .get()
+            .addOnSuccessListener { snaps ->
+                if (!isAdded) return@addOnSuccessListener
+                pbLoading?.visibility = View.GONE
+                container.removeAllViews()
+
+                if (snaps == null || snaps.isEmpty) {
+                    tvEmpty?.visibility = View.VISIBLE
+                    tvCountBadge?.text = "0 Quizzes"
+                    return@addOnSuccessListener
+                }
+
+                tvEmpty?.visibility = View.GONE
+                tvCountBadge?.text = "${snaps.size()} Quizzes"
+
+                val rowViews = mutableListOf<View>()
+
+                for (doc in snaps.documents) {
+                    val quizType = doc.getString("quizType") ?: "recall"
+                    val score = doc.getLong("finalScore")?.toInt() ?: 0
+                    val totalAttempts = doc.getLong("totalAttempts")?.toInt() ?: 0
+                    val docTotalQ = doc.getLong("totalQuestions")?.toInt() ?: 0
+                    @Suppress("UNCHECKED_CAST")
+                    val items = doc.get("items") as? List<Map<String, Any>> ?: emptyList()
+                    val totalQ = maxOf(docTotalQ, totalAttempts, items.size, score, 1)
+                    val percent = ((score.toFloat() / totalQ) * 100f).toInt().coerceIn(0, 100)
+                    val isPassed = doc.getBoolean("isPassed") ?: (percent >= 70)
+                    val timestamp = doc.getLong("timestamp") ?: 0L
+                    val xp = doc.getLong("xpEarned")?.toInt() ?: 0
+
+                    val titleText = when (quizType) {
+                        "material" -> doc.getString("title") ?: "Reading Comprehension Quiz"
+                        "weekly_assessment" -> doc.getString("title") ?: "Weekly Assessment"
+                        else -> doc.getString("title") ?: "Vocabulary Quest"
+                    }
+
+                    val dateString = if (timestamp > 0) dateFormat.format(Date(timestamp)) else "Recent Session"
+
+                    val card = com.google.android.material.card.MaterialCardView(requireContext()).apply {
+                        radius = 16 * density
+                        cardElevation = 0f
+                        strokeWidth = (1.2 * density).toInt()
+                        setStrokeColor(ColorStateList.valueOf(Color.parseColor("#E2E8F0")))
+                        setCardBackgroundColor(Color.WHITE)
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply { setMargins(0, 0, 0, (8 * density).toInt()) }
+                    }
+
+                    val row = LinearLayout(requireContext()).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = Gravity.CENTER_VERTICAL
+                        val p = (12 * density).toInt()
+                        setPadding(p, p, p, p)
+                    }
+
+                    val iconFrame = FrameLayout(requireContext()).apply {
+                        val s = (38 * density).toInt()
+                        layoutParams = LinearLayout.LayoutParams(s, s).apply {
+                            marginEnd = (10 * density).toInt()
+                        }
+                        val bgRes = when (quizType) {
+                            "material" -> R.drawable.bg_bento_mint
+                            "weekly_assessment" -> R.drawable.bg_bento_orange
+                            else -> R.drawable.bg_bento_purple
+                        }
+                        setBackgroundResource(bgRes)
+                    }
+
+                    val ivIcon = ImageView(requireContext()).apply {
+                        val iconRes = when (quizType) {
+                            "material" -> R.drawable.ic_menu_book
+                            "weekly_assessment" -> R.drawable.ic_task_alt
+                            else -> R.drawable.ic_school
+                        }
+                        val tintColor = when (quizType) {
+                            "material" -> Color.parseColor("#00875A")
+                            "weekly_assessment" -> Color.parseColor("#D97706")
+                            else -> Color.parseColor("#5341CD")
+                        }
+                        setImageResource(iconRes)
+                        setColorFilter(tintColor)
+                        val pad = (8 * density).toInt()
+                        setPadding(pad, pad, pad, pad)
+                        layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+                    }
+                    iconFrame.addView(ivIcon)
+
+                    val textCol = LinearLayout(requireContext()).apply {
+                        orientation = LinearLayout.VERTICAL
+                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    }
+
+                    val tvTitle = TextView(requireContext()).apply {
+                        text = titleText
+                        textSize = 13.5f
+                        setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                        setTextColor(Color.parseColor("#0F172A"))
+                        maxLines = 1
+                        ellipsize = android.text.TextUtils.TruncateAt.END
+                    }
+
+                    val tvMeta = TextView(requireContext()).apply {
+                        text = "$dateString • +$xp XP"
+                        textSize = 11f
+                        setTextColor(Color.parseColor("#64748B"))
+                        setPadding(0, (2 * density).toInt(), 0, 0)
+                    }
+
+                    textCol.addView(tvTitle)
+                    textCol.addView(tvMeta)
+
+                    val pillScore = TextView(requireContext()).apply {
+                        text = "$score / $totalQ ($percent%)"
+                        textSize = 11.5f
+                        setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                        val (bColor, tColor) = if (isPassed) Pair("#ECFDF5", "#059669") else Pair("#FFF1F2", "#E11D48")
+                        background = android.graphics.drawable.GradientDrawable().apply {
+                            cornerRadius = 8 * density
+                            setColor(Color.parseColor(bColor))
+                        }
+                        setTextColor(Color.parseColor(tColor))
+                        setPadding((8 * density).toInt(), (4 * density).toInt(), (8 * density).toInt(), (4 * density).toInt())
+                    }
+
+                    row.addView(iconFrame)
+                    row.addView(textCol)
+                    row.addView(pillScore)
+                    card.addView(row)
+
+                    if (items.isNotEmpty()) {
+                        GabAIUtils.addSpringPressEffect(card) {
+                            GabAIUtils.performHaptic(card)
+                            QuizReviewDialogHelper.showReviewDialog(
+                                context = requireContext(),
+                                title = titleText,
+                                subtitle = "$dateString • Score: $score / $totalQ ($percent%)",
+                                score = score,
+                                totalQuestions = totalQ,
+                                xpEarned = xp,
+                                items = items,
+                                badgeIcon = if (isPassed) "🟢" else "🔴"
+                            )
+                        }
+                    }
+
+                    container.addView(card)
+                    rowViews.add(card)
+                }
+
+                GabAIUtils.animateCascade(rowViews, 20L)
+            }
+            .addOnFailureListener {
+                if (!isAdded) return@addOnFailureListener
+                pbLoading?.visibility = View.GONE
+                tvEmpty?.visibility = View.VISIBLE
+                tvEmpty?.text = "Unable to load quiz history."
             }
     }
 }

@@ -591,59 +591,100 @@ class QuizActivity : AppCompatActivity() {
                     val d = doc.getString("explanation")?.trim() ?: ""
                     val c = doc.getString("originalContext")?.trim() ?: ""
                     val pos = doc.getString("partOfSpeech")?.trim() ?: ""
-                    val role = doc.getString("inSentenceRole")?.trim() ?: ""
-                    itemsSpec.append("${i + 1}. Word: \"$w\"\n   Part of Speech: \"${if (pos.isNotBlank()) pos else "Unspecified"}\"\n   Grammatical Role: \"${if (role.isNotBlank()) role else "Unspecified"}\"\n   Definition: \"$d\"\n   Context: \"$c\"\n\n")
+                    val assignedMechanic = determineMechanic(i, docs.size)
+
+                    itemsSpec.append(
+                        "${i + 1}. Word: \"$w\"\n" +
+                        "   Part of Speech: \"${pos.ifBlank { "Unspecified" }}\"\n" +
+                        "   Definition: \"$d\"\n" +
+                        (if (c.isNotBlank()) "   Context Sentence: \"$c\"\n" else "") +
+                        "   ASSIGNED MECHANIC: ${assignedMechanic.name}\n\n"
+                    )
                 }
 
                 val prompt = """
                     You are an expert pedagogical assessment designer creating high-school-level vocabulary challenge questions for Grade 10 students.
-                    Generate exactly ${docs.size} UNAMBIGUOUS challenge questions, one for each target word provided below:
+                    Generate exactly ${docs.size} UNAMBIGUOUS challenge questions, matching the ASSIGNED MECHANIC specified for each word below:
 
                     $itemsSpec
 
-                    CRITICAL MULTI-MECHANIC & GRAMMAR-AWARE SPECIFICATIONS:
-                    1. STRICT GRAMMATICAL AWARENESS & PART-OF-SPEECH CONCORDANCE:
-                       - "clozeOptions": MUST contain 4 options that share the EXACT same part of speech, exact same grammatical tense (e.g., all past tense -ed verbs), exact same grammatical number (all plural or all singular), and exact syntactic function as the target word. A student must NEVER be able to eliminate options merely through grammar elimination.
-                       - "clozeSentence": The surrounding sentence grammar (subject-verb agreement, verb tense, prepositional pairing, article "a/an" compatibility) must strictly agree with the target word.
-                    2. CONTEXT MEANING DETECTIVE:
-                       - "contextSentence": A vivid, context-rich sentence featuring the target word naturally.
-                       - "contextOptions": 4 clear, plausible definition choices sharing the exact same grammatical phrasing (e.g. all infinitive verb phrases "to [action]..." or all noun phrases). Exactly 1 is the accurate contextual meaning.
-                       - "contextCorrect": The accurate contextual definition among the 4 choices.
-                    3. SPOT THE IMPOSTOR (GLITCH HUNT):
+                    CRITICAL TOKEN-OPTIMIZED GENERATION RULES:
+                    For each word item, generate ONLY the specific fields required for its ASSIGNED MECHANIC, plus a concise "briefMeaning" (2-4 words) and "explanation" (1-2 sentences). Do NOT generate fields for other mechanics!
+
+                    MECHANIC SPECIFICATIONS:
+                    1. IF ASSIGNED MECHANIC IS "CLOZE":
+                       - "clozeSentence": A natural sentence featuring "_______" in place of the target word. Grammar (tense, number, subject-verb agreement) must strictly agree with the target word.
+                       - "clozeOptions": Array of 4 options sharing the EXACT same part of speech, grammatical tense, and syntactic function.
+                       - "clozeCorrect": The target word.
+                    2. IF ASSIGNED MECHANIC IS "CONTEXT_MEANING":
+                       - "contextSentence": A vivid, natural sentence featuring the target word clearly in context.
+                       - "contextOptions": Array of 4 plausible definition phrases sharing the same phrasing. Exactly 1 is accurate.
+                       - "contextCorrect": The accurate contextual definition.
+                    3. IF ASSIGNED MECHANIC IS "IMPOSTOR":
                        - "genuineSentence": A sophisticated, natural sentence demonstrating correct usage of the target word.
                        - "impostorSentence": An absurd, comical, or logically flawed sentence misusing the target word.
-                    4. GRAMMAR LANDMINE (SENTENCE DEFUSAL 💣):
-                       - "landmineSentence": A compelling, full sentence featuring the target word, containing ONE subtle grammatical trap (e.g. subject-verb agreement error, wrong verb tense, broken preposition, or wrong inflection).
-                       - "landmineSegments": An array of exactly 4 short phrases/segments (1-3 words each) taken directly from the "landmineSentence". Exactly 3 segments are grammatically SAFE, and exactly 1 segment is the FAULTY LANDMINE wire.
-                       - "landmineFaultySegment": The exact faulty segment among the 4 segments that contains the grammatical error.
-                       - "landmineCorrection": The clean, corrected replacement for the faulty segment (e.g., "was conclusive").
-                       - "landmineExplanation": A 1-2 sentence explanation of why the faulty wire was a grammatical error and how to fix it.
-                    5. RAPID MATCH:
-                       - "briefMeaning": A concise 2-to-4 word definition of the target word.
-                    6. EDUCATIONAL EXPLANATION:
-                       - 1-2 sentence pedagogical insight explaining why the answer is correct based on grammar and context clues.
+                    4. IF ASSIGNED MECHANIC IS "GRAMMAR_LANDMINE":
+                       - "landmineSentence": A compelling sentence featuring the target word, containing ONE subtle grammatical trap.
+                       - "landmineSegments": Array of exactly 4 short phrases (1-3 words each) taken directly from "landmineSentence" (3 safe, 1 trap).
+                       - "landmineFaultySegment": The exact faulty segment containing the error.
+                       - "landmineCorrection": The clean, corrected replacement for the faulty segment.
+                       - "landmineExplanation": 1-2 sentence explanation of why it was a grammatical error and how to fix it.
+                    5. IF ASSIGNED MECHANIC IS "RAPID_MATCH":
+                       - "briefMeaning": A concise 2-4 word definition of the target word.
+                       - "explanation": Short definition insight.
+
+                    FOR ALL ITEMS: Always output "itemIndex", "word", "mechanic" (matching ASSIGNED MECHANIC), "briefMeaning", and "explanation".
 
                     CRITICAL: Output ONLY a valid JSON array of objects. No markdown backticks outside JSON, no commentary.
-                    JSON Format:
+                    Example JSON Structure:
                     [
                       {
                         "itemIndex": 1,
                         "word": "cascade",
+                        "mechanic": "CLOZE",
                         "clozeSentence": "Her sparkling hair fell like a _______ of waters down her back.",
                         "clozeOptions": ["cascade", "torrent", "current", "stream"],
                         "clozeCorrect": "cascade",
-                        "contextSentence": "The mountain stream created a beautiful cascade of clear waters over the rocky ledge.",
-                        "contextOptions": ["a steep waterfall or shower of water", "a sudden drought or lack of moisture", "a small pile of dry leaves", "a solid barrier blocking the river"],
-                        "contextCorrect": "a steep waterfall or shower of water",
-                        "genuineSentence": "The mountain stream created a beautiful cascade of clear waters.",
-                        "impostorSentence": "He decided to eat a crunchy cascade for lunch with soup.",
-                        "landmineSentence": "The clear water cascades down the mountain, but neither of the streams reach the ocean.",
-                        "landmineSegments": ["water cascades", "down the mountain", "neither of the streams", "reach the ocean"],
-                        "landmineFaultySegment": "reach the ocean",
-                        "landmineCorrection": "reaches the ocean",
-                        "landmineExplanation": "Because 'neither' is grammatically singular, the verb must be 'reaches the ocean', not 'reach'.",
                         "briefMeaning": "flowing waterfall",
-                        "explanation": "The context describes 'waters down her back' and 'waters over the rocky ledge', indicating a flowing cascade."
+                        "explanation": "Context describes flowing waters down her back."
+                      },
+                      {
+                        "itemIndex": 2,
+                        "word": "meticulous",
+                        "mechanic": "CONTEXT_MEANING",
+                        "contextSentence": "The artist was meticulous, painting each tiny feather with extreme care.",
+                        "contextOptions": ["showing extreme care and precision", "rushing carelessly without thought", "feeling completely indifferent", "working loudly with heavy tools"],
+                        "contextCorrect": "showing extreme care and precision",
+                        "briefMeaning": "extremely careful",
+                        "explanation": "Painting each tiny feather indicates extreme precision."
+                      },
+                      {
+                        "itemIndex": 3,
+                        "word": "ominous",
+                        "mechanic": "IMPOSTOR",
+                        "genuineSentence": "The dark storm clouds gathered in an ominous pattern over the valley.",
+                        "impostorSentence": "She wore an ominous dress that was bright sunshine yellow and cheerful.",
+                        "briefMeaning": "threatening or sinister",
+                        "explanation": "Ominous implies something threatening, which contradicts bright and cheerful."
+                      },
+                      {
+                        "itemIndex": 4,
+                        "word": "conclusive",
+                        "mechanic": "GRAMMAR_LANDMINE",
+                        "landmineSentence": "The scientist's experiments was conclusive after weeks of testing.",
+                        "landmineSegments": ["The scientist's", "experiments was", "conclusive after", "weeks of testing"],
+                        "landmineFaultySegment": "experiments was",
+                        "landmineCorrection": "experiments were",
+                        "landmineExplanation": "Plural subject 'experiments' requires plural verb 'were'.",
+                        "briefMeaning": "decisive and final",
+                        "explanation": "Subject-verb agreement error with plural subject 'experiments'."
+                      },
+                      {
+                        "itemIndex": 5,
+                        "word": "serene",
+                        "mechanic": "RAPID_MATCH",
+                        "briefMeaning": "calm and peaceful",
+                        "explanation": "Serene describes tranquil calm."
                       }
                     ]
                 """.trimIndent()
@@ -662,13 +703,14 @@ class QuizActivity : AppCompatActivity() {
                 val jsonArray = JSONArray(jsonStr)
                 quizQueue.clear()
 
-                val allRapidBackup = docs.map { d ->
+                val allRapidBackup = docs.mapIndexed { idx, d ->
                     val rawWord = d.getString("word")?.trim() ?: ""
                     val cleanW = GabAIUtils.sanitizeVocabularyWord(rawWord).ifBlank { rawWord }
+                    val objMeaning = if (idx < jsonArray.length()) jsonArray.optJSONObject(idx)?.optString("briefMeaning", "")?.trim()?.ifBlank { null } else null
                     mapOf(
                         "docId" to d.id,
                         "word" to cleanW,
-                        "explanation" to (d.getString("explanation")?.trim() ?: "")
+                        "explanation" to (objMeaning ?: d.getString("explanation")?.trim() ?: "Key vocabulary word")
                     )
                 }
 
@@ -676,72 +718,91 @@ class QuizActivity : AppCompatActivity() {
                     val obj = jsonArray.getJSONObject(i)
                     val rawTargetWord = docs[i].getString("word")?.trim() ?: obj.optString("word", "").trim()
                     val targetWord = GabAIUtils.sanitizeVocabularyWord(rawTargetWord).ifBlank { rawTargetWord }
-                    val cloze = obj.optString("clozeSentence", obj.optString("question", "")).replace("**", "").trim()
-                    val contextSent = obj.optString("contextSentence", cloze.replace("_______", targetWord)).replace("**", "").trim()
-                    val genuine = obj.optString("genuineSentence", "The word '$targetWord' is used appropriately here.").replace("**", "").trim()
-                    val impostor = obj.optString("impostorSentence", "The word '$targetWord' is improperly used here.").replace("**", "").trim()
+                    val assignedMechanic = determineMechanic(i, docs.size)
+
                     val meaning = obj.optString("briefMeaning", docs[i].getString("explanation") ?: "Key vocabulary word").trim()
                     val explanation = obj.optString("explanation", "Review the sentence clues and definition.").trim()
-
-                    // Grammar Landmine Parsing
-                    val lSentence = obj.optString("landmineSentence", "").replace("**", "").trim()
-                    val lFaulty = obj.optString("landmineFaultySegment", "").replace("**", "").trim()
-                    val lCorrection = obj.optString("landmineCorrection", "").replace("**", "").trim()
-                    val lExp = obj.optString("landmineExplanation", explanation).replace("**", "").trim()
-                    val lSegmentsArr = obj.optJSONArray("landmineSegments")
-                    val lSegmentsList = mutableListOf<String>()
-                    if (lSegmentsArr != null) {
-                        for (s in 0 until lSegmentsArr.length()) {
-                            lSegmentsList.add(lSegmentsArr.getString(s).replace("**", "").trim())
-                        }
-                    }
-
-                    val assignedMechanic = determineMechanic(i, docs.size)
 
                     val displayQuestion: String
                     val optionsList: List<String>
                     val correctAnswer: String
                     val itemExplanation: String
+                    var contextSent = ""
+                    var genuine = ""
+                    var impostor = ""
+                    var lSentence = ""
+                    var lFaulty = ""
+                    var lCorrection = ""
 
-                    if (assignedMechanic == MechanicType.CONTEXT_MEANING) {
-                        displayQuestion = "In this sentence context, what does \"$targetWord\" mean?"
-                        val cOptsArr = obj.optJSONArray("contextOptions") ?: obj.optJSONArray("options")
-                        val rawList = mutableListOf<String>()
-                        if (cOptsArr != null) {
-                            for (k in 0 until cOptsArr.length()) {
-                                rawList.add(cOptsArr.getString(k).replace("**", "").trim())
+                    when (assignedMechanic) {
+                        MechanicType.CONTEXT_MEANING -> {
+                            displayQuestion = "In this sentence context, what does \"$targetWord\" mean?"
+                            contextSent = obj.optString("contextSentence", "").replace("**", "").trim()
+                            val cOptsArr = obj.optJSONArray("contextOptions") ?: obj.optJSONArray("options")
+                            val rawList = mutableListOf<String>()
+                            if (cOptsArr != null) {
+                                for (k in 0 until cOptsArr.length()) {
+                                    rawList.add(cOptsArr.getString(k).replace("**", "").trim())
+                                }
                             }
+                            val cCorrect = obj.optString("contextCorrect", obj.optString("correct", docs[i].getString("explanation") ?: meaning)).replace("**", "").trim()
+                            val fullList = if (rawList.contains(cCorrect)) rawList else (rawList.take(3) + cCorrect)
+                            optionsList = fullList.shuffled()
+                            correctAnswer = cCorrect
+                            itemExplanation = explanation
                         }
-                        val cCorrect = obj.optString("contextCorrect", docs[i].getString("explanation") ?: meaning).replace("**", "").trim()
-                        val fullList = if (rawList.contains(cCorrect)) rawList else (rawList.take(3) + cCorrect)
-                        optionsList = fullList.shuffled()
-                        correctAnswer = cCorrect
-                        itemExplanation = explanation
-                    } else if (assignedMechanic == MechanicType.GRAMMAR_LANDMINE) {
-                        displayQuestion = if (lSentence.isNotBlank()) lSentence else contextSent
-                        correctAnswer = if (lFaulty.isNotBlank()) lFaulty else targetWord
-                        val finalCorrection = if (lCorrection.isNotBlank()) lCorrection else targetWord
-                        val finalSegments = if (lSegmentsList.size == 4) {
-                            if (lSegmentsList.contains(correctAnswer)) lSegmentsList else (lSegmentsList.take(3) + correctAnswer)
-                        } else {
-                            listOf(correctAnswer, "Subject phrase", "Verb tense", "Preposition link")
-                        }
-                        optionsList = finalSegments.shuffled()
-                        itemExplanation = lExp
-                    } else {
-                        displayQuestion = cloze
-                        val clOptsArr = obj.optJSONArray("clozeOptions") ?: obj.optJSONArray("options")
-                        val rawList = mutableListOf<String>()
-                        if (clOptsArr != null) {
-                            for (k in 0 until clOptsArr.length()) {
-                                rawList.add(clOptsArr.getString(k).replace("**", "").trim())
+                        MechanicType.GRAMMAR_LANDMINE -> {
+                            lSentence = obj.optString("landmineSentence", "").replace("**", "").trim()
+                            lFaulty = obj.optString("landmineFaultySegment", targetWord).replace("**", "").trim()
+                            lCorrection = obj.optString("landmineCorrection", targetWord).replace("**", "").trim()
+                            val lExp = obj.optString("landmineExplanation", explanation).replace("**", "").trim()
+                            val lSegmentsArr = obj.optJSONArray("landmineSegments") ?: obj.optJSONArray("options")
+                            val lSegmentsList = mutableListOf<String>()
+                            if (lSegmentsArr != null) {
+                                for (s in 0 until lSegmentsArr.length()) {
+                                    lSegmentsList.add(lSegmentsArr.getString(s).replace("**", "").trim())
+                                }
                             }
+                            displayQuestion = lSentence.ifBlank { "Spot and defuse the grammatical error." }
+                            correctAnswer = lFaulty
+                            val finalSegments = if (lSegmentsList.size == 4) {
+                                if (lSegmentsList.contains(correctAnswer)) lSegmentsList else (lSegmentsList.take(3) + correctAnswer)
+                            } else {
+                                listOf(correctAnswer, "Subject phrase", "Verb tense", "Preposition link")
+                            }
+                            optionsList = finalSegments.shuffled()
+                            itemExplanation = lExp
                         }
-                        val clCorrect = obj.optString("clozeCorrect", obj.optString("correct", targetWord)).replace("**", "").trim()
-                        val fullList = if (rawList.contains(clCorrect)) rawList else (rawList.take(3) + clCorrect)
-                        optionsList = fullList.shuffled()
-                        correctAnswer = clCorrect
-                        itemExplanation = explanation
+                        MechanicType.IMPOSTOR -> {
+                            displayQuestion = "Target Word: \"$targetWord\"\nOne sentence is genuine, and one is an absurd glitch!"
+                            genuine = obj.optString("genuineSentence", "").replace("**", "").trim()
+                            impostor = obj.optString("impostorSentence", "").replace("**", "").trim()
+                            optionsList = emptyList()
+                            correctAnswer = genuine
+                            itemExplanation = explanation
+                        }
+                        MechanicType.RAPID_MATCH -> {
+                            displayQuestion = "Match each target word with its rapid meaning!"
+                            optionsList = emptyList()
+                            correctAnswer = meaning
+                            itemExplanation = explanation
+                        }
+                        else -> { // CLOZE
+                            val cloze = obj.optString("clozeSentence", obj.optString("question", "")).replace("**", "").trim()
+                            displayQuestion = cloze.ifBlank { "Select the word that correctly completes the sentence: _______" }
+                            val clOptsArr = obj.optJSONArray("clozeOptions") ?: obj.optJSONArray("options")
+                            val rawList = mutableListOf<String>()
+                            if (clOptsArr != null) {
+                                for (k in 0 until clOptsArr.length()) {
+                                    rawList.add(clOptsArr.getString(k).replace("**", "").trim())
+                                }
+                            }
+                            val clCorrect = obj.optString("clozeCorrect", obj.optString("correct", targetWord)).replace("**", "").trim()
+                            val fullList = if (rawList.contains(clCorrect)) rawList else (rawList.take(3) + clCorrect)
+                            optionsList = fullList.shuffled()
+                            correctAnswer = clCorrect
+                            itemExplanation = explanation
+                        }
                     }
 
                     quizQueue.add(
@@ -759,10 +820,10 @@ class QuizActivity : AppCompatActivity() {
                             impostorSentence = impostor,
                             briefMeaning = meaning,
                             backupRapidWords = allRapidBackup,
-                            landmineSentence = if (lSentence.isNotBlank()) lSentence else contextSent,
+                            landmineSentence = lSentence,
                             landmineSegments = optionsList,
-                            landmineFaultySegment = correctAnswer,
-                            landmineCorrection = if (lCorrection.isNotBlank()) lCorrection else correctAnswer
+                            landmineFaultySegment = lFaulty,
+                            landmineCorrection = lCorrection
                         )
                     )
                 }
@@ -1257,14 +1318,18 @@ class QuizActivity : AppCompatActivity() {
         val def1 = item.briefMeaning
         rapidDocId1 = item.docId
 
-        val otherCandidates = if (sessionDocSnapshots.isNotEmpty()) {
-            sessionDocSnapshots.filter { (it.getString("word") ?: "").trim() != item.word.trim() }.map {
+        val candidatesFromBackup = item.backupRapidWords.filter { (it["word"] ?: "").trim().lowercase() != item.word.trim().lowercase() }.map {
+            Triple(it["docId"] ?: "", it["word"] ?: "", it["explanation"] ?: "")
+        }
+
+        val otherCandidates = if (candidatesFromBackup.size >= 2) {
+            candidatesFromBackup
+        } else if (sessionDocSnapshots.isNotEmpty()) {
+            sessionDocSnapshots.filter { (it.getString("word") ?: "").trim().lowercase() != item.word.trim().lowercase() }.map {
                 Triple(it.id, it.getString("word")?.trim() ?: "", it.getString("explanation")?.trim() ?: "")
             }
         } else {
-            item.backupRapidWords.filter { (it["word"] ?: "").trim() != item.word.trim() }.map {
-                Triple(it["docId"] ?: "", it["word"] ?: "", it["explanation"] ?: "")
-            }
+            emptyList()
         }
 
         val cand2 = otherCandidates.getOrNull(0)

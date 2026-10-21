@@ -1,11 +1,11 @@
 {
-  "versionCode": 38,
-  "versionName": "0.4.24",
-  "minRequiredVersionCode": 38,
+  "versionCode": 39,
+  "versionName": "0.4.25",
+  "minRequiredVersionCode": 39,
   "forceUpdate": true,
-  "title": "Bento Circuit Defusal Quiz Overhaul (v0.4.24)",
-  "message": "Overhauled the Grammar Landmine wired quiz mechanic with a modern Bento Circuit Defusal layout. Eliminated bracket artifacts, restored natural sentence flow with numbered indicators, and added tactile, color-coded interactive wire cards with real-time defusal feedback.",
+  "title": "Official Announcements, Recycle Vault & Quiz Review (v0.4.25)",
+  "message": "Official School & Division announcements with discreet replies, Accidental Deletion Recycle Vault with one-click restore, Library Quiz overview & analytics for teachers, interactive question-by-question quiz reviews for learners, and token-optimized assessment generation.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.24/GabAI-v0.4.24.apk",
-  "changelog": "• Bento Circuit Defusal: Replaced clunky square brackets [ ] with an unbroken sentence view featuring numbered markers (①, ②, ③, ④) and matching wire colors.\n• Interactive Wire Cards: Redesigned the 4 wire choices into dedicated Bento cards with wire indicators, clear segment typography, cut actions, and spring touch physics.\n• Real-Time Defusal Feedback: Cutting the faulty wire triggers immediate defusal confirmation with grammatical correction, while safe wires indicate harmless status.\n• Lifeline & Session Support: Full Cross-Out lifeline and session pause/resume support for wire defusal cards."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.25/GabAI-v0.4.25.apk",
+  "changelog": "• Official Announcements Hub: Campus & Division-wide bulletins with real-time view tracking and discreet student-to-teacher inquiries.\n• Accidental Deletion Recycle Vault: Soft-delete protection for students, classes, and reading materials with 30-day restore and undo snackbars.\n• Library Quiz Overview: Comprehensive reading assessment analytics, question previews, and student submission tracking with CSV export.\n• Interactive Quiz Review: Question-by-question review with answer key badges, explanations, and student choices.\n• Token-Optimized Assessment Generation: Streamlined per-mechanic prompt schemas for faster generation and lower latency.\n• Enhanced Resilience: Dual-probe captive portal & network detection with interactive retry."
 }

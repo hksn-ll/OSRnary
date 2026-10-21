@@ -25,7 +25,13 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import java.io.IOException
 import java.lang.ref.WeakReference
+import java.net.HttpURLConnection
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.net.URL
+import kotlin.concurrent.thread
 
 object OfflineLockoutHelper {
     private const val TAG = "OfflineLockoutHelper"
@@ -85,9 +91,23 @@ object OfflineLockoutHelper {
                 override fun onAvailable(network: Network) {
                     mainHandler.post {
                         val connected = isNetworkConnected(app)
-                        if (connected && !isCurrentlyOnline) {
-                            isCurrentlyOnline = true
-                            dismissOfflineDialog(true)
+                        if (connected) {
+                            if (!isCurrentlyOnline) {
+                                isCurrentlyOnline = true
+                                dismissOfflineDialog(true)
+                            }
+                        } else {
+                            // Interface is up (e.g. Wi-Fi connected), but validation might still be probing.
+                            // Run a quick active probe to avoid delayed unlock if validation is fast.
+                            thread(start = true, name = "GabAI-AvailCheck") {
+                                val actuallyOnline = checkRealInternetAccess(1500)
+                                mainHandler.post {
+                                    if (actuallyOnline && !isCurrentlyOnline) {
+                                        isCurrentlyOnline = true
+                                        dismissOfflineDialog(true)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -107,18 +127,40 @@ object OfflineLockoutHelper {
                 }
 
                 override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
-                    val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    val hasValidatedInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                                               capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
+                                               !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
+
                     mainHandler.post {
-                        if (hasInternet && !isCurrentlyOnline) {
-                            isCurrentlyOnline = true
-                            dismissOfflineDialog(true)
-                            return@post
-                        }
-                        if (!hasInternet && isCurrentlyOnline) {
-                            isCurrentlyOnline = false
-                            currentActivityRef?.get()?.let { act ->
-                                if (!isTransientActivity(act)) {
-                                    showOfflineDialog(act)
+                        if (hasValidatedInternet) {
+                            if (!isCurrentlyOnline) {
+                                isCurrentlyOnline = true
+                                dismissOfflineDialog(true)
+                            }
+                        } else {
+                            // Connected to Wi-Fi/Cellular, but WITHOUT verified internet connectivity
+                            if (isCurrentlyOnline) {
+                                // Confirm via active probe to prevent false-alarm flickers during brief IP handoffs
+                                thread(start = true, name = "GabAI-CapCheck") {
+                                    val actuallyOnline = checkRealInternetAccess(1500)
+                                    mainHandler.post {
+                                        if (!actuallyOnline) {
+                                            isCurrentlyOnline = false
+                                            currentActivityRef?.get()?.let { act ->
+                                                if (!isTransientActivity(act)) {
+                                                    showOfflineDialog(act)
+                                                }
+                                            }
+                                        } else {
+                                            isCurrentlyOnline = true
+                                        }
+                                    }
+                                }
+                            } else {
+                                currentActivityRef?.get()?.let { act ->
+                                    if (!isTransientActivity(act)) {
+                                        showOfflineDialog(act)
+                                    }
                                 }
                             }
                         }
@@ -134,7 +176,50 @@ object OfflineLockoutHelper {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
         val network = cm.activeNetwork ?: return false
         val caps = cm.getNetworkCapabilities(network) ?: return false
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+               caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
+               !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)
+    }
+
+    /**
+     * Actively tests real internet reachability via raw TCP socket and HTTP 204 fallback.
+     * Prevents false online status when connected to Wi-Fi/cellular without internet or data plan.
+     */
+    fun checkRealInternetAccess(timeoutMs: Int = 2000): Boolean {
+        // 1. Primary check: Raw TCP socket probe to Google DNS (8.8.8.8:53) or Cloudflare DNS (1.1.1.1:53)
+        // Does not rely on Android OS DNS resolver (which blocks/hangs when offline)
+        try {
+            Socket().use { socket ->
+                socket.connect(InetSocketAddress("8.8.8.8", 53), timeoutMs)
+                return true
+            }
+        } catch (_: Exception) {
+        }
+
+        try {
+            Socket().use { socket ->
+                socket.connect(InetSocketAddress("1.1.1.1", 53), timeoutMs)
+                return true
+            }
+        } catch (_: Exception) {
+        }
+
+        // 2. Secondary check: HTTP generate_204 probe (detects captive portals / HTTP-only proxies)
+        return try {
+            val url = URL("https://clients3.google.com/generate_204")
+            val connection = (url.openConnection() as HttpURLConnection).apply {
+                connectTimeout = timeoutMs
+                readTimeout = timeoutMs
+                instanceFollowRedirects = false
+                useCaches = false
+                requestMethod = "GET"
+            }
+            val code = connection.responseCode
+            connection.disconnect()
+            code == 204 || code == 200
+        } catch (_: Exception) {
+            false
+        }
     }
 
     private fun isTransientActivity(activity: Activity?): Boolean {
@@ -162,6 +247,7 @@ object OfflineLockoutHelper {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setCancelable(false)
             setCanceledOnTouchOutside(false)
+            setOwnerActivity(activity)
         }
 
         val root = LinearLayout(activity).apply {
@@ -254,6 +340,7 @@ object OfflineLockoutHelper {
         }
         root.addView(statusNotice)
 
+        var isRetrying = false
         val btnRetry = Button(activity).apply {
             text = "Retry Connection 🔄"
             textSize = 14f
@@ -271,14 +358,50 @@ object OfflineLockoutHelper {
                 bottomMargin = (8f * density).toInt()
             }
             setOnClickListener {
+                if (isRetrying) return@setOnClickListener
+                isRetrying = true
                 GabAIUtils.performHaptic(this, HapticFeedbackConstants.CONFIRM)
-                if (isNetworkConnected(activity)) {
-                    isCurrentlyOnline = true
-                    dismissOfflineDialog(true)
-                } else {
-                    statusNotice.visibility = View.VISIBLE
-                    mainHandler.removeCallbacksAndMessages(null)
-                    mainHandler.postDelayed({ statusNotice.visibility = View.GONE }, 3500L)
+                text = "Checking Connection... 🔄"
+                alpha = 0.75f
+                statusNotice.visibility = View.GONE
+
+                thread(start = true, name = "GabAI-RetryCheck") {
+                    val hasValidatedCaps = isNetworkConnected(activity)
+                    val actuallyReachable = if (hasValidatedCaps) {
+                        checkRealInternetAccess(1500)
+                    } else {
+                        checkRealInternetAccess(2500)
+                    }
+
+                    mainHandler.post {
+                        isRetrying = false
+                        text = "Retry Connection 🔄"
+                        alpha = 1.0f
+
+                        if (actuallyReachable) {
+                            isCurrentlyOnline = true
+                            dismissOfflineDialog(true)
+                        } else {
+                            isCurrentlyOnline = false
+                            val cm = activity.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                            val activeNet = cm?.activeNetwork
+                            val caps = if (activeNet != null) cm.getNetworkCapabilities(activeNet) else null
+                            val isAttached = caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+
+                            statusNotice.text = if (isAttached) {
+                                "Connected to network, but no internet detected. Please check your Wi-Fi or data balance."
+                            } else {
+                                "Still offline. Please check your Wi-Fi or cellular data."
+                            }
+                            statusNotice.visibility = View.VISIBLE
+                            mainHandler.removeCallbacksAndMessages(null)
+                            mainHandler.postDelayed({
+                                if (activeDialog?.isShowing == true) {
+                                    statusNotice.visibility = View.GONE
+                                }
+                            }, 4500L)
+                        }
+                    }
                 }
             }
         }
@@ -368,6 +491,18 @@ object OfflineLockoutHelper {
             if (activity != null && !activity.isFinishing && !activity.isDestroyed) {
                 GabAIUtils.showSnackbar(activity, "Connection Restored! 🟢")
             }
+        }
+    }
+
+    /**
+     * Manual trigger to verify connectivity and immediately surface the offline dialog if unreachable.
+     */
+    fun checkConnectivity(activity: Activity? = null) {
+        val targetActivity = activity ?: currentActivityRef?.get() ?: return
+        if (isTransientActivity(targetActivity)) return
+        if (!isNetworkConnected(targetActivity)) {
+            isCurrentlyOnline = false
+            showOfflineDialog(targetActivity)
         }
     }
 }

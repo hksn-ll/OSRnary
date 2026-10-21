@@ -51,6 +51,7 @@ if (-not (Get-Command adb -ErrorAction SilentlyContinue)) {
 # Auto-detect JAVA_HOME if needed
 if (-not $env:JAVA_HOME -or -not (Test-Path "$env:JAVA_HOME\bin\javac.exe")) {
     $javaCandidates = @(
+        "C:\Program Files\Microsoft\jdk-17.0.20.101-hotspot",
         "C:\Users\plaza\.gradle\jdks\jetbrains_s_r_o_-21-amd64-windows.2",
         "C:\Program Files\Java\jdk-27",
         "C:\Program Files\Java\jdk-21",
@@ -254,6 +255,14 @@ $activity = "$package/.SplashActivity"
 
 foreach ($target in $targetDevices) {
     Write-Host "`n[*] Installing to $($target.Model) ($($target.Id))..." -ForegroundColor Yellow
+    if ($target.Id -match ":\d+$") {
+        $state = (adb -s $target.Id get-state 2>$null)
+        if ($state -ne "device") {
+            Write-Host "[*] Refreshing connection to $($target.Id)..." -ForegroundColor Yellow
+            adb connect $target.Id | Out-Null
+            Start-Sleep -Milliseconds 500
+        }
+    }
     # -r: replace existing application
     # -d: allow version code downgrade if needed
     adb -s $target.Id install -r -d $apk.FullName

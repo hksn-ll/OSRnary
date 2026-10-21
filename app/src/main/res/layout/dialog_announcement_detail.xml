@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_modern_dialog"
+    android:fontFamily="@font/font_plus_jakarta_sans"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Top Row: Badge, Scope Pill & Seen Counter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <FrameLayout
+            android:id="@+id/announcement_badge_container"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_btn_modern_primary">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="📢"
+                android:textSize="18sp" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
+
+            <TextView
+                android:id="@+id/tv_announcement_scope"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OFFICIAL BULLETIN"
+                android:textColor="#5341CD"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.06" />
+
+            <TextView
+                android:id="@+id/tv_announcement_meta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DepEd Division Office • Oct 19, 2026"
+                android:textColor="#64748B"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Seen By Counter Badge -->
+        <TextView
+            android:id="@+id/btn_announcement_seen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_btn_modern_secondary"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="👁️ 0"
+            android:textColor="#059669"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Priority Banner (if urgent) -->
+    <TextView
+        android:id="@+id/tv_announcement_priority_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FEF2F2"
+        android:textColor="#DC2626"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="6dp"
+        android:layout_marginBottom="10dp"
+        android:text="⚠️ URGENT / HIGH PRIORITY ADVISORY"
+        android:visibility="gone" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tv_announcement_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:text="Announcement Title"
+        android:textColor="#1E1B4B"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <!-- Content Body (Scrollable if lengthy) -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:maxHeight="220dp">
+
+        <TextView
+            android:id="@+id/tv_announcement_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_nunito_sans"
+            android:lineSpacingExtra="3dp"
+            android:text="Announcement details appear here..."
+            android:textColor="#334155"
+            android:textSize="13sp" />
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E2E8F0"
+        android:layout_marginTop="8dp" />
+
+    <!-- Discreet Replies Section -->
+    <LinearLayout
+        android:id="@+id/layout_discreet_replies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:layout_marginBottom="12dp">
+
+        <!-- Privacy Assurance Note -->
+        <TextView
+            android:id="@+id/tv_reply_privacy_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#EFF6FF"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp"
+            android:layout_marginBottom="8dp"
+            android:text="🔒 Private message: Only visible to your teacher &amp; school administration."
+            android:textColor="#1D4ED8"
+            android:textSize="10.5sp"
+            android:fontFamily="@font/font_nunito_sans" />
+
+        <!-- Discreet Expand Toggle -->
+        <TextView
+            android:id="@+id/btn_toggle_reply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="💬 Send a Private Response..."
+            android:textColor="#5341CD"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Collapsible Reply Composer -->
+        <LinearLayout
+            android:id="@+id/layout_reply_composer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/et_reply_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="2"
+                android:maxLines="4"
+                android:background="@drawable/bg_btn_modern_secondary"
+                android:padding="10dp"
+                android:hint="Type your response or inquiry here..."
+                android:textColor="#1E293B"
+                android:textColorHint="#94A3B8"
+                android:textSize="12sp"
+                android:gravity="top|start" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:layout_marginTop="6dp">
+
+                <android.widget.Button
+                    android:id="@+id/btn_send_reply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_btn_modern_primary"
+                    android:paddingHorizontal="16dp"
+                    android:text="Send"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:stateListAnimator="@null" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Private Conversation Feed -->
+        <LinearLayout
+            android:id="@+id/container_thread_messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <!-- Close Button -->
+    <android.widget.Button
+        android:id="@+id/btn_dialog_close"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:text="Close"
+        android:textColor="#334155"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null" />
+</LinearLayout>

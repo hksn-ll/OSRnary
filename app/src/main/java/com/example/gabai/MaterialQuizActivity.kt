@@ -119,9 +119,26 @@ class MaterialQuizActivity : AppCompatActivity() {
             jsonArray.put(obj)
         }
 
+        val resultsArray = JSONArray()
+        for (res in sessionResults) {
+            val rObj = JSONObject()
+            rObj.put("question", res["question"] as? String ?: "")
+            rObj.put("targetWord", res["targetWord"] as? String ?: "")
+            rObj.put("correctAnswer", res["correctAnswer"] as? String ?: "")
+            rObj.put("userAnswer", res["userAnswer"] as? String ?: "")
+            rObj.put("isCorrect", res["isCorrect"] as? Boolean ?: false)
+            val optArr = JSONArray()
+            (res["options"] as? List<*>)?.forEach { optArr.put(it.toString()) }
+            rObj.put("options", optArr)
+            rObj.put("mechanic", res["mechanic"] as? String ?: "READING_COMPREHENSION")
+            rObj.put("explanation", res["explanation"] as? String ?: "")
+            resultsArray.put(rObj)
+        }
+
         prefs.edit()
             .putBoolean("has_saved_session", true)
             .putString("saved_quiz_data", jsonArray.toString())
+            .putString("saved_session_results", resultsArray.toString())
             .putInt("saved_current_index", currentQuizIndex)
             .putInt("saved_score", currentScore)
             .putInt("saved_attempts", totalAttempts)
@@ -155,6 +172,34 @@ class MaterialQuizActivity : AppCompatActivity() {
                 currentScore = prefs.getInt("saved_score", 0)
                 totalAttempts = prefs.getInt("saved_attempts", 0)
 
+                sessionResults.clear()
+                val resultsStr = prefs.getString("saved_session_results", null)
+                if (resultsStr != null) {
+                    try {
+                        val rArr = JSONArray(resultsStr)
+                        for (i in 0 until rArr.length()) {
+                            val rObj = rArr.getJSONObject(i)
+                            val optList = mutableListOf<String>()
+                            val optArr = rObj.optJSONArray("options")
+                            if (optArr != null) {
+                                for (j in 0 until optArr.length()) {
+                                    optList.add(optArr.getString(j))
+                                }
+                            }
+                            sessionResults.add(hashMapOf(
+                                "question" to rObj.optString("question", ""),
+                                "targetWord" to rObj.optString("targetWord", ""),
+                                "correctAnswer" to rObj.optString("correctAnswer", ""),
+                                "userAnswer" to rObj.optString("userAnswer", ""),
+                                "isCorrect" to rObj.optBoolean("isCorrect", false),
+                                "options" to optList,
+                                "mechanic" to rObj.optString("mechanic", "READING_COMPREHENSION"),
+                                "explanation" to rObj.optString("explanation", "")
+                            ))
+                        }
+                    } catch (_: Exception) {}
+                }
+
                 findViewById<View>(R.id.options_container).visibility = View.VISIBLE
                 findViewById<Button>(R.id.btn_restart).setOnClickListener { finish() }
                 showCurrentQuestion()
@@ -180,8 +225,10 @@ class MaterialQuizActivity : AppCompatActivity() {
 
                 if (passedDoc != null) {
                     val score = passedDoc.getLong("finalScore")?.toInt() ?: 0
-                    val attempts = passedDoc.getLong("totalAttempts")?.toInt() ?: 0
-                    showAlreadyPassedScreen(score, attempts)
+                    val attempts = passedDoc.getLong("totalQuestions")?.toInt()
+                        ?: passedDoc.getLong("totalAttempts")?.toInt()
+                        ?: 0
+                    showAlreadyPassedScreen(score, maxOf(attempts, score))
                 } else {
                     if (!restoreSavedSession()) {
                         loadQuizFromFirestore()
@@ -445,6 +492,7 @@ class MaterialQuizActivity : AppCompatActivity() {
                 "timestamp" to System.currentTimeMillis(),
                 "finalScore" to currentScore,
                 "totalAttempts" to totalAttempts,
+                "totalQuestions" to quizList.size,
                 "xpEarned" to xpEarned,
                 "isFirstMastery" to isFirstMastery,
                 "items" to sessionResults
@@ -471,11 +519,12 @@ class MaterialQuizActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.final_score_text).apply {
             visibility = View.VISIBLE
+            val totalQ = quizList.size.coerceAtLeast(1)
             if (isPassed) {
-                text = "Quiz Passed! 🎉\nYou scored $currentScore / $totalAttempts"
+                text = "Quiz Passed! 🎉\nYou scored $currentScore / $totalQ"
                 setTextColor(Color.parseColor("#059669"))
             } else {
-                text = "Quiz Failed. ❌\nYou scored $currentScore / $totalAttempts.\nYou must score at least 50% to pass."
+                text = "Quiz Failed. ❌\nYou scored $currentScore / $totalQ.\nYou must score at least 50% to pass."
                 setTextColor(Color.parseColor("#EF4444"))
             }
         }

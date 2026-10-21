@@ -42,6 +42,7 @@ class SubjectDetailActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
     private var teacherFullName: String = "Teacher"
+    private var teacherSchoolId: String = ""
     private var allMaterials = listOf<DocumentSnapshot>()
     private var currentSearchQuery = ""
 
@@ -89,11 +90,25 @@ class SubjectDetailActivity : AppCompatActivity() {
             pdfPickerLauncher.launch("application/pdf")
         }
 
+        val btnRecycleVault = findViewById<ImageButton>(R.id.btn_recycle_vault)
+        btnRecycleVault?.let { btn ->
+            GabAIUtils.addSpringPressEffect(btn) {
+                GabAIDialogs.showArchiveVaultDialog(
+                    context = this,
+                    schoolId = teacherSchoolId,
+                    initialFilter = "material"
+                ) {
+                    // Materials reload automatically
+                }
+            }
+        }
+
         setupSearch()
         loadPdfs()
         if (uid != null) {
             db.collection("users").document(uid).get().addOnSuccessListener { doc ->
                 teacherFullName = "${doc.getString("firstName")} ${doc.getString("lastName")}"
+                teacherSchoolId = doc.getString("schoolId") ?: ""
             }
         }
     }
@@ -267,7 +282,9 @@ class SubjectDetailActivity : AppCompatActivity() {
             "driveFileId" to fileId,
             "thumbnail" to thumbBase64,
             "teacherId" to uid,
+            "uploadedBy" to uid,
             "uploaderName" to teacherFullName,
+            "schoolId" to teacherSchoolId,
             "assignedSections" to listOf<String>(),
             "quiz_pool_json" to quizJson, // SAVED!
             "quiz_max_items" to maxItems, // SAVED!
@@ -356,9 +373,34 @@ class SubjectDetailActivity : AppCompatActivity() {
             row.findViewById<TextView>(R.id.tv_uploader_name)?.text = "Uploaded by: ${doc.getString("uploaderName") ?: "Unknown"}"
             val quizJson = doc.getString("quiz_pool_json") ?: "[]"
             val hasQuiz = quizJson.length > 5
-            row.findViewById<TextView>(R.id.tv_quiz_badge)?.apply {
-                visibility = if (hasQuiz) View.VISIBLE else View.GONE
-                text = "QUIZ READY ⚡"
+            val tvQuizBadge = row.findViewById<TextView>(R.id.tv_quiz_badge)
+            val btnQuizOverview = row.findViewById<TextView>(R.id.btn_quiz_overview)
+
+            if (hasQuiz) {
+                tvQuizBadge?.visibility = View.VISIBLE
+                tvQuizBadge?.text = "QUIZ READY ⚡"
+                btnQuizOverview?.visibility = View.VISIBLE
+
+                val openQuizOverview: () -> Unit = {
+                    val qIntent = Intent(this@SubjectDetailActivity, LibraryQuizOverviewActivity::class.java).apply {
+                        putExtra("MATERIAL_ID", doc.id)
+                        putExtra("MATERIAL_TITLE", title)
+                        putExtra("SUBJECT_ID", subjectId)
+                        putExtra("SUBJECT_NAME", subjectName)
+                        putStringArrayListExtra("ASSIGNED_SECTIONS", ArrayList(assignedSections))
+                    }
+                    startActivity(qIntent)
+                }
+
+                btnQuizOverview?.let { btn ->
+                    GabAIUtils.addSpringPressEffect(btn) { openQuizOverview() }
+                }
+                tvQuizBadge?.let { badge ->
+                    GabAIUtils.addSpringPressEffect(badge) { openQuizOverview() }
+                }
+            } else {
+                tvQuizBadge?.visibility = View.GONE
+                btnQuizOverview?.visibility = View.GONE
             }
 
             // THUMBNAIL
@@ -402,31 +444,44 @@ class SubjectDetailActivity : AppCompatActivity() {
         uploadProgress.visibility = View.VISIBLE
         uploadProgress.isIndeterminate = true
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                if (fileId.isNotEmpty()) {
-                    val client = OkHttpClient()
-                    val formBody = FormBody.Builder()
-                        .add("action", "delete") // Tell script to trash the file
-                        .add("fileId", fileId)
-                        .build()
-                    val request = Request.Builder().url(driveApiUrl).post(formBody).build()
-                    client.newCall(request).execute()
-                }
+        val currentUid = uid ?: ""
+        val currentName = teacherFullName.ifBlank { "Teacher" }
 
-                // Delete from database after Drive deletion succeeds (or if there was no Drive ID)
-                withContext(Dispatchers.Main) {
-                    db.collection("library_materials").document(docId).delete()
-                    uploadProgress.visibility = View.GONE
-                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "PDF Deleted")
+        ArchiveVaultRepository.archiveMaterial(
+            materialId = docId,
+            schoolId = teacherSchoolId,
+            operatorUid = currentUid,
+            operatorName = currentName,
+            operatorRole = "teacher",
+            reason = "Material deleted from subject folder: $subjectName",
+            onSuccess = { archiveId ->
+                uploadProgress.visibility = View.GONE
+                val rootLayout = findViewById<View>(android.R.id.content)
+                GabAIUtils.showUndoSnackbar(
+                    view = rootLayout,
+                    message = "Material moved to Recycle Vault",
+                    actionText = "Undo"
+                ) {
+                    uploadProgress.visibility = View.VISIBLE
+                    ArchiveVaultRepository.restoreEntity(
+                        archiveId = archiveId,
+                        restoredByUid = currentUid,
+                        onSuccess = {
+                            uploadProgress.visibility = View.GONE
+                            GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Material restored successfully!")
+                        },
+                        onFailure = { e ->
+                            uploadProgress.visibility = View.GONE
+                            GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Failed to restore: ${e.message}")
+                        }
+                    )
                 }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    uploadProgress.visibility = View.GONE
-                    com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Failed to delete from Drive: ${e.message}")
-                }
+            },
+            onFailure = { e ->
+                uploadProgress.visibility = View.GONE
+                GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Failed to archive: ${e.message}")
             }
-        }
+        )
     }
 
     private fun generateThumbnail(uri: Uri): String {
@@ -478,7 +533,11 @@ class SubjectDetailActivity : AppCompatActivity() {
 
                 // 2. Rename in the Database so students see it instantly
                 withContext(Dispatchers.Main) {
-                    db.collection("library_materials").document(docId).update("title", newTitle)
+                    val updateMap = hashMapOf<String, Any>("title" to newTitle)
+                    if (teacherSchoolId.isNotEmpty()) {
+                        updateMap["schoolId"] = teacherSchoolId
+                    }
+                    db.collection("library_materials").document(docId).update(updateMap)
                     uploadProgress.visibility = View.GONE
                     com.example.gabai.GabAIUtils.showSnackbar(this@SubjectDetailActivity, "Renamed in Drive & App!")
                 }

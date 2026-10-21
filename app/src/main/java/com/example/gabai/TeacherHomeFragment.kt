@@ -13,6 +13,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 class TeacherHomeFragment : Fragment() {
     private var _binding: FragmentTeacherHomeBinding? = null
     private val binding get() = _binding!!
+    private var announcementListener: com.google.firebase.firestore.ListenerRegistration? = null
+    private val teacherClassesList = mutableListOf<Pair<String, String>>() // (classId, className)
+    private var currentTeacherName: String = "Teacher"
+    private var currentTeacherSchoolId: String = ""
+    private var latestAnnouncements: List<Announcement> = emptyList()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTeacherHomeBinding.inflate(inflater, container, false)
@@ -26,6 +31,7 @@ class TeacherHomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadEducatorProfileAndMetrics()
+        loadAnnouncementsHub()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,6 +50,7 @@ class TeacherHomeFragment : Fragment() {
             binding.btnMetricMaterials,
             binding.btnMetricQuizzes,
             binding.headerTeachingWorkspace,
+            binding.cardTeacherAnnouncements,
             binding.btnManageClasses,
             binding.btnAssignMaterials,
             binding.btnViewPerformance,
@@ -61,7 +68,9 @@ class TeacherHomeFragment : Fragment() {
             .addOnSuccessListener { doc ->
                 if (_binding != null && isAdded && doc.exists()) {
                     val firstName = doc.getString("firstName") ?: doc.getString("first_name") ?: ""
-                    val sId = doc.getString("schoolId")
+                    val sId = doc.getString("schoolId") ?: ""
+                    currentTeacherSchoolId = sId
+                    currentTeacherName = if (firstName.isNotEmpty()) "Teacher $firstName" else "Teacher"
                     val schoolName = SchoolRepository.getSchoolName(sId)
                     val joinCode = doc.getString("joinCode") ?: "N/A"
 
@@ -81,6 +90,9 @@ class TeacherHomeFragment : Fragment() {
                             )
                         }
                     }
+
+                    // Refresh announcements hub now that schoolId is known
+                    loadAnnouncementsHub()
                 }
             }
 
@@ -93,11 +105,18 @@ class TeacherHomeFragment : Fragment() {
                     val classCount = snapshots.size()
                     binding.tvMetricClasses.text = classCount.toString()
 
+                    teacherClassesList.clear()
                     val uniqueStudentIds = mutableSetOf<String>()
                     var hasAdvisoryClass = false
                     val advisorySections = mutableListOf<Pair<String, String>>() // (grade, section)
 
                     for (doc in snapshots.documents) {
+                        val cId = doc.id
+                        val cName = doc.getString("className") ?: "Class"
+                        val sec = doc.getString("section") ?: doc.getString("sectionName") ?: ""
+                        val displayName = if (sec.isNotEmpty()) "$cName - $sec" else cName
+                        teacherClassesList.add(cId to displayName)
+
                         val joined = doc.get("joinedStudents") as? List<*>
                         joined?.filterIsInstance<String>()?.forEach { uniqueStudentIds.add(it) }
 
@@ -205,6 +224,78 @@ class TeacherHomeFragment : Fragment() {
         GabAIUtils.addSpringPressEffect(binding.btnMetricQuizzes) {
             startActivity(Intent(requireContext(), TeacherLibraryActivity::class.java))
         }
+
+        // Announcements Hub Card Tap
+        GabAIUtils.addSpringPressEffect(binding.cardTeacherAnnouncements) {
+            GabAIUtils.performHaptic(binding.cardTeacherAnnouncements)
+            val ctx = context ?: return@addSpringPressEffect
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addSpringPressEffect
+
+            if (latestAnnouncements.isEmpty()) {
+                GabAIUtils.showSnackbar(ctx, "No announcements yet. Tap '+ Broadcast' to notify your classes.")
+                return@addSpringPressEffect
+            }
+
+            if (latestAnnouncements.size == 1) {
+                GabAIDialogs.showAnnouncementDetailDialog(
+                    context = ctx,
+                    announcement = latestAnnouncements[0],
+                    currentUid = uid,
+                    currentRole = "teacher",
+                    currentUserName = currentTeacherName,
+                    userSchoolId = currentTeacherSchoolId
+                )
+            } else {
+                val items = latestAnnouncements.map { ann ->
+                    val icon = if (ann.priority == "urgent") "🚨" else "📢"
+                    val scopeTag = when (ann.scope) {
+                        "class" -> "Class Notice"
+                        "school" -> "School Advisory"
+                        "division" -> "Division Directive"
+                        else -> "Announcement"
+                    }
+                    "$icon ${ann.title} ($scopeTag)"
+                }
+
+                GabAIDialogs.showSelectionDialog(
+                    context = ctx,
+                    title = "Announcements & Directives",
+                    subtitle = "Select an announcement to view details or manage replies.",
+                    items = items,
+                    badgeIcon = "📢",
+                    onSelected = { which, _ ->
+                        if (which in latestAnnouncements.indices) {
+                            GabAIDialogs.showAnnouncementDetailDialog(
+                                context = ctx,
+                                announcement = latestAnnouncements[which],
+                                currentUid = uid,
+                                currentRole = "teacher",
+                                currentUserName = currentTeacherName,
+                                userSchoolId = currentTeacherSchoolId
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
+        // Quick Teacher Broadcast Notice Button
+        GabAIUtils.addSpringPressEffect(binding.btnTeacherBroadcastQuick) {
+            GabAIUtils.performHaptic(binding.btnTeacherBroadcastQuick)
+            val ctx = context ?: return@addSpringPressEffect
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addSpringPressEffect
+
+            GabAIDialogs.showCreateAnnouncementDialog(
+                context = ctx,
+                teacherUid = uid,
+                teacherName = currentTeacherName,
+                schoolId = currentTeacherSchoolId,
+                classes = teacherClassesList,
+                onCreated = {
+                    loadAnnouncementsHub()
+                }
+            )
+        }
     }
 
     private fun openClassPerformance() {
@@ -270,8 +361,46 @@ class TeacherHomeFragment : Fragment() {
         startActivity(perfIntent)
     }
 
+    private fun loadAnnouncementsHub() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val ctx = context ?: return
+
+        // 1. Zero-latency pre-cached announcement display
+        val cached = AnnouncementRepository.getCachedAnnouncement(ctx)
+        if (cached != null && latestAnnouncements.isEmpty() && _binding != null) {
+            val prefix = if (cached.priority == "urgent") "[URGENT] " else ""
+            binding.tvTeacherLatestBulletinPreview.text = "$prefix${cached.title} — ${cached.content}"
+        }
+
+        // 2. Real-time Firestore sync
+        val schoolId = currentTeacherSchoolId
+        announcementListener?.remove()
+        announcementListener = AnnouncementRepository.listenAnnouncementsForTeacher(schoolId, teacherUid = uid) { announcements ->
+            if (_binding == null || !isAdded) return@listenAnnouncementsForTeacher
+
+            latestAnnouncements = announcements
+            if (announcements.isNotEmpty()) {
+                context?.let { AnnouncementRepository.cacheLatestAnnouncement(it, announcements.first()) }
+                val top = announcements.first()
+                val prefix = if (top.priority == "urgent") "[URGENT] " else ""
+                binding.tvTeacherLatestBulletinPreview.text = "$prefix${top.title} — ${top.content}"
+
+                val authored = announcements.filter { it.authorUid == uid }
+                val totalInquiries = authored.sumOf { it.replyCount }
+                val noticeWord = if (announcements.size == 1) "notice" else "notices"
+                val inquiryWord = if (totalInquiries == 1L) "learner inquiry" else "learner inquiries"
+                binding.tvTeacherAnnouncementStats.text = "${announcements.size} $noticeWord • $totalInquiries $inquiryWord"
+            } else {
+                binding.tvTeacherLatestBulletinPreview.text = "No active notices. Tap '+ Broadcast' to send an announcement to your classes."
+                binding.tvTeacherAnnouncementStats.text = "0 notices • 0 learner inquiries"
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        announcementListener?.remove()
+        announcementListener = null
         _binding = null
     }
 }

@@ -378,15 +378,28 @@ object GabAIUtils {
     }
 
     /**
-     * Safe Undo SnackBar with 4-second delay before committing destructive actions.
+     * Safe Undo SnackBar with 6-second delay before committing destructive actions.
      */
-    fun showUndoSnackbar(view: View?, message: String, actionText: String = "Undo", onUndo: () -> Unit) {
+    fun showUndoSnackbar(view: View?, message: String, actionText: String = "Undo", durationMs: Int = 6000, onUndo: () -> Unit) {
         if (view == null) return
-        val snackbar = Snackbar.make(view, message, 4000)
-            .setAction(actionText) { onUndo() }
+        val snackbar = Snackbar.make(view, message, durationMs)
+            .setAction(actionText) {
+                performHaptic(view)
+                onUndo()
+            }
             .setActionTextColor(Color.parseColor("#A5B4FC"))
         formatFloatingPillSnackbar(snackbar, view.context)
         snackbar.show()
+    }
+
+    fun showUndoSnackbar(context: Context?, message: String, actionText: String = "Undo", durationMs: Int = 6000, onUndo: () -> Unit) {
+        if (context == null) return
+        var activity: Activity? = context as? Activity
+        if (activity == null && context is ContextWrapper) {
+            activity = context.baseContext as? Activity
+        }
+        val rootView = activity?.findViewById<View>(android.R.id.content) ?: return
+        showUndoSnackbar(rootView, message, actionText, durationMs, onUndo)
     }
 
     private fun formatFloatingPillSnackbar(snackbar: Snackbar, ctx: Context) {

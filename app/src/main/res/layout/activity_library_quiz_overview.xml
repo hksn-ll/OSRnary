@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app_aurora">
+
+    <!-- Blur Target wrapping scrollable content -->
+    <com.example.gabai.FastBlurTarget
+        android:id="@+id/blur_target_quiz_overview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_quiz_overview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="96dp"
+            android:paddingBottom="40dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Assigned Classroom / Section Filter Row -->
+                <LinearLayout
+                    android:id="@+id/layout_section_selector_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CLASSROOM COHORT"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="10dp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="never"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/container_section_pills"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- Class Benchmarks 3-Tile Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:layout_marginBottom="20dp">
+
+                    <!-- Tile 1: Pass Rate -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1.2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingVertical="14dp"
+                            android:paddingHorizontal="6dp">
+
+                            <TextView
+                                android:id="@+id/tv_stat_pass_rate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="--%"
+                                android:textColor="#059669"
+                                android:textSize="19sp"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Pass Rate"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Tile 2: Avg Score -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1.2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingVertical="14dp"
+                            android:paddingHorizontal="6dp">
+
+                            <TextView
+                                android:id="@+id/tv_stat_avg_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="-- / --"
+                                android:textColor="#5341CD"
+                                android:textSize="19sp"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Avg Score"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Tile 3: Completed / Total -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1.2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingVertical="14dp"
+                            android:paddingHorizontal="6dp">
+
+                            <TextView
+                                android:id="@+id/tv_stat_completion_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="-- / --"
+                                android:textColor="#D97706"
+                                android:textSize="19sp"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Completed"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Dual-View Segmented Tab Switcher -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1.2dp"
+                    app:strokeColor="#E2E8F0"
+                    app:cardBackgroundColor="#F1F5F9"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:id="@+id/btn_tab_submissions"
+                            android:layout_width="0dp"
+                            android:layout_height="42dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="👥 Student Submissions"
+                            android:textColor="#5341CD"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:background="@drawable/bg_pill_white" />
+
+                        <TextView
+                            android:id="@+id/btn_tab_questions"
+                            android:layout_width="0dp"
+                            android:layout_height="42dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="📈 Question Item Analysis"
+                            android:textColor="#64748B"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:background="@android:color/transparent" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- VIEW CONTAINER 1: STUDENT SUBMISSIONS -->
+                <LinearLayout
+                    android:id="@+id/layout_submissions_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Filter Chips: All, Completed, Pending -->
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="never"
+                        android:scrollbars="none"
+                        android:layout_marginBottom="14dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/chip_filter_all"
+                                android:layout_width="wrap_content"
+                                android:layout_height="34dp"
+                                android:gravity="center"
+                                android:paddingHorizontal="14dp"
+                                android:background="@drawable/bg_bento_purple"
+                                android:text="All Scholars (--)"
+                                android:textColor="#5341CD"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:id="@+id/chip_filter_completed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="34dp"
+                                android:gravity="center"
+                                android:paddingHorizontal="14dp"
+                                android:background="@drawable/bg_pill_white"
+                                android:text="Completed (--)"
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:id="@+id/chip_filter_pending"
+                                android:layout_width="wrap_content"
+                                android:layout_height="34dp"
+                                android:gravity="center"
+                                android:paddingHorizontal="14dp"
+                                android:background="@drawable/bg_pill_white"
+                                android:text="Not Yet Taken (--)"
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                    <!-- Submissions List Container -->
+                    <LinearLayout
+                        android:id="@+id/container_submissions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <!-- Empty State for Submissions -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_empty_submissions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1.2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="28dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📝"
+                                android:textSize="36sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="No submissions yet"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#0F172A"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:layout_marginTop="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Learners in this section haven't completed this reading quiz yet."
+                                android:textSize="13sp"
+                                android:textColor="#64748B"
+                                android:gravity="center"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- VIEW CONTAINER 2: QUESTION ITEM ANALYSIS -->
+                <LinearLayout
+                    android:id="@+id/layout_questions_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ITEM ACCURACY &amp; PITFALL ANALYSIS"
+                        android:textColor="#64748B"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Questions List Container -->
+                    <LinearLayout
+                        android:id="@+id/container_questions_analysis"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <!-- Empty State for Questions -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_empty_questions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1.2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="28dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📊"
+                                android:textSize="36sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Item analysis requires submissions"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#0F172A"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:layout_marginTop="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Question accuracy metrics will calculate automatically once students submit answers."
+                                android:textSize="13sp"
+                                android:textColor="#64748B"
+                                android:gravity="center"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </com.example.gabai.FastBlurTarget>
+
+    <!-- Frosted Acrylic Glass Header -->
+    <com.example.gabai.FastBlurView
+        android:id="@+id/blur_header_quiz_overview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/header_inner_quiz_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:contentDescription="@string/cd_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_arrow_back"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#0F172A"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_header_subject_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="READING QUIZ OVERVIEW"
+                    android:textColor="#5341CD"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.08"
+                    android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                <TextView
+                    android:id="@+id/tv_header_quiz_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quiz Results"
+                    android:textColor="#0F172A"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btn_export_csv"
+                android:contentDescription="Export Submissions CSV"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_share"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#5341CD"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+    </com.example.gabai.FastBlurView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

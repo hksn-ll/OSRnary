@@ -89,14 +89,16 @@ class QuizHistoryActivity : AppCompatActivity() {
 
                 for (doc in snapshots.documents) {
                     val score = doc.getLong("finalScore")?.toInt() ?: 0
+                    val docAttempts = doc.getLong("totalAttempts")?.toInt() ?: 0
+                    val docTotalQ = doc.getLong("totalQuestions")?.toInt() ?: 0
                     val items = doc.get("items") as? List<Map<String, Any>> ?: emptyList()
-                    val totalQ = if (items.isNotEmpty()) items.size else (doc.getLong("totalAttempts")?.toInt() ?: 1).coerceAtLeast(1)
+                    val totalQ = maxOf(docTotalQ, docAttempts, items.size, score, 1)
                     val xp = doc.getLong("xpEarned")?.toInt() ?: 0
                     totalQuestionsAll += totalQ
-                    totalCorrectAll += score
+                    totalCorrectAll += minOf(score, totalQ)
                     totalXpAll += xp
                 }
-                val avgAccuracy = if (totalQuestionsAll > 0) ((totalCorrectAll.toFloat() / totalQuestionsAll) * 100f).toInt() else 0
+                val avgAccuracy = if (totalQuestionsAll > 0) ((totalCorrectAll.toFloat() / totalQuestionsAll) * 100f).toInt().coerceIn(0, 100) else 0
 
                 val statsRow = LinearLayout(this).apply {
                     orientation = LinearLayout.HORIZONTAL
@@ -157,11 +159,12 @@ class QuizHistoryActivity : AppCompatActivity() {
                     val timestamp = doc.getLong("timestamp") ?: 0L
                     val score = doc.getLong("finalScore")?.toInt() ?: 0
                     val attempts = doc.getLong("totalAttempts")?.toInt() ?: 0
+                    val docTotalQ = doc.getLong("totalQuestions")?.toInt() ?: 0
                     val dateString = dateFormat.format(Date(timestamp))
 
                     val items = doc.get("items") as? List<Map<String, Any>> ?: emptyList()
-                    val totalQuestions = if (items.isNotEmpty()) items.size else attempts.coerceAtLeast(1)
-                    val percent = if (totalQuestions > 0) ((score.toFloat() / totalQuestions) * 100f).toInt() else 0
+                    val totalQuestions = maxOf(docTotalQ, attempts, items.size, score, 1)
+                    val percent = ((score.toFloat() / totalQuestions) * 100f).toInt().coerceIn(0, 100)
                     val xpEarned = doc.getLong("xpEarned")?.toInt() ?: 0
 
                     val card = com.google.android.material.card.MaterialCardView(this).apply {

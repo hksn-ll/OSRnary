@@ -308,13 +308,13 @@ service cloud.firestore {
           request.resource.data.get('schoolId', '') != 'DIVISION_OFFICE'
         ));
 
-      // User can update their profile, or Super Admin can update, or School Admin of the same school can update
+      // User can update their profile, or Super Admin can update, or School Admin/Teacher of the same school can update
       allow update: if isAuthenticated() &&
         (
           request.auth.uid == userId ||
           isSuperAdmin() ||
           (
-            getUserRole() == 'school_admin' &&
+            getUserRole() in ['school_admin', 'teacher'] &&
             getUserSchoolId() == resource.data.get('schoolId', '') &&
             resource.data.get('schoolId', '') != ''
           )
@@ -334,8 +334,12 @@ service cloud.firestore {
           )
         ));
 
-      // Only Super Admin can delete user records
-      allow delete: if isSuperAdmin();
+      // Only Super Admin or student cleaning up their own old record during credential migration
+      allow delete: if isSuperAdmin() || (
+        getUserRole() == 'student' &&
+        resource.data.get('username', '') == getUserData().get('username', '') &&
+        resource.data.get('username', '') != ''
+      );
 
       // Subcollections:
       match /favorites/{word} {
@@ -446,11 +450,7 @@ service cloud.firestore {
       allow list: if isAuthenticated() &&
         (
           isSuperAdmin() ||
-          (
-            getUserRole() in ['teacher', 'school_admin'] &&
-            getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
-          )
+          getUserRole() in ['teacher', 'school_admin', 'super_admin', 'admin']
         );
 
       allow update: if isAuthenticated() &&
@@ -482,15 +482,22 @@ service cloud.firestore {
 
       allow create: if isAuthenticated() &&
         (isSuperAdmin() || getUserRole() in ['teacher', 'school_admin']) &&
-        (isSuperAdmin() || request.resource.data.get('schoolId', '') == getUserSchoolId());
+        (
+          isSuperAdmin() ||
+          request.resource.data.get('schoolId', '') == getUserSchoolId() ||
+          request.resource.data.get('schoolId', '') == '' ||
+          getUserSchoolId() == ''
+        );
 
       allow update, delete: if isAuthenticated() &&
         (
           isSuperAdmin() ||
           (
             getUserRole() in ['school_admin', 'teacher'] &&
-            getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
+            (
+              (getUserSchoolId() == resource.data.get('schoolId', '') && resource.data.get('schoolId', '') != '') ||
+              resource.data.get('teacherId', '') == request.auth.uid
+            )
           )
         );
     }
@@ -501,14 +508,20 @@ service cloud.firestore {
       allow create: if isAuthenticated() &&
         getUserRole() == 'teacher' &&
         isValidLibraryMaterialDoc(request.resource.data) &&
-        request.resource.data.get('schoolId', '') == getUserSchoolId();
+        (
+          request.resource.data.get('schoolId', '') == getUserSchoolId() ||
+          request.resource.data.get('schoolId', '') == '' ||
+          getUserSchoolId() == ''
+        );
 
       allow update: if isAuthenticated() &&
         (
           (
             getUserRole() == 'teacher' &&
-            getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
+            (
+              (getUserSchoolId() == resource.data.get('schoolId', '') && resource.data.get('schoolId', '') != '') ||
+              resource.data.get('teacherId', '') == request.auth.uid
+            )
           ) ||
           (
             isSuperAdmin() &&
@@ -522,10 +535,15 @@ service cloud.firestore {
 
       allow delete: if isAuthenticated() &&
         (
-          getUserRole() == 'teacher' &&
-          getUserSchoolId() == resource.data.get('schoolId', '') &&
-          resource.data.get('schoolId', '') != '' &&
-          (resource.data.get('teacherId', '') == request.auth.uid || resource.data.get('teacherId', '') == '')
+          isSuperAdmin() ||
+          (
+            getUserRole() == 'teacher' &&
+            (
+              (getUserSchoolId() == resource.data.get('schoolId', '') && resource.data.get('schoolId', '') != '') ||
+              resource.data.get('teacherId', '') == request.auth.uid ||
+              resource.data.get('teacherId', '') == ''
+            )
+          )
         );
 
       // Pedagogical remarks drawer attached to materials
@@ -630,6 +648,39 @@ service cloud.firestore {
     match /initiation_quizzes/{quizId} {
       allow read, write: if isAuthenticated() &&
         (request.method != 'create' && request.method != 'update' || isValidInitiationQuizDoc(request.resource.data));
+    }
+
+    // 11. System Archives & Accidental Deletion Vault
+    match /system_archives/{archiveId} {
+      // Super Admin can view all archives; Teachers and School Admins can view their campus archives
+      allow read: if isAuthenticated() && (
+        isSuperAdmin() ||
+        (
+          getUserRole() in ['teacher', 'school_admin'] &&
+          (getUserSchoolId() == resource.data.get('schoolId', '') || resource.data.get('schoolId', '') == '')
+        )
+      );
+
+      // Create an archive record upon entity removal
+      allow create: if isAuthenticated() && (
+        isSuperAdmin() ||
+        (
+          getUserRole() in ['teacher', 'school_admin'] &&
+          (request.resource.data.get('schoolId', '') == getUserSchoolId() || request.resource.data.get('schoolId', '') == '' || getUserSchoolId() == '')
+        )
+      );
+
+      // Restore action (marking record status)
+      allow update: if isAuthenticated() && (
+        isSuperAdmin() ||
+        (
+          getUserRole() in ['teacher', 'school_admin'] &&
+          (getUserSchoolId() == resource.data.get('schoolId', '') || resource.data.get('schoolId', '') == '' || getUserSchoolId() == '')
+        )
+      );
+
+      // Only Super Admin can permanently purge archived records
+      allow delete: if isSuperAdmin();
     }
   }
 }

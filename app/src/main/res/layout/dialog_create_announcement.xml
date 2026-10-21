@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_modern_dialog"
+    android:fontFamily="@font/font_plus_jakarta_sans"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Header Icon -->
+    <FrameLayout
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_btn_modern_primary">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="📢"
+            android:textSize="22sp" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Broadcast Notice"
+        android:textColor="#1E1B4B"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="14dp"
+        android:text="Publish an announcement to your enrolled learners."
+        android:textColor="#64748B"
+        android:textSize="12sp" />
+
+    <!-- Title Input -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Announcement Title"
+        android:textColor="#334155"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/et_create_announcement_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:padding="10dp"
+        android:hint="e.g., Reading Diagnostic next Friday"
+        android:textColor="#1E293B"
+        android:textColorHint="#94A3B8"
+        android:textSize="13sp"
+        android:layout_marginBottom="10dp"
+        android:singleLine="true" />
+
+    <!-- Target Classroom -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Target Classroom"
+        android:textColor="#334155"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <Spinner
+        android:id="@+id/spinner_target_class"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:paddingHorizontal="10dp"
+        android:layout_marginBottom="10dp" />
+
+    <!-- Message Content -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Announcement Content"
+        android:textColor="#334155"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/et_create_announcement_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minLines="3"
+        android:maxLines="6"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:padding="10dp"
+        android:hint="Provide all instructions, dates, and reminders..."
+        android:textColor="#1E293B"
+        android:textColorHint="#94A3B8"
+        android:textSize="13sp"
+        android:gravity="top|start"
+        android:layout_marginBottom="10dp" />
+
+    <!-- Urgent Checkbox -->
+    <CheckBox
+        android:id="@+id/cb_is_urgent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mark as Urgent / Important Advisory"
+        android:textColor="#475569"
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <android.widget.Button
+            android:id="@+id/btn_cancel_create_announcement"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_btn_modern_secondary"
+            android:text="Cancel"
+            android:textColor="#334155"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null" />
+
+        <android.widget.Button
+            android:id="@+id/btn_publish_announcement"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_btn_modern_primary"
+            android:text="Publish"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+</LinearLayout>

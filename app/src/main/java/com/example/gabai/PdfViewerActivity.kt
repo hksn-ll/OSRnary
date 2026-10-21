@@ -119,6 +119,7 @@ class PdfViewerActivity : AppCompatActivity() {
             val popup = PopupMenu(this, btnKebab)
 
             if (isTeacher) {
+                popup.menu.add(0, 7, 0, "📊 View Quiz Overview")
                 popup.menu.add(0, 1, 0, "Assign to Sections")
                 popup.menu.add(0, 2, 0, "Add/Edit AI Quiz")
                 popup.menu.add(0, 3, 0, "Rename Document")
@@ -137,6 +138,14 @@ class PdfViewerActivity : AppCompatActivity() {
                     2 -> checkExistingQuizAndProceed()
                     3 -> promptRename(titleView)
                     4 -> confirmDelete()
+                    7 -> {
+                        val qIntent = Intent(this, LibraryQuizOverviewActivity::class.java).apply {
+                            putExtra("MATERIAL_ID", materialId)
+                            putExtra("MATERIAL_TITLE", titleView.text.toString())
+                            putStringArrayListExtra("ASSIGNED_SECTIONS", intent.getStringArrayListExtra("ASSIGNED_SECTIONS"))
+                        }
+                        startActivity(qIntent)
+                    }
                     5 -> {
                         val quizIntent = Intent(this, MaterialQuizActivity::class.java)
                         quizIntent.putExtra("MATERIAL_ID", materialId)
@@ -539,39 +548,41 @@ class PdfViewerActivity : AppCompatActivity() {
     // ==============================================================
     private fun confirmDelete() {
         val materialId = intent.getStringExtra("MATERIAL_ID") ?: return
-        val fileId = intent.getStringExtra("DRIVE_FILE_ID") ?: return
 
         GabAIDialogs.showConfirmDialog(
             this,
             title = "Delete PDF Document?",
-            message = "This will permanently delete the file from Google Drive and remove it from the library.",
-            confirmText = "Delete",
+            message = "This document will be safely moved to your school's Recycle Vault. You can restore it anytime within 30 days.",
+            confirmText = "Archive & Delete",
             cancelText = "Cancel",
             isDestructive = true,
             badgeIcon = "🗑️"
         ) {
-            findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.VISIBLE
-            findViewById<TextView>(R.id.tv_action_status).text = "Deleting from Drive..."
+            findViewById<LinearLayout>(R.id.pdf_action_loader)?.visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tv_action_status)?.text = "Moving to Recycle Vault..."
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    if (fileId.isNotEmpty()) {
-                        val client = OkHttpClient()
-                        val formBody = FormBody.Builder().add("action", "delete").add("fileId", fileId).build()
-                        client.newCall(Request.Builder().url(driveApiUrl).post(formBody).build()).execute()
-                    }
-                    withContext(Dispatchers.Main) {
-                        db.collection("library_materials").document(materialId).delete()
-                        finish()
-                        GabAIUtils.showSnackbar(this@PdfViewerActivity, "PDF Deleted")
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        findViewById<LinearLayout>(R.id.pdf_action_loader).visibility = View.GONE
-                        GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to delete: ${e.message}")
-                    }
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val currentUid = currentUser?.uid ?: ""
+            val currentName = currentUser?.displayName ?: "Teacher"
+            val cachedSchoolId = getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE).getString("schoolId", "") ?: ""
+
+            ArchiveVaultRepository.archiveMaterial(
+                materialId = materialId,
+                schoolId = cachedSchoolId,
+                operatorUid = currentUid,
+                operatorName = currentName,
+                operatorRole = "teacher",
+                reason = "Removed from document reader view",
+                onSuccess = {
+                    findViewById<LinearLayout>(R.id.pdf_action_loader)?.visibility = View.GONE
+                    finish()
+                    GabAIUtils.showSnackbar(this@PdfViewerActivity, "Material moved to Recycle Vault")
+                },
+                onFailure = { e ->
+                    findViewById<LinearLayout>(R.id.pdf_action_loader)?.visibility = View.GONE
+                    GabAIUtils.showSnackbar(this@PdfViewerActivity, "Failed to delete: ${e.message}")
                 }
-            }
+            )
         }
     }
 

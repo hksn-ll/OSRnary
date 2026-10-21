@@ -61,6 +61,7 @@ class GabAIApp : Application() {
                 val caps = cm.getNetworkCapabilities(net) ?: return@firstOrNull false
                 caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                 caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED) &&
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) &&
                 caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
             } ?: cm.activeNetwork
 
@@ -75,11 +76,18 @@ class GabAIApp : Application() {
                 .build()
 
             cm.registerNetworkCallback(request, object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) {
-                    val caps = cm.getNetworkCapabilities(network)
-                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                        cm.bindProcessToNetwork(network)
-                        Log.i("GabAIApp", "Dynamic Wi-Fi interface bound: $network")
+                override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
+
+                    if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                            cm.bindProcessToNetwork(network)
+                            Log.i("GabAIApp", "Dynamic Wi-Fi interface validated & bound: $network")
+                        } else {
+                            // Wi-Fi has no internet; unbind process network so Android can use cellular data
+                            cm.bindProcessToNetwork(null)
+                            Log.i("GabAIApp", "Dynamic Wi-Fi unvalidated; unbound process network: $network")
+                        }
+
                     }
                 }
 

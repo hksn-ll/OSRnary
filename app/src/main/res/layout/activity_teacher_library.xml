@@ -257,6 +257,16 @@
                     android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btn_recycle_vault"
+                android:contentDescription="Recycle and Archive Vault"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_archive_restore"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#5341CD"
+                android:layout_marginStart="8dp" />
         </LinearLayout>
     </com.example.gabai.FastBlurView>
 

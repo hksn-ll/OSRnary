@@ -155,6 +155,22 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/btn_quiz_overview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pill_translucent"
+                android:backgroundTint="#EEF2FF"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="📊 Quiz Results"
+                android:textColor="#5341CD"
+                android:textSize="11sp"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
                 android:id="@+id/tv_action_open"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

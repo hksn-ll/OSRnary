@@ -29,6 +29,20 @@ class ManageClassesActivity : AppCompatActivity() {
         val btnCreate = findViewById<View>(R.id.btn_create_class)
         GabAIUtils.addSpringPressEffect(btnCreate) { showCreateClassDialog() }
 
+        val btnRecycleVault = findViewById<ImageButton>(R.id.btn_recycle_vault)
+        btnRecycleVault?.let { btn ->
+            GabAIUtils.addSpringPressEffect(btn) {
+                val cachedSchoolId = getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE).getString("schoolId", "") ?: ""
+                GabAIDialogs.showArchiveVaultDialog(
+                    context = this,
+                    schoolId = cachedSchoolId,
+                    initialFilter = "class"
+                ) {
+                    fetchAndDisplayClasses()
+                }
+            }
+        }
+
         fetchAndDisplayClasses()
     }
     private fun showCreateClassDialog() {
@@ -491,11 +505,11 @@ class ManageClassesActivity : AppCompatActivity() {
             }
     }
 
-    // DELETE Class & Cascade Delete Students (Only if Adviser)
+    // DELETE Class & Cascade Archive Students (Recycle Vault Integration)
     private fun confirmDeleteClass(classId: String, className: String, sectionName: String, grade: String, schoolId: String, isAdviser: Boolean) {
-        val title = if (isAdviser) "Delete Class & Students?" else "Remove Class?"
+        val title = if (isAdviser) "Archive & Remove Section?" else "Remove Class?"
         val message = if (isAdviser) {
-            "Are you sure you want to permanently delete $className? This WILL permanently delete ALL student accounts (both active and pending) associated with this section."
+            "Are you sure you want to remove $className? This section and its student records will be safely archived to the Recycle Vault, where they can be restored at any time within 30 days."
         } else {
             "Remove $className from your list? Since you are not the adviser, the student accounts will NOT be deleted."
         }
@@ -504,47 +518,105 @@ class ManageClassesActivity : AppCompatActivity() {
             context = this,
             title = title,
             message = message,
-            confirmText = if (isAdviser) "Delete All" else "Remove",
+            confirmText = if (isAdviser) "Archive & Remove" else "Remove",
             cancelText = "Cancel",
             isDestructive = true,
             badgeIcon = "🗑️",
             iconRes = R.drawable.ic_trash,
             onConfirm = {
-                GabAIUtils.showGlobalLoading(this)
+                GabAIUtils.showGlobalLoading(this, "Archiving section...")
                 val db = FirebaseFirestore.getInstance()
+                val currentUser = FirebaseAuth.getInstance().currentUser
+                val currentUid = currentUser?.uid ?: ""
+                val currentName = currentUser?.displayName ?: "Faculty"
 
                 if (isAdviser) {
-                    // 🟢 STRICT CHECK: Wipe out students ONLY in this specific School, Section, AND Grade!
-                    db.collection("pending_students")
-                        .whereEqualTo("schoolId", schoolId)
-                        .whereEqualTo("section", sectionName)
-                        .whereEqualTo("grade", grade) // 🟢 FILTER APPLIED
-                        .get().addOnSuccessListener { snaps ->
-                            for (doc in snaps.documents) doc.reference.delete()
-                        }
+                    ArchiveVaultRepository.archiveClass(
+                        classId = classId,
+                        schoolId = schoolId,
+                        operatorUid = currentUid,
+                        operatorName = currentName,
+                        operatorRole = "teacher",
+                        reason = "Class section removed: $className ($grade - $sectionName)",
+                        onSuccess = { archiveId ->
+                            // Archive pending students into Recycle Vault
+                            db.collection("pending_students")
+                                .whereEqualTo("schoolId", schoolId)
+                                .whereEqualTo("section", sectionName)
+                                .whereEqualTo("grade", grade)
+                                .get().addOnSuccessListener { snaps ->
+                                    for (doc in snaps.documents) {
+                                        ArchiveVaultRepository.archiveStudent(
+                                            studentDocId = doc.id,
+                                            isPending = true,
+                                            schoolId = schoolId,
+                                            operatorUid = currentUid,
+                                            operatorName = currentName,
+                                            reason = "Cascade archived with section $className",
+                                            onSuccess = {},
+                                            onFailure = {}
+                                        )
+                                    }
+                                }
 
-                    db.collection("users")
-                        .whereEqualTo("role", "student")
-                        .whereEqualTo("schoolId", schoolId)
-                        .whereEqualTo("section", sectionName)
-                        .whereEqualTo("grade", grade) // 🟢 FILTER APPLIED
-                        .get().addOnSuccessListener { snaps ->
-                            for (doc in snaps.documents) doc.reference.delete()
-                        }
+                            // Archive active students into Recycle Vault (preserving quiz history & subcollections)
+                            db.collection("users")
+                                .whereEqualTo("role", "student")
+                                .whereEqualTo("schoolId", schoolId)
+                                .whereEqualTo("section", sectionName)
+                                .whereEqualTo("grade", grade)
+                                .get().addOnSuccessListener { snaps ->
+                                    for (doc in snaps.documents) {
+                                        ArchiveVaultRepository.archiveStudent(
+                                            studentDocId = doc.id,
+                                            isPending = false,
+                                            schoolId = schoolId,
+                                            operatorUid = currentUid,
+                                            operatorName = currentName,
+                                            reason = "Cascade archived with section $className",
+                                            onSuccess = {},
+                                            onFailure = {}
+                                        )
+                                    }
+                                }
 
-                    // Delete the class doc completely
-                    db.collection("classes").document(classId).delete()
-                        .addOnSuccessListener {
                             GabAIUtils.hideGlobalLoading(this)
-                            GabAIUtils.showSnackbar(this, "Class deleted successfully!")
+                            fetchAndDisplayClasses()
+
+                            val rootLayout = findViewById<View>(android.R.id.content)
+                            GabAIUtils.showUndoSnackbar(
+                                view = rootLayout,
+                                message = "$className moved to Recycle Vault",
+                                actionText = "Undo"
+                            ) {
+                                GabAIUtils.showGlobalLoading(this, "Restoring section...")
+                                ArchiveVaultRepository.restoreEntity(
+                                    archiveId = archiveId,
+                                    restoredByUid = currentUid,
+                                    onSuccess = {
+                                        GabAIUtils.hideGlobalLoading(this)
+                                        fetchAndDisplayClasses()
+                                        GabAIUtils.showSnackbar(this, "Section restored successfully!")
+                                    },
+                                    onFailure = { e ->
+                                        GabAIUtils.hideGlobalLoading(this)
+                                        GabAIUtils.showSnackbar(this, "Failed to restore: ${e.message}")
+                                    }
+                                )
+                            }
+                        },
+                        onFailure = { e ->
+                            GabAIUtils.hideGlobalLoading(this)
+                            GabAIUtils.showSnackbar(this, "Failed to archive class: ${e.message}")
                         }
+                    )
                 } else {
                     // Subject teacher: Only unlink self from teacherIds
-                    val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
                     db.collection("classes").document(classId)
                         .update("teacherIds", com.google.firebase.firestore.FieldValue.arrayRemove(currentUid))
                         .addOnSuccessListener {
                             GabAIUtils.hideGlobalLoading(this)
+                            fetchAndDisplayClasses()
                             GabAIUtils.showSnackbar(this, "Class removed from your subject classes!")
                         }
                 }
