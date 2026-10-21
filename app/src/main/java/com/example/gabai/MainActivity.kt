@@ -454,7 +454,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         syncBubbleButtonState()
         // Automatically check for updates on foreground resume (debounced)
-        GitHubUpdateHelper.checkUpdate(this, isBackground = true) {}
+        GitHubUpdateHelper.checkUpdate(this, isBackground = true) {
+            GitHubUpdateHelper.checkPostUpdateChangelog(this)
+        }
     }
 
     @Suppress("DEPRECATION")

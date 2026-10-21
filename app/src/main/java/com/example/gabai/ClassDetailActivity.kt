@@ -1423,7 +1423,8 @@ class ClassDetailActivity : AppCompatActivity() {
             grade = grade,
             section = sectionName,
             level = level,
-            xp = xp
+            xp = xp,
+            isTeacherView = true
         )
         sheet.show(supportFragmentManager, "StudentProfileSheet")
     }

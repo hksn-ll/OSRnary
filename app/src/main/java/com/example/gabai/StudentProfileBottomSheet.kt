@@ -35,6 +35,7 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_LEVEL = "level"
         private const val ARG_XP = "xp"
         private const val ARG_RANK = "rank"
+        private const val ARG_IS_TEACHER_VIEW = "is_teacher_view"
 
         fun newInstance(
             studentId: String,
@@ -43,7 +44,8 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             section: String,
             level: Int,
             xp: Int = 0,
-            rank: Int = -1
+            rank: Int = -1,
+            isTeacherView: Boolean = false
         ): StudentProfileBottomSheet {
             val sheet = StudentProfileBottomSheet()
             val args = Bundle().apply {
@@ -54,6 +56,7 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
                 putInt(ARG_LEVEL, level)
                 putInt(ARG_XP, xp)
                 putInt(ARG_RANK, rank)
+                putBoolean(ARG_IS_TEACHER_VIEW, isTeacherView)
             }
             sheet.arguments = args
             return sheet
@@ -91,6 +94,16 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         val level = arguments?.getInt(ARG_LEVEL, 1) ?: 1
         val xp = arguments?.getInt(ARG_XP, 0) ?: 0
         val rank = arguments?.getInt(ARG_RANK, -1) ?: -1
+        val isTeacherViewArg = arguments?.getBoolean(ARG_IS_TEACHER_VIEW, false) ?: false
+
+        val currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val prefs = requireContext().getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+        val cachedRole = prefs.getString("cached_user_role", null) ?: prefs.getString("user_role", null)
+
+        val isActuallyTeacher = (cachedRole == "teacher")
+        val isTeacherView = isTeacherViewArg && isActuallyTeacher
+        val isSelf = (currentUid.isNotBlank() && currentUid == studentId)
+        val canViewAcademicDetails = isTeacherView || isSelf
 
         val tvName = view.findViewById<TextView>(R.id.tv_profile_full_name)
         val tvClassBadge = view.findViewById<TextView>(R.id.tv_profile_class_badge)
@@ -148,6 +161,7 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
         var cachedPhilIriTier: String? = null
 
         val btnShare = view.findViewById<MaterialButton>(R.id.btn_share_profile)
+        btnShare?.visibility = if (canViewAcademicDetails) View.VISIBLE else View.GONE
         btnShare?.let { GabAIUtils.addSpringPressEffect(it) }
         btnShare?.setOnClickListener {
             GabAIUtils.performHaptic(it)
@@ -185,7 +199,7 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             val philIriTier = doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier")
             cachedPhilIriTier = philIriTier
 
-            if (!philIriTier.isNullOrEmpty()) {
+            if (isTeacherView && !philIriTier.isNullOrEmpty()) {
                 tvPhilIriPill?.visibility = View.VISIBLE
                 tvPhilIriPill?.text = "Phil-IRI: $philIriTier"
                 val (pBg, pTxt) = when (philIriTier.lowercase()) {
@@ -253,22 +267,27 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
                 val accuracyPct = if (totalAttempts > 0) ((totalScore.toDouble() / totalAttempts) * 100).toInt() else 0
                 tvAccuracy?.text = "$accuracyPct%"
 
-                if (totalAttempts == 0) {
-                    tvMasteryPill?.text = "🌱 New Scholar"
-                    tvMasteryPill?.setTextColor(Color.parseColor("#64748B"))
-                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
-                } else if (accuracyPct >= 80) {
-                    tvMasteryPill?.text = "🟢 Mastery ($accuracyPct%)"
-                    tvMasteryPill?.setTextColor(Color.parseColor("#047857"))
-                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
-                } else if (accuracyPct >= 60) {
-                    tvMasteryPill?.text = "🟡 Proficient ($accuracyPct%)"
-                    tvMasteryPill?.setTextColor(Color.parseColor("#D97706"))
-                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF3C7"))
+                if (canViewAcademicDetails) {
+                    tvMasteryPill?.visibility = View.VISIBLE
+                    if (totalAttempts == 0) {
+                        tvMasteryPill?.text = "🌱 New Scholar"
+                        tvMasteryPill?.setTextColor(Color.parseColor("#64748B"))
+                        tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1F5F9"))
+                    } else if (accuracyPct >= 80) {
+                        tvMasteryPill?.text = "🟢 Mastery ($accuracyPct%)"
+                        tvMasteryPill?.setTextColor(Color.parseColor("#047857"))
+                        tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+                    } else if (accuracyPct >= 60) {
+                        tvMasteryPill?.text = "🟡 Proficient ($accuracyPct%)"
+                        tvMasteryPill?.setTextColor(Color.parseColor("#D97706"))
+                        tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF3C7"))
+                    } else {
+                        tvMasteryPill?.text = "🔴 Needs Support ($accuracyPct%)"
+                        tvMasteryPill?.setTextColor(Color.parseColor("#BE123C"))
+                        tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFE4E6"))
+                    }
                 } else {
-                    tvMasteryPill?.text = "🔴 Needs Support ($accuracyPct%)"
-                    tvMasteryPill?.setTextColor(Color.parseColor("#BE123C"))
-                    tvMasteryPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFE4E6"))
+                    tvMasteryPill?.visibility = View.GONE
                 }
 
                 if (peakCombo > 0) {
@@ -291,7 +310,14 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             }
 
         loadAchievementsShowcase(layoutTrophies, studentId)
-        loadStudentQuizHistory(view, studentId)
+
+        val layoutQuizzes = view.findViewById<View>(R.id.layout_student_quizzes_section)
+        if (canViewAcademicDetails) {
+            layoutQuizzes?.visibility = View.VISIBLE
+            loadStudentQuizHistory(view, studentId)
+        } else {
+            layoutQuizzes?.visibility = View.GONE
+        }
     }
 
     private fun loadAchievementsShowcase(container: LinearLayout, studentId: String) {
@@ -347,6 +373,16 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun loadStudentQuizHistory(view: View, studentId: String) {
+        val currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val prefs = context?.getSharedPreferences("GabAI_Prefs", android.content.Context.MODE_PRIVATE)
+        val role = prefs?.getString("cached_user_role", null) ?: prefs?.getString("user_role", null)
+
+        // Strict security block: Only educator or the student themselves can ever load quiz history
+        if (role != "teacher" && currentUid != studentId) {
+            view.findViewById<View>(R.id.layout_student_quizzes_section)?.visibility = View.GONE
+            return
+        }
+
         val container = view.findViewById<LinearLayout>(R.id.container_student_quiz_items) ?: return
         val pbLoading = view.findViewById<ProgressBar>(R.id.pb_loading_quizzes)
         val tvEmpty = view.findViewById<TextView>(R.id.tv_empty_quizzes)

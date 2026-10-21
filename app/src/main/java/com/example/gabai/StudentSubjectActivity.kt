@@ -90,6 +90,7 @@ class StudentSubjectActivity : AppCompatActivity() {
                         visibility = if (hasQuiz) View.VISIBLE else View.GONE
                         text = "QUIZ READY ⚡"
                     }
+                    row.findViewById<View>(R.id.btn_quiz_overview)?.visibility = View.GONE
 
                     val imgThumb = row.findViewById<ImageView>(R.id.img_pdf_thumb)
                     if (thumbStr.isNotEmpty()) {

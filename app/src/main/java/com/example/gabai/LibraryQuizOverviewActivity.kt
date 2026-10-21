@@ -87,6 +87,18 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GabAIUtils.applyHardwareMaxRefreshRate(this)
+
+        val currentUid = auth.currentUser?.uid
+        val prefs = getSharedPreferences("GabAI_Prefs", MODE_PRIVATE)
+        val cachedRole = prefs.getString("cached_user_role", null) ?: prefs.getString("user_role", null)
+
+        // Strict role security: Only educators can access class quiz overview
+        if (currentUid == null || (cachedRole != null && cachedRole != "teacher")) {
+            GabAIUtils.showSnackbar(this, "Access restricted to educators only.")
+            finish()
+            return
+        }
+
         setContentView(R.layout.activity_library_quiz_overview)
 
         materialId = intent.getStringExtra("MATERIAL_ID") ?: run {
@@ -205,6 +217,23 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                val currentUid = auth.currentUser?.uid ?: ""
+                if (currentUid.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        GabAIUtils.hideGlobalLoading(this@LibraryQuizOverviewActivity)
+                        finish()
+                    }
+                    return@launch
+                }
+                val teacherDoc = db.collection("users").document(currentUid).get().await()
+                if (teacherDoc.getString("role") != "teacher") {
+                    withContext(Dispatchers.Main) {
+                        GabAIUtils.hideGlobalLoading(this@LibraryQuizOverviewActivity)
+                        GabAIUtils.showSnackbar(this@LibraryQuizOverviewActivity, "Access restricted to educators.")
+                        finish()
+                    }
+                    return@launch
+                }
                 // 1. Fetch Material Document & Quiz Pool JSON
                 val matDoc = db.collection("library_materials").document(materialId).get().await()
                 if (!matDoc.exists()) {
@@ -241,7 +270,6 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                 } catch (_: Exception) {}
 
                 // 2. Fetch Classes Taught by Educator
-                val currentUid = auth.currentUser?.uid ?: ""
                 val classesSnaps = db.collection("classes")
                     .whereArrayContains("teacherIds", currentUid)
                     .get()

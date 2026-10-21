@@ -324,7 +324,8 @@ class LeaderboardActivity : AppCompatActivity() {
             section = section,
             level = level,
             xp = xp,
-            rank = rank
+            rank = rank,
+            isTeacherView = false
         )
         sheet.show(supportFragmentManager, "StudentProfileSheet")
     }

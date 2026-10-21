@@ -487,7 +487,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                                 grade = grade,
                                 section = sectionName,
                                 level = student.level,
-                                xp = student.totalQuizzes * 25
+                                xp = student.totalQuizzes * 25,
+                                isTeacherView = true
                             )
                             sheet.show(supportFragmentManager, "StudentProfileSheet")
                         }

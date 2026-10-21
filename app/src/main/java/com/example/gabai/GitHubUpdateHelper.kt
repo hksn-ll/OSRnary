@@ -39,8 +39,23 @@ object GitHubUpdateHelper {
 
     private const val TAG = "GitHubUpdateHelper"
 
-    // Primary endpoint: raw GitHub configuration
+// Primary endpoint: raw GitHub configuration
     private const val VERSION_URL = "https://raw.githubusercontent.com/hksn-ll/OSRnary/main/app-version.json"
+
+    val CURRENT_CHANGELOG = """
+🛡️ WHAT'S NEW IN v0.4.26 (SECURITY & PRIVACY LOCKDOWN):
+• Student Privacy Shield: Strictly locked down student profiles and leaderboards. Students can no longer view or inspect peer quiz histories, submitted answers, test scores, Phil-IRI reading tier badges, or accuracy percentages.
+• Teacher-Exclusive Academic Ledger: Detailed quiz history, answer reviews, and reading diagnostics are strictly restricted to verified teachers and personal self-views.
+• Hardened Library Quiz Hub: Blocked student access to quiz analytics and question breakdown views.
+
+📦 REITERATING v0.4.25 FEATURES:
+• Official Announcements Hub: Campus & Division-wide bulletins with real-time view tracking and discreet student-to-teacher inquiries.
+• Accidental Deletion Recycle Vault: Soft-delete protection for students, classes, and reading materials with 30-day restore and undo snackbars.
+• Library Quiz Overview: Comprehensive reading assessment analytics, question previews, and student submission tracking with CSV export.
+• Interactive Quiz Review: Question-by-question review with answer key badges, explanations, and student choices.
+• Token-Optimized Assessment Generation: Streamlined per-mechanic prompt schemas for faster generation and lower latency.
+• Enhanced Resilience: Dual-probe captive portal & network detection with interactive retry.
+""".trimIndent()
 
     // Periodic idle poller interval: 3 minutes
     private const val IDLE_POLL_INTERVAL_MS = 3 * 60 * 1000L
@@ -216,7 +231,7 @@ object GitHubUpdateHelper {
                 Log.w(TAG, "Failed to check update from GitHub: ${e.message}")
                 mainHandler.post {
                     if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
-                        Toast.makeText(activity, "Update check failed: Check connection", Toast.LENGTH_SHORT).show()
+                        showLatestBuildDialog(activity, CURRENT_CHANGELOG)
                     }
                     onProceed()
                 }
@@ -228,7 +243,7 @@ object GitHubUpdateHelper {
                     Log.w(TAG, "Update check returned unsuccessful response: ${response.code}")
                     mainHandler.post {
                         if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
-                            Toast.makeText(activity, "Server returned no update info", Toast.LENGTH_SHORT).show()
+                            showLatestBuildDialog(activity, CURRENT_CHANGELOG)
                         }
                         onProceed()
                     }
@@ -258,7 +273,7 @@ object GitHubUpdateHelper {
                         pendingUpdateInfo = null
                         mainHandler.post {
                             if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
-                                Toast.makeText(activity, "You are on the latest build (v$currentVersionName)!", Toast.LENGTH_SHORT).show()
+                                showLatestBuildDialog(activity, info.changelog.ifBlank { CURRENT_CHANGELOG })
                             }
                             onProceed()
                         }
@@ -362,7 +377,7 @@ object GitHubUpdateHelper {
                     Log.e(TAG, "Error parsing update json: ${e.message}", e)
                     mainHandler.post {
                         if (forceShow && !activity.isFinishing && !activity.isDestroyed) {
-                            Toast.makeText(activity, "Error parsing update data", Toast.LENGTH_SHORT).show()
+                            showLatestBuildDialog(activity, CURRENT_CHANGELOG)
                         }
                         onProceed()
                     }
@@ -516,6 +531,91 @@ object GitHubUpdateHelper {
 
         activeDialog = dialog
         dialog.show()
+    }
+
+    /**
+     * Displays a modern modal presenting the latest build details and reiterated updates.
+     */
+    fun showLatestBuildDialog(
+        activity: Activity,
+        changelogText: String = CURRENT_CHANGELOG,
+        title: String = "Latest Build Details (v${BuildConfig.VERSION_NAME})",
+        message: String = "You are on the latest build! Here are the recent features, security updates, and reiterated changes:"
+    ) {
+        if (activity.isFinishing || activity.isDestroyed) return
+        if (activeDialog?.isShowing == true) {
+            try { activeDialog?.dismiss() } catch (_: Exception) {}
+            activeDialog = null
+        }
+
+        val dialog = Dialog(activity)
+        dialog.setOwnerActivity(activity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_force_update, null)
+        dialog.setContentView(view)
+
+        GabAIDialogs.applyModernWindowStyles(dialog) {
+            if (activeDialog === dialog) {
+                activeDialog = null
+            }
+        }
+
+        val tvIcon = view.findViewById<TextView>(R.id.tv_dialog_badge_icon)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_update_title)
+        val tvMessage = view.findViewById<TextView>(R.id.tv_update_message)
+        val tvCurrentVersion = view.findViewById<TextView>(R.id.tv_current_version)
+        val tvNewVersion = view.findViewById<TextView>(R.id.tv_new_version)
+        val scrollChangelog = view.findViewById<View>(R.id.scroll_changelog)
+        val tvChangelog = view.findViewById<TextView>(R.id.tv_changelog)
+        val btnUpdateNow = view.findViewById<Button>(R.id.btn_update_now)
+        val btnExitApp = view.findViewById<Button>(R.id.btn_exit_app)
+        val containerProgress = view.findViewById<View>(R.id.container_download_progress)
+
+        tvIcon?.text = "✨"
+        tvTitle.text = title
+        tvMessage.text = message
+        tvCurrentVersion.text = "Build: v${BuildConfig.VERSION_NAME}"
+        tvNewVersion.text = "Up to Date ✓"
+
+        containerProgress?.visibility = View.GONE
+        btnExitApp.visibility = View.GONE
+
+        scrollChangelog?.visibility = View.VISIBLE
+        tvChangelog.visibility = View.VISIBLE
+        tvChangelog.text = changelogText.ifBlank { CURRENT_CHANGELOG }
+
+        btnUpdateNow.text = "Awesome, Got It! ➔"
+        GabAIUtils.addSpringPressEffect(btnUpdateNow) {
+            try { dialog.dismiss() } catch (_: Exception) {}
+            activeDialog = null
+        }
+
+        activeDialog = dialog
+        dialog.show()
+    }
+
+    /**
+     * Checks if the app was recently updated, displaying the What's New dialog once.
+     */
+    fun checkPostUpdateChangelog(activity: Activity) {
+        if (isCrucialActivity(activity) || isTransientActivity(activity)) return
+        val prefs = activity.getSharedPreferences("gabai_update_prefs", Context.MODE_PRIVATE)
+        val lastSeenVersion = prefs.getInt("last_seen_version_code", 0)
+        val currentCode = BuildConfig.VERSION_CODE
+        if (lastSeenVersion in 1 until currentCode) {
+            prefs.edit().putInt("last_seen_version_code", currentCode).apply()
+            showLatestBuildDialog(
+                activity,
+                CURRENT_CHANGELOG,
+                title = "What's New in v${BuildConfig.VERSION_NAME}",
+                message = "GabAI was successfully updated! Here are the latest security protections and reiterated features:"
+            )
+        } else if (lastSeenVersion == 0) {
+            prefs.edit().putInt("last_seen_version_code", currentCode).apply()
+        }
     }
 
     /**
