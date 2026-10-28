@@ -43,13 +43,13 @@ object GitHubUpdateHelper {
     private const val VERSION_URL = "https://raw.githubusercontent.com/hksn-ll/OSRnary/main/app-version.json"
 
     val CURRENT_CHANGELOG = """
-⏱️ WHAT'S NEW IN v0.4.27 (PHIL-IRI ASSESSMENTS & RECYCLE VAULT):
-• DepEd Phil-IRI Timed Assessment Runner: 100% passage-driven dynamic AI assessment powered by Gemini 3.5 Flash Lite with literal, inferential, and critical dimension distribution.
-• Single Continuous Countdown & Collapsible Passage: Clean uninterrupted test runner with instant Phil-IRI reading proficiency tier diagnosis.
-• Recycle Vault Force-Delete Safeguard: Eliminated all unshielded deletions across division assessments and schools, with 30-day recovery.
-• Permanent Purge Engine: Added controlled, permission-guarded force delete in the Recycle Vault for authorized educators and admins.
-• Educator Dashboard Fix: Resolved quizzes metric stuck at 0 by aggregating weekly assessments and curriculum quiz pools.
-• Class Analytics UI Fix: Redesigned student mastery card layout to prevent vertical badge text wrapping and eliminate awkward whitespace.
+⚖️ WHAT'S NEW IN v0.4.28 (DEPED SF1 GENDER SYSTEM & PHIL-IRI ANALYTICS):
+• DepEd SF1 Dual Student Batch Generation: Separate text areas for Boys and Girls in Class Details for direct copy-pasting from DepEd School Form 1 without manual tagging.
+• Student Gender Badging & Identity: Subtle Bento squircle gender pills with 1-tap learner self-selection and zero-latency caching.
+• Disaggregated Phil-IRI Reading Analytics: Comparative Bento card in Teacher Performance analyzing reading comprehension and Phil-IRI tiers (Independent, Instructional, Frustration) for Boys vs Girls.
+• Interactive Gender Filter Chips: Fast 1-tap roster filtering by Boys 👦 and Girls 👧.
+• Official DepEd Exports: Added Sex/Gender column in Excel-compatible CSV (with UTF-8 BOM) and official PDF classroom records.
+• Admin Portal Navigation & Submissions Disaggregation: Redirected admin logos and return links directly to the root website (../index.html) and added gender disaggregation metrics to assessment submissions.
 """.trimIndent()
 
     // Periodic idle poller interval: 3 minutes

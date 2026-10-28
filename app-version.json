@@ -1,11 +1,11 @@
 {
-  "versionCode": 41,
-  "versionName": "0.4.27",
-  "minRequiredVersionCode": 41,
+  "versionCode": 42,
+  "versionName": "0.4.28",
+  "minRequiredVersionCode": 42,
   "forceUpdate": true,
-  "title": "Phil-IRI Timed Assessments & Recycle Vault Hardening (v0.4.27)",
-  "message": "Dynamic Phil-IRI assessment generator with Gemini 3.5 Flash Lite, single countdown test runner, Recycle Vault force-delete controls, and educator dashboard fixes.",
+  "title": "DepEd SF1 Student Gender System & Phil-IRI Disaggregated Analytics (v0.4.28)",
+  "message": "DepEd SF1-compliant dual student generation, zero-latency gender caching, Phil-IRI reading analytics disaggregation by gender (Boys vs Girls), and Admin Portal main website navigation.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.27/GabAI-v0.4.27.apk",
-  "changelog": "⏱️ WHAT'S NEW IN v0.4.27 (PHIL-IRI ASSESSMENTS & RECYCLE VAULT):\n• DepEd Phil-IRI Timed Assessment Runner: 100% passage-driven dynamic AI assessment powered by Gemini 3.5 Flash Lite with literal, inferential, and critical dimension distribution.\n• Single Continuous Countdown & Collapsible Passage: Clean uninterrupted test runner with instant Phil-IRI reading proficiency tier diagnosis.\n• Recycle Vault Force-Delete Safeguard: Eliminated all unshielded deletions across division assessments and schools, with 30-day recovery.\n• Permanent Purge Engine: Added controlled, permission-guarded force delete in the Recycle Vault for authorized educators and admins.\n• Educator Dashboard Fix: Resolved quizzes metric stuck at 0 by aggregating weekly assessments and curriculum quiz pools.\n• Class Analytics UI Fix: Redesigned student mastery card layout to prevent vertical badge text wrapping and eliminate awkward whitespace."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.28/GabAI-v0.4.28.apk",
+  "changelog": "⚖️ WHAT'S NEW IN v0.4.28 (DEPED SF1 GENDER SYSTEM & PHIL-IRI ANALYTICS):\n• DepEd SF1 Dual Student Batch Generation: Separate text areas for Boys and Girls in Class Details for direct copy-pasting from DepEd School Form 1 without manual tagging.\n• Student Gender Badging & Identity: Subtle Bento squircle gender pills with 1-tap learner self-selection and zero-latency caching.\n• Disaggregated Phil-IRI Reading Analytics: Comparative Bento card in Teacher Performance analyzing reading comprehension and Phil-IRI tiers (Independent, Instructional, Frustration) for Boys vs Girls.\n• Interactive Gender Filter Chips: Fast 1-tap roster filtering by Boys 👦 and Girls 👧.\n• Official DepEd Exports: Added Sex/Gender column in Excel-compatible CSV (with UTF-8 BOM) and official PDF classroom records.\n• Admin Portal Navigation & Submissions Disaggregation: Redirected admin logos and return links directly to the root website (../index.html) and added gender disaggregation metrics to assessment submissions."
 }
