@@ -77,6 +77,8 @@ class ProfileFragment : Fragment() {
         val cachedGrade = prefs.getString("cached_user_grade", null)
         val cachedSection = prefs.getString("cached_user_section", null)
         val cachedSchool = prefs.getString("cached_user_school", null)
+        val cachedGender = prefs.getString("cached_user_gender", "unspecified") ?: "unspecified"
+        updateGenderBadge(cachedGender)
 
         if (!cachedGrade.isNullOrBlank()) {
             binding.tvProfileGrade.text = cachedGrade
@@ -206,6 +208,7 @@ class ProfileFragment : Fragment() {
                         .remove("cached_user_school")
                         .remove("cached_user_photo_url")
                         .remove("cached_user_photo_status")
+                        .remove("cached_user_gender")
                         .remove("cached_completed_quests")
                         .putBoolean("bubble_enabled", false)
                         .apply()
@@ -384,6 +387,13 @@ class ProfileFragment : Fragment() {
 
                     val schoolName = SchoolRepository.getSchoolName(sId)
                     binding.tvProfileSchool.text = "School: $schoolName"
+
+                    val gender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
+                    requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+                        .edit()
+                        .putString("cached_user_gender", gender)
+                        .apply()
+                    updateGenderBadge(gender)
 
                     val photoStatus = doc.getString("photoStatus") ?: "none"
                     val photoUrl = doc.getString("photoUrl")
@@ -996,6 +1006,57 @@ class ProfileFragment : Fragment() {
                 }
             }
         )
+    }
+
+    private fun updateGenderBadge(genderStr: String?) {
+        val g = (genderStr ?: "").trim().lowercase()
+        val badge = binding.tvProfileGenderBadge ?: return
+        when {
+            g.startsWith("m") -> {
+                badge.visibility = View.VISIBLE
+                badge.text = "👦 Male"
+                badge.setBackgroundResource(R.drawable.bg_pill_gender_male)
+                badge.setTextColor(Color.parseColor("#3730A3"))
+            }
+            g.startsWith("f") -> {
+                badge.visibility = View.VISIBLE
+                badge.text = "👧 Female"
+                badge.setBackgroundResource(R.drawable.bg_pill_gender_female)
+                badge.setTextColor(Color.parseColor("#9D174D"))
+            }
+            else -> {
+                badge.visibility = View.VISIBLE
+                badge.text = "👤 Set Gender"
+                badge.setBackgroundResource(R.drawable.bg_pill_white)
+                badge.setTextColor(Color.parseColor("#64748B"))
+            }
+        }
+
+        GabAIUtils.addSpringPressEffect(badge) {
+            val act = activity ?: return@addSpringPressEffect
+            GabAIDialogs.showSelectionDialog(
+                context = act,
+                title = "Select Gender",
+                subtitle = "Align your account with DepEd SF1 School Form",
+                items = listOf(
+                    "👦 Male (Boy)",
+                    "👧 Female (Girl)"
+                ),
+                badgeIcon = "⚖️"
+            ) { index, _ ->
+                val newGender = if (index == 0) "male" else "female"
+                val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@showSelectionDialog
+                act.getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                    .putString("cached_user_gender", newGender)
+                    .apply()
+                FirebaseFirestore.getInstance().collection("users").document(uid)
+                    .update("gender", newGender)
+                    .addOnSuccessListener {
+                        updateGenderBadge(newGender)
+                        GabAIUtils.showSnackbar(act, "Gender profile updated!")
+                    }
+            }
+        }
     }
 
     override fun onDestroyView() {

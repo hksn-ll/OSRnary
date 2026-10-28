@@ -83,12 +83,14 @@ class SplashActivity : AppCompatActivity() {
                             explicitName.isNotBlank() -> explicitName
                             else -> ""
                         }
+                        val gender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
                         preloadedRole = role
                         prefs.edit()
                             .putString("cached_user_role", role)
                             .putString("cached_first_name", firstName)
                             .putString("cached_last_name", lastName)
                             .putString("cached_full_name", fullName)
+                            .putString("cached_user_gender", gender)
                             .apply()
                     } else {
                         // User account deleted or uninitialized
@@ -98,6 +100,7 @@ class SplashActivity : AppCompatActivity() {
                             .remove("cached_first_name")
                             .remove("cached_last_name")
                             .remove("cached_full_name")
+                            .remove("cached_user_gender")
                             .apply()
                         preloadedRole = null
                     }

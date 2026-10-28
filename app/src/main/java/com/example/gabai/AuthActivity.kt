@@ -1,6 +1,9 @@
 package com.example.gabai
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
+import android.widget.TextView
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
@@ -375,6 +378,10 @@ class AuthActivity : AppCompatActivity() {
                         .addOnSuccessListener { doc ->
                             if (doc.exists()) {
                                 val role = doc.getString("role") ?: "student"
+                                val gender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
+                                getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                                    .putString("cached_user_gender", gender)
+                                    .apply()
                                 if (role != "student") {
                                     auth.signOut()
                                     toggleLoading(false)
@@ -471,6 +478,10 @@ class AuthActivity : AppCompatActivity() {
                     return@addOnCompleteListener
                 }
                 studentData["authEmail"] = email
+                val gender = (studentData["gender"] as? String) ?: "unspecified"
+                getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                    .putString("cached_user_gender", gender)
+                    .apply()
                 db.collection("users").document(newUid).set(studentData)
                     .addOnSuccessListener {
                         pendingDocRef.delete()
@@ -943,6 +954,81 @@ class AuthActivity : AppCompatActivity() {
         container.addView(etNewPass)
         container.addView(etConfirmPass)
 
+        val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        var selectedGender = prefs.getString("cached_user_gender", "unspecified") ?: "unspecified"
+
+        val tvGenderLabel = TextView(this).apply {
+            text = "Learner Gender (DepEd SF1 Standard)"
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#475569"))
+            setPadding(0, (14 * density).toInt(), 0, (6 * density).toInt())
+        }
+        val genderRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = (4 * density).toInt() }
+        }
+
+        val btnMale = TextView(this).apply {
+            text = "👦 Male (Boy)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginEnd = (6 * density).toInt()
+            }
+        }
+
+        val btnFemale = TextView(this).apply {
+            text = "👧 Female (Girl)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = (6 * density).toInt()
+            }
+        }
+
+        fun updateGenderPills() {
+            if (selectedGender == "male") {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_boy)
+                btnMale.setTextColor(Color.parseColor("#3730A3"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            } else if (selectedGender == "female") {
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_girl)
+                btnFemale.setTextColor(Color.parseColor("#9D174D"))
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+            } else {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            }
+        }
+        updateGenderPills()
+
+        btnMale.setOnClickListener {
+            selectedGender = "male"
+            updateGenderPills()
+        }
+        btnFemale.setOnClickListener {
+            selectedGender = "female"
+            updateGenderPills()
+        }
+
+        genderRow.addView(btnMale)
+        genderRow.addView(btnFemale)
+
+        container.addView(tvGenderLabel)
+        container.addView(genderRow)
+
         var forceDialog: android.app.Dialog? = null
         forceDialog = GabAIDialogs.showCustomDialog(
             context = this,
@@ -968,12 +1054,15 @@ class AuthActivity : AppCompatActivity() {
                 toggleLoading(true)
                 user.updatePassword(newPass).addOnCompleteListener { updateTask ->
                     if (updateTask.isSuccessful) {
-                        db.collection("users").document(uid).update(
-                            mapOf(
-                                "mustChangePassword" to false,
-                                "tempPassword" to FieldValue.delete()
-                            )
-                        ).addOnCompleteListener {
+                        val updates = mutableMapOf<String, Any>(
+                            "mustChangePassword" to false,
+                            "tempPassword" to FieldValue.delete()
+                        )
+                        if (selectedGender != "unspecified") {
+                            updates["gender"] = selectedGender
+                            prefs.edit().putString("cached_user_gender", selectedGender).apply()
+                        }
+                        db.collection("users").document(uid).update(updates).addOnCompleteListener {
                             toggleLoading(false)
                             dialog.dismiss()
                             GabAIUtils.showSnackbar(this, "Password updated successfully! Welcome! 🎉")

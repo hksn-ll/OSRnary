@@ -157,6 +157,21 @@
                                 android:textSize="11sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_profile_gender_badge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="👦 Male"
+                                android:textSize="10.5sp"
+                                android:textColor="#3730A3"
+                                android:background="@drawable/bg_pill_gender_male"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
                         </LinearLayout>
 
                         <TextView

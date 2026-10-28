@@ -556,6 +556,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
         val isPassed = (percentage >= 50)
         val xpEarned = if (isPassed) 50 else 0
 
+        val studentGender = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).getString("cached_user_gender", "unspecified") ?: "unspecified"
         // 1. Save to assessment_submissions
         val submissionData = hashMapOf(
             "assessmentId" to assessmentId,
@@ -563,6 +564,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             "subjectName" to subjectName,
             "studentUid" to uid,
             "studentName" to studentFullName,
+            "studentGender" to studentGender,
             "classId" to classId,
             "className" to className,
             "schoolId" to schoolId,
@@ -589,6 +591,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                         "title" to assessmentTitle,
                         "finalScore" to score,
                         "totalAttempts" to total,
+                        "studentGender" to studentGender,
                         "xpEarned" to if (isFirstSubmission) xpEarned else 0,
                         "isPassed" to isPassed,
                         "timestamp" to System.currentTimeMillis(),

@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import android.graphics.Color
+import android.graphics.Typeface
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
@@ -354,7 +355,10 @@ class ClassDetailActivity : AppCompatActivity() {
                                 btnCopyStudent?.setOnClickListener { copyCredentials() }
                                 detailsView.setOnClickListener { copyCredentials() }
 
-                                view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password) }
+                                val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
+                                bindStudentGenderBadge(view, rawGender)
+
+                                view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password, rawGender) }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }
 
                                 pendingItemViews.add(view to fullName)
@@ -422,8 +426,11 @@ class ClassDetailActivity : AppCompatActivity() {
                                 tvMonogram?.text = initial
                                 GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvMonogram)
 
+                                val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
+                                bindStudentGenderBadge(view, rawGender)
+
                                 view.setOnClickListener { openStudentProfile(doc) }
-                                view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "") }
+                                view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "", rawGender) }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, false, fullName) }
 
                                 activeItemViews.add(view to fullName)
@@ -511,6 +518,9 @@ class ClassDetailActivity : AppCompatActivity() {
                                 tvMonogram?.text = initial
                                 GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvMonogram)
 
+                                val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
+                                bindStudentGenderBadge(view, rawGender)
+
                                 view.setOnClickListener { openStudentProfile(doc) }
 
                                 // Remove editing controls so they can't mess with the adviser's students
@@ -528,33 +538,102 @@ class ClassDetailActivity : AppCompatActivity() {
     }
     // CREATE
     private fun showGenerateStudentsDialog() {
-        GabAIDialogs.showInputDialog(
+        val density = resources.displayMetrics.density
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, (4 * density).toInt(), 0, (4 * density).toInt())
+        }
+
+        val tvNote = TextView(this).apply {
+            text = "Paste or type student names below (one name per line). To align with DepEd School Form 1 (SF1), enter Male and Female learners separately for automatic gender tagging and disaggregated reading analytics."
+            textSize = 12f
+            setTextColor(Color.parseColor("#64748B"))
+            setPadding(0, 0, 0, (12 * density).toInt())
+        }
+        container.addView(tvNote)
+
+        // Label Boys
+        val tvBoysLabel = TextView(this).apply {
+            text = "👦 Male Learners / Boys (DepEd SF1)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#3730A3"))
+            setPadding(0, 0, 0, (6 * density).toInt())
+        }
+        container.addView(tvBoysLabel)
+
+        val etMaleNames = EditText(this).apply {
+            hint = "Juan Dela Cruz\nPedro Santos\n..."
+            minLines = 3
+            gravity = android.view.Gravity.TOP or android.view.Gravity.START
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
+            setTextColor(Color.parseColor("#2D3436"))
+            textSize = 13.5f
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = (14 * density).toInt() }
+        }
+        container.addView(etMaleNames)
+
+        // Label Girls
+        val tvGirlsLabel = TextView(this).apply {
+            text = "👧 Female Learners / Girls (DepEd SF1)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#9D174D"))
+            setPadding(0, 0, 0, (6 * density).toInt())
+        }
+        container.addView(tvGirlsLabel)
+
+        val etFemaleNames = EditText(this).apply {
+            hint = "Maria Clara\nGabriela Silang\n..."
+            minLines = 3
+            gravity = android.view.Gravity.TOP or android.view.Gravity.START
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
+            setTextColor(Color.parseColor("#2D3436"))
+            textSize = 13.5f
+        }
+        container.addView(etFemaleNames)
+
+        GabAIDialogs.showCustomDialog(
             context = this,
             title = "Add Students to $className",
-            message = "List the students (one name per line). The system will auto-generate secure Usernames and Passwords for them.",
-            hint = "Enter student names, one per line\n(e.g.\nJuan Cruz\nMaria Clara)",
-            confirmText = "Generate",
+            subtitle = "DepEd SF1 School Register Roster Generation",
+            customView = container,
+            confirmText = "Generate Accounts",
             cancelText = "Cancel",
-            minLines = 4,
             badgeIcon = "👥",
-            onConfirm = { namesText ->
-                if (namesText.isNotEmpty()) {
-                    val namesList = namesText.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
-                    generateStudentAccounts(namesList)
+            onConfirm = { dialog ->
+                val maleList = etMaleNames.text.toString().split("\n").map { it.trim() }.filter { it.isNotEmpty() }
+                val femaleList = etFemaleNames.text.toString().split("\n").map { it.trim() }.filter { it.isNotEmpty() }
+
+                val batch = mutableListOf<Pair<String, String>>()
+                maleList.forEach { batch.add(it to "male") }
+                femaleList.forEach { batch.add(it to "female") }
+
+                if (batch.isEmpty()) {
+                    GabAIUtils.showSnackbar(this, "Please enter at least one student name")
+                    return@showCustomDialog
                 }
+
+                dialog.dismiss()
+                generateStudentAccounts(batch)
             }
         )
     }
 
-    private fun generateStudentAccounts(names: List<String>) {
-        val validNames = names.map { it.trim() }.filter { it.isNotBlank() }
-        if (validNames.isEmpty()) return
+    private fun generateStudentAccounts(students: List<Pair<String, String>>) {
+        val validItems = students.filter { it.first.isNotBlank() }
+        if (validItems.isEmpty()) return
 
         var completedCount = 0
         val usedInBatch = mutableSetOf<String>()
-        com.example.gabai.GabAIUtils.showSnackbar(this, "Generating ${validNames.size} accounts...")
+        com.example.gabai.GabAIUtils.showSnackbar(this, "Generating ${validItems.size} accounts...")
 
-        for (fullName in validNames) {
+        for ((fullName, gender) in validItems) {
             val parts = fullName.split("\\s+".toRegex())
             val firstName = parts.firstOrNull() ?: "Student"
             val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
@@ -576,6 +655,7 @@ class ClassDetailActivity : AppCompatActivity() {
             val studentData = hashMapOf(
                 "firstName" to firstName,
                 "lastName" to lastName,
+                "gender" to gender,
                 "username" to username,
                 "password" to password,
                 "mustChangePassword" to true,
@@ -594,7 +674,7 @@ class ClassDetailActivity : AppCompatActivity() {
             db.collection("pending_students").document(username).set(studentData)
                 .addOnSuccessListener {
                     completedCount++
-                    if (completedCount == validNames.size) {
+                    if (completedCount == validItems.size) {
                         com.example.gabai.GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
                     }
                 }
@@ -604,8 +684,37 @@ class ClassDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun bindStudentGenderBadge(view: View, gender: String?) {
+        val tvGenderBadge = view.findViewById<TextView>(R.id.tv_student_gender_badge) ?: return
+        val g = (gender ?: "").trim().lowercase()
+        when {
+            g.startsWith("m") -> {
+                tvGenderBadge.visibility = View.VISIBLE
+                tvGenderBadge.text = "👦 Male"
+                tvGenderBadge.setBackgroundResource(R.drawable.bg_pill_gender_male)
+                tvGenderBadge.setTextColor(Color.parseColor("#3730A3"))
+            }
+            g.startsWith("f") -> {
+                tvGenderBadge.visibility = View.VISIBLE
+                tvGenderBadge.text = "👧 Female"
+                tvGenderBadge.setBackgroundResource(R.drawable.bg_pill_gender_female)
+                tvGenderBadge.setTextColor(Color.parseColor("#9D174D"))
+            }
+            else -> {
+                tvGenderBadge.visibility = View.GONE
+            }
+        }
+    }
+
     // UPDATE
-    private fun showEditStudentDialog(docId: String, isPending: Boolean, currentFullName: String, pass: String) {
+    private fun showEditStudentDialog(
+        docId: String,
+        isPending: Boolean,
+        currentFullName: String,
+        pass: String,
+        currentGender: String = "unspecified"
+    ) {
+        val density = resources.displayMetrics.density
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
@@ -614,11 +723,91 @@ class ClassDetailActivity : AppCompatActivity() {
             setText(currentFullName)
             hint = "Full Name"
             setBackgroundResource(R.drawable.bg_modern_input)
-            setPadding(32, 24, 32, 24)
+            setPadding((16 * density).toInt(), (12 * density).toInt(), (16 * density).toInt(), (12 * density).toInt())
             setTextColor(Color.parseColor("#2D3436"))
             textSize = 14f
         }
         layout.addView(etName)
+
+        // Gender Selector Label
+        val tvGenderLabel = TextView(this).apply {
+            text = "Gender (DepEd SF1 Classification)"
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#475569"))
+            setPadding(0, (14 * density).toInt(), 0, (6 * density).toInt())
+        }
+        layout.addView(tvGenderLabel)
+
+        // Gender Pills (Male / Female)
+        var selectedGender = when {
+            currentGender.lowercase().startsWith("m") -> "male"
+            currentGender.lowercase().startsWith("f") -> "female"
+            else -> "unspecified"
+        }
+
+        val genderRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = (12 * density).toInt() }
+        }
+
+        val btnMale = TextView(this).apply {
+            text = "👦 Male (Boy)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setPadding((14 * density).toInt(), (10 * density).toInt(), (14 * density).toInt(), (10 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginEnd = (6 * density).toInt()
+            }
+        }
+
+        val btnFemale = TextView(this).apply {
+            text = "👧 Female (Girl)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setPadding((14 * density).toInt(), (10 * density).toInt(), (14 * density).toInt(), (10 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = (6 * density).toInt()
+            }
+        }
+
+        fun updateGenderPillsUI() {
+            if (selectedGender == "male") {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_boy)
+                btnMale.setTextColor(Color.parseColor("#3730A3"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            } else if (selectedGender == "female") {
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_girl)
+                btnFemale.setTextColor(Color.parseColor("#9D174D"))
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+            } else {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            }
+        }
+        updateGenderPillsUI()
+
+        btnMale.setOnClickListener {
+            selectedGender = "male"
+            updateGenderPillsUI()
+        }
+        btnFemale.setOnClickListener {
+            selectedGender = "female"
+            updateGenderPillsUI()
+        }
+
+        genderRow.addView(btnMale)
+        genderRow.addView(btnFemale)
+        layout.addView(genderRow)
 
         var etPass: EditText? = null
         if (isPending) {
@@ -626,13 +815,13 @@ class ClassDetailActivity : AppCompatActivity() {
                 setText(pass)
                 hint = "Password"
                 setBackgroundResource(R.drawable.bg_modern_input)
-                setPadding(32, 24, 32, 24)
+                setPadding((16 * density).toInt(), (12 * density).toInt(), (16 * density).toInt(), (12 * density).toInt())
                 setTextColor(Color.parseColor("#2D3436"))
                 textSize = 14f
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply { topMargin = 16 }
+                ).apply { topMargin = (6 * density).toInt() }
             }
             layout.addView(etPass)
         }
@@ -666,7 +855,8 @@ class ClassDetailActivity : AppCompatActivity() {
 
                 val updates = mutableMapOf<String, Any>(
                     "firstName" to fName,
-                    "lastName" to lName
+                    "lastName" to lName,
+                    "gender" to selectedGender
                 )
 
                 if (isPending && etPass != null) {

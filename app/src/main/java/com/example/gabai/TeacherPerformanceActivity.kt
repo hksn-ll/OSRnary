@@ -54,7 +54,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         var isAtRisk: Boolean = false,
         val photoUrl: String? = null,
         var totalXp: Int = 0,
-        var philIriTier: String? = null
+        var philIriTier: String? = null,
+        var gender: String = "unspecified"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,7 +170,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     val displayName = if (username.isNotBlank()) "$rawName (@$username)" else rawName
                     val photoUrl = userDoc.getString("photoUrl")
                     val studentLevel = userDoc.getLong("level")?.toInt() ?: 1
-                    val stats = StudentStats(studentId, displayName, studentLevel, photoUrl = photoUrl, totalXp = userDoc.getLong("current_xp")?.toInt() ?: 0)
+                    val rawGender = userDoc.getString("gender") ?: userDoc.getString("sex") ?: "unspecified"
+                    val stats = StudentStats(studentId, displayName, studentLevel, photoUrl = photoUrl, totalXp = userDoc.getLong("current_xp")?.toInt() ?: 0, gender = rawGender.trim().lowercase())
 
                     val quizDocs = db.collection("users").document(studentId)
                         .collection("quiz_history").get().await()
@@ -265,6 +267,38 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     findViewById<TextView>(R.id.tv_stat_mastery)?.text = "$masteryCount ($masteryPct%)"
                     findViewById<TextView>(R.id.tv_stat_proficient)?.text = "$proficientCount ($proficientPct%)"
                     findViewById<TextView>(R.id.tv_stat_support)?.text = "$supportCount ($supportPct%)"
+
+                    // Gender Disaggregation Analytics (DepEd SF1)
+                    val boysList = compiledStats.filter { it.gender.startsWith("m") }
+                    val girlsList = compiledStats.filter { it.gender.startsWith("f") }
+                    val boysAvgScore = if (boysList.isNotEmpty()) boysList.map { it.averageScore }.average().toInt() else 0
+                    val girlsAvgScore = if (girlsList.isNotEmpty()) girlsList.map { it.averageScore }.average().toInt() else 0
+
+                    fun countPhilIriTiers(list: List<StudentStats>): Triple<Int, Int, Int> {
+                        var ind = 0
+                        var ins = 0
+                        var fru = 0
+                        for (s in list) {
+                            val t = s.philIriTier?.lowercase()
+                            when {
+                                t == "independent" || (t == null && s.averageScore >= 80) -> ind++
+                                t == "instructional" || (t == null && s.averageScore in 59..79) -> ins++
+                                else -> fru++
+                            }
+                        }
+                        return Triple(ind, ins, fru)
+                    }
+                    val (boysInd, boysIns, boysFru) = countPhilIriTiers(boysList)
+                    val (girlsInd, girlsIns, girlsFru) = countPhilIriTiers(girlsList)
+
+                    findViewById<TextView>(R.id.tv_gender_ratio_label)?.text = "${boysList.size} Boys • ${girlsList.size} Girls"
+                    findViewById<TextView>(R.id.tv_gender_boys_count)?.text = "${boysList.size} learners"
+                    findViewById<TextView>(R.id.tv_gender_boys_avg_score)?.text = "$boysAvgScore%"
+                    findViewById<TextView>(R.id.tv_gender_boys_phil_iri)?.text = "Ind: $boysInd • Ins: $boysIns • Fru: $boysFru"
+
+                    findViewById<TextView>(R.id.tv_gender_girls_count)?.text = "${girlsList.size} learners"
+                    findViewById<TextView>(R.id.tv_gender_girls_avg_score)?.text = "$girlsAvgScore%"
+                    findViewById<TextView>(R.id.tv_gender_girls_phil_iri)?.text = "Ind: $girlsInd • Ins: $girlsIns • Fru: $girlsFru"
 
                     // 3. Early Support Attention Banner
                     val cardAlert = findViewById<View>(R.id.card_at_risk_alert)
@@ -459,6 +493,30 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                             badgesRow.addView(philBadge)
                         }
 
+                        if (student.gender.startsWith("m") || student.gender.startsWith("f")) {
+                            val isMale = student.gender.startsWith("m")
+                            val genderBadge = TextView(this@TeacherPerformanceActivity).apply {
+                                text = if (isMale) "👦 Male" else "👧 Female"
+                                textSize = 9.5f
+                                setSingleLine(true)
+                                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                                background = android.graphics.drawable.GradientDrawable().apply {
+                                    cornerRadius = resources.displayMetrics.density * 8
+                                    setColor(Color.parseColor(if (isMale) "#EEF2FF" else "#FDF2F8"))
+                                    setStroke((resources.displayMetrics.density * 1).toInt(), Color.parseColor(if (isMale) "#C7D2FE" else "#FBCFE8"))
+                                }
+                                setTextColor(Color.parseColor(if (isMale) "#3730A3" else "#9D174D"))
+                                val hp = (resources.displayMetrics.density * 6).toInt()
+                                val vp = (resources.displayMetrics.density * 2).toInt()
+                                setPadding(hp, vp, hp, vp)
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).apply { marginStart = (resources.displayMetrics.density * 6).toInt() }
+                            }
+                            badgesRow.addView(genderBadge)
+                        }
+
                         // 3. Gamification stats
                         val statsText = TextView(this@TeacherPerformanceActivity).apply {
                             text = "Lvl ${student.level} • ${student.totalQuizzes} Quizzes • ${student.wordsMastered} Words 📚 • Streak ${student.streak} 🔥"
@@ -528,6 +586,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     val chipMastery = findViewById<TextView>(R.id.chip_filter_mastery)
                     val chipProficient = findViewById<TextView>(R.id.chip_filter_proficient)
                     val chipSupport = findViewById<TextView>(R.id.chip_filter_support)
+                    val chipBoys = findViewById<TextView>(R.id.chip_filter_boys)
+                    val chipGirls = findViewById<TextView>(R.id.chip_filter_girls)
                     val chipTop = findViewById<TextView>(R.id.chip_filter_top)
                     val chipStreaks = findViewById<TextView>(R.id.chip_filter_streaks)
 
@@ -535,12 +595,16 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     chipMastery?.text = "Mastery 🟢 ($masteryCount)"
                     chipProficient?.text = "Proficient 🟡 ($proficientCount)"
                     chipSupport?.text = "Needs Support ⚠️ ($supportCount)"
+                    chipBoys?.text = "Boys 👦 (${boysList.size})"
+                    chipGirls?.text = "Girls 👧 (${girlsList.size})"
 
                     val allChips = listOf(
                         Pair("ALL", chipAll),
                         Pair("MASTERY", chipMastery),
                         Pair("PROFICIENT", chipProficient),
                         Pair("SUPPORT", chipSupport),
+                        Pair("BOYS", chipBoys),
+                        Pair("GIRLS", chipGirls),
                         Pair("TOP", chipTop),
                         Pair("STREAKS", chipStreaks)
                     )
@@ -569,6 +633,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                                 "MASTERY" -> st.masteryTier == "Mastery"
                                 "PROFICIENT" -> st.masteryTier == "Proficient"
                                 "SUPPORT" -> st.isAtRisk
+                                "BOYS" -> st.gender.startsWith("m")
+                                "GIRLS" -> st.gender.startsWith("f")
                                 "TOP" -> st.averageScore >= 85
                                 "STREAKS" -> st.streak > 0
                                 else -> true
@@ -639,12 +705,13 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
             val csvContent = buildString {
                 append("\uFEFF") // UTF-8 BOM for Microsoft Excel compatibility
-                appendLine("Student Name,Status,Phil-IRI Tier,Quiz Accuracy (%),Words Retained,Quizzes Taken,Streak (Days),Level,Total XP")
+                appendLine("Student Name,Sex/Gender,Status,Phil-IRI Tier,Quiz Accuracy (%),Words Retained,Quizzes Taken,Streak (Days),Level,Total XP")
                 for (s in studentsToExport) {
                     val cleanName = s.name.replace("\"", "\"\"")
+                    val genderLabel = if (s.gender.startsWith("m")) "Male" else if (s.gender.startsWith("f")) "Female" else "Unspecified"
                     val cleanTier = s.masteryTier.replace("\"", "\"\"")
                     val cleanPhilIri = (s.philIriTier ?: "N/A").replace("\"", "\"\"")
-                    appendLine("\"$cleanName\",\"$cleanTier\",\"$cleanPhilIri\",${s.averageScore},${s.wordsMastered},${s.totalQuizzes},${s.streak},${s.level},${s.totalXp}")
+                    appendLine("\"$cleanName\",\"$genderLabel\",\"$cleanTier\",\"$cleanPhilIri\",${s.averageScore},${s.wordsMastered},${s.totalQuizzes},${s.streak},${s.level},${s.totalXp}")
                 }
             }
 
@@ -819,9 +886,10 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                 paint.color = Color.parseColor("#3730A3")
 
                 c.drawText("#", margin + 6f, topY + 14f, paint)
-                c.drawText("Learner Name", margin + 28f, topY + 14f, paint)
-                c.drawText("Status", margin + 220f, topY + 14f, paint)
-                c.drawText("Score", margin + 310f, topY + 14f, paint)
+                c.drawText("Learner Name", margin + 26f, topY + 14f, paint)
+                c.drawText("Sex", margin + 185f, topY + 14f, paint)
+                c.drawText("Status", margin + 225f, topY + 14f, paint)
+                c.drawText("Score", margin + 315f, topY + 14f, paint)
                 c.drawText("Words", margin + 365f, topY + 14f, paint)
                 c.drawText("Quizzes", margin + 420f, topY + 14f, paint)
                 c.drawText("Streak", margin + 475f, topY + 14f, paint)
@@ -876,8 +944,15 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 paint.color = Color.parseColor("#0F172A")
-                val cleanName = if (s.name.length > 28) s.name.substring(0, 26) + "…" else s.name
-                canvas.drawText(cleanName, margin + 28f, currentY + 12f, paint)
+                val cleanName = if (s.name.length > 24) s.name.substring(0, 22) + "…" else s.name
+                canvas.drawText(cleanName, margin + 26f, currentY + 12f, paint)
+
+                // Sex column
+                val sexLabel = if (s.gender.startsWith("m")) "Male" else if (s.gender.startsWith("f")) "Female" else "-"
+                paint.typeface = Typeface.DEFAULT
+                paint.textSize = 7.5f
+                paint.color = Color.parseColor("#475569")
+                canvas.drawText(sexLabel, margin + 185f, currentY + 12f, paint)
 
                 // Status label
                 val (tierColor, tierText) = when {
@@ -888,7 +963,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                 paint.color = Color.parseColor(tierColor)
                 paint.textSize = 7.5f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-                canvas.drawText(tierText, margin + 220f, currentY + 12f, paint)
+                canvas.drawText(tierText, margin + 225f, currentY + 12f, paint)
 
                 paint.color = Color.parseColor("#334155")
                 paint.typeface = Typeface.DEFAULT

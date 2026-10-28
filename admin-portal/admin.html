@@ -274,7 +274,7 @@
       <div class="absolute -right-8 -bottom-8 w-36 h-36 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
       <div class="absolute top-2 right-8 w-16 h-16 rounded-full bg-emerald-400/20 blur-lg pointer-events-none"></div>
 
-      <img src="logo.png" alt="GabAI Logo" class="w-16 h-16 rounded-2xl mx-auto mb-4 object-cover shadow-lg border border-white/20">
+      <a href="../index.html" title="Back to GabAI Main Website" class="inline-block transition-transform hover:scale-105"><img src="logo.png" alt="GabAI Logo" class="w-16 h-16 rounded-2xl mx-auto mb-4 object-cover shadow-lg border border-white/20"></a>
       <h1 class="text-xl font-bold tracking-tight text-white font-display">GabAI School Admin Portal</h1>
       <p class="text-xs text-purple-100 font-medium mt-0.5">Campus Administration &amp; Academic Records</p>
       <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] text-white font-semibold backdrop-blur-sm">
@@ -357,7 +357,7 @@
         </div>
 
         <div class="mt-4 pt-3 border-t border-slate-100 text-center">
-          <a href="index.html" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 font-semibold transition">
+          <a href="../index.html" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 font-semibold transition">
             &larr; Back to GabAI App Website
           </a>
         </div>
@@ -1122,6 +1122,15 @@
           <input type="text" id="editStudentLastName" required placeholder="e.g. Dela Cruz" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-[#5341CD] focus:ring-2 focus:ring-[#5341CD]/20 outline-none text-xs text-slate-800 font-medium transition">
         </div>
 
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Gender (DepEd SF1 Classification)</label>
+          <select id="editStudentGender" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-[#5341CD] focus:ring-2 focus:ring-[#5341CD]/20 outline-none text-xs text-slate-800 font-semibold transition bg-white">
+            <option value="male">👦 Male (Boy)</option>
+            <option value="female">👧 Female (Girl)</option>
+            <option value="unspecified">Unspecified / Other</option>
+          </select>
+        </div>
+
         <div class="p-3 bg-purple-50/60 border border-purple-200 rounded-xl text-[11px] text-purple-900 leading-relaxed flex items-start gap-2">
           <svg class="w-4 h-4 text-[#5341CD] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           <span>Privacy & Security Protocol: Student passwords cannot be manually typed or modified. For login assistance or password recovery, use the <strong>Reset Passkey</strong> action to issue a secure temporary recovery key.</span>
@@ -1641,18 +1650,22 @@
         <button onclick="closeAssessmentSubmissionsModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 text-xs shrink-0">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs shrink-0">
         <div class="p-3 bg-purple-50 rounded-xl border border-purple-200">
           <div class="text-slate-500 text-[10px] font-bold uppercase">Total Turned In</div>
           <div id="subModalTurnedIn" class="text-lg font-black text-[#6C5CE7] mt-0.5">0</div>
         </div>
-        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-          <div class="text-slate-500 text-[10px] font-bold uppercase">Class Average</div>
-          <div id="subModalClassAvg" class="text-lg font-black text-emerald-700 mt-0.5">0%</div>
+        <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Boys 👦 (Male)</div>
+          <div id="subModalBoysStat" class="text-xs font-bold text-indigo-900 mt-1">0 • 0% avg</div>
         </div>
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <div class="text-slate-500 text-[10px] font-bold uppercase">Assessment Total Items</div>
-          <div id="subModalTotalItems" class="text-lg font-black text-slate-800 mt-0.5">10 Items</div>
+        <div class="p-3 bg-rose-50 rounded-xl border border-rose-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Girls 👧 (Female)</div>
+          <div id="subModalGirlsStat" class="text-xs font-bold text-rose-900 mt-1">0 • 0% avg</div>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+          <div class="text-slate-500 text-[10px] font-bold uppercase">Overall Average</div>
+          <div id="subModalClassAvg" class="text-lg font-black text-emerald-700 mt-0.5">0%</div>
         </div>
       </div>
 
@@ -1661,6 +1674,7 @@
           <thead class="sticky top-0 bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
             <tr>
               <th class="p-3">Student Name</th>
+              <th class="p-3">Gender</th>
               <th class="p-3">LRN / Email</th>
               <th class="p-3">Score</th>
               <th class="p-3">Accuracy</th>
@@ -1884,7 +1898,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
 
-        <img src="logo.png" alt="GabAI Logo" class="w-10 h-10 rounded-xl object-cover shadow-sm shrink-0 border border-slate-200">
+        <a href="../index.html" title="Back to GabAI Main Website" class="transition-transform hover:scale-105 shrink-0"><img src="logo.png" alt="GabAI Logo" class="w-10 h-10 rounded-xl object-cover shadow-sm shrink-0 border border-slate-200"></a>
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-sm text-slate-900 tracking-tight font-display">GabAI School Admin Portal</h1>
@@ -1935,7 +1949,7 @@
         <!-- Mobile Drawer Close Button -->
         <div class="flex items-center justify-between pb-2 border-b border-slate-100 lg:hidden mb-2">
           <div class="flex items-center gap-2">
-            <img src="logo.png" alt="GabAI Logo" class="w-7 h-7 rounded-lg object-cover shadow-xs shrink-0">
+            <a href="../index.html" title="Back to GabAI Main Website" class="transition-transform hover:scale-105 shrink-0"><img src="logo.png" alt="GabAI Logo" class="w-7 h-7 rounded-lg object-cover shadow-xs shrink-0"></a>
             <span class="font-bold text-xs text-slate-800 font-display">Navigation Menu</span>
           </div>
           <button onclick="toggleMobileSidebar(false)" aria-label="Close navigation" class="text-slate-500 hover:text-slate-700 p-1 text-lg font-bold">&times;</button>
@@ -6777,6 +6791,10 @@
       document.getElementById('editStudentFirstName').value = fName;
       document.getElementById('editStudentLastName').value = lName;
 
+      const curGender = (target?.gender || target?.sex || '').toLowerCase();
+
+      document.getElementById('editStudentGender').value = curGender.startsWith('m') ? 'male' : (curGender.startsWith('f') ? 'female' : 'unspecified');
+
       document.getElementById('modalEditStudentName').classList.remove('hidden');
     };
 
@@ -6788,6 +6806,7 @@
       e.preventDefault();
       const fName = document.getElementById('editStudentFirstName').value.trim();
       const lName = document.getElementById('editStudentLastName').value.trim();
+      const gender = document.getElementById('editStudentGender').value;
       const username = document.getElementById('editStudentUsername').value;
       const docId = document.getElementById('editStudentDocId').value;
 
@@ -6809,7 +6828,8 @@
           await updateDoc(doc(db, "users", docId), {
             firstName: fName,
             lastName: lName,
-            fullName: fullName
+            fullName: fullName,
+            gender: gender
           });
           const u = cachedUsers.find(item => item.id === docId);
           if (u) {
@@ -6896,6 +6916,7 @@
             firstName: fName,
             lastName: lName,
             fullName: fullName,
+            gender: gender,
             username: uName,
             password: u.tempPassword || '',
             schoolId: u.schoolId || '',
@@ -6929,6 +6950,7 @@
             firstName: fName,
             lastName: lName,
             fullName: fullName,
+            gender: gender,
             username: username,
             password: p.password || '',
             schoolId: p.schoolId || '',
@@ -8298,17 +8320,36 @@
       document.getElementById('submissionsModalTitle').textContent = `Submissions: ${a.title || 'Weekly Assessment'}`;
       document.getElementById('submissionsModalSubtitle').textContent = `${a.className || 'Class'} • ${a.subjectName || 'Subject'} • ${getSchoolName(a.schoolId)}`;
 
-      document.getElementById('subModalTurnedIn').textContent = `${subs.length}`;
-      document.getElementById('subModalTotalItems').textContent = `${a.questionCount || 10} Items`;
+      const totalItems = a.questionCount || 10;
+      const maleSubs = subs.filter(s => {
+        const u = cachedUsers.find(item => item.id === s.studentUid || item.uid === s.studentUid);
+        const g = (s.studentGender || u?.gender || u?.sex || '').toLowerCase();
+        return g.startsWith('m');
+      });
+      const femaleSubs = subs.filter(s => {
+        const u = cachedUsers.find(item => item.id === s.studentUid || item.uid === s.studentUid);
+        const g = (s.studentGender || u?.gender || u?.sex || '').toLowerCase();
+        return g.startsWith('f');
+      });
 
-      const avg = calculateAverageScore(subs, a.questionCount || 10);
+      const avg = calculateAverageScore(subs, totalItems);
+      const maleAvg = calculateAverageScore(maleSubs, totalItems);
+      const femaleAvg = calculateAverageScore(femaleSubs, totalItems);
+
+      document.getElementById('subModalTurnedIn').textContent = `${subs.length}`;
+      if (document.getElementById('subModalBoysStat')) {
+        document.getElementById('subModalBoysStat').textContent = `${maleSubs.length} turned in • ${maleAvg}% avg`;
+      }
+      if (document.getElementById('subModalGirlsStat')) {
+        document.getElementById('subModalGirlsStat').textContent = `${femaleSubs.length} turned in • ${femaleAvg}% avg`;
+      }
       document.getElementById('subModalClassAvg').textContent = `${avg}%`;
 
       const tbody = document.getElementById('assessmentSubmissionsTableBody');
       if (subs.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="5" class="p-8 text-center text-slate-400 font-medium">
+            <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
               No students have completed this assessment yet.
             </td>
           </tr>`;
@@ -8317,15 +8358,24 @@
           const studentName = sub.studentName || 'Student';
           const studentEmail = sub.studentEmail || sub.studentUid || '';
           const score = sub.score !== undefined ? sub.score : 0;
-          const total = sub.totalQuestions || a.questionCount || 10;
+          const total = sub.totalQuestions || totalItems;
           const pct = sub.percentage !== undefined ? sub.percentage : Math.round((score * 100) / total);
           const dateStr = sub.submittedAt ? new Date(sub.submittedAt).toLocaleString() : 'Recently';
+
+          const u = cachedUsers.find(item => item.id === sub.studentUid || item.uid === sub.studentUid);
+          const rawG = (sub.studentGender || u?.gender || u?.sex || '').toLowerCase();
+          const genderBadge = rawG.startsWith('m')
+            ? '<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold">👦 Male</span>'
+            : (rawG.startsWith('f')
+              ? '<span class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">👧 Female</span>'
+              : '<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 text-[10px] font-bold">—</span>');
 
           const pctBadgeClass = pct >= 75 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (pct >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200');
 
           return `
             <tr class="hover:bg-slate-50/80 transition-colors">
               <td class="p-3 font-bold text-slate-900">${studentName}</td>
+              <td class="p-3">${genderBadge}</td>
               <td class="p-3 text-slate-500 font-mono text-[11px]">${studentEmail}</td>
               <td class="p-3 font-bold text-slate-800">${score} / ${total}</td>
               <td class="p-3">

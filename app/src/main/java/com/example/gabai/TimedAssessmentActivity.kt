@@ -740,6 +740,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
             else -> "Frustration"
         }
 
+        val studentGender = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).getString("cached_user_gender", "unspecified") ?: "unspecified"
         val submissionDocId = "${assessmentId}_${uid}"
         val submissionData = hashMapOf(
             "assessmentId" to assessmentId,
@@ -749,6 +750,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
             "grade" to targetGrade,
             "studentUid" to uid,
             "studentName" to studentFullName,
+            "studentGender" to studentGender,
             "score" to score,
             "totalQuestions" to total,
             "percentage" to percentage,
@@ -773,6 +775,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 "totalAttempts" to total,
                 "percentage" to percentage,
                 "philIriLevel" to philIriLevel,
+                "studentGender" to studentGender,
                 "timestamp" to System.currentTimeMillis(),
                 "items" to submissionItems
             )

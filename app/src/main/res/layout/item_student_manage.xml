@@ -82,6 +82,20 @@
                     android:textColor="#B45309"
                     android:background="@drawable/bg_pill_amber_subtle"
                     android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_student_gender_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="1.5dp"
+                    android:text="👦 Male"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#3730A3"
+                    android:background="@drawable/bg_pill_gender_male"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
