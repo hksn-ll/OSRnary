@@ -28,7 +28,9 @@ import kotlin.concurrent.thread
 data class GeneratedQuestion(
     val question: String,
     val options: List<String>,
-    val correctIndex: Int
+    val correctIndex: Int,
+    val competencyCode: String = "EN-LIT-01",
+    val competencyName: String = "Literal Comprehension"
 )
 
 // Helper class to manage Custom URLs vs Local Assets
@@ -277,27 +279,37 @@ class InitiationActivity : AppCompatActivity() {
             GeneratedQuestion(
                 question = "What is the scientific name of the Philippine Eagle highlighted in the reading selection?",
                 options = listOf("Pithecophaga jefferyi", "Haliaeetus leucocephalus", "Aquila chrysaetos", "Spizaetus philippensis"),
-                correctIndex = 0
+                correctIndex = 0,
+                competencyCode = "EN-LIT-01",
+                competencyName = "Noting Explicit Details"
             ),
             GeneratedQuestion(
                 question = "The passage describes the Philippine Eagle as 'endemic' to the archipelago. What does 'endemic' mean?",
                 options = listOf("Migrating seasonally across continents", "Exclusively native and found only in a specific geographic region", "Introduced by human settlers", "Bred exclusively in domestic facilities"),
-                correctIndex = 1
+                correctIndex = 1,
+                competencyCode = "EN-VOC-02",
+                competencyName = "Vocabulary & Context Clues"
             ),
             GeneratedQuestion(
                 question = "Why do biologists consider the Philippine Eagle a vital 'ecological indicator' and apex predator?",
                 options = listOf("It feeds exclusively on agricultural grain crops", "Its presence signifies a healthy, balanced, and thriving rainforest ecosystem", "It displaces indigenous plants and shrubs", "It clears brush along lowland rivers"),
-                correctIndex = 1
+                correctIndex = 1,
+                competencyCode = "EN-INF-03",
+                competencyName = "Inferring Ecological Cause & Effect"
             ),
             GeneratedQuestion(
                 question = "According to the passage, why is primary rainforest destruction especially devastating for eagle breeding?",
                 options = listOf("They only nest in high-altitude volcanic craters", "A single breeding pair requires up to 50 square miles of undisturbed virgin forest", "They cannot fly through stormy weather", "They nest exclusively in lowland grasslands"),
-                correctIndex = 1
+                correctIndex = 1,
+                competencyCode = "EN-SYN-04",
+                competencyName = "Analyzing Text Relationships & Supporting Details"
             ),
             GeneratedQuestion(
                 question = "What primary message is conveyed regarding the conservation of the national bird?",
                 options = listOf("Encouraging commercial wildlife trophy hunting", "Defending our national bird is essential to protecting the rainforests that sustain future Filipino generations", "Eagles should be relocated exclusively to foreign zoos", "Forest protection should be left to international tourists"),
-                correctIndex = 1
+                correctIndex = 1,
+                competencyCode = "EN-CRI-05",
+                competencyName = "Identifying Main Idea & Critical Theme"
             )
         )
     }
@@ -786,11 +798,19 @@ class InitiationActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             val db = FirebaseFirestore.getInstance()
+            val competencyScores = hashMapOf(
+                "EN-LIT-01" to (if ((scores.getOrNull(0) ?: 0) >= 1) 100 else 0),
+                "EN-VOC-02" to (if ((scores.getOrNull(1) ?: 0) >= 1) 100 else 0),
+                "EN-INF-03" to (if ((scores.getOrNull(2) ?: 0) >= 1) 100 else 0),
+                "EN-SYN-04" to (if ((scores.getOrNull(3) ?: 0) >= 1) 100 else 0),
+                "EN-CRI-05" to (if ((scores.getOrNull(4) ?: 0) >= 1) 100 else 0)
+            )
             val diagData = hashMapOf(
                 "phil_iri_tier" to philIriTier,
                 "diagnostic_score" to lastTotalScore,
                 "diagnostic_total" to totalPossible,
                 "diagnostic_pct" to percentage,
+                "competency_scores" to competencyScores,
                 "diagnostic_completed_at" to com.google.firebase.firestore.FieldValue.serverTimestamp()
             )
             db.collection("users").document(uid).update(diagData as Map<String, Any>)

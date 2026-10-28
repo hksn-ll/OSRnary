@@ -90,6 +90,7 @@
         <activity android:name=".MaterialQuizActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".QuizEditorActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".WeeklyAssessmentActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".TimedAssessmentActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".LibraryQuizOverviewActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity
             android:name=".StudentIntroActivity"

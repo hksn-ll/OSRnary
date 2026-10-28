@@ -1,11 +1,11 @@
 {
-  "versionCode": 40,
-  "versionName": "0.4.26",
-  "minRequiredVersionCode": 40,
+  "versionCode": 41,
+  "versionName": "0.4.27",
+  "minRequiredVersionCode": 41,
   "forceUpdate": true,
-  "title": "Privacy Shield & Security Hardening (v0.4.26)",
-  "message": "Critical security update enforcing peer privacy across all profiles and leaderboards, while continuing all features from the v0.4.25 update: Announcements Hub, Recycle Vault, Teacher Quiz Analytics, and Interactive Quiz Reviews.",
+  "title": "Phil-IRI Timed Assessments & Recycle Vault Hardening (v0.4.27)",
+  "message": "Dynamic Phil-IRI assessment generator with Gemini 3.5 Flash Lite, single countdown test runner, Recycle Vault force-delete controls, and educator dashboard fixes.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.26/GabAI-v0.4.26.apk",
-  "changelog": "🛡️ WHAT'S NEW IN v0.4.26 (SECURITY & PRIVACY LOCKDOWN):\n• Student Privacy Shield: Strictly locked down student profiles and leaderboards. Students can no longer view or inspect peer quiz histories, submitted answers, test scores, Phil-IRI reading tier badges, or accuracy percentages.\n• Teacher-Exclusive Academic Ledger: Detailed quiz history, answer reviews, and reading diagnostics are strictly restricted to verified teachers and personal self-views.\n• Hardened Library Quiz Hub: Blocked student access to quiz analytics and question breakdown views.\n\n📦 REITERATING v0.4.25 FEATURES:\n• Official Announcements Hub: Campus & Division-wide bulletins with real-time view tracking and discreet student-to-teacher inquiries.\n• Accidental Deletion Recycle Vault: Soft-delete protection for students, classes, and reading materials with 30-day restore and undo snackbars.\n• Library Quiz Overview: Comprehensive reading assessment analytics, question previews, and student submission tracking with CSV export.\n• Interactive Quiz Review: Question-by-question review with answer key badges, explanations, and student choices.\n• Token-Optimized Assessment Generation: Streamlined per-mechanic prompt schemas for faster generation and lower latency.\n• Enhanced Resilience: Dual-probe captive portal & network detection with interactive retry."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.27/GabAI-v0.4.27.apk",
+  "changelog": "⏱️ WHAT'S NEW IN v0.4.27 (PHIL-IRI ASSESSMENTS & RECYCLE VAULT):\n• DepEd Phil-IRI Timed Assessment Runner: 100% passage-driven dynamic AI assessment powered by Gemini 3.5 Flash Lite with literal, inferential, and critical dimension distribution.\n• Single Continuous Countdown & Collapsible Passage: Clean uninterrupted test runner with instant Phil-IRI reading proficiency tier diagnosis.\n• Recycle Vault Force-Delete Safeguard: Eliminated all unshielded deletions across division assessments and schools, with 30-day recovery.\n• Permanent Purge Engine: Added controlled, permission-guarded force delete in the Recycle Vault for authorized educators and admins.\n• Educator Dashboard Fix: Resolved quizzes metric stuck at 0 by aggregating weekly assessments and curriculum quiz pools.\n• Class Analytics UI Fix: Redesigned student mastery card layout to prevent vertical badge text wrapping and eliminate awkward whitespace."
 }

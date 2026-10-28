@@ -119,6 +119,34 @@
                 android:textStyle="bold"
                 android:textColor="#64748B"
                 android:background="@drawable/bg_btn_modern_secondary"
+                android:layout_marginEnd="6dp"
+                android:stateListAnimator="@null" />
+
+            <Button
+                android:id="@+id/chip_filter_subjects"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minHeight="32dp"
+                android:paddingHorizontal="14dp"
+                android:text="Subjects"
+                android:textSize="11.5sp"
+                android:textStyle="bold"
+                android:textColor="#64748B"
+                android:background="@drawable/bg_btn_modern_secondary"
+                android:layout_marginEnd="6dp"
+                android:stateListAnimator="@null" />
+
+            <Button
+                android:id="@+id/chip_filter_assessments"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minHeight="32dp"
+                android:paddingHorizontal="14dp"
+                android:text="Assessments"
+                android:textSize="11.5sp"
+                android:textStyle="bold"
+                android:textColor="#64748B"
+                android:background="@drawable/bg_btn_modern_secondary"
                 android:stateListAnimator="@null" />
         </LinearLayout>
     </HorizontalScrollView>

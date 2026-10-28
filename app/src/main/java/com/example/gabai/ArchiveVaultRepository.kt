@@ -313,6 +313,75 @@ object ArchiveVaultRepository {
     }
 
     /**
+     * Archive an assessment (from division_timed_assessments or weekly_assessments).
+     */
+    fun archiveAssessment(
+        assessmentId: String,
+        isDivision: Boolean,
+        schoolId: String,
+        operatorUid: String,
+        operatorName: String,
+        operatorRole: String = "teacher",
+        reason: String = "Assessment archived",
+        onSuccess: (archiveId: String) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val colName = if (isDivision) "division_timed_assessments" else "weekly_assessments"
+        val docRef = db.collection(colName).document(assessmentId)
+        docRef.get().addOnSuccessListener { docSnap ->
+            if (!docSnap.exists()) {
+                onFailure(Exception("Assessment $assessmentId does not exist in $colName."))
+                return@addOnSuccessListener
+            }
+
+            val data = docSnap.data ?: emptyMap<String, Any>()
+            val title = data["title"] as? String ?: "Reading Assessment"
+            val purpose = data["assessmentPurpose"] as? String ?: (if (isDivision) "Phil-IRI Diagnostic" else "Weekly Assessment")
+            val timerMinutes = data["timerMinutes"] as? Long ?: data["durationMinutes"] as? Long ?: 15L
+            val qCount = data["questionCount"] as? Long ?: 5L
+            val archiveId = UUID.randomUUID().toString()
+
+            val record = hashMapOf<String, Any>(
+                "archiveId" to archiveId,
+                "entityType" to "assessment",
+                "originalCollection" to colName,
+                "originalDocId" to assessmentId,
+                "schoolId" to (data["schoolId"] as? String ?: schoolId),
+                "displayName" to title,
+                "subtitle" to "$purpose • $timerMinutes min • $qCount Items",
+                "archivedAt" to System.currentTimeMillis(),
+                "archivedByUid" to operatorUid,
+                "archivedByName" to operatorName,
+                "archivedByRole" to operatorRole,
+                "deletionReason" to reason,
+                "snapshot" to data,
+                "status" to "archived",
+                "retentionUntil" to (System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000))
+            )
+
+            db.collection(COLLECTION_ARCHIVES).document(archiveId).set(record)
+                .addOnSuccessListener {
+                    docRef.delete()
+                    onSuccess(archiveId)
+                }
+                .addOnFailureListener(onFailure)
+        }.addOnFailureListener(onFailure)
+    }
+
+    /**
+     * Permanent Force-Delete / Purge: Irreversibly deletes an archive record from the Recycle Vault.
+     */
+    fun purgeEntity(
+        archiveId: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection(COLLECTION_ARCHIVES).document(archiveId).delete()
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener(onFailure)
+    }
+
+    /**
      * 1-Click Restoration Engine: restores any archived item back to active collection.
      */
     fun restoreEntity(
@@ -404,8 +473,7 @@ object ArchiveVaultRepository {
             q = q.whereEqualTo("schoolId", schoolId)
         }
 
-        q.orderBy("archivedAt", Query.Direction.DESCENDING)
-            .get()
+        q.get()
             .addOnSuccessListener { snaps ->
                 val records = snaps.documents.mapNotNull { d ->
                     val type = d.getString("entityType") ?: ""
@@ -429,7 +497,7 @@ object ArchiveVaultRepository {
                         status = d.getString("status") ?: "archived",
                         retentionUntil = d.getLong("retentionUntil") ?: 0L
                     )
-                }
+                }.sortedByDescending { it.archivedAt }
                 onSuccess(records)
             }
             .addOnFailureListener(onFailure)

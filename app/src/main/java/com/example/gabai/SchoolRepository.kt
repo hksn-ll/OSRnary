@@ -7,6 +7,7 @@ data class School(
     val schoolId: String = "",
     val schoolName: String = "",
     val division: String = "Valenzuela City",
+    val district: String = "District 1",
     val adminUid: String = "",
     val adminEmail: String = "",
     val adminName: String = "",
@@ -31,31 +32,31 @@ object SchoolRepository {
     private val db = FirebaseFirestore.getInstance()
 
     val defaultSchools = listOf(
-        School("305445", "Caruhatan National High School", "Valenzuela City"),
-        School("305446", "Sitero Francisco Memorial National High School", "Valenzuela City"),
-        School("305566", "Justice Eliezer R. De Los Santos High School", "Valenzuela City"),
-        School("305567", "Lingunan National High School", "Valenzuela City"),
-        School("305568", "Paso De Blas National High School", "Valenzuela City"),
-        School("305705", "Disiplina Village-Bignay National High School", "Valenzuela City"),
-        School("305706", "Malanday National High School", "Valenzuela City"),
-        School("305707", "Veinte Reales National High School", "Valenzuela City"),
-        School("320401", "Valenzuela City School of Mathematics and Science", "Valenzuela City"),
-        School("320402", "Vicente Trinidad National High School (Punturin NHS)", "Valenzuela City"),
-        School("320403", "Mapulang Lupa National High School", "Valenzuela City"),
-        School("320404", "Bignay National High School", "Valenzuela City"),
-        School("320405", "Arkong Bato National High School", "Valenzuela City"),
-        School("320406", "Canumay East National High School", "Valenzuela City"),
-        School("320407", "Wawang Pulo National High School", "Valenzuela City"),
-        School("320408", "Bagbaguin National High School", "Valenzuela City"),
-        School("305436", "Polo National High School", "Valenzuela City"),
-        School("305437", "Dalandanan National High School", "Valenzuela City"),
-        School("305438", "Malinta National High School", "Valenzuela City"),
-        School("305439", "Canumay West National High School", "Valenzuela City"),
-        School("305440", "Lawang Bato National High School", "Valenzuela City"),
-        School("305441", "Valenzuela National High School", "Valenzuela City"),
-        School("305442", "Parada National High School", "Valenzuela City"),
-        School("305443", "Gen. Tiburcio de Leon National High School", "Valenzuela City"),
-        School("305444", "Maysan National High School", "Valenzuela City")
+        School("305445", "Caruhatan National High School", "Valenzuela City", "District 2"),
+        School("305446", "Sitero Francisco Memorial National High School", "Valenzuela City", "District 2"),
+        School("305566", "Justice Eliezer R. De Los Santos High School", "Valenzuela City", "District 2"),
+        School("305567", "Lingunan National High School", "Valenzuela City", "District 1"),
+        School("305568", "Paso De Blas National High School", "Valenzuela City", "District 2"),
+        School("305705", "Disiplina Village-Bignay National High School", "Valenzuela City", "District 1"),
+        School("305706", "Malanday National High School", "Valenzuela City", "District 1"),
+        School("305707", "Veinte Reales National High School", "Valenzuela City", "District 1"),
+        School("320401", "Valenzuela City School of Mathematics and Science", "Valenzuela City", "District 1"),
+        School("320402", "Vicente Trinidad National High School (Punturin NHS)", "Valenzuela City", "District 1"),
+        School("320403", "Mapulang Lupa National High School", "Valenzuela City", "District 2"),
+        School("320404", "Bignay National High School", "Valenzuela City", "District 1"),
+        School("320405", "Arkong Bato National High School", "Valenzuela City", "District 1"),
+        School("320406", "Canumay East National High School", "Valenzuela City", "District 1"),
+        School("320407", "Wawang Pulo National High School", "Valenzuela City", "District 1"),
+        School("320408", "Bagbaguin National High School", "Valenzuela City", "District 2"),
+        School("305436", "Polo National High School", "Valenzuela City", "District 1"),
+        School("305437", "Dalandanan National High School", "Valenzuela City", "District 1"),
+        School("305438", "Malinta National High School", "Valenzuela City", "District 1"),
+        School("305439", "Canumay West National High School", "Valenzuela City", "District 1"),
+        School("305440", "Lawang Bato National High School", "Valenzuela City", "District 1"),
+        School("305441", "Valenzuela National High School", "Valenzuela City", "District 2"),
+        School("305442", "Parada National High School", "Valenzuela City", "District 2"),
+        School("305443", "Gen. Tiburcio de Leon National High School", "Valenzuela City", "District 2"),
+        School("305444", "Maysan National High School", "Valenzuela City", "District 2")
     )
 
     private var cachedSchools: List<School> = defaultSchools
@@ -121,12 +122,38 @@ object SchoolRepository {
             onFailure(IllegalArgumentException("School ID cannot be empty."))
             return
         }
-        db.collection("schools").document(schoolId).delete()
-            .addOnSuccessListener {
-                cachedSchools = cachedSchools.filter { it.schoolId != schoolId }
-                onSuccess()
-            }
-            .addOnFailureListener { onFailure(it) }
+        val schoolRef = db.collection("schools").document(schoolId)
+        schoolRef.get().addOnSuccessListener { snap ->
+            val data = snap.data ?: mapOf("schoolId" to schoolId, "schoolName" to "School $schoolId")
+            val schoolName = data["schoolName"] as? String ?: "School $schoolId"
+            val archiveId = "school_${schoolId}_${System.currentTimeMillis()}"
+
+            val archiveRecord = hashMapOf<String, Any>(
+                "archiveId" to archiveId,
+                "entityType" to "school",
+                "originalCollection" to "schools",
+                "originalDocId" to schoolId,
+                "schoolId" to schoolId,
+                "displayName" to schoolName,
+                "subtitle" to "DepEd School ID: $schoolId • Campus Safety Backup",
+                "archivedAt" to System.currentTimeMillis(),
+                "deletionReason" to "Campus archived from active directory",
+                "snapshot" to data,
+                "status" to "archived",
+                "retentionUntil" to (System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000))
+            )
+
+            db.collection("system_archives").document(archiveId).set(archiveRecord)
+                .addOnSuccessListener {
+                    schoolRef.delete()
+                        .addOnSuccessListener {
+                            cachedSchools = cachedSchools.filter { it.schoolId != schoolId }
+                            onSuccess()
+                        }
+                        .addOnFailureListener(onFailure)
+                }
+                .addOnFailureListener(onFailure)
+        }.addOnFailureListener(onFailure)
     }
 
     fun generateSchoolAdminInvite(

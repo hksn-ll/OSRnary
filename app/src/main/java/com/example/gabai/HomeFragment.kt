@@ -24,6 +24,7 @@ class HomeFragment : Fragment() {
     private var currentCompletedQuests: List<String> = emptyList()
     private var userListener: ListenerRegistration? = null
     private var assessmentListener: ListenerRegistration? = null
+    private var timedAssessmentListener: ListenerRegistration? = null
     private var announcementListener: ListenerRegistration? = null
     private var latestAnnouncement: Announcement? = null
 
@@ -57,6 +58,7 @@ class HomeFragment : Fragment() {
             binding.containerGreeting,
             binding.cardAnnouncementBanner.takeIf { it.visibility == View.VISIBLE },
             binding.cardHeroXp,
+            binding.sectionDivisionTimedAssessment.takeIf { it.visibility == View.VISIBLE },
             binding.questBoardContainer.takeIf { it.visibility == View.VISIBLE },
             binding.sectionWeeklyAssessments.takeIf { it.visibility == View.VISIBLE },
             binding.headerYourJourney,
@@ -78,6 +80,7 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         updateFeatureLockState(XPManager.canEarnXP(requireContext()))
+        loadActiveDivisionTimedAssessment()
         loadActiveWeeklyAssessments()
         loadActiveAnnouncements()
     }
@@ -95,6 +98,7 @@ class HomeFragment : Fragment() {
         // Check lock status for the Leaderboard and Daily Quests UI
         updateFeatureLockState(XPManager.canEarnXP(requireContext()))
 
+        loadActiveDivisionTimedAssessment()
         loadActiveWeeklyAssessments()
 
         GabAIUtils.addSpringPressEffect(binding.btnLearningProgress) {
@@ -542,6 +546,103 @@ class HomeFragment : Fragment() {
     }
 
     // =========================================================================
+    // 🏛️ LOAD ACTIVE SDO DIVISION STANDARDIZED TIMED ASSESSMENT
+    // =========================================================================
+    private fun loadActiveDivisionTimedAssessment() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
+            if (!isAdded || _binding == null) return@addOnSuccessListener
+            val studentSchoolId = userDoc.getString("schoolId") ?: ""
+            val studentGrade = userDoc.getString("grade") ?: ""
+
+            timedAssessmentListener?.remove()
+            timedAssessmentListener = db.collection("division_timed_assessments")
+                .whereEqualTo("status", "active")
+                .addSnapshotListener { snapshots, error ->
+                    if (!isAdded || _binding == null || error != null || snapshots == null) return@addSnapshotListener
+
+                    val validDocs = snapshots.documents.filter { doc ->
+                        val docSchoolId = doc.getString("schoolId") ?: ""
+                        val docGrade = doc.getString("grade") ?: ""
+                        val schoolMatches = docSchoolId.isEmpty() || docSchoolId == "ALL" || studentSchoolId.isEmpty() || docSchoolId == studentSchoolId
+                        val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains("ALL", ignoreCase = true) || docGrade.contains(studentGrade, ignoreCase = true) || studentGrade.contains(docGrade, ignoreCase = true)
+                        schoolMatches && gradeMatches
+                    }
+
+                    if (validDocs.isEmpty()) {
+                        binding.sectionDivisionTimedAssessment.visibility = View.GONE
+                        return@addSnapshotListener
+                    }
+
+                    val targetDoc = validDocs.first()
+                    val assessmentId = targetDoc.id
+                    val title = targetDoc.getString("title") ?: "Phil-IRI Standardized Reading Assessment"
+                    val purpose = targetDoc.getString("assessmentPurpose") ?: "Phil-IRI Pre-Test (Diagnostic)"
+                    val timerMins = targetDoc.getLong("timerMinutes")?.toInt() ?: targetDoc.getLong("durationMinutes")?.toInt() ?: 20
+                    val wordCount = targetDoc.getLong("passageWordCount")?.toInt() ?: 280
+                    val district = targetDoc.getString("districtScope") ?: "All Valenzuela Campuses"
+
+                    binding.tvDivTimedTitle.text = title
+                    binding.tvDivTimedPurposePill.text = purpose
+                    binding.tvDivTimedTimerBadge.text = "⏱️ $timerMins min limit"
+                    binding.tvDivTimedMeta.text = "$district • Standardized Passage (~$wordCount words)"
+                    binding.sectionDivisionTimedAssessment.visibility = View.VISIBLE
+
+                    val subDocId = "${assessmentId}_${uid}"
+                    db.collection("timed_assessment_submissions").document(subDocId).get()
+                        .addOnSuccessListener { subDoc ->
+                            if (!isAdded || _binding == null) return@addOnSuccessListener
+                            if (subDoc.exists()) {
+                                val score = subDoc.getLong("score")?.toInt() ?: 0
+                                val total = subDoc.getLong("totalQuestions")?.toInt() ?: 5
+                                val pct = subDoc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
+                                val philIriLevel = subDoc.getString("philIriLevel") ?: (if (pct >= 80) "Independent" else if (pct >= 59) "Instructional" else "Frustration")
+
+                                binding.tvDivTimedScorePill.visibility = View.VISIBLE
+                                binding.tvDivTimedScorePill.text = "Phil-IRI: $philIriLevel ($score/$total • $pct%) ✓"
+
+                                val (bgTint, textCol) = when {
+                                    pct >= 80 -> Pair("#D1FAE5", "#065F46")
+                                    pct >= 59 -> Pair("#E0E7FF", "#3730A3")
+                                    else -> Pair("#FEE2E2", "#991B1B")
+                                }
+                                binding.tvDivTimedScorePill.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(bgTint))
+                                binding.tvDivTimedScorePill.setTextColor(android.graphics.Color.parseColor(textCol))
+
+                                binding.btnActionDivTimed.text = "View Diagnostic Report ➔"
+                                binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
+                            } else {
+                                binding.tvDivTimedScorePill.visibility = View.GONE
+                                binding.btnActionDivTimed.text = "Take Timed Assessment ➔"
+                                binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#5341CD"))
+                            }
+
+                            val launchTimedAssessment = {
+                                val ctx = context
+                                if (ctx != null) {
+                                    val intent = Intent(ctx, TimedAssessmentActivity::class.java).apply {
+                                        putExtra("ASSESSMENT_ID", assessmentId)
+                                    }
+                                    startActivity(intent)
+                                }
+                            }
+
+                            GabAIUtils.addSpringPressEffect(binding.cardDivisionTimedAssessment) {
+                                GabAIUtils.performHaptic(binding.cardDivisionTimedAssessment)
+                                launchTimedAssessment()
+                            }
+
+                            binding.btnActionDivTimed.setOnClickListener {
+                                launchTimedAssessment()
+                            }
+                        }
+                }
+        }
+    }
+
+    // =========================================================================
     // 🟢 LOAD ACTIVE WEEKLY ASSESSMENTS FOR STUDENT
     // =========================================================================
     private fun loadActiveWeeklyAssessments() {
@@ -553,6 +654,7 @@ class HomeFragment : Fragment() {
             val studentSchoolId = userDoc.getString("schoolId") ?: ""
             val studentGrade = userDoc.getString("grade") ?: ""
             val studentSection = userDoc.getString("section") ?: ""
+            val studentEnrolledClasses = (userDoc.get("enrolledClasses") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList<String>()
 
             assessmentListener?.remove()
             assessmentListener = db.collection("weekly_assessments")
@@ -561,13 +663,19 @@ class HomeFragment : Fragment() {
                     if (!isAdded || _binding == null || error != null || snapshots == null) return@addSnapshotListener
 
                     val matchingDocs = snapshots.documents.filter { doc ->
+                        val isDivision = doc.getBoolean("isDivisionUniform") == true || doc.getString("sourceType") == "division_uniform"
+                        if (isDivision) return@filter false
+
                         val docSchoolId = doc.getString("schoolId") ?: ""
                         val docGrade = doc.getString("grade") ?: ""
                         val docClassName = doc.getString("className") ?: ""
+                        val docClassId = doc.getString("classId") ?: ""
 
                         val schoolMatches = docSchoolId.isEmpty() || studentSchoolId.isEmpty() || docSchoolId == studentSchoolId
                         val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains(studentGrade, ignoreCase = true) || studentGrade.contains(docGrade, ignoreCase = true)
-                        val sectionMatches = docClassName.isBlank() || docClassName.contains("All", ignoreCase = true) || (studentSection.isNotBlank() && docClassName.contains(studentSection, ignoreCase = true))
+                        val sectionMatches = docClassName.isBlank() || docClassName.contains("All", ignoreCase = true) ||
+                            (studentSection.isNotBlank() && (docClassName.contains(studentSection, ignoreCase = true) || studentSection.contains(docClassName, ignoreCase = true))) ||
+                            (docClassId.isNotBlank() && studentEnrolledClasses.contains(docClassId))
 
                         schoolMatches && gradeMatches && sectionMatches
                     }
@@ -728,6 +836,8 @@ class HomeFragment : Fragment() {
         userListener = null
         assessmentListener?.remove()
         assessmentListener = null
+        timedAssessmentListener?.remove()
+        timedAssessmentListener = null
         announcementListener?.remove()
         announcementListener = null
         _binding = null

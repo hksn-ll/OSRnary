@@ -25,6 +25,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
     private var className = ""
     private var schoolId = ""
     private var studentFullName = "Student"
+    private var readingPassage = ""
 
     private val questions = mutableListOf<AssessmentQuestion>()
     private var currentIndex = 0
@@ -250,9 +251,20 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                 classId = doc.getString("classId") ?: ""
                 className = doc.getString("className") ?: ""
                 schoolId = doc.getString("schoolId") ?: ""
+                readingPassage = doc.getString("passage") ?: ""
 
                 findViewById<TextView>(R.id.tv_header_title).text = assessmentTitle
                 findViewById<TextView>(R.id.tv_header_subject).text = subjectName.uppercase()
+
+                val btnPassage = findViewById<View>(R.id.btn_read_passage)
+                if (readingPassage.isNotBlank()) {
+                    btnPassage?.visibility = View.VISIBLE
+                    btnPassage?.setOnClickListener {
+                        GabAIDialogs.showNoticeDialog(this, "Standard Reading Passage", readingPassage)
+                    }
+                } else {
+                    btnPassage?.visibility = View.GONE
+                }
 
                 val quizJson = doc.getString("quiz_pool_json") ?: "[]"
                 val hasRestored = restoreSavedSession()
@@ -264,6 +276,10 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                         return@addOnSuccessListener
                     }
                     studentAnswers = IntArray(questions.size) { -1 }
+
+                    if (readingPassage.isNotBlank()) {
+                        GabAIDialogs.showNoticeDialog(this, "Reading Passage: $assessmentTitle", readingPassage)
+                    }
                 }
                 progressBar.max = questions.size
 
@@ -303,6 +319,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
         } catch (e: Exception) {
             // Fallback
         }
+
     }
 
     private fun checkExistingSubmission() {

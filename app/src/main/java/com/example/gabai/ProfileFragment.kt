@@ -553,15 +553,44 @@ class ProfileFragment : Fragment() {
                 }
             }
 
-        // Quizzes Authored
-        db.collection("quizzes")
+        // Quizzes Authored (Aggregating weekly assessments, library material quizzes, and legacy quizzes)
+        db.collection("weekly_assessments")
             .whereEqualTo("teacherId", uid)
             .get()
-            .addOnSuccessListener { snapshots ->
-                if (_binding != null && isAdded) {
-                    val count = snapshots.size()
-                    binding.tvTeacherCredQuizzes.text = if (count == 1) "1 Quiz" else "$count Quizzes"
-                }
+            .addOnSuccessListener { weeklySnaps ->
+                if (_binding == null || !isAdded) return@addOnSuccessListener
+                val activeWeekly = weeklySnaps.documents.count { (it.getString("status") ?: "active") != "archived" }
+                
+                db.collection("library_materials")
+                    .whereEqualTo("uploadedBy", uid)
+                    .get()
+                    .addOnSuccessListener { matSnaps ->
+                        if (_binding == null || !isAdded) return@addOnSuccessListener
+                        val matQuizzes = matSnaps.documents.count { doc ->
+                            val pool = doc.getString("quiz_pool_json") ?: ""
+                            pool.isNotBlank() && pool != "[]" && (doc.getString("status") ?: "active") != "archived"
+                        }
+                        
+                        db.collection("quizzes")
+                            .whereEqualTo("teacherId", uid)
+                            .get()
+                            .addOnSuccessListener { qSnaps ->
+                                if (_binding == null || !isAdded) return@addOnSuccessListener
+                                val total = activeWeekly + matQuizzes + qSnaps.size()
+                                binding.tvTeacherCredQuizzes.text = if (total == 1) "1 Quiz" else "$total Quizzes"
+                            }
+                            .addOnFailureListener {
+                                if (_binding != null && isAdded) {
+                                    val total = activeWeekly + matQuizzes
+                                    binding.tvTeacherCredQuizzes.text = if (total == 1) "1 Quiz" else "$total Quizzes"
+                                }
+                            }
+                    }
+                    .addOnFailureListener {
+                        if (_binding != null && isAdded) {
+                            binding.tvTeacherCredQuizzes.text = if (activeWeekly == 1) "1 Quiz" else "$activeWeekly Quizzes"
+                        }
+                    }
             }
             .addOnFailureListener {
                 if (_binding != null && isAdded) {

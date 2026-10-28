@@ -371,29 +371,46 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                         // Middle column
                         val col = LinearLayout(this@TeacherPerformanceActivity).apply {
                             orientation = LinearLayout.VERTICAL
-                            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                                marginEnd = (resources.displayMetrics.density * 10).toInt()
+                            }
                         }
 
-                        // Name + Mastery Tag row
-                        val topRow = LinearLayout(this@TeacherPerformanceActivity).apply {
-                            orientation = LinearLayout.HORIZONTAL
-                            gravity = android.view.Gravity.CENTER_VERTICAL
-                        }
-
+                        // 1. Student Name (Single line, ellipsize at end to prevent clipping badges)
                         val nameText = TextView(this@TeacherPerformanceActivity).apply {
                             text = student.name
-                            textSize = 14.5f
+                            textSize = 14f
                             setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
                             setTextColor(Color.parseColor("#0F172A"))
+                            maxLines = 1
+                            ellipsize = android.text.TextUtils.TruncateAt.END
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                        }
+
+                        // 2. Badges row: Mastery Tier + Phil-IRI
+                        val badgesRow = LinearLayout(this@TeacherPerformanceActivity).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            gravity = android.view.Gravity.CENTER_VERTICAL
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                topMargin = (resources.displayMetrics.density * 3).toInt()
+                                bottomMargin = (resources.displayMetrics.density * 3).toInt()
+                            }
                         }
 
                         val tierBadge = TextView(this@TeacherPerformanceActivity).apply {
                             text = when (student.masteryTier) {
                                 "Mastery" -> "🟢 Mastery"
                                 "Proficient" -> "🟡 Proficient"
-                                else -> "🔴 Support"
+                                else -> "🔴 Support Needed"
                             }
                             textSize = 10f
+                            setSingleLine(true)
                             setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
                             val (bgColor, txtColor) = when (student.masteryTier) {
                                 "Mastery" -> Pair("#D1FAE5", "#047857")
@@ -401,7 +418,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                                 else -> Pair("#FFE4E6", "#BE123C")
                             }
                             background = android.graphics.drawable.GradientDrawable().apply {
-                                cornerRadius = resources.displayMetrics.density * 10
+                                cornerRadius = resources.displayMetrics.density * 8
                                 setColor(Color.parseColor(bgColor))
                             }
                             setTextColor(Color.parseColor(txtColor))
@@ -411,16 +428,15 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                             layoutParams = LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
-                            ).apply { marginStart = (resources.displayMetrics.density * 8).toInt() }
+                            )
                         }
-
-                        topRow.addView(nameText)
-                        topRow.addView(tierBadge)
+                        badgesRow.addView(tierBadge)
 
                         if (!student.philIriTier.isNullOrEmpty()) {
                             val philBadge = TextView(this@TeacherPerformanceActivity).apply {
                                 text = "Phil-IRI: ${student.philIriTier}"
                                 textSize = 9.5f
+                                setSingleLine(true)
                                 setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
                                 val (pBg, pTxt) = when (student.philIriTier?.lowercase()) {
                                     "independent" -> Pair("#E0E7FF", "#4338CA")
@@ -428,7 +444,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                                     else -> Pair("#FEE2E2", "#DC2626")
                                 }
                                 background = android.graphics.drawable.GradientDrawable().apply {
-                                    cornerRadius = resources.displayMetrics.density * 10
+                                    cornerRadius = resources.displayMetrics.density * 8
                                     setColor(Color.parseColor(pBg))
                                 }
                                 setTextColor(Color.parseColor(pTxt))
@@ -440,16 +456,24 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                                     LinearLayout.LayoutParams.WRAP_CONTENT
                                 ).apply { marginStart = (resources.displayMetrics.density * 6).toInt() }
                             }
-                            topRow.addView(philBadge)
+                            badgesRow.addView(philBadge)
                         }
 
+                        // 3. Gamification stats
                         val statsText = TextView(this@TeacherPerformanceActivity).apply {
                             text = "Lvl ${student.level} • ${student.totalQuizzes} Quizzes • ${student.wordsMastered} Words 📚 • Streak ${student.streak} 🔥"
-                            textSize = 11.5f
+                            textSize = 11f
                             setTextColor(Color.parseColor("#64748B"))
-                            setPadding(0, 3, 0, 0)
+                            maxLines = 1
+                            ellipsize = android.text.TextUtils.TruncateAt.END
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
                         }
-                        col.addView(topRow)
+
+                        col.addView(nameText)
+                        col.addView(badgesRow)
                         col.addView(statsText)
 
                         // Right Pill: Score Accuracy

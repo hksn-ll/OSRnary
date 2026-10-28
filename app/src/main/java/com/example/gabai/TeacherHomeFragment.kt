@@ -176,14 +176,40 @@ class TeacherHomeFragment : Fragment() {
                 }
             }
 
-        // 4. Quizzes Authored
-        db.collection("quizzes")
+        // 4. Quizzes Authored (Aggregating weekly assessments, library material quizzes, and quizzes collection)
+        var totalQuizzesAuthored = 0
+        db.collection("weekly_assessments")
             .whereEqualTo("teacherId", uid)
             .get()
-            .addOnSuccessListener { snapshots ->
-                if (_binding != null && isAdded) {
-                    binding.tvMetricQuizzes.text = snapshots.size().toString()
-                }
+            .addOnSuccessListener { weeklySnaps ->
+                if (_binding == null || !isAdded) return@addOnSuccessListener
+                val activeWeekly = weeklySnaps.documents.count { (it.getString("status") ?: "active") != "archived" }
+                totalQuizzesAuthored = activeWeekly
+                binding.tvMetricQuizzes.text = totalQuizzesAuthored.toString()
+
+                // Include library materials with embedded quiz pools
+                db.collection("library_materials")
+                    .whereEqualTo("uploadedBy", uid)
+                    .get()
+                    .addOnSuccessListener { matSnaps ->
+                        if (_binding == null || !isAdded) return@addOnSuccessListener
+                        val matQuizzes = matSnaps.documents.count { doc ->
+                            val pool = doc.getString("quiz_pool_json") ?: ""
+                            pool.isNotBlank() && pool != "[]" && (doc.getString("status") ?: "active") != "archived"
+                        }
+                        totalQuizzesAuthored += matQuizzes
+                        binding.tvMetricQuizzes.text = totalQuizzesAuthored.toString()
+
+                        // Also include any in legacy quizzes collection
+                        db.collection("quizzes")
+                            .whereEqualTo("teacherId", uid)
+                            .get()
+                            .addOnSuccessListener { qSnaps ->
+                                if (_binding == null || !isAdded) return@addOnSuccessListener
+                                totalQuizzesAuthored += qSnaps.size()
+                                binding.tvMetricQuizzes.text = totalQuizzesAuthored.toString()
+                            }
+                    }
             }
     }
 

@@ -43,18 +43,13 @@ object GitHubUpdateHelper {
     private const val VERSION_URL = "https://raw.githubusercontent.com/hksn-ll/OSRnary/main/app-version.json"
 
     val CURRENT_CHANGELOG = """
-🛡️ WHAT'S NEW IN v0.4.26 (SECURITY & PRIVACY LOCKDOWN):
-• Student Privacy Shield: Strictly locked down student profiles and leaderboards. Students can no longer view or inspect peer quiz histories, submitted answers, test scores, Phil-IRI reading tier badges, or accuracy percentages.
-• Teacher-Exclusive Academic Ledger: Detailed quiz history, answer reviews, and reading diagnostics are strictly restricted to verified teachers and personal self-views.
-• Hardened Library Quiz Hub: Blocked student access to quiz analytics and question breakdown views.
-
-📦 REITERATING v0.4.25 FEATURES:
-• Official Announcements Hub: Campus & Division-wide bulletins with real-time view tracking and discreet student-to-teacher inquiries.
-• Accidental Deletion Recycle Vault: Soft-delete protection for students, classes, and reading materials with 30-day restore and undo snackbars.
-• Library Quiz Overview: Comprehensive reading assessment analytics, question previews, and student submission tracking with CSV export.
-• Interactive Quiz Review: Question-by-question review with answer key badges, explanations, and student choices.
-• Token-Optimized Assessment Generation: Streamlined per-mechanic prompt schemas for faster generation and lower latency.
-• Enhanced Resilience: Dual-probe captive portal & network detection with interactive retry.
+⏱️ WHAT'S NEW IN v0.4.27 (PHIL-IRI ASSESSMENTS & RECYCLE VAULT):
+• DepEd Phil-IRI Timed Assessment Runner: 100% passage-driven dynamic AI assessment powered by Gemini 3.5 Flash Lite with literal, inferential, and critical dimension distribution.
+• Single Continuous Countdown & Collapsible Passage: Clean uninterrupted test runner with instant Phil-IRI reading proficiency tier diagnosis.
+• Recycle Vault Force-Delete Safeguard: Eliminated all unshielded deletions across division assessments and schools, with 30-day recovery.
+• Permanent Purge Engine: Added controlled, permission-guarded force delete in the Recycle Vault for authorized educators and admins.
+• Educator Dashboard Fix: Resolved quizzes metric stuck at 0 by aggregating weekly assessments and curriculum quiz pools.
+• Class Analytics UI Fix: Redesigned student mastery card layout to prevent vertical badge text wrapping and eliminate awkward whitespace.
 """.trimIndent()
 
     // Periodic idle poller interval: 3 minutes
@@ -99,6 +94,7 @@ object GitHubUpdateHelper {
         return when (activity.javaClass.simpleName) {
             "QuizActivity",
             "MaterialQuizActivity",
+            "TimedAssessmentActivity",
             "WeeklyAssessmentActivity",
             "QuizEditorActivity",
             "CameraActivity",

@@ -1278,6 +1278,8 @@ object GabAIDialogs {
         val chipStudents = view.findViewById<Button>(R.id.chip_filter_students)
         val chipMaterials = view.findViewById<Button>(R.id.chip_filter_materials)
         val chipClasses = view.findViewById<Button>(R.id.chip_filter_classes)
+        val chipSubjects = view.findViewById<Button?>(R.id.chip_filter_subjects)
+        val chipAssessments = view.findViewById<Button?>(R.id.chip_filter_assessments)
 
         var activeFilter = initialFilter
         val currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -1324,9 +1326,12 @@ object GabAIDialogs {
 
                         val iconText = when (rec.entityType) {
                             "student" -> "👤"
+                            "teacher" -> "👨‍🏫"
                             "material" -> "📄"
                             "subject" -> "📁"
                             "class" -> "🏫"
+                            "assessment" -> "⏱️"
+                            "school" -> "🏛️"
                             else -> "📦"
                         }
 
@@ -1370,16 +1375,30 @@ object GabAIDialogs {
                             setBackgroundResource(R.drawable.bg_btn_modern_primary)
                             stateListAnimator = null
                             layoutParams = LinearLayout.LayoutParams(
-                                (82 * density).toInt(),
+                                (76 * density).toInt(),
                                 (34 * density).toInt()
                             ).apply {
-                                marginStart = (8 * density).toInt()
+                                marginStart = (6 * density).toInt()
+                            }
+                        }
+
+                        val btnPurge = Button(context).apply {
+                            text = "🗑️"
+                            textSize = 13f
+                            setBackgroundResource(R.drawable.bg_btn_modern_secondary)
+                            stateListAnimator = null
+                            layoutParams = LinearLayout.LayoutParams(
+                                (38 * density).toInt(),
+                                (34 * density).toInt()
+                            ).apply {
+                                marginStart = (6 * density).toInt()
                             }
                         }
 
                         topRow.addView(tvIcon)
                         topRow.addView(infoLayout)
                         topRow.addView(btnRestore)
+                        topRow.addView(btnPurge)
 
                         val dateFormatted = java.text.SimpleDateFormat("MMM dd, yyyy • h:mm a", java.util.Locale.getDefault()).format(java.util.Date(rec.archivedAt))
                         val tvFooter = TextView(context).apply {
@@ -1411,6 +1430,30 @@ object GabAIDialogs {
                             })
                         }
 
+                        GabAIUtils.addSpringPressEffect(btnPurge) {
+                            showConfirmDialog(
+                                context = context,
+                                title = "Permanent Force Delete?",
+                                message = "Are you sure you want to permanently delete \"${rec.displayName}\"? This action CANNOT be undone and will purge all archived data permanently.",
+                                confirmText = "Purge Forever",
+                                cancelText = "Cancel",
+                                isDestructive = true,
+                                badgeIcon = "🗑️",
+                                onConfirm = {
+                                    btnPurge.isEnabled = false
+                                    btnRestore.isEnabled = false
+                                    ArchiveVaultRepository.purgeEntity(rec.archiveId, {
+                                        GabAIUtils.showSnackbar(context, "Permanently purged \"${rec.displayName}\" from vault.")
+                                        card.visibility = View.GONE
+                                    }, { err ->
+                                        btnPurge.isEnabled = true
+                                        btnRestore.isEnabled = true
+                                        GabAIUtils.showSnackbar(context, "Purge failed: ${err.message}")
+                                    })
+                                }
+                            )
+                        }
+
                         container.addView(card)
                     }
                 }
@@ -1421,10 +1464,10 @@ object GabAIDialogs {
         }
 
         val updateChipStyles = {
-            val chips = listOf(chipAll, chipStudents, chipMaterials, chipClasses)
-            val filters = listOf("ALL", "student", "material", "class")
+            val chips = listOfNotNull(chipAll, chipStudents, chipMaterials, chipClasses, chipSubjects, chipAssessments)
+            val filters = listOf("ALL", "student", "material", "class", "subject", "assessment")
             for (i in chips.indices) {
-                if (activeFilter.equals(filters[i], ignoreCase = true)) {
+                if (i < filters.size && activeFilter.equals(filters[i], ignoreCase = true)) {
                     chips[i].setBackgroundResource(R.drawable.bg_btn_modern_primary)
                     chips[i].setTextColor(Color.WHITE)
                 } else {
@@ -1438,6 +1481,8 @@ object GabAIDialogs {
         chipStudents.setOnClickListener { activeFilter = "student"; updateChipStyles(); loadVault() }
         chipMaterials.setOnClickListener { activeFilter = "material"; updateChipStyles(); loadVault() }
         chipClasses.setOnClickListener { activeFilter = "class"; updateChipStyles(); loadVault() }
+        chipSubjects?.setOnClickListener { activeFilter = "subject"; updateChipStyles(); loadVault() }
+        chipAssessments?.setOnClickListener { activeFilter = "assessment"; updateChipStyles(); loadVault() }
 
         loadVault()
 

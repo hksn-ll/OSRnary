@@ -124,6 +124,38 @@
                         app:tint="#5341CD" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/btn_read_passage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_pill_translucent"
+                    android:backgroundTint="#F4F0FF"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_menu_book"
+                        app:tint="#6C5CE7" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="Read Passage"
+                        android:textColor="#6C5CE7"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
                 <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
