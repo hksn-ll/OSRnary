@@ -357,6 +357,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
                                 val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
                                 bindStudentGenderBadge(view, rawGender)
+                                bindStudentPhilIriBadge(view, doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier"))
 
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password, rawGender) }
                                 view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }
@@ -428,6 +429,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
                                 val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
                                 bindStudentGenderBadge(view, rawGender)
+                                bindStudentPhilIriBadge(view, doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier"))
 
                                 view.setOnClickListener { openStudentProfile(doc) }
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "", rawGender) }
@@ -520,6 +522,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
                                 val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
                                 bindStudentGenderBadge(view, rawGender)
+                                bindStudentPhilIriBadge(view, doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier"))
 
                                 view.setOnClickListener { openStudentProfile(doc) }
 
@@ -702,6 +705,34 @@ class ClassDetailActivity : AppCompatActivity() {
             }
             else -> {
                 tvGenderBadge.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun bindStudentPhilIriBadge(view: View, philIriTier: String?) {
+        val tvPhilIriBadge = view.findViewById<TextView>(R.id.tv_student_phil_iri_badge) ?: return
+        val tier = (philIriTier ?: "").trim().lowercase()
+        when {
+            tier == "independent" -> {
+                tvPhilIriBadge.visibility = View.VISIBLE
+                tvPhilIriBadge.text = "Phil-IRI: Ind"
+                tvPhilIriBadge.setTextColor(Color.parseColor("#065F46"))
+                tvPhilIriBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D1FAE5"))
+            }
+            tier == "instructional" -> {
+                tvPhilIriBadge.visibility = View.VISIBLE
+                tvPhilIriBadge.text = "Phil-IRI: Ins"
+                tvPhilIriBadge.setTextColor(Color.parseColor("#92400E"))
+                tvPhilIriBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF3C7"))
+            }
+            tier == "frustration" -> {
+                tvPhilIriBadge.visibility = View.VISIBLE
+                tvPhilIriBadge.text = "Phil-IRI: Fru ⚠️"
+                tvPhilIriBadge.setTextColor(Color.parseColor("#991B1B"))
+                tvPhilIriBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEE2E2"))
+            }
+            else -> {
+                tvPhilIriBadge.visibility = View.GONE
             }
         }
     }

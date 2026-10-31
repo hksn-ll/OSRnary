@@ -682,5 +682,15 @@ service cloud.firestore {
       // Only Super Admin can permanently purge archived records
       allow delete: if isSuperAdmin();
     }
+
+    // ===============================================================
+    // 12. System Configuration & Centralized Credentials
+    // ===============================================================
+    match /system_config/{configId} {
+      // Centralized platform credentials (e.g. Google Gemini API Key)
+      // Strictly accessible ONLY by SDO Division Super Administrators.
+      // School Admins, Teachers, and Students are strictly denied read/write access.
+      allow read, write: if isSuperAdmin();
+    }
   }
 }

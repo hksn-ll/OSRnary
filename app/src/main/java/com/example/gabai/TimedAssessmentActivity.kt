@@ -1,6 +1,7 @@
 package com.example.gabai
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -38,7 +39,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
     private var countDownTimer: CountDownTimer? = null
     private var isSubmitted = false
-    private var isPassageVisible = false
+    private var isPassageVisible = true
 
     private val prefName: String
         get() = "timed_assessment_session_${assessmentId}_${auth.currentUser?.uid ?: ""}"
@@ -77,7 +78,6 @@ class TimedAssessmentActivity : AppCompatActivity() {
     private lateinit var btnTogglePassage: View
     private lateinit var tvTogglePassageLabel: TextView
     private lateinit var tvQuestionBadge: TextView
-    private lateinit var tvCompetencyPill: TextView
     private lateinit var tvQuestionText: TextView
 
     private val optCards = mutableListOf<MaterialCardView>()
@@ -86,6 +86,13 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
     private lateinit var btnPrev: Button
     private lateinit var btnNext: Button
+
+    // Results telemetry & remedial views
+    private lateinit var tvReadingSpeedWpm: TextView
+    private lateinit var tvReadingRateCategory: TextView
+    private lateinit var cardFrustrationRemedial: View
+    private lateinit var btnRemedialLibraryPractice: Button
+    private lateinit var btnRemedialVocabDrills: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,7 +131,6 @@ class TimedAssessmentActivity : AppCompatActivity() {
         btnTogglePassage = findViewById(R.id.btn_toggle_passage)
         tvTogglePassageLabel = findViewById(R.id.tv_toggle_passage_label)
         tvQuestionBadge = findViewById(R.id.tv_timed_question_badge)
-        tvCompetencyPill = findViewById(R.id.tv_timed_competency_pill)
         tvQuestionText = findViewById(R.id.tv_timed_question_text)
 
         optCards.add(findViewById(R.id.card_timed_opt_0))
@@ -144,6 +150,12 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
         btnPrev = findViewById(R.id.btn_prev_timed_question)
         btnNext = findViewById(R.id.btn_next_timed_question)
+
+        tvReadingSpeedWpm = findViewById(R.id.tv_reading_speed_wpm)
+        tvReadingRateCategory = findViewById(R.id.tv_reading_rate_category)
+        cardFrustrationRemedial = findViewById(R.id.card_frustration_remedial)
+        btnRemedialLibraryPractice = findViewById(R.id.btn_remedial_library_practice)
+        btnRemedialVocabDrills = findViewById(R.id.btn_remedial_vocab_drills)
     }
 
     private fun setupListeners() {
@@ -168,10 +180,6 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.btn_close_passage_inline)?.setOnClickListener {
             togglePassageVisibility()
-        }
-
-        findViewById<View>(R.id.btn_open_timed_palette)?.setOnClickListener {
-            showQuestionPaletteDialog()
         }
 
         for (i in 0..3) {
@@ -202,6 +210,18 @@ class TimedAssessmentActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_finish_timed_assessment).setOnClickListener {
+            finish()
+        }
+
+        GabAIUtils.addSpringPressEffect(btnRemedialLibraryPractice) {
+            val intent = Intent(this, LibraryActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        GabAIUtils.addSpringPressEffect(btnRemedialVocabDrills) {
+            val intent = Intent(this, QuizActivity::class.java)
+            startActivity(intent)
             finish()
         }
     }
@@ -509,14 +529,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
         tvProgressCounter.text = "Question ${currentIndex + 1} of ${questions.size}"
         progressBar.progress = currentIndex + 1
 
-        val compLabel = when (item.competency.uppercase()) {
-            "LITERAL" -> "LITERAL COMPREHENSION"
-            "INFERENTIAL" -> "INFERENTIAL REASONING"
-            "CRITICAL" -> "CRITICAL EVALUATION (HOTS)"
-            else -> item.competency.uppercase()
-        }
         tvQuestionBadge.text = "QUESTION ${currentIndex + 1}"
-        tvCompetencyPill.text = compLabel
         tvQuestionText.text = item.q
 
         val selected = studentAnswers[currentIndex]
@@ -551,73 +564,6 @@ class TimedAssessmentActivity : AppCompatActivity() {
         studentAnswers[currentIndex] = optionIndex
         saveCurrentSession()
         displayCurrentQuestion()
-    }
-
-    private fun showQuestionPaletteDialog() {
-        if (questions.isEmpty()) return
-        val density = resources.displayMetrics.density
-        val grid = GridLayout(this).apply {
-            columnCount = 5
-            alignmentMode = GridLayout.ALIGN_MARGINS
-            setPadding((16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt())
-        }
-
-        var dialog: android.app.Dialog? = null
-
-        for (i in questions.indices) {
-            val isCurrent = (i == currentIndex)
-            val isAnswered = (studentAnswers.getOrElse(i) { -1 } != -1)
-
-            val btn = TextView(this).apply {
-                text = "${i + 1}"
-                textSize = 14f
-                gravity = android.view.Gravity.CENTER
-                setTypeface(null, android.graphics.Typeface.BOLD)
-
-                val sizePx = (46 * density).toInt()
-                val params = GridLayout.LayoutParams().apply {
-                    width = sizePx
-                    height = sizePx
-                    setMargins((6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt())
-                }
-                layoutParams = params
-
-                when {
-                    isCurrent -> {
-                        setBackgroundResource(R.drawable.bg_tag_k12)
-                        setTextColor(Color.parseColor("#5341CD"))
-                    }
-                    isAnswered -> {
-                        setBackgroundColor(Color.parseColor("#5341CD"))
-                        setTextColor(Color.WHITE)
-                    }
-                    else -> {
-                        setBackgroundColor(Color.parseColor("#F1F5F9"))
-                        setTextColor(Color.parseColor("#64748B"))
-                    }
-                }
-
-                setOnClickListener {
-                    GabAIUtils.performHaptic(it, HapticFeedbackConstants.CLOCK_TICK)
-                    currentIndex = i
-                    displayCurrentQuestion()
-                    dialog?.dismiss()
-                }
-            }
-            grid.addView(btn)
-        }
-
-        val scroll = ScrollView(this).apply { addView(grid) }
-
-        dialog = GabAIDialogs.showCustomDialog(
-            context = this,
-            title = "Question Palette",
-            subtitle = "Purple = Answered • Gray = Unanswered",
-            customView = scroll,
-            confirmText = null,
-            cancelText = "Close",
-            badgeIcon = "🔢"
-        )
     }
 
     private fun confirmExit() {
@@ -732,6 +678,14 @@ class TimedAssessmentActivity : AppCompatActivity() {
         val total = questions.size
         val percentage = if (total > 0) (score * 100) / total else 0
         val elapsedMillis = totalDurationMillis - remainingTimeMillis
+        val elapsedSecs = (elapsedMillis / 1000).coerceAtLeast(1)
+        val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size.coerceAtLeast(1)
+        val readingSpeedWpm = ((passageWords.toDouble() / elapsedSecs) * 60).toInt()
+        val speedCategory = when {
+            readingSpeedWpm > 150 -> "Fast"
+            readingSpeedWpm >= 100 -> "Average"
+            else -> "Slow"
+        }
 
         // DepEd Phil-IRI Official Proficiency Classification
         val philIriLevel = when {
@@ -739,6 +693,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
             percentage >= 59 -> "Instructional"
             else -> "Frustration"
         }
+        val needsIntervention = (philIriLevel == "Frustration")
 
         val studentGender = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).getString("cached_user_gender", "unspecified") ?: "unspecified"
         val submissionDocId = "${assessmentId}_${uid}"
@@ -755,6 +710,10 @@ class TimedAssessmentActivity : AppCompatActivity() {
             "totalQuestions" to total,
             "percentage" to percentage,
             "elapsedTimeMillis" to elapsedMillis,
+            "passageWordCount" to passageWords,
+            "readingSpeedWpm" to readingSpeedWpm,
+            "speedCategory" to speedCategory,
+            "needsIntervention" to needsIntervention,
             "philIriLevel" to philIriLevel,
             "dimensionLiteral" to mapOf("correct" to literalCorrect, "total" to literalTotal),
             "dimensionInferential" to mapOf("correct" to inferentialCorrect, "total" to inferentialTotal),
@@ -766,6 +725,29 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
         val submissionRef = db.collection("timed_assessment_submissions").document(submissionDocId)
         submissionRef.set(submissionData).addOnSuccessListener {
+            // Sync official DepEd Phil-IRI profile metrics to student's root user document
+            val userUpdates = hashMapOf<String, Any>(
+                "phil_iri_tier" to philIriLevel,
+                "phil_iri_score" to score,
+                "phil_iri_total" to total,
+                "phil_iri_pct" to percentage,
+                "phil_iri_wpm" to readingSpeedWpm,
+                "phil_iri_speed_category" to speedCategory,
+                "phil_iri_needs_intervention" to needsIntervention,
+                "phil_iri_last_assessed" to System.currentTimeMillis(),
+                "phil_iri_assessment_title" to assessmentTitle,
+                "phil_iri_assessment_id" to assessmentId
+            )
+            db.collection("users").document(uid).update(userUpdates)
+
+            // Zero-latency caching in SharedPreferences
+            getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                .putString("cached_phil_iri_tier", philIriLevel)
+                .putInt("cached_phil_iri_pct", percentage)
+                .putInt("cached_phil_iri_wpm", readingSpeedWpm)
+                .putBoolean("cached_phil_iri_needs_intervention", needsIntervention)
+                .apply()
+
             // Log to user's quiz_history
             val historyData = hashMapOf(
                 "quizType" to "division_timed_assessment",
@@ -775,6 +757,9 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 "totalAttempts" to total,
                 "percentage" to percentage,
                 "philIriLevel" to philIriLevel,
+                "readingSpeedWpm" to readingSpeedWpm,
+                "speedCategory" to speedCategory,
+                "needsIntervention" to needsIntervention,
                 "studentGender" to studentGender,
                 "timestamp" to System.currentTimeMillis(),
                 "items" to submissionItems
@@ -827,6 +812,25 @@ class TimedAssessmentActivity : AppCompatActivity() {
         val eSecs = elapsedSecs % 60
         tvTimeElapsed.text = String.format(Locale.getDefault(), "%dm %ds", eMins, eSecs)
 
+        // Reading Speed (Words Per Minute / WPM)
+        val safeSecs = elapsedSecs.coerceAtLeast(1)
+        val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size.coerceAtLeast(1)
+        val wpm = if (safeSecs > 0) ((passageWords.toDouble() / safeSecs) * 60).toInt() else 0
+        val speedCategory = when {
+            wpm > 150 -> "Fast"
+            wpm >= 100 -> "Average"
+            else -> "Slow"
+        }
+        tvReadingSpeedWpm.text = "$wpm WPM"
+        tvReadingRateCategory.text = "$speedCategory Rate"
+
+        // Frustration level remedial support card
+        if (percentage <= 58) {
+            cardFrustrationRemedial.visibility = View.VISIBLE
+        } else {
+            cardFrustrationRemedial.visibility = View.GONE
+        }
+
         // Phil-IRI Diagnostic Profile
         when {
             percentage >= 80 -> {
@@ -835,7 +839,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 tvLevelBadge.setBackgroundColor(Color.parseColor("#00B894"))
                 tvHeadline.text = "Outstanding Reading Mastery!"
                 tvHeadline.setTextColor(Color.parseColor("#00B894"))
-                tvRecommendation.text = "Learner reads and comprehends the text completely without teacher assistance. Ready for advanced enrichment texts."
+                tvRecommendation.text = "Awesome reading comprehension! You read independently with high speed and understanding."
                 tvFinalScore.setTextColor(Color.parseColor("#00B894"))
             }
             percentage >= 59 -> {
@@ -844,7 +848,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 tvLevelBadge.setBackgroundColor(Color.parseColor("#5341CD"))
                 tvHeadline.text = "Proficient Reading Comprehension"
                 tvHeadline.setTextColor(Color.parseColor("#5341CD"))
-                tvRecommendation.text = "Learner comprehends adequately with teacher guidance and instructional scaffolding."
+                tvRecommendation.text = "Good effort! You grasp key ideas well. Keep reading regularly to build speed and mastery."
                 tvFinalScore.setTextColor(Color.parseColor("#5341CD"))
             }
             else -> {
@@ -853,47 +857,10 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 tvLevelBadge.setBackgroundColor(Color.parseColor("#EF4444"))
                 tvHeadline.text = "Needs Reading Support"
                 tvHeadline.setTextColor(Color.parseColor("#EF4444"))
-                tvRecommendation.text = "Material poses significant challenge. Recommended for targeted remedial reading intervention and vocabulary reinforcement."
+                tvRecommendation.text = "This passage was challenging. Guided stories and vocabulary drills will help build your reading fluency!"
                 tvFinalScore.setTextColor(Color.parseColor("#EF4444"))
             }
         }
-
-        // Compute 3 cognitive dimensions from answersList
-        var litC = 0; var litT = 0
-        var infC = 0; var infT = 0
-        var criC = 0; var criT = 0
-
-        for (item in answersList) {
-            val comp = (item["competency"] as? String ?: "").uppercase()
-            val isC = item["isCorrect"] as? Boolean ?: false
-            when {
-                comp.contains("LITERAL") -> {
-                    litT++
-                    if (isC) litC++
-                }
-                comp.contains("INFERENTIAL") -> {
-                    infT++
-                    if (isC) infC++
-                }
-                else -> {
-                    criT++
-                    if (isC) criC++
-                }
-            }
-        }
-
-        val litPct = if (litT > 0) (litC * 100) / litT else 100
-        val infPct = if (infT > 0) (infC * 100) / infT else 100
-        val criPct = if (criT > 0) (criC * 100) / criT else 100
-
-        findViewById<TextView>(R.id.tv_dim_literal_score).text = "$litC/$litT ($litPct%)"
-        findViewById<ProgressBar>(R.id.progress_dim_literal).progress = litPct
-
-        findViewById<TextView>(R.id.tv_dim_inferential_score).text = "$infC/$infT ($infPct%)"
-        findViewById<ProgressBar>(R.id.progress_dim_inferential).progress = infPct
-
-        findViewById<TextView>(R.id.tv_dim_critical_score).text = "$criC/$criT ($criPct%)"
-        findViewById<ProgressBar>(R.id.progress_dim_critical).progress = criPct
 
         // Render detailed item review cards
         val container = findViewById<LinearLayout>(R.id.timed_results_questions_container)

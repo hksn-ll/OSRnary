@@ -171,7 +171,7 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
                 appendLine("Learner: $studentName")
                 appendLine("Class: $classLabel")
                 appendLine("Reading Mastery: ${tvMasteryPill?.text ?: "In Progress"}")
-                if (!cachedPhilIriTier.isNullOrEmpty()) {
+                if (canViewAcademicDetails && !cachedPhilIriTier.isNullOrEmpty()) {
                     appendLine("Phil-IRI Diagnostic: $cachedPhilIriTier")
                 }
                 appendLine("Quiz Accuracy: ${tvAccuracy?.text ?: "--"}")
@@ -199,14 +199,16 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             val philIriTier = doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier")
             cachedPhilIriTier = philIriTier
 
-            if (isTeacherView && !philIriTier.isNullOrEmpty()) {
+            val wpm = doc.getLong("phil_iri_wpm")?.toInt() ?: 0
+            if (canViewAcademicDetails && !philIriTier.isNullOrEmpty()) {
                 tvPhilIriPill?.visibility = View.VISIBLE
-                tvPhilIriPill?.text = "Phil-IRI: $philIriTier"
-                val (pBg, pTxt) = when (philIriTier.lowercase()) {
-                    "independent" -> Pair("#E0E7FF", "#4338CA")
-                    "instructional" -> Pair("#FEF3C7", "#D97706")
-                    else -> Pair("#FEE2E2", "#DC2626")
+                val speedSuffix = if (wpm > 0) " • ${wpm} WPM" else ""
+                val (tierLabel, pBg, pTxt) = when (philIriTier.lowercase()) {
+                    "independent" -> Triple("Phil-IRI: Independent$speedSuffix", "#E0E7FF", "#4338CA")
+                    "instructional" -> Triple("Phil-IRI: Instructional$speedSuffix", "#FEF3C7", "#D97706")
+                    else -> Triple("Phil-IRI: Frustration$speedSuffix", "#FEE2E2", "#DC2626")
                 }
+                tvPhilIriPill?.text = tierLabel
                 tvPhilIriPill?.backgroundTintList = ColorStateList.valueOf(Color.parseColor(pBg))
                 tvPhilIriPill?.setTextColor(Color.parseColor(pTxt))
             } else {

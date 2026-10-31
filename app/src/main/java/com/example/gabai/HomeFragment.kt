@@ -438,7 +438,7 @@ class HomeFragment : Fragment() {
                     GabAIDialogs.showNoticeDialog(
                         context = requireContext(),
                         title = "Faculty Account Inactive ⚠️",
-                        message = "This educator's account is currently pending verification or has been deactivated by campus administration. You cannot join this class at this time.",
+                        message = "This educator's account is currently pending verification or has been deactivated by school administration. You cannot join this class at this time.",
                         buttonText = "Understood",
                         badgeIcon = "⚠️"
                     )
@@ -582,7 +582,7 @@ class HomeFragment : Fragment() {
                     val purpose = targetDoc.getString("assessmentPurpose") ?: "Phil-IRI Pre-Test (Diagnostic)"
                     val timerMins = targetDoc.getLong("timerMinutes")?.toInt() ?: targetDoc.getLong("durationMinutes")?.toInt() ?: 20
                     val wordCount = targetDoc.getLong("passageWordCount")?.toInt() ?: 280
-                    val district = targetDoc.getString("districtScope") ?: "All Valenzuela Campuses"
+                    val district = targetDoc.getString("districtScope") ?: "All Valenzuela Schools"
 
                     binding.tvDivTimedTitle.text = title
                     binding.tvDivTimedPurposePill.text = purpose
@@ -598,10 +598,13 @@ class HomeFragment : Fragment() {
                                 val score = subDoc.getLong("score")?.toInt() ?: 0
                                 val total = subDoc.getLong("totalQuestions")?.toInt() ?: 5
                                 val pct = subDoc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
+                                val wpm = subDoc.getLong("readingSpeedWpm")?.toInt() ?: 0
                                 val philIriLevel = subDoc.getString("philIriLevel") ?: (if (pct >= 80) "Independent" else if (pct >= 59) "Instructional" else "Frustration")
 
+                                val speedTag = if (wpm > 0) " • ${wpm} WPM" else ""
+                                val statusIcon = if (pct <= 58) "⚠️" else "✓"
                                 binding.tvDivTimedScorePill.visibility = View.VISIBLE
-                                binding.tvDivTimedScorePill.text = "Phil-IRI: $philIriLevel ($score/$total • $pct%) ✓"
+                                binding.tvDivTimedScorePill.text = "Phil-IRI: $philIriLevel ($score/$total • $pct%$speedTag) $statusIcon"
 
                                 val (bgTint, textCol) = when {
                                     pct >= 80 -> Pair("#D1FAE5", "#065F46")
@@ -611,8 +614,13 @@ class HomeFragment : Fragment() {
                                 binding.tvDivTimedScorePill.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(bgTint))
                                 binding.tvDivTimedScorePill.setTextColor(android.graphics.Color.parseColor(textCol))
 
-                                binding.btnActionDivTimed.text = "View Diagnostic Report ➔"
-                                binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
+                                if (pct <= 58) {
+                                    binding.btnActionDivTimed.text = "View Diagnostic & Remedial ➔"
+                                    binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#E11D48"))
+                                } else {
+                                    binding.btnActionDivTimed.text = "View Diagnostic Report ➔"
+                                    binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
+                                }
                             } else {
                                 binding.tvDivTimedScorePill.visibility = View.GONE
                                 binding.btnActionDivTimed.text = "Take Timed Assessment ➔"
@@ -804,7 +812,7 @@ class HomeFragment : Fragment() {
                 binding.tvBannerSnippet.text = newest.content
                 binding.tvBannerAuthor.text = newest.authorName.ifEmpty { "Administration" }
                 val isDivision = newest.schoolId == "ALL" || newest.scope == "division"
-                binding.tvBannerScope.text = if (isDivision) "DIVISION-WIDE BULLETIN" else "CAMPUS ADVISORY"
+                binding.tvBannerScope.text = if (isDivision) "DIVISION-WIDE BULLETIN" else "SCHOOL ADVISORY"
 
                 val seenCount = (newest.seenCount).coerceAtLeast(newest.seenUserIds.size.toLong())
                 binding.tvBannerSeen.text = "👁️ $seenCount views"

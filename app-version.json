@@ -1,11 +1,11 @@
 {
-  "versionCode": 42,
-  "versionName": "0.4.28",
-  "minRequiredVersionCode": 42,
+  "versionCode": 43,
+  "versionName": "0.4.29",
+  "minRequiredVersionCode": 43,
   "forceUpdate": true,
-  "title": "DepEd SF1 Student Gender System & Phil-IRI Disaggregated Analytics (v0.4.28)",
-  "message": "DepEd SF1-compliant dual student generation, zero-latency gender caching, Phil-IRI reading analytics disaggregation by gender (Boys vs Girls), and Admin Portal main website navigation.",
+  "title": "DepEd Phil-IRI Timed Assessment & Remedial Support (v0.4.29)",
+  "message": "Official Phil-IRI profile synchronization, frustration-level remedial learning pathways, DepEd reading speed (WPM) telemetry, and section reading badges.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.28/GabAI-v0.4.28.apk",
-  "changelog": "⚖️ WHAT'S NEW IN v0.4.28 (DEPED SF1 GENDER SYSTEM & PHIL-IRI ANALYTICS):\n• DepEd SF1 Dual Student Batch Generation: Separate text areas for Boys and Girls in Class Details for direct copy-pasting from DepEd School Form 1 without manual tagging.\n• Student Gender Badging & Identity: Subtle Bento squircle gender pills with 1-tap learner self-selection and zero-latency caching.\n• Disaggregated Phil-IRI Reading Analytics: Comparative Bento card in Teacher Performance analyzing reading comprehension and Phil-IRI tiers (Independent, Instructional, Frustration) for Boys vs Girls.\n• Interactive Gender Filter Chips: Fast 1-tap roster filtering by Boys 👦 and Girls 👧.\n• Official DepEd Exports: Added Sex/Gender column in Excel-compatible CSV (with UTF-8 BOM) and official PDF classroom records.\n• Admin Portal Navigation & Submissions Disaggregation: Redirected admin logos and return links directly to the root website (../index.html) and added gender disaggregation metrics to assessment submissions."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.29/GabAI-v0.4.29.apk",
+  "changelog": "📖 WHAT'S NEW IN v0.4.29 (DEPED PHIL-IRI TIMED ASSESSMENT & REMEDIAL SUPPORT):\n• Official Phil-IRI Profile Synchronization: Standardized Timed Assessments now directly synchronize reading proficiency tiers (Independent, Instructional, Frustration) to the learner's root profile and teacher analytics.\n• Frustration Level Remedial Intervention: Students evaluating at Frustration level (≤ 58%) receive immediate, dedicated remedial pathways with 1-tap guided library stories and vocabulary reinforcement drills.\n• Reading Speed (WPM) Telemetry: Computes and displays DepEd Words Per Minute (WPM) and speed category (Fast, Average, Slow) alongside comprehension MPS.\n• Section Roster Reading Badges: Class Details and Teacher Performance rosters display real-time Phil-IRI tiers and intervention alerts for learners needing reading support.\n• Learner Profile Transparency: Students can now view their official DepEd Phil-IRI reading profile and reading speed directly on their personal scholar card."
 }

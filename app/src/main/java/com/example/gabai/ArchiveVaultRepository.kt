@@ -458,7 +458,7 @@ object ArchiveVaultRepository {
     }
 
     /**
-     * Query active archives for a school campus.
+     * Query active archives for a school.
      */
     fun fetchCampusArchives(
         schoolId: String,

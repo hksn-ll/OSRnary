@@ -1285,13 +1285,13 @@ object GabAIDialogs {
         val currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
         val loadVault: () -> Unit = {
-            tvNoArchives.text = "Loading campus archives..."
+            tvNoArchives.text = "Loading school archives..."
             tvNoArchives.visibility = View.VISIBLE
             container.removeAllViews()
 
             ArchiveVaultRepository.fetchCampusArchives(schoolId, activeFilter, { records ->
                 if (records.isEmpty()) {
-                    tvSubtitle.text = "0 Archived Records (Campus Safety Net)"
+                    tvSubtitle.text = "0 Archived Records (School Safety Net)"
                     tvNoArchives.text = "No archived records found in this vault."
                     tvNoArchives.visibility = View.VISIBLE
                 } else {
@@ -1420,7 +1420,7 @@ object GabAIDialogs {
                             btnRestore.isEnabled = false
                             btnRestore.text = "Restoring..."
                             ArchiveVaultRepository.restoreEntity(rec.archiveId, currentUid, { restoredName ->
-                                GabAIUtils.showSnackbar(context, "Restored $restoredName to active campus! ✨")
+                                GabAIUtils.showSnackbar(context, "Restored $restoredName to active school! ✨")
                                 onRestored?.invoke()
                                 card.visibility = View.GONE
                             }, { err ->

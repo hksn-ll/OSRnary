@@ -22,3 +22,6 @@ graphify-out/20*/
 *firebase-adminsdk*.json
 graphify-out/.vocab.txt
 
+__pycache__/
+*.py[cod]
+graphify-out/.graphify_analysis.json

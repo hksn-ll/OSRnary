@@ -501,7 +501,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/font_nunito_sans"
-                            android:text="All Valenzuela Campuses • Standardized Passage"
+                            android:text="All Valenzuela Schools • Standardized Passage"
                             android:textColor="#64748B"
                             android:textSize="12sp"
                             android:layout_marginBottom="14dp" />

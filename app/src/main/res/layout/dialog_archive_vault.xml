@@ -47,7 +47,7 @@
                 android:id="@+id/tv_vault_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Campus Safety Net • 30-Day Recovery"
+                android:text="School Safety Net • 30-Day Recovery"
                 android:textColor="#6366F1"
                 android:textSize="11sp"
                 android:textStyle="bold" />

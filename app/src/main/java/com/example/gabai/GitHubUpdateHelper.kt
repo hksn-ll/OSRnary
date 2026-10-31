@@ -43,13 +43,16 @@ object GitHubUpdateHelper {
     private const val VERSION_URL = "https://raw.githubusercontent.com/hksn-ll/OSRnary/main/app-version.json"
 
     val CURRENT_CHANGELOG = """
-⚖️ WHAT'S NEW IN v0.4.28 (DEPED SF1 GENDER SYSTEM & PHIL-IRI ANALYTICS):
+📖 WHAT'S NEW IN v0.4.29 (DEPED PHIL-IRI TIMED ASSESSMENT & REMEDIAL SUPPORT):
+• Official Phil-IRI Profile Synchronization: Standardized Timed Assessments now directly synchronize reading proficiency tiers (Independent, Instructional, Frustration) to the learner's root profile and teacher analytics.
+• Frustration Level Remedial Intervention: Students evaluating at Frustration level (≤ 58%) receive immediate, dedicated remedial pathways with 1-tap guided library stories and vocabulary reinforcement drills.
+• Reading Speed (WPM) Telemetry: Computes and displays DepEd Words Per Minute (WPM) and speed category (Fast, Average, Slow) alongside comprehension MPS.
+• Section Roster Reading Badges: Class Details and Teacher Performance rosters display real-time Phil-IRI tiers and intervention alerts for learners needing reading support.
+• Learner Profile Transparency: Students can now view their official DepEd Phil-IRI reading profile and reading speed directly on their personal scholar card.
+
+⚖️ PREVIOUS IN v0.4.28 (DEPED SF1 GENDER SYSTEM & PHIL-IRI ANALYTICS):
 • DepEd SF1 Dual Student Batch Generation: Separate text areas for Boys and Girls in Class Details for direct copy-pasting from DepEd School Form 1 without manual tagging.
-• Student Gender Badging & Identity: Subtle Bento squircle gender pills with 1-tap learner self-selection and zero-latency caching.
 • Disaggregated Phil-IRI Reading Analytics: Comparative Bento card in Teacher Performance analyzing reading comprehension and Phil-IRI tiers (Independent, Instructional, Frustration) for Boys vs Girls.
-• Interactive Gender Filter Chips: Fast 1-tap roster filtering by Boys 👦 and Girls 👧.
-• Official DepEd Exports: Added Sex/Gender column in Excel-compatible CSV (with UTF-8 BOM) and official PDF classroom records.
-• Admin Portal Navigation & Submissions Disaggregation: Redirected admin logos and return links directly to the root website (../index.html) and added gender disaggregation metrics to assessment submissions.
 """.trimIndent()
 
     // Periodic idle poller interval: 3 minutes

@@ -135,9 +135,9 @@ object SchoolRepository {
                 "originalDocId" to schoolId,
                 "schoolId" to schoolId,
                 "displayName" to schoolName,
-                "subtitle" to "DepEd School ID: $schoolId • Campus Safety Backup",
+                "subtitle" to "DepEd School ID: $schoolId • School Safety Backup",
                 "archivedAt" to System.currentTimeMillis(),
-                "deletionReason" to "Campus archived from active directory",
+                "deletionReason" to "School archived from active directory",
                 "snapshot" to data,
                 "status" to "archived",
                 "retentionUntil" to (System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000))

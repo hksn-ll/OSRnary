@@ -424,7 +424,7 @@ class ProfileFragment : Fragment() {
                             GabAIDialogs.showNoticeDialog(
                                 act,
                                 title = "Photo Not Approved",
-                                message = "Your uploaded photo was declined during campus moderation.\n\nPlease upload a clear, appropriate school portrait or student ID photo.",
+                                message = "Your uploaded photo was declined during school moderation.\n\nPlease upload a clear, appropriate school portrait or student ID photo.",
                                 buttonText = "Understood",
                                 badgeIcon = "📷"
                             )

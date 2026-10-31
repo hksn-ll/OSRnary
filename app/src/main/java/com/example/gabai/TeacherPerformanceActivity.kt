@@ -209,8 +209,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                         stats.averageScore >= 60 -> "Proficient"
                         else -> "Needs Support"
                     }
-                    stats.isAtRisk = (stats.totalQuizzes == 0 || stats.averageScore < 60)
                     stats.philIriTier = userDoc.getString("phil_iri_tier") ?: userDoc.getString("diagnostic_tier")
+                    stats.isAtRisk = (stats.totalQuizzes == 0 || stats.averageScore < 60 || stats.philIriTier?.lowercase() == "frustration")
 
                     classTotalScore += studentScore
                     classTotalAttempts += studentAttempts
@@ -468,7 +468,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
                         if (!student.philIriTier.isNullOrEmpty()) {
                             val philBadge = TextView(this@TeacherPerformanceActivity).apply {
-                                text = "Phil-IRI: ${student.philIriTier}"
+                                val isFru = student.philIriTier?.lowercase() == "frustration"
+                                text = if (isFru) "Phil-IRI: Frustration ⚠️" else "Phil-IRI: ${student.philIriTier}"
                                 textSize = 9.5f
                                 setSingleLine(true)
                                 setTypeface(fontJakarta ?: typeface, Typeface.BOLD)

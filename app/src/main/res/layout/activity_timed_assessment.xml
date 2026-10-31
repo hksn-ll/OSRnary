@@ -121,12 +121,12 @@
             android:paddingTop="20dp"
             android:paddingBottom="32dp">
 
-            <!-- Official SDO Seal Card -->
+            <!-- Unified Assessment Briefing Bento Card -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1.5dp"
@@ -137,61 +137,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_bento_purple"
-                            android:gravity="center"
-                            android:text="🏛️"
-                            android:textSize="20sp" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="SCHOOLS DIVISION OFFICE"
-                                android:textColor="#5341CD"
-                                android:textSize="10.5sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.06" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="Division of City Schools – Valenzuela"
-                                android:textColor="#0F172A"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_briefing_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:text="Phil-IRI Diagnostic Reading Comprehension"
-                        android:textColor="#0F172A"
-                        android:textSize="19sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="6dp" />
+                    android:padding="22dp">
 
                     <TextView
                         android:id="@+id/tv_briefing_purpose"
@@ -206,13 +152,26 @@
                         android:textSize="11sp"
                         android:fontFamily="@font/font_plus_jakarta_sans"
                         android:textStyle="bold"
+                        android:layout_marginBottom="10dp" />
+
+                    <TextView
+                        android:id="@+id/tv_briefing_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="Phil-IRI Diagnostic Reading Comprehension"
+                        android:textColor="#0F172A"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:lineSpacingExtra="2dp"
                         android:layout_marginBottom="16dp" />
 
                     <!-- Quick Telemetry Specs Grid -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -238,7 +197,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="20 Minutes"
                                 android:textColor="#5341CD"
-                                android:textSize="15sp"
+                                android:textSize="16sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -267,135 +226,67 @@
                                 android:layout_height="wrap_content"
                                 android:text="5 Items"
                                 android:textColor="#0F172A"
-                                android:textSize="15sp"
+                                android:textSize="16sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Phil-IRI Instructions Card -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Widget.Material3.CardView.Filled"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="22dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="#EDF2F7"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:text="Assessment Guidelines"
-                        android:textColor="#0F172A"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- Rule 1 -->
+                    <!-- Compact Reminders -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="10dp">
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#F8FAFC"
+                        android:padding="14dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="⏱️"
-                            android:textSize="14sp"
-                            android:layout_marginEnd="10dp" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
 
-                        <TextView
-                            android:layout_width="0dp"
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="⏱️"
+                                android:textSize="13sp"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:text="Continuous countdown timer — automatically submits when time expires."
+                                android:textColor="#475569"
+                                android:textSize="12.5sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/font_nunito_sans"
-                            android:text="The countdown timer runs continuously for the entire test. You can freely allocate your time between reading the passage and answering questions."
-                            android:textColor="#475569"
-                            android:textSize="13sp" />
-                    </LinearLayout>
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
 
-                    <!-- Rule 2 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📖"
+                                android:textSize="13sp"
+                                android:layout_marginEnd="8dp" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📖"
-                            android:textSize="14sp"
-                            android:layout_marginEnd="10dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/font_nunito_sans"
-                            android:text="The standardized reading passage is accessible at all times using the 'View Passage' toggle above the question card."
-                            android:textColor="#475569"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <!-- Rule 3 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📊"
-                            android:textSize="14sp"
-                            android:layout_marginEnd="10dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/font_nunito_sans"
-                            android:text="Evaluates official DepEd Phil-IRI reading proficiency levels: Independent (80%–100%), Instructional (59%–79%), and Frustration (≤ 58%)."
-                            android:textColor="#475569"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-
-                    <!-- Rule 4 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⚠️"
-                            android:textSize="14sp"
-                            android:layout_marginEnd="10dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/font_nunito_sans"
-                            android:text="When the timer reaches 00:00, the assessment automatically locks and submits all recorded answers."
-                            android:textColor="#475569"
-                            android:textSize="13sp" />
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/font_nunito_sans"
+                                android:text="The standardized reading passage is accessible throughout the assessment."
+                                android:textColor="#475569"
+                                android:textSize="12.5sp" />
+                        </LinearLayout>
                     </LinearLayout>
 
                 </LinearLayout>
@@ -444,14 +335,12 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="6dp">
 
+                <!-- Static Progress Counter Pill -->
                 <LinearLayout
-                    android:id="@+id/btn_open_timed_palette"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_pill_translucent"
                     android:backgroundTint="#F1F5F9"
-                    android:clickable="true"
-                    android:focusable="true"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="10dp"
@@ -466,13 +355,6 @@
                         android:textColor="#5341CD"
                         android:textSize="12sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="🔢"
-                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <View
@@ -506,7 +388,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:text="View Passage"
+                        android:text="Hide Passage"
                         android:textColor="#5341CD"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -550,7 +432,7 @@
                     app:strokeWidth="1.5dp"
                     app:strokeColor="#C7D2FE"
                     app:cardBackgroundColor="#F8FAFC"
-                    android:visibility="gone">
+                    android:visibility="visible">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -640,20 +522,6 @@
                                 android:text="QUESTION 1"
                                 android:textColor="#5341CD"
                                 android:textSize="11sp"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_timed_competency_pill"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:background="@drawable/bg_input_field"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="3dp"
-                                android:text="LITERAL RECALL"
-                                android:textColor="#64748B"
-                                android:textSize="10sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -1007,7 +875,7 @@
                         android:gravity="center"
                         android:layout_marginBottom="18dp" />
 
-                    <!-- Telemetry Row: Score & Elapsed Time -->
+                    <!-- Telemetry Row: Score, Reading Speed (WPM) & Elapsed Time -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -1020,15 +888,16 @@
                             android:background="@drawable/bg_input_field"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="12dp"
-                            android:layout_marginEnd="6dp">
+                            android:paddingVertical="12dp"
+                            android:paddingHorizontal="4dp"
+                            android:layout_marginEnd="4dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="COMPREHENSION SCORE"
+                                android:text="COMPREHENSION"
                                 android:textColor="#64748B"
-                                android:textSize="9.5sp"
+                                android:textSize="8.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
 
@@ -1038,7 +907,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="5 / 5"
                                 android:textColor="#00B894"
-                                android:textSize="20sp"
+                                android:textSize="18sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
 
@@ -1048,7 +917,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="100% MPS"
                                 android:textColor="#64748B"
-                                android:textSize="11sp"
+                                android:textSize="10.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans" />
                         </LinearLayout>
 
@@ -1059,15 +928,56 @@
                             android:background="@drawable/bg_input_field"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="12dp"
-                            android:layout_marginStart="6dp">
+                            android:paddingVertical="12dp"
+                            android:paddingHorizontal="4dp"
+                            android:layout_marginHorizontal="2dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="READING SPEED"
+                                android:textColor="#64748B"
+                                android:textSize="8.5sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_reading_speed_wpm"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="140 WPM"
+                                android:textColor="#5341CD"
+                                android:textSize="18sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_reading_rate_category"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Average Rate"
+                                android:textColor="#64748B"
+                                android:textSize="10.5sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_input_field"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingVertical="12dp"
+                            android:paddingHorizontal="4dp"
+                            android:layout_marginStart="4dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="TEST DURATION"
                                 android:textColor="#64748B"
-                                android:textSize="9.5sp"
+                                android:textSize="8.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
 
@@ -1077,7 +987,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="12m 45s"
                                 android:textColor="#5341CD"
-                                android:textSize="20sp"
+                                android:textSize="18sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
 
@@ -1087,186 +997,125 @@
                                 android:layout_height="wrap_content"
                                 android:text="Limit: 20m"
                                 android:textColor="#64748B"
-                                android:textSize="11sp"
+                                android:textSize="10.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 3 Phil-IRI Cognitive Dimensions Breakdown -->
+            <!-- DepEd Remedial Reading Support Bento Card (Displayed for Frustration Level <= 58%) -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_frustration_remedial"
                 style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="18dp"
-                app:cardCornerRadius="22dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="#EDF2F7"
-                app:cardBackgroundColor="#FFFFFF">
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#FECDD3"
+                app:cardBackgroundColor="#FFF1F2">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="18dp">
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_level_pill"
+                            android:backgroundTint="#FEE2E2"
+                            android:gravity="center"
+                            android:text="💡"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="DEPED REMEDIAL SUPPORT"
+                                android:textColor="#E11D48"
+                                android:textSize="10.5sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.06" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="Targeted Reading Intervention"
+                                android:textColor="#0F172A"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:text="Phil-IRI Cognitive Dimensions"
-                        android:textColor="#0F172A"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:text="This reading passage was challenging. Under DepEd Phil-IRI, learners in the Frustration Level benefit greatly from guided reading drills and vocabulary reinforcement to build reading fluency."
+                        android:textColor="#475569"
+                        android:textSize="12.5sp"
+                        android:layout_marginBottom="14dp" />
 
-                    <!-- Dimension 1: Literal -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="12dp">
+                        android:orientation="horizontal">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_remedial_library_practice"
+                            style="@style/Widget.Material3.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:backgroundTint="#E11D48"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="📖 Guided Stories"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="14dp" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="Literal Comprehension (Explicit Facts)"
-                                android:textColor="#334155"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1" />
-
-                            <TextView
-                                android:id="@+id/tv_dim_literal_score"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="2/2 (100%)"
-                                android:textColor="#5341CD"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <ProgressBar
-                            android:id="@+id/progress_dim_literal"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:layout_width="match_parent"
-                            android:layout_height="6dp"
-                            android:layout_marginTop="4dp"
-                            android:progress="100"
-                            android:progressTint="#5341CD"
-                            android:progressBackgroundTint="#F1F5F9" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_remedial_vocab_drills"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="🔤 Vocab Drills"
+                            android:textColor="#E11D48"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:strokeColor="#FDA4AF"
+                            app:cornerRadius="14dp" />
                     </LinearLayout>
-
-                    <!-- Dimension 2: Inferential -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="12dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="Inferential Reasoning (Reading Between Lines)"
-                                android:textColor="#334155"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1" />
-
-                            <TextView
-                                android:id="@+id/tv_dim_inferential_score"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="2/2 (100%)"
-                                android:textColor="#5341CD"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <ProgressBar
-                            android:id="@+id/progress_dim_inferential"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:layout_width="match_parent"
-                            android:layout_height="6dp"
-                            android:layout_marginTop="4dp"
-                            android:progress="100"
-                            android:progressTint="#6C5CE7"
-                            android:progressBackgroundTint="#F1F5F9" />
-                    </LinearLayout>
-
-                    <!-- Dimension 3: Critical -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="Critical / Applied Thinking (HOTS)"
-                                android:textColor="#334155"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1" />
-
-                            <TextView
-                                android:id="@+id/tv_dim_critical_score"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="1/1 (100%)"
-                                android:textColor="#5341CD"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <ProgressBar
-                            android:id="@+id/progress_dim_critical"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:layout_width="match_parent"
-                            android:layout_height="6dp"
-                            android:layout_marginTop="4dp"
-                            android:progress="100"
-                            android:progressTint="#00B894"
-                            android:progressBackgroundTint="#F1F5F9" />
-                    </LinearLayout>
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+
 
             <!-- Detailed Question Review Title -->
             <TextView
