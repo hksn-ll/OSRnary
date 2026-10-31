@@ -25,3 +25,4 @@ graphify-out/.vocab.txt
 __pycache__/
 *.py[cod]
 graphify-out/.graphify_analysis.json
+graphify-out/.rebuild.lock
