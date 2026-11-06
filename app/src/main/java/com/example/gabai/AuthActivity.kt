@@ -1050,18 +1050,20 @@ class AuthActivity : AppCompatActivity() {
                     GabAIUtils.showSnackbar(this, "Passwords do not match")
                     return@showCustomDialog
                 }
+                if (selectedGender == "unspecified") {
+                    GabAIUtils.showSnackbar(this, "Please select whether you are Male (Boy) or Female (Girl)")
+                    return@showCustomDialog
+                }
 
                 toggleLoading(true)
                 user.updatePassword(newPass).addOnCompleteListener { updateTask ->
                     if (updateTask.isSuccessful) {
                         val updates = mutableMapOf<String, Any>(
                             "mustChangePassword" to false,
-                            "tempPassword" to FieldValue.delete()
+                            "tempPassword" to FieldValue.delete(),
+                            "gender" to selectedGender
                         )
-                        if (selectedGender != "unspecified") {
-                            updates["gender"] = selectedGender
-                            prefs.edit().putString("cached_user_gender", selectedGender).apply()
-                        }
+                        prefs.edit().putString("cached_user_gender", selectedGender).apply()
                         db.collection("users").document(uid).update(updates).addOnCompleteListener {
                             toggleLoading(false)
                             dialog.dismiss()

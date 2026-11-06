@@ -1,11 +1,11 @@
 {
-  "versionCode": 43,
-  "versionName": "0.4.29",
-  "minRequiredVersionCode": 43,
+  "versionCode": 44,
+  "versionName": "0.4.30",
+  "minRequiredVersionCode": 44,
   "forceUpdate": true,
-  "title": "DepEd Phil-IRI Timed Assessment & Remedial Support (v0.4.29)",
-  "message": "Official Phil-IRI profile synchronization, frustration-level remedial learning pathways, DepEd reading speed (WPM) telemetry, and section reading badges.",
+  "title": "Student Gender Self-Onboarding & Printable Slips (v0.4.30)",
+  "message": "Student self-service gender selection, batch printable classroom login slips, and DepEd Division system manual.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.29/GabAI-v0.4.29.apk",
-  "changelog": "📖 WHAT'S NEW IN v0.4.29 (DEPED PHIL-IRI TIMED ASSESSMENT & REMEDIAL SUPPORT):\n• Official Phil-IRI Profile Synchronization: Standardized Timed Assessments now directly synchronize reading proficiency tiers (Independent, Instructional, Frustration) to the learner's root profile and teacher analytics.\n• Frustration Level Remedial Intervention: Students evaluating at Frustration level (≤ 58%) receive immediate, dedicated remedial pathways with 1-tap guided library stories and vocabulary reinforcement drills.\n• Reading Speed (WPM) Telemetry: Computes and displays DepEd Words Per Minute (WPM) and speed category (Fast, Average, Slow) alongside comprehension MPS.\n• Section Roster Reading Badges: Class Details and Teacher Performance rosters display real-time Phil-IRI tiers and intervention alerts for learners needing reading support.\n• Learner Profile Transparency: Students can now view their official DepEd Phil-IRI reading profile and reading speed directly on their personal scholar card."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.30/GabAI-v0.4.30.apk",
+  "changelog": "🚀 WHAT'S NEW IN v0.4.30 (GENDER ONBOARDING & PRINTABLE LOGIN SLIPS):\n• Student Gender Self-Selection: Learners can now select their gender directly during first-time password setup or initial login, streamlining class roster creation for teachers.\n• Batch Printable Login Slips: Admin Portal now generates cuttable wallet/desk credential slips with school branding for smooth classroom rollouts.\n• Admin Portal Terminology Refinements: Enhanced clarity for Division Authorization Keys and analytics telemetry methodology.\n• DepEd System & User Manual: Bundled comprehensive system documentation and stakeholder user guide."
 }

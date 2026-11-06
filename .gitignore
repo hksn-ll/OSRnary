@@ -26,3 +26,8 @@ __pycache__/
 *.py[cod]
 graphify-out/.graphify_analysis.json
 graphify-out/.rebuild.lock
+*.bak
+*.bak*
+~$*
+admin-portal/test_portal.py
+admin-portal/inspect_modal.py

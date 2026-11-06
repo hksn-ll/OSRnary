@@ -548,142 +548,136 @@ class ClassDetailActivity : AppCompatActivity() {
         }
 
         val tvNote = TextView(this).apply {
-            text = "Paste or type student names below (one name per line). To align with DepEd School Form 1 (SF1), enter Male and Female learners separately for automatic gender tagging and disaggregated reading analytics."
-            textSize = 12f
+            text = "Paste or type student names below (one per line or comma-separated). Secure usernames and temporary passwords will be automatically generated. Students will select their gender upon first sign-in."
+            textSize = 12.5f
             setTextColor(Color.parseColor("#64748B"))
             setPadding(0, 0, 0, (12 * density).toInt())
         }
         container.addView(tvNote)
 
-        // Label Boys
-        val tvBoysLabel = TextView(this).apply {
-            text = "👦 Male Learners / Boys (DepEd SF1)"
-            textSize = 12.5f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#3730A3"))
-            setPadding(0, 0, 0, (6 * density).toInt())
-        }
-        container.addView(tvBoysLabel)
-
-        val etMaleNames = EditText(this).apply {
-            hint = "Juan Dela Cruz\nPedro Santos\n..."
-            minLines = 3
+        val etStudentNames = EditText(this).apply {
+            hint = "Juan Dela Cruz\nMaria Clara\nPedro Santos\n..."
+            minLines = 6
             gravity = android.view.Gravity.TOP or android.view.Gravity.START
             setBackgroundResource(R.drawable.bg_modern_input)
-            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
+            setPadding((16 * density).toInt(), (14 * density).toInt(), (16 * density).toInt(), (14 * density).toInt())
             setTextColor(Color.parseColor("#2D3436"))
-            textSize = 13.5f
+            setHintTextColor(Color.parseColor("#A0AEC0"))
+            textSize = 14f
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = (14 * density).toInt() }
+            )
         }
-        container.addView(etMaleNames)
-
-        // Label Girls
-        val tvGirlsLabel = TextView(this).apply {
-            text = "👧 Female Learners / Girls (DepEd SF1)"
-            textSize = 12.5f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor("#9D174D"))
-            setPadding(0, 0, 0, (6 * density).toInt())
-        }
-        container.addView(tvGirlsLabel)
-
-        val etFemaleNames = EditText(this).apply {
-            hint = "Maria Clara\nGabriela Silang\n..."
-            minLines = 3
-            gravity = android.view.Gravity.TOP or android.view.Gravity.START
-            setBackgroundResource(R.drawable.bg_modern_input)
-            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
-            setTextColor(Color.parseColor("#2D3436"))
-            textSize = 13.5f
-        }
-        container.addView(etFemaleNames)
+        container.addView(etStudentNames)
 
         GabAIDialogs.showCustomDialog(
             context = this,
             title = "Add Students to $className",
-            subtitle = "DepEd SF1 School Register Roster Generation",
+            subtitle = "Paste student list to generate accounts",
             customView = container,
             confirmText = "Generate Accounts",
             cancelText = "Cancel",
             badgeIcon = "👥",
             onConfirm = { dialog ->
-                val maleList = etMaleNames.text.toString().split("\n").map { it.trim() }.filter { it.isNotEmpty() }
-                val femaleList = etFemaleNames.text.toString().split("\n").map { it.trim() }.filter { it.isNotEmpty() }
+                val rawText = etStudentNames.text.toString()
+                val namesList = rawText.split(Regex("[\n,]+"))
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() }
 
-                val batch = mutableListOf<Pair<String, String>>()
-                maleList.forEach { batch.add(it to "male") }
-                femaleList.forEach { batch.add(it to "female") }
-
-                if (batch.isEmpty()) {
+                if (namesList.isEmpty()) {
                     GabAIUtils.showSnackbar(this, "Please enter at least one student name")
                     return@showCustomDialog
                 }
 
                 dialog.dismiss()
-                generateStudentAccounts(batch)
+                generateStudentAccounts(namesList)
             }
         )
     }
 
-    private fun generateStudentAccounts(students: List<Pair<String, String>>) {
-        val validItems = students.filter { it.first.isNotBlank() }
-        if (validItems.isEmpty()) return
+    private fun generateStudentAccounts(names: List<String>) {
+        val validNames = names.map { it.trim() }.filter { it.isNotBlank() }
+        if (validNames.isEmpty()) return
 
         var completedCount = 0
         val usedInBatch = mutableSetOf<String>()
-        com.example.gabai.GabAIUtils.showSnackbar(this, "Generating ${validItems.size} accounts...")
 
-        for ((fullName, gender) in validItems) {
-            val parts = fullName.split("\\s+".toRegex())
-            val firstName = parts.firstOrNull() ?: "Student"
-            val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
+        GabAIUtils.showGlobalLoading(this, "Generating ${validNames.size} accounts...")
 
-            val cleanBase = "${firstName}${lastName}".replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
-            val baseName = if (cleanBase.isNotBlank()) cleanBase else "student"
+        val pendingQuery = if (schoolId.isNotBlank()) db.collection("pending_students").whereEqualTo("schoolId", schoolId) else db.collection("pending_students")
+        pendingQuery.get().addOnCompleteListener { pendingTask ->
+            val existingUsernames = mutableSetOf<String>()
+            if (pendingTask.isSuccessful) {
+                pendingTask.result?.forEach { doc ->
+                    doc.getString("username")?.let { existingUsernames.add(it.lowercase()) }
+                }
+            }
 
-            var username: String
-            var attempts = 0
-            do {
-                val randomNum = (10000..99999).random()
-                username = "${baseName}_$randomNum"
-                attempts++
-            } while (usedInBatch.contains(username) && attempts < 100)
-            usedInBatch.add(username)
-
-            val password = java.util.UUID.randomUUID().toString().substring(0, 6)
-
-            val studentData = hashMapOf(
-                "firstName" to firstName,
-                "lastName" to lastName,
-                "gender" to gender,
-                "username" to username,
-                "password" to password,
-                "mustChangePassword" to true,
-                "role" to "student",
-                "section" to sectionName,
-                "grade" to grade,
-                "schoolId" to schoolId,
-                "current_xp" to 0,
-                "level" to 1,
-                "isApproved" to true,
-                "is_onboarded" to false,
-                "quests_completed" to listOf<String>(),
-                "createdAt" to System.currentTimeMillis()
-            )
-
-            db.collection("pending_students").document(username).set(studentData)
-                .addOnSuccessListener {
-                    completedCount++
-                    if (completedCount == validItems.size) {
-                        com.example.gabai.GabAIUtils.showSnackbar(this, "$completedCount accounts generated!")
+            val usersQuery = if (schoolId.isNotBlank()) db.collection("users").whereEqualTo("schoolId", schoolId) else db.collection("users")
+            usersQuery.get().addOnCompleteListener { usersTask ->
+                if (usersTask.isSuccessful) {
+                    usersTask.result?.forEach { doc ->
+                        doc.getString("username")?.let { existingUsernames.add(it.lowercase()) }
                     }
                 }
-                .addOnFailureListener {
-                    completedCount++
+
+                for (fullName in validNames) {
+                    val parts = fullName.split("\\s+".toRegex())
+                    val firstName = parts.firstOrNull() ?: "Student"
+                    val lastName = if (parts.size > 1) parts.drop(1).joinToString(" ") else ""
+
+                    val cleanBase = "${firstName}${lastName}".replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
+                    val baseName = if (cleanBase.isNotBlank()) cleanBase else "student"
+
+                    var username: String
+                    var attempts = 0
+                    do {
+                        val randomNum = (10000..99999).random()
+                        username = "${baseName}_$randomNum"
+                        attempts++
+                    } while ((usedInBatch.contains(username) || existingUsernames.contains(username.lowercase())) && attempts < 100)
+                    usedInBatch.add(username)
+                    existingUsernames.add(username.lowercase())
+
+                    val password = java.util.UUID.randomUUID().toString().substring(0, 6)
+
+                    val studentData = hashMapOf(
+                        "firstName" to firstName,
+                        "lastName" to lastName,
+                        "gender" to "unspecified",
+                        "username" to username,
+                        "password" to password,
+                        "mustChangePassword" to true,
+                        "role" to "student",
+                        "section" to sectionName,
+                        "grade" to grade,
+                        "schoolId" to schoolId,
+                        "current_xp" to 0,
+                        "level" to 1,
+                        "isApproved" to true,
+                        "is_onboarded" to false,
+                        "quests_completed" to listOf<String>(),
+                        "createdAt" to System.currentTimeMillis()
+                    )
+
+                    db.collection("pending_students").document(username).set(studentData)
+                        .addOnSuccessListener {
+                            completedCount++
+                            if (completedCount == validNames.size) {
+                                GabAIUtils.hideGlobalLoading(this)
+                                GabAIUtils.showSnackbar(this, "$completedCount accounts generated successfully! 🎉")
+                            }
+                        }
+                        .addOnFailureListener {
+                            completedCount++
+                            if (completedCount == validNames.size) {
+                                GabAIUtils.hideGlobalLoading(this)
+                                GabAIUtils.showSnackbar(this, "Generated accounts with some errors.")
+                            }
+                        }
                 }
+            }
         }
     }
 

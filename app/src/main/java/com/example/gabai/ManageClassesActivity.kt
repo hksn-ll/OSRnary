@@ -958,7 +958,7 @@ class ManageClassesActivity : AppCompatActivity() {
             badgeIcon = "👥",
             onConfirm = { namesText ->
                 if (namesText.isNotEmpty()) {
-                    val namesList = namesText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    val namesList = namesText.split(Regex("[\n,]+")).map { it.trim() }.filter { it.isNotEmpty() }
                     generateStudentAccounts(namesList, sectionName, classId, schoolId, grade)
                 }
             }
@@ -1016,6 +1016,7 @@ class ManageClassesActivity : AppCompatActivity() {
                     val studentData = hashMapOf(
                         "firstName" to firstName,
                         "lastName" to lastName,
+                        "gender" to "unspecified",
                         "username" to username,
                         "password" to password,
                         "mustChangePassword" to true,

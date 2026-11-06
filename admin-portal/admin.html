@@ -510,8 +510,8 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">Division Master Passkey</label>
-          <input type="password" id="provMasterKey" required placeholder="Enter authorized division passkey" autocomplete="off" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Division Authorization Key</label>
+          <input type="password" id="provMasterKey" required placeholder="Enter authorized division key" autocomplete="off" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs">
           <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Confidential authorization key issued exclusively by SDO Valenzuela IT.</p>
         </div>
 
@@ -784,7 +784,7 @@
       <!-- Post new remark -->
       <form id="formAddRemark" onsubmit="handlePostRemarkSubmit(event)" class="shrink-0 space-y-2 pt-2 border-t border-slate-100">
         <label class="block text-[11px] font-bold text-slate-700">Add Guidance or Academic Intervention Note</label>
-        <textarea id="inputRemarkText" required rows="3" placeholder="Enter instructional guidance, pedagogical remarks, or feedback for the teacher..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white"></textarea>
+        <textarea id="inputRemarkText" required rows="3" placeholder="Enter instructional guidance, teaching remarks, or feedback for the teacher..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white"></textarea>
         <div class="flex justify-end gap-2">
           <button type="button" onclick="closeAdminRemarksModal()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50">
             Close
@@ -874,7 +874,7 @@
             <details class="bg-slate-50 border border-slate-200 rounded-xl p-3 cursor-pointer">
               <summary class="font-bold text-slate-800 select-none">How do Administrative Remarks work?</summary>
               <p class="text-slate-600 mt-2 leading-relaxed">
-                Admins have read-only oversight over instructional materials. To provide pedagogical notes, curriculum alignments, or academic intervention recommendations, click the <strong>Remarks</strong> button next to any PDF material or weekly assessment. Your remarks are logged with your official administrative designation.
+                Admins have read-only oversight over instructional materials. To provide instructional notes, curriculum alignments, or academic intervention recommendations, click the <strong>Remarks</strong> button next to any PDF material or weekly assessment. Your remarks are logged with your official administrative designation.
               </p>
             </details>
           </div>
@@ -894,7 +894,7 @@
 
 
   <!-- ========================================================================= -->
-  <!-- 2F. CHART METHODOLOGY & TELEMETRY EXPLANATION MODAL (NO EMOJIS) -->
+  <!-- 2F. CHART METHODOLOGY & ANALYTICS EXPLANATION MODAL (NO EMOJIS) -->
   <!-- ========================================================================= -->
   <div id="modalChartExplanation" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4" onclick="if(event.target === this) closeChartExplanationModal()">
     <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 flex flex-col max-h-[90vh] space-y-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -907,7 +907,7 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span id="chartModalCategory" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200 font-display">Telemetry Methodology</span>
+              <span id="chartModalCategory" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200 font-display">Analytics Methodology</span>
               <span class="text-[10px] text-slate-400 font-medium">DepEd SDO Valenzuela City</span>
             </div>
             <h3 id="chartModalTitle" class="font-extrabold text-base text-slate-900 font-display mt-0.5">Chart Title</h3>
@@ -1281,9 +1281,12 @@
 
         <!-- Reference identity badge -->
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
-          <div>
-            <span class="text-slate-400 font-medium">Student Handle:</span>
-            <span id="editStudentHandleDisplay" class="font-mono font-bold text-slate-800 ml-1">@username</span>
+          <div class="flex items-center gap-2.5">
+            <div id="editStudentAvatarContainer"></div>
+            <div>
+              <span class="text-slate-400 font-medium">Student Handle:</span>
+              <span id="editStudentHandleDisplay" class="font-mono font-bold text-slate-800 ml-1">@username</span>
+            </div>
           </div>
           <span id="editStudentCampusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">School</span>
         </div>
@@ -1324,6 +1327,41 @@
     </div>
   </div>
 
+  <!-- MODAL: BATCH PRINTABLE LOGIN SLIPS (DEPED WALLET/DESK SLIPS) -->
+  <div id="modalBatchPrintSlips" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900 font-display">Printable Student Login Slips</h3>
+            <p id="batchPrintSlipsMeta" class="text-[11px] text-slate-500">Cuttable classroom password distribution slips for learners</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="executeBatchSlipsPrint()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            <span>Print Now (Ctrl+P)</span>
+          </button>
+          <button onclick="closeBatchPrintSlipsModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold p-1">&times;</button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto space-y-3 pr-1" id="batchPrintSlipsContainer">
+        <!-- Rendered Cuttable Slips -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 shrink-0">
+        <span>Format: 6 to 8 slips per A4/Letter page with dashed cut lines.</span>
+        <button onclick="closeBatchPrintSlipsModal()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">
+          Close Preview
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: ONE-TIME TEMPORARY PASSKEY DISPLAY -->
   <div id="modalResetPasskey" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
@@ -1333,19 +1371,19 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-slate-900">Temporary Passkey Generated</h3>
-            <p class="text-[11px] text-slate-500">One-time student activation passkey</p>
+            <h3 class="font-bold text-sm text-slate-900">Temporary Password Generated</h3>
+            <p class="text-[11px] text-slate-500">One-time student temporary login password</p>
           </div>
         </div>
         <button onclick="closeResetPasskeyModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
       </div>
       <div class="space-y-3">
         <p class="text-xs text-slate-600 leading-relaxed">
-          A temporary single-use passkey has been generated for learner <strong id="resetTargetUsername" class="text-indigo-600">@username</strong>.
+          A temporary single-use password has been generated for learner <strong id="resetTargetUsername" class="text-indigo-600">@username</strong>.
         </p>
         <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-between">
           <div>
-            <div class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Temporary Passkey</div>
+            <div class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Temporary Password</div>
             <div id="resetGeneratedPasskey" class="text-xl font-mono font-black text-indigo-900 tracking-wider">gab00000</div>
           </div>
           <button onclick="copyGeneratedPasskey()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
@@ -1355,7 +1393,7 @@
         </div>
         <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 leading-relaxed flex items-start gap-2">
           <svg class="w-4 h-4 text-amber-700 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Share this passkey with the learner in person. Upon logging into the GabAI mobile app, they will be required to create their own private password. This passkey is only displayed once and will remain encrypted in the database.</span>
+          <span>Share this temporary password with the student in person. Upon logging into the GabAI mobile app, they will be required to create their own private password. This temporary password is only displayed once and will remain encrypted in the database.</span>
         </div>
       </div>
       <div class="pt-3 border-t border-slate-100 flex justify-end">
@@ -1422,9 +1460,12 @@
   <div id="modalQuizHistory" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div>
-          <h3 id="historyStudentName" class="font-bold text-base text-slate-900">Learner Quiz Performance</h3>
-          <p id="historyStudentMeta" class="text-xs text-slate-500">Section &bull; Level &bull; XP</p>
+        <div class="flex items-center gap-3">
+          <div id="historyStudentAvatarContainer"></div>
+          <div>
+            <h3 id="historyStudentName" class="font-bold text-base text-slate-900">Learner Quiz Performance</h3>
+            <p id="historyStudentMeta" class="text-xs text-slate-500">Section &bull; Level &bull; XP</p>
+          </div>
         </div>
         <button onclick="closeQuizHistoryModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
@@ -1569,7 +1610,7 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Target Cohort</label>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Target Grade Level</label>
               <select id="aiTimedGrade" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20">
                 <option value="Grades 7-10">All Junior High (Grades 7-10)</option>
                 <option value="Grade 7">Grade 7 Only</option>
@@ -2050,7 +2091,7 @@
                       <polyline points="1 4 1 10 7 10"></polyline>
                       <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                     </svg>
-                    <span>Recycle Vault</span>
+                    <span>Recycle Bin</span>
                   </div>
                   <span id="badgeRecycleVaultCount" class="hidden min-w-[18px] px-1.5 py-0.5 rounded-full text-[10px] font-bold text-center bg-amber-100 text-amber-800 border border-amber-200">0</span>
                 </button>
@@ -2080,7 +2121,7 @@
                 </button>
                 <button onclick="switchTab('tab-batch-credentials')" id="btn-tab-batch-credentials" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
                   <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
-                  <span>Student Credentials</span>
+                  <span>Student Accounts &amp; Passwords</span>
                 </button>
               </nav>
             </div>
@@ -2090,19 +2131,19 @@
               <nav class="space-y-1 text-xs font-medium">
                 <button onclick="switchTab('tab-timed-assessments')" id="btn-tab-timed-assessments" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
                   <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  <span>Division Timed Assessments</span>
+                  <span>Standardized Reading Tests</span>
                 </button>
                 <button onclick="switchTab('tab-library-management')" id="btn-tab-library-management" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
                   <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                  <span>Learning Library</span>
+                  <span>Reading Materials &amp; Modules</span>
                 </button>
                 <button onclick="switchTab('tab-weekly-assessments')" id="btn-tab-weekly-assessments" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
                   <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
-                  <span>Weekly Assessments</span>
+                  <span>Weekly Classroom Quizzes</span>
                 </button>
                 <button onclick="switchTab('tab-quiz-attempts')" id="btn-tab-quiz-attempts" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-700 hover:bg-purple-50 hover:text-[#5341CD] transition-colors font-semibold">
                   <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-                  <span>Quiz History &amp; Attempts</span>
+                  <span>Quiz Attempt Logs</span>
                 </button>
               </nav>
             </div>
@@ -2181,19 +2222,19 @@
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#5341CD] font-display">SDO Valenzuela Institutional Governance</span>
+                  <span id="dashboardScopeTag" class="text-[10px] font-extrabold uppercase tracking-widest text-[#5341CD] font-display">SDO Valenzuela Institutional Governance</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">DepEd Junior High</span>
                 </div>
-                <h2 class="text-base sm:text-lg font-black text-slate-900 font-display">Division Executive Literacy &amp; Telemetry Command Center</h2>
+                <h2 id="dashboardMainTitle" class="text-base sm:text-lg font-black text-slate-900 font-display">Division Reading &amp; Literacy Command Center</h2>
               </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
               <!-- View Switcher -->
               <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold text-slate-600">
-                <button type="button" id="btnViewModeAll" onclick="setExecutiveViewMode('all')" class="px-3 py-1 rounded-lg bg-white text-[#5341CD] shadow-xs transition">All Analytics</button>
-                <button type="button" id="btnViewModeCharts" onclick="setExecutiveViewMode('charts')" class="px-3 py-1 rounded-lg hover:text-slate-900 transition">Visual Charts Hub</button>
-                <button type="button" id="btnViewModeData" onclick="setExecutiveViewMode('data')" class="px-3 py-1 rounded-lg hover:text-slate-900 transition">Tabular Records</button>
+                <button type="button" id="btnViewModeAll" onclick="setExecutiveViewMode('all')" class="px-3 py-1 rounded-lg bg-white text-[#5341CD] shadow-xs transition">All Overview</button>
+                <button type="button" id="btnViewModeCharts" onclick="setExecutiveViewMode('charts')" class="px-3 py-1 rounded-lg hover:text-slate-900 transition">Visual Charts</button>
+                <button type="button" id="btnViewModeData" onclick="setExecutiveViewMode('data')" class="px-3 py-1 rounded-lg hover:text-slate-900 transition">Data Tables</button>
               </div>
 
               <!-- 1-Click Executive PDF Briefing Export -->
@@ -2217,24 +2258,29 @@
             </div>
             <div id="aiBriefingPoints" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
               <div class="p-3 bg-white/90 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Leading Grade Cohort</div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Leading Grade Level</div>
                 <div class="font-bold text-slate-900" id="briefLeadingGrade">Calculating cohort benchmarks...</div>
                 <p class="text-[11px] text-slate-500" id="briefLeadingGradeDetail">Tracking highest literacy MPS</p>
               </div>
               <div class="p-3 bg-white/90 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
-                <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Literacy Velocity</div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Daily Reading Habit</div>
                 <div class="font-bold text-slate-900" id="briefVelocity">Aggregating scholar activity...</div>
                 <p class="text-[11px] text-slate-500" id="briefVelocityDetail">Daily streak &amp; reading frequency</p>
               </div>
               <div class="p-3 bg-white/90 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600">Priority Intervention</div>
-                <div class="font-bold text-slate-900" id="briefPriorityIntervention">Auditing Phil-IRI frustration tiers...</div>
+                <div class="font-bold text-slate-900" id="briefPriorityIntervention">Identifying learners needing reading support...</div>
                 <p class="text-[11px] text-slate-500" id="briefPriorityDetail">Schools under 60% MPS threshold</p>
               </div>
-              <div class="p-3 bg-white/90 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
+              <div id="briefCardDistrictParity" class="p-3 bg-white/90 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-purple-600">District Parity</div>
                 <div class="font-bold text-slate-900" id="briefDistrictParity">Evaluating District 1 vs 2...</div>
                 <p class="text-[11px] text-slate-500" id="briefDistrictDetail">Comparative congressional balance</p>
+              </div>
+              <div id="briefCardSchoolSection" class="hidden p-3 bg-white/90 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-purple-600">Leading Section</div>
+                <div class="font-bold text-slate-900" id="briefSchoolSection">Calculating section standing...</div>
+                <p class="text-[11px] text-slate-500" id="briefSchoolSectionDetail">Highest reading accuracy in campus</p>
               </div>
             </div>
           </div>
@@ -2243,7 +2289,7 @@
           <div id="schoolAdminKpiRow" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="kpi-card hover-lift bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer" onclick="switchTab('tab-faculty-verification')">
               <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                <span>Accredited Faculty</span>
+                <span>Verified Teachers</span>
                 <span class="p-2 rounded-lg bg-emerald-50 text-emerald-600">
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </span>
@@ -2307,7 +2353,7 @@
                 </span>
               </div>
               <div class="mt-2 text-2xl sm:text-3xl font-black text-slate-900 font-display" id="saKpiTotalLearners">0</div>
-              <p class="text-[11px] text-slate-500 font-medium mt-1">Scholars across all junior high schools</p>
+              <p class="text-[11px] text-slate-500 font-medium mt-1">Students across all junior high schools</p>
             </div>
 
             <div class="kpi-card hover-lift bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center justify-between" onclick="switchTab('tab-learner-performance')">
@@ -2413,9 +2459,9 @@
               <div>
                 <h3 class="font-bold text-sm text-slate-900 font-display flex items-center gap-2">
                   <svg class="w-4 h-4 text-[#5341CD]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                  <span>Multi-Dimensional Visual Telemetry Suite</span>
+                  <span>Visual Reading Analytics Hub</span>
                 </h3>
-                <p class="text-xs text-slate-500">Interactive graphical analytics across Phil-IRI mastery tiers, grade-level cohorts, reading competencies, submission velocity, and district benchmarks.</p>
+                <p class="text-xs text-slate-500">Interactive graphical analytics across Phil-IRI mastery tiers, grade-level cohorts, reading competencies, and assessment submission trends.</p>
               </div>
             </div>
 
@@ -2528,7 +2574,7 @@
                   <div>
                     <h4 class="font-extrabold text-xs text-slate-800 font-display flex items-center gap-1.5 group-hover:text-[#5341CD] transition-colors">
                       <span class="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span>
-                      <span>Weekly Assessment Velocity &amp; Quizzing Trajectory</span>
+                      <span>Weekly Assessment Submissions Trend</span>
                     </h4>
                     <p class="text-[11px] text-slate-500">Student response cadence, completion momentum, and diagnostic cycles</p>
                   </div>
@@ -2547,8 +2593,8 @@
               </div>
             </div>
 
-            <!-- ROW 3: DISTRICT PARITY BENCHMARK & TOP SCHOOLS RANKED HORIZONTAL BAR -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- ROW 3: DISTRICT PARITY BENCHMARK & TOP SCHOOLS RANKED HORIZONTAL BAR (SUPER ADMIN ONLY) -->
+            <div id="superAdminChartsRow" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <!-- Chart 5: Congressional District Benchmark (District 1 vs District 2 Polar / Comparative Bar) -->
               <div class="executive-chart-card space-y-3 cursor-pointer group hover:border-[#6C5CE7]" onclick="openChartExplanationModal('district_parity')">
                 <div class="flex items-center justify-between">
@@ -2678,7 +2724,7 @@
               <table class="w-full text-left text-xs min-w-[700px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
                   <tr>
-                    <th class="p-3">Grade Cohort</th>
+                    <th class="p-3">Grade Level</th>
                     <th class="p-3">Enrolled Learners</th>
                     <th class="p-3">Class Sections</th>
                     <th class="p-3">Average Score</th>
@@ -2777,7 +2823,7 @@
                       <th class="p-3 cursor-pointer hover:bg-slate-100 transition" onclick="toggleSchoolRankingSort('submissions')" title="Click to sort by submissions count">Submissions ⬍</th>
                       <th class="p-3 cursor-pointer hover:bg-slate-100 transition" onclick="toggleSchoolRankingSort('mps')" title="Click to sort by Literacy MPS">Literacy MPS ⬍</th>
                       <th class="p-3">Mastery Spread</th>
-                      <th class="p-3 text-right">Action / Telemetry</th>
+                      <th class="p-3 text-right">Action / View Details</th>
                     </tr>
                   </thead>
                   <tbody id="schoolRankingTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
@@ -2884,7 +2930,7 @@
           </div> <!-- Close executiveDataTablesSection -->
         </div>
 
-        <!-- VIEW 2: FACULTY ACCREDITATION QUEUE & CRUD -->
+        <!-- VIEW 2: FACULTY APPROVALS QUEUE & MANAGEMENT -->
         <div id="tab-faculty-verification" class="tab-content hidden space-y-4">
           <!-- Role Context Notice Banner -->
           <div id="facultyRoleBanner" class="p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-3 bg-indigo-50/80 border-indigo-200 text-indigo-950">
@@ -2955,7 +3001,7 @@
                     <th class="p-3.5">Assigned Institution</th>
                     <th class="p-3.5">Registered Date</th>
                     <th class="p-3.5">Accreditation Status</th>
-                    <th class="p-3.5 text-right">Actions (CRUD)</th>
+                    <th class="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="teachersTableBody" class="divide-y divide-slate-100">
@@ -3020,10 +3066,10 @@
                     <th class="p-3.5">Section Name</th>
                     <th class="p-3.5">Grade Level</th>
                     <th class="p-3.5">School</th>
-                    <th class="p-3.5">Master Join Code</th>
+                    <th class="p-3.5">Section Join Code</th>
                     <th class="p-3.5">Initiation Items</th>
                     <th class="p-3.5">Enrolled Learners</th>
-                    <th class="p-3.5 text-right">Roster &amp; Join Code</th>
+                    <th class="p-3.5 text-right">Roster &amp; Code</th>
                   </tr>
                 </thead>
                 <tbody id="sectionsTableBody" class="divide-y divide-slate-100">
@@ -3038,24 +3084,73 @@
 
         <!-- VIEW 4: LEARNER PERFORMANCE & QUIZ HISTORY -->
         <div id="tab-learner-performance" class="tab-content hidden space-y-4">
-          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <!-- Academic Performance Header -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 class="font-bold text-sm text-slate-800">Learner Performance &amp; Reading Analytics</h3>
-              <p class="text-xs text-slate-500">Live score averages, quiz attempts, and reading streak data matching mobile app activity.</p>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 font-display">Academic Literacy Radar</span>
+                <span id="academicPerformanceScopeBadge" class="text-xs text-slate-400 font-medium">Phil-IRI Standards &amp; Comprehension Progress</span>
+              </div>
+              <h3 class="font-bold text-base text-slate-900 mt-1 font-display">Learner Academic Performance</h3>
+              <p class="text-xs text-slate-500">Track DepEd Phil-IRI reading tiers, Mean Percentage Scores (MPS), reading speed, and quiz history.</p>
             </div>
             <div class="flex items-center gap-2">
               <span class="hidden" id="kpiAtRiskLearners">0</span>
               <button onclick="exportInterventionsPDF()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all" title="Print or Save PDF of Reading Support List">
                 <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-                <span>Print PDF (Support)</span>
+                <span>Support Radar (PDF)</span>
               </button>
               <button onclick="exportLearnersReportPDF()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all" title="Print or Save PDF Learner Report">
                 <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-                <span>Print / Save PDF</span>
+                <span>Print Report (PDF)</span>
               </button>
               <button onclick="exportAllLearnersCSV()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all" title="Export CSV">
                 <span>CSV</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Academic Performance Bento KPI Summary Bar -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
+                <span>Evaluated</span>
+                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+              </div>
+              <div id="perfKpiTotalEvaluated" class="text-xl font-black text-slate-900 font-display">0</div>
+              <div class="text-[10px] text-slate-400">Total learners evaluated</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
+                <span>Independent</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              </div>
+              <div id="perfKpiIndependent" class="text-xl font-black text-emerald-600 font-display">0</div>
+              <div class="text-[10px] text-emerald-700/80">Tier 1 &bull; 80%+ MPS</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
+                <span>Instructional</span>
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              </div>
+              <div id="perfKpiInstructional" class="text-xl font-black text-amber-600 font-display">0</div>
+              <div class="text-[10px] text-amber-700/80">Tier 2 &bull; 60%-79% MPS</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
+                <span>Priority Support</span>
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+              </div>
+              <div id="perfKpiFrustration" class="text-xl font-black text-rose-600 font-display">0</div>
+              <div class="text-[10px] text-rose-700/80">Tier 3 &bull; &lt;60% MPS</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1 col-span-2 sm:col-span-1">
+              <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
+                <span>Daily Streak Habit</span>
+                <span class="text-amber-500 text-xs">🔥</span>
+              </div>
+              <div id="perfKpiStreak" class="text-xl font-black text-amber-600 font-display">0d</div>
+              <div class="text-[10px] text-slate-400">Average habit velocity</div>
             </div>
           </div>
 
@@ -3065,7 +3160,7 @@
               <!-- Dedicated Search Input -->
               <div class="relative w-full sm:w-60">
                 <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="inputLearnerSearch" oninput="handleLearnerSearch(this.value)" placeholder="Search learner name, LRN, section..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all">
+                <input type="text" id="inputLearnerSearch" oninput="handleLearnerSearch(this.value)" placeholder="Search learner name, section, LRN..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all">
                 <button id="btnClearLearnerSearch" onclick="clearLearnerSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
               </div>
 
@@ -3078,23 +3173,25 @@
                 <option value="Grade 10">Grade 10</option>
               </select>
 
+              <!-- Dedicated Phil-IRI Reading Tier Filter -->
+              <select id="selectLearnerTierFilter" onchange="handleLearnerTierFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by Phil-IRI reading tier">
+                <option value="ALL">All Reading Tiers</option>
+                <option value="independent">Independent Readers (80%+ MPS)</option>
+                <option value="instructional">Instructional Readers (60%-79% MPS)</option>
+                <option value="frustration">Priority Support / Frustration (&lt;60% MPS)</option>
+                <option value="unassessed">Unassessed / Initial Eval Pending</option>
+              </select>
+
               <!-- Dedicated Gender Disaggregation Filter -->
-              <select id="selectLearnerGenderFilter" onchange="handleLearnerGenderFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by DepEd learner gender">
+              <select id="selectLearnerGenderFilter" onchange="handleLearnerGenderFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by DepEd gender classification">
                 <option value="ALL">All Genders</option>
                 <option value="male">Male Learners</option>
                 <option value="female">Female Learners</option>
               </select>
 
-              <!-- Dedicated Onboarding Status Filter -->
-              <select id="selectLearnerStatusFilter" onchange="handleLearnerStatusFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by onboarding status">
-                <option value="ALL">All Statuses</option>
-                <option value="APPROVED">Active Onboarded</option>
-                <option value="PENDING">Pending Onboarding</option>
-              </select>
-
               <!-- Super Admin School Filter -->
               <div id="learnerSchoolFilterContainer" class="flex items-center gap-1.5">
-                <select id="learnerSchoolFilter" onchange="handleLearnerSchoolFilterChange(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none max-w-[200px] truncate" title="Filter learners by Junior High School">
+                <select id="learnerSchoolFilter" onchange="handleLearnerSchoolFilterChange(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none max-w-[200px] truncate" title="Filter by participating school">
                   <option value="ALL">All Junior High Schools</option>
                 </select>
               </div>
@@ -3105,18 +3202,18 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs min-w-[700px]">
+              <table class="w-full text-left text-xs min-w-[750px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
                   <tr>
-                    <th class="p-3.5">Learner Name</th>
-                    <th class="p-3.5">School ID &bull; Section</th>
-                    <th class="p-3.5">Account Type</th>
-                    <th class="p-3.5">Gamification (Level &amp; XP)</th>
+                    <th class="p-3.5">Learner &amp; Section</th>
+                    <th class="p-3.5">Phil-IRI Tier</th>
+                    <th class="p-3.5">Comprehension MPS</th>
+                    <th class="p-3.5">Reading Speed</th>
                     <th class="p-3.5">Reading Streak</th>
-                    <th class="p-3.5">Quests Done</th>
-                    <th class="p-3.5 text-right">Inspect Quiz History</th>
+                    <th class="p-3.5">Gamification (Lvl &amp; XP)</th>
+                    <th class="p-3.5 text-right">Comprehension Telemetry</th>
                   </tr>
                 </thead>
                 <tbody id="performanceTableBody" class="divide-y divide-slate-100">
@@ -3131,26 +3228,94 @@
 
         <!-- VIEW 5: BATCH CREDENTIAL VAULT (pending_students) -->
         <div id="tab-batch-credentials" class="tab-content hidden space-y-4">
-          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <!-- Student Accounts Header -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 class="font-bold text-sm text-slate-800">Learner Access Credentials</h3>
-              <p class="text-xs text-slate-500">Learner credentials and onboarding registry. Issue temporary passkeys for password recovery and inspect onboarding status.</p>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200 font-display">Identity &amp; Credentials Registry</span>
+                <span id="studentAccountsScopeBadge" class="text-xs text-slate-400 font-medium">Student Onboarding &amp; Password Management</span>
+              </div>
+              <h3 class="font-bold text-base text-slate-900 mt-1 font-display">Student Accounts &amp; Passwords</h3>
+              <p class="text-xs text-slate-500">Manage student authentication credentials, print classroom login slips, review avatars, and assist with password resets.</p>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="exportCredentialVaultCSV()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-lg shadow-xs flex items-center gap-1.5 transition-all">
+              <button onclick="openBatchPrintSlipsModal()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all" title="Print cuttable login slips for learners">
+                <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                <span>Print Login Slips (PDF)</span>
+              </button>
+              <button onclick="exportCredentialVaultCSV()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all" title="Export CSV table">
                 <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Export Slips (CSV)</span>
+                <span>CSV</span>
               </button>
             </div>
           </div>
 
-          <!-- Batch Credentials Dedicated Controls -->
-          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <!-- Student Accounts Bento KPI Summary Cards -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                <span>Total Accounts</span>
+                <span class="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 font-bold">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </span>
+              </div>
+              <div id="credKpiTotal" class="text-2xl font-black text-slate-900 font-display">0</div>
+              <div class="text-[10px] text-slate-400 font-medium">Enrolled learners in directory</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                <span>Claimed in App</span>
+                <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 font-bold">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                </span>
+              </div>
+              <div id="credKpiClaimed" class="text-2xl font-black text-emerald-600 font-display">0</div>
+              <div class="text-[10px] text-emerald-700/80 font-medium">Active logged-in accounts</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                <span>Unclaimed Slips</span>
+                <span class="p-1.5 rounded-lg bg-amber-50 text-amber-600 font-bold">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1-1l-2 2m-1-1l-2 2m-1-1l-2 2M3 13a4 4 0 0 0 4 4h4l10-10-4-4L7 7a4 4 0 0 0-4 4v2z"/></svg>
+                </span>
+              </div>
+              <div id="credKpiUnclaimed" class="text-2xl font-black text-amber-600 font-display">0</div>
+              <div class="text-[10px] text-amber-700/80 font-medium">Require printed password slip</div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                <span>Photo Approvals</span>
+                <span class="p-1.5 rounded-lg bg-purple-50 text-purple-600 font-bold">📷</span>
+              </div>
+              <div id="credKpiPendingPhotos" class="text-2xl font-black text-purple-600 font-display">0</div>
+              <div class="text-[10px] text-purple-700/80 font-medium">Avatar submissions in queue</div>
+            </div>
+          </div>
+
+          <!-- CENTRALIZED STUDENT PHOTO MODERATION QUEUE -->
+          <div id="credentialPhotoQueueBanner" class="hidden bg-gradient-to-r from-purple-50 via-indigo-50/60 to-white p-4 rounded-2xl border border-purple-200 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📷</div>
+                <div>
+                  <h4 class="font-bold text-xs text-purple-950">Student Profile Photo Submissions</h4>
+                  <p class="text-[11px] text-purple-700/80">Learners have submitted profile photos in the mobile application awaiting administrative safety review.</p>
+                </div>
+              </div>
+              <span id="credentialPhotoPendingCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-200 text-purple-900 font-display">0 Pending</span>
+            </div>
+            <div id="credentialPhotoQueueGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-1">
+              <!-- Dynamic Moderation Cards -->
+            </div>
+          </div>
+
+          <!-- Batch Credentials Dedicated Controls Toolbar -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
             <div class="flex flex-wrap items-center gap-2.5 flex-1">
               <!-- Dedicated Search Input -->
-              <div class="relative w-full sm:w-64">
+              <div class="relative w-full sm:w-60">
                 <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="inputCredentialSearch" oninput="handleCredentialSearch(this.value)" placeholder="Search student by name, LRN, section..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all">
+                <input type="text" id="inputCredentialSearch" oninput="handleCredentialSearch(this.value)" placeholder="Search name, username, LRN, section..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all">
                 <button id="btnClearCredentialSearch" onclick="clearCredentialSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
               </div>
 
@@ -3163,10 +3328,15 @@
                 <option value="Grade 10">Grade 10</option>
               </select>
 
+              <!-- Dynamic Section Filter -->
+              <select id="selectCredentialSectionFilter" onchange="handleCredentialSectionFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none max-w-[170px] truncate" title="Filter credentials by class section">
+                <option value="ALL">All Class Sections</option>
+              </select>
+
               <!-- Status Filter -->
               <select id="selectCredentialStatusFilter" onchange="handleCredentialStatusFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by onboarding state">
-                <option value="ALL">All Passkey States</option>
-                <option value="PENDING">Unclaimed / Pending Onboarding</option>
+                <option value="ALL">All Account States</option>
+                <option value="PENDING">Unclaimed / Pending Slip</option>
                 <option value="APPROVED">Claimed &amp; Active</option>
               </select>
 
@@ -3177,20 +3347,24 @@
                 </select>
               </div>
             </div>
+
+            <div id="credentialCountSummaryBadge" class="text-xs font-semibold text-slate-500">
+              Showing student accounts
+            </div>
           </div>
 
           <div id="tourTargetBatchVault" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs min-w-[700px]">
+              <table class="w-full text-left text-xs min-w-[750px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
                   <tr>
-                    <th class="p-3.5">Learner Full Name</th>
+                    <th class="p-3.5">Learner &amp; LRN</th>
                     <th class="p-3.5">System Username</th>
-                    <th class="p-3.5">Passkey Status</th>
-                    <th class="p-3.5">Class Section</th>
+                    <th class="p-3.5">Password Status</th>
+                    <th class="p-3.5">Grade &amp; Section</th>
                     <th class="p-3.5">School ID</th>
-                    <th class="p-3.5">Onboarding State</th>
-                    <th class="p-3.5 text-right">Passkey Management</th>
+                    <th class="p-3.5">Account Status</th>
+                    <th class="p-3.5 text-right">Account Actions</th>
                   </tr>
                 </thead>
                 <tbody id="pendingStudentsTableBody" class="divide-y divide-slate-100">
@@ -3249,7 +3423,7 @@
                   <tr>
                     <th class="p-3.5">DepEd ID</th>
                     <th class="p-3.5">Secondary School Name</th>
-                    <th class="p-3.5">Accredited Faculty &amp; Classes</th>
+                    <th class="p-3.5">Verified Teachers &amp; Classes</th>
                     <th class="p-3.5">Enrolled Learners</th>
                     <th class="p-3.5">Reading Mastery</th>
                     <th class="p-3.5">School Admin (SDO Invite)</th>
@@ -3271,7 +3445,7 @@
                   <svg class="w-4 h-4 text-indigo-600 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
                   <span>Subject Folders</span>
                 </h3>
-                <p class="text-xs text-slate-500">Subjects created by teachers in TeacherLibraryActivity.kt for organizing reading modules.</p>
+                <p class="text-xs text-slate-500">Subjects created by teachers for organizing classroom reading modules.</p>
               </div>
               
             </div>
@@ -3284,14 +3458,14 @@
               <div>
                 <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
                   <svg class="w-4 h-4 text-indigo-600 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  <span>Reading Materials &amp; Attached Quizzes</span>
+                  <span>Reading Materials &amp; Attached Quizzes (Teacher Modules)</span>
                 </h3>
                 <p class="text-xs text-slate-500">Reads both <code class="text-indigo-600 font-mono">pdfUrl</code> and <code class="text-indigo-600 font-mono">quiz_pool_json</code> from the mobile app.</p>
               </div>
               <div class="flex items-center gap-2">
                 <span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-slate-200">
                   <svg class="w-3.5 h-3.5 text-slate-500 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  <span>Managed by Teachers (Mobile App)</span>
+                  <span>Teacher Uploads (Read-Only Inspection)</span>
                 </span>
               </div>
             </div>
@@ -3423,7 +3597,7 @@
               </button>
               <button onclick="exportDivisionTimedTestsCSV()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
                 <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Export Telemetry (CSV)</span>
+                <span>Export Results (CSV)</span>
               </button>
               <span id="timedAssessmentsCountBadge" class="text-xs font-semibold text-slate-500">0 Assessments</span>
             </div>
@@ -3436,7 +3610,7 @@
                 <thead>
                   <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-display">
                     <th class="p-3.5">Standardized Assessment &amp; Focus</th>
-                    <th class="p-3.5">Target Scope &amp; Cohort</th>
+                    <th class="p-3.5">Target Scope &amp; Grade Level</th>
                     <th class="p-3.5">Countdown Timer</th>
                     <th class="p-3.5">Reading Passage</th>
                     <th class="p-3.5">Division Submissions &amp; MPS</th>
@@ -3460,7 +3634,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div class="flex items-center gap-2">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">SDO Competency Telemetry</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">SDO Competency Performance</span>
                   <span class="text-xs text-slate-400 font-medium">Ranked by Least Mastered First</span>
                 </div>
                 <h3 class="font-bold text-sm text-slate-900 font-display mt-1 flex items-center gap-2">
@@ -3492,7 +3666,7 @@
                 </thead>
                 <tbody id="competenciesTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
                   <tr>
-                    <td colspan="6" class="p-6 text-center text-slate-400">Computing competency telemetry across learner responses...</td>
+                    <td colspan="6" class="p-6 text-center text-slate-400">Computing competency results across learner responses...</td>
                   </tr>
                 </tbody>
               </table>
@@ -3674,7 +3848,7 @@
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </div>
               <div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Quizzing Scholars</div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Students Quizzing</div>
                 <div id="statActiveQuizScholars" class="text-xl font-black text-blue-700">0</div>
               </div>
             </div>
@@ -3690,7 +3864,7 @@
                 </h3>
                 <p class="text-xs text-slate-500">Filter attempts by curricular format: Library Comprehension, Vocabulary Recall, Weekly Classroom Diagnostics, or Phil-IRI Pre-Tests.</p>
               </div>
-              <button onclick="refreshQuizAttemptsData()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition-all" title="Reload attempts across all scholars">
+              <button onclick="refreshQuizAttemptsData()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition-all" title="Reload attempts across all students">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
                 <span>Refresh Attempts</span>
               </button>
@@ -3717,7 +3891,7 @@
                 <!-- Search input -->
                 <div class="relative w-48 sm:w-60">
                   <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <input type="text" id="inputQuizSearch" oninput="handleQuizSearchChange(this.value); document.getElementById('btnClearQuizSearch').classList.toggle('hidden', !this.value);" placeholder="Search scholar, quiz, class..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 focus:border-[#5341CD]" />
+                  <input type="text" id="inputQuizSearch" oninput="handleQuizSearchChange(this.value); document.getElementById('btnClearQuizSearch').classList.toggle('hidden', !this.value);" placeholder="Search student, quiz, class..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 focus:border-[#5341CD]" />
                   <button id="btnClearQuizSearch" onclick="clearQuizSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
                 </div>
 
@@ -3804,7 +3978,7 @@
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
               <div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Discreet Inquiries</div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Direct Inquiries</div>
                 <div id="statTotalReplies" class="text-xl font-black text-blue-600">0</div>
               </div>
             </div>
@@ -3866,7 +4040,7 @@
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
               </div>
               <div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total in Vault</div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total in Recycle Bin</div>
                 <div id="statVaultTotal" class="text-xl font-black text-slate-800">0</div>
               </div>
             </div>
@@ -3915,12 +4089,12 @@
               <!-- Status Toggle: Active (Recoverable) vs Restored -->
               <div class="flex items-center gap-2">
                 <div class="inline-flex p-1 bg-slate-100 rounded-xl text-xs font-semibold">
-                  <button id="btnVaultStatusArchived" onclick="setVaultStatusFilter('archived')" class="px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-xs transition-all">Active Vault (Recoverable)</button>
+                  <button id="btnVaultStatusArchived" onclick="setVaultStatusFilter('archived')" class="px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-xs transition-all">Active Bin (Recoverable)</button>
                   <button id="btnVaultStatusRestored" onclick="setVaultStatusFilter('restored')" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition-all">Restored History</button>
                   <button id="btnVaultStatusAll" onclick="setVaultStatusFilter('ALL')" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition-all">All</button>
                 </div>
 
-                <button onclick="renderRecycleVault()" title="Refresh Vault" class="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600 transition-colors">
+                <button onclick="renderRecycleVault()" title="Refresh Recycle Bin" class="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600 transition-colors">
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
                 </button>
               </div>
@@ -3957,7 +4131,7 @@
                 <tbody id="recycleVaultTableBody" class="divide-y divide-slate-100 font-medium">
                   <tr>
                     <td colspan="6" class="px-6 py-12 text-center text-slate-400">
-                      Loading Recycle Vault records...
+                      Loading Recycle Bin records...
                     </td>
                   </tr>
                 </tbody>
@@ -3968,7 +4142,7 @@
               <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
                 <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
               </div>
-              <h3 class="text-sm font-bold text-slate-700">Recycle Vault is Clean</h3>
+              <h3 class="text-sm font-bold text-slate-700">Recycle Bin is Empty</h3>
               <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">No deleted records found matching your current filter. Any items deleted by educators will be safely stored here for 30 days.</p>
             </div>
           </div>
@@ -4014,7 +4188,7 @@
                   </div>
                   <div>
                     <h4 class="text-sm font-bold text-slate-800 font-display">Google Gemini API Key</h4>
-                    <p class="text-[11px] text-slate-500">Universal model endpoint credential for SDO Division assessments</p>
+                    <p class="text-[11px] text-slate-500">Google Gemini API key powering SDO Division automated reading assessments</p>
                   </div>
                 </div>
                 <div id="geminiConfigStatusPill">
@@ -4395,7 +4569,7 @@
       const emptyState = document.getElementById('vaultEmptyState');
       if (!tbody) return;
 
-      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">Loading Recycle Vault records from Firestore...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">Loading Recycle Bin records from Firestore...</td></tr>`;
       if (emptyState) emptyState.classList.add('hidden');
 
       try {
@@ -4483,7 +4657,7 @@
         filterRecycleVault();
       } catch (err) {
         console.error('Error loading recycle vault:', err);
-        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-rose-500 font-semibold">Failed to load Recycle Vault: ${escapeHtml(err.message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-rose-500 font-semibold">Failed to load Recycle Bin: ${escapeHtml(err.message)}</td></tr>`;
       }
     };
 
@@ -4657,7 +4831,7 @@
       }
       const confirmed = await showConfirmModal({
         title: `Force Delete Record?`,
-        message: `Are you sure you want to permanently delete "${displayName || 'this record'}" from the Recycle Vault? This record will be permanently purged from the database and cannot be recovered.`,
+        message: `Are you sure you want to permanently delete "${displayName || 'this record'}" from the Recycle Bin? This record will be permanently purged from the database and cannot be recovered.`,
         badgeIcon: "🗑️",
         badgeBg: "bg-rose-50 text-rose-600 border-rose-200",
         confirmText: "Force Delete Permanently",
@@ -4941,12 +5115,12 @@
       if (renderDashboardRaf) cancelAnimationFrame(renderDashboardRaf);
       renderDashboardRaf = requestAnimationFrame(() => {
         renderDashboardRaf = null;
-        updateDashboardMetrics();
-        renderTeachersTable();
-        renderSectionsTable();
-        renderPendingStudentsTable();
-        renderPerformanceTable();
-        renderSchoolsMatrix();
+        try { updateDashboardMetrics(); } catch (e) { console.error("Error updating dashboard metrics:", e); }
+        try { renderTeachersTable(); } catch (e) { console.error("Error rendering teachers table:", e); }
+        try { renderSectionsTable(); } catch (e) { console.error("Error rendering sections table:", e); }
+        try { renderPendingStudentsTable(); } catch (e) { console.error("Error rendering pending students table:", e); }
+        try { renderPerformanceTable(); } catch (e) { console.error("Error rendering performance table:", e); }
+        try { renderSchoolsMatrix(); } catch (e) { console.error("Error rendering schools matrix:", e); }
       });
     }
 
@@ -5282,7 +5456,7 @@
           <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center gap-2.5 mb-3 shadow-xs">
             <span class="shrink-0 text-amber-700">${uiIcon('lock', 'w-4 h-4')}</span>
             <div>
-              <strong class="font-bold">Pedagogical Protection:</strong>
+              <strong class="font-bold">Instructional Safeguard:</strong>
               <span> This assessment was crafted by faculty <em>(${activeInspectorTeacherName})</em>. School &amp; Division Admins have read-only inspection access and cannot alter classroom questions.</span>
             </div>
           </div>
@@ -6039,6 +6213,18 @@
         document.getElementById('superAdminAssessmentPulse')?.classList.add('hidden');
         document.getElementById('divisionSpotlightSection')?.classList.add('hidden');
 
+        // Dynamic Header for School Admin
+        const mainTitle = document.getElementById('dashboardMainTitle');
+        const scopeTag = document.getElementById('dashboardScopeTag');
+        if (mainTitle) mainTitle.textContent = `School Reading Performance Dashboard — ${schoolName}`;
+        if (scopeTag) scopeTag.textContent = `School Governance • ${schoolName}`;
+
+        // Role-based Chart & Briefing Visibility: Hide Division-level macro bloat from School Admin
+        document.getElementById('superAdminChartsRow')?.classList.add('hidden');
+        document.getElementById('executivePodiumSection')?.classList.add('hidden');
+        document.getElementById('briefCardDistrictParity')?.classList.add('hidden');
+        document.getElementById('briefCardSchoolSection')?.classList.remove('hidden');
+
         // Sidebar Navigation Visibility
         if (navFaculty) navFaculty.style.display = 'block';
         if (btnBatch) btnBatch.style.display = 'flex';
@@ -6073,7 +6259,7 @@
         if (roleBanner) roleBanner.className = "p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-3 bg-purple-50/80 border-purple-200 text-purple-950";
         if (roleBannerIcon) roleBannerIcon.innerHTML = uiIcon('building', 'w-5 h-5 text-purple-700');
         if (roleBannerTitle) roleBannerTitle.textContent = "Division Oversight (Schools Division Office - SDO)";
-        if (roleBannerDesc) roleBannerDesc.textContent = "Viewing division literacy telemetry across participating junior high schools. Teacher accreditation is granted directly by designated School Administrators.";
+        if (roleBannerDesc) roleBannerDesc.textContent = "Viewing division literacy performance across participating junior high schools. Teacher verification is managed directly by designated School Administrators.";
         if (roleBannerTag) {
           roleBannerTag.textContent = "Division Audit";
           roleBannerTag.className = "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white border border-purple-200 text-purple-700 shadow-xs shrink-0";
@@ -6085,6 +6271,18 @@
         document.getElementById('tourTargetImmediateActions')?.classList.add('hidden');
         document.getElementById('superAdminAssessmentPulse')?.classList.remove('hidden');
         document.getElementById('divisionSpotlightSection')?.classList.remove('hidden');
+
+        // Dynamic Header for Super Admin
+        const mainTitle = document.getElementById('dashboardMainTitle');
+        const scopeTag = document.getElementById('dashboardScopeTag');
+        if (mainTitle) mainTitle.textContent = "Division Reading & Literacy Command Center (SDO Valenzuela)";
+        if (scopeTag) scopeTag.textContent = "SDO Valenzuela Division Governance";
+
+        // Role-based Chart & Briefing Visibility: Show Division-level macro charts
+        document.getElementById('superAdminChartsRow')?.classList.remove('hidden');
+        document.getElementById('executivePodiumSection')?.classList.remove('hidden');
+        document.getElementById('briefCardDistrictParity')?.classList.remove('hidden');
+        document.getElementById('briefCardSchoolSection')?.classList.add('hidden');
 
         // Sidebar Navigation Visibility: Super Admin focuses strictly on division macro intelligence
         if (navFaculty) navFaculty.style.display = 'none';
@@ -6202,7 +6400,7 @@
       if (!authorized) {
         document.getElementById('provMasterKey').value = '';
         alertBox.className = "p-2.5 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200";
-        alertBox.textContent = "Unauthorized: Invalid Division Master Passkey.";
+        alertBox.textContent = "Unauthorized: Invalid Division Master Password.";
         alertBox.classList.remove('hidden');
         return;
       }
@@ -6345,7 +6543,7 @@
       }, (err) => console.warn("Division timed assessments listener:", err));
       unsubs.push(unsubDivisionAssessments);
 
-      // 8.2 timed_assessment_submissions (Submissions with Phil-IRI proficiency & telemetry)
+      // 8.2 timed_assessment_submissions (Submissions with Phil-IRI proficiency & performance data)
       const unsubTimedSubmissions = onSnapshot(collection(db, "timed_assessment_submissions"), (snapshot) => {
         cachedTimedSubmissions = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
         scheduleAssessmentsRender();
@@ -6717,6 +6915,7 @@
     // 4. Learner Academic Performance (tab-learner-performance)
     let learnerSearchQuery = '';
     let learnerGradeFilter = 'ALL';
+    let learnerTierFilter = 'ALL';
     let learnerGenderFilter = 'ALL';
     let learnerStatusFilter = 'ALL';
     let learnerSchoolFilterVal = 'ALL';
@@ -6742,6 +6941,11 @@
       renderPerformanceTable();
     };
 
+    window.handleLearnerTierFilter = function(val) {
+      learnerTierFilter = val || 'ALL';
+      renderPerformanceTable();
+    };
+
     window.handleLearnerGenderFilter = function(val) {
       learnerGenderFilter = val || 'ALL';
       renderPerformanceTable();
@@ -6757,9 +6961,10 @@
       renderPerformanceTable();
     };
 
-    // 5. Student Credential Vault (tab-batch-credentials)
+    // 5. Student Credentials & Accounts (tab-batch-credentials)
     let credentialSearchQuery = '';
     let credentialGradeFilter = 'ALL';
+    let credentialSectionFilter = 'ALL';
     let credentialStatusFilter = 'ALL';
     let credentialSchoolFilter = 'ALL';
 
@@ -6781,6 +6986,12 @@
 
     window.handleCredentialGradeFilter = function(val) {
       credentialGradeFilter = val || 'ALL';
+      populateCredentialSectionDropdown();
+      renderPendingStudentsTable();
+    };
+
+    window.handleCredentialSectionFilter = function(val) {
+      credentialSectionFilter = val || 'ALL';
       renderPendingStudentsTable();
     };
 
@@ -6791,7 +7002,40 @@
 
     window.handleCredentialSchoolFilter = function(val) {
       credentialSchoolFilter = val || 'ALL';
+      populateCredentialSectionDropdown();
       renderPendingStudentsTable();
+    };
+
+    window.populateCredentialSectionDropdown = function() {
+      const select = document.getElementById('selectCredentialSectionFilter');
+      if (!select) return;
+      const currentVal = select.value;
+
+      let classes = cachedClasses || [];
+      if (isSchoolAdmin && currentAdminUser?.schoolId) {
+        classes = classes.filter(c => String(c.schoolId) === String(currentAdminUser.schoolId));
+      } else if (credentialSchoolFilter !== 'ALL') {
+        classes = classes.filter(c => String(c.schoolId) === String(credentialSchoolFilter));
+      } else if (selectedJurisdiction !== 'ALL') {
+        classes = classes.filter(c => String(c.schoolId) === String(selectedJurisdiction));
+      }
+
+      if (credentialGradeFilter !== 'ALL') {
+        const gNum = credentialGradeFilter.replace('Grade ', '').trim();
+        classes = classes.filter(c => String(c.grade || '').trim() === gNum || String(c.grade || '').trim() === credentialGradeFilter);
+      }
+
+      const sections = Array.from(new Set(classes.map(c => (c.name || '').trim()).filter(Boolean))).sort();
+
+      select.innerHTML = '<option value="ALL">All Class Sections</option>' +
+        sections.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+
+      if (sections.includes(currentVal)) {
+        select.value = currentVal;
+      } else {
+        select.value = 'ALL';
+        credentialSectionFilter = 'ALL';
+      }
     };
 
     // 6. Library Management (tab-library-management)
@@ -7133,13 +7377,13 @@
     };
 
     // =========================================================================
-    // CHART METHODOLOGY & TELEMETRY EXPLANATION ENGINE (NO EMOJIS)
+    // CHART METHODOLOGY & ANALYTICS EXPLANATION ENGINE (NO EMOJIS)
     // =========================================================================
     const CHART_METHODOLOGY_REGISTRY = {
       phil_iri_mastery: {
-        category: "DepEd Phil-IRI Telemetry",
+        category: "DepEd Phil-IRI Analytics",
         title: "Phil-IRI Reading Mastery Breakdown",
-        overview: "Classifies junior high scholars into official Philippine Informal Reading Inventory (Phil-IRI) mastery tiers according to DepEd Order standards. Identifies the exact cohort split between independent readers and scholars needing instructional intervention.",
+        overview: "Classifies junior high learners into official Philippine Informal Reading Inventory (Phil-IRI) mastery tiers according to DepEd Order standards. Identifies the exact cohort split between independent readers and scholars needing instructional intervention.",
         dataSource: "Aggregated in real-time from student diagnostic assessments and turned-in quiz attempts. If a scholar has active quiz submissions, their cumulative average is evaluated; otherwise, their baseline Phil-IRI diagnostic intake test is utilized.",
         collections: ["timed_assessment_submissions", "users (role: student)", "weekly_assessments"],
         formulaBox: "Reading Mastery Index (%) = (Total Points Earned / Total Assessment Points) * 100\n\nOfficial DepEd Phil-IRI Tiers:\n- Independent Reader (High Mastery): Score >= 80%\n- Instructional Reader (Proficient): 60% <= Score < 80%\n- Frustration Reader (Needs Support): Score < 60%",
@@ -7160,7 +7404,7 @@
         category: "MELCs Diagnostic Competency Radar",
         title: "DepEd 5 Core Reading Competencies",
         overview: "Evaluates multi-dimensional reading mastery across the 5 core literacy domains mandated under the DepEd Most Essential Learning Competencies (MELCs) curriculum framework.",
-        dataSource: "Generated via item-level mechanics telemetry extracted from individual quiz response logs in completed student assessment attempts.",
+        dataSource: "Generated via item-level response results extracted from individual quiz response logs in completed student assessment attempts.",
         collections: ["timed_assessment_submissions (items array)", "all_attempts", "library_materials"],
         formulaBox: "Competency Domain MPS (%) = (Total Correct Items Tested / Total Questions Administered in Domain) * 100\n\nEvaluated Domains:\n1. Context Clues & Semantic Decoding (EN7V-I-a-22.1)\n2. Vocabulary Mechanics & Synonyms (EN7V-II-c-10.1)\n3. Main Idea, Theme & Author's Purpose (EN8RC-IIIa-10)\n4. Word Defusal & Impostor Detection (EN9V-IVa-13)\n5. Critical Inference & Curricular Synthesis (EN10RC-IIb-11.2)",
         formulaDetail: "Assessment questions are tagged by mechanic type (Cloze, Detective, Landmine Defusal, Vocabulary Pairing) and matched to corresponding MELCs codes. The purple polygon plots actual division performance against the dashed 75% target perimeter.",
@@ -7187,7 +7431,7 @@
         significance: "Directly informs SDO division resource allocation, equipment distribution, and DepEd instructional supervisory visits to maintain academic equity across all city barangays."
       },
       top_schools: {
-        category: "Institutional Leaderboard Telemetry",
+        category: "School Performance Comparison",
         title: "Top Performing Junior High Schools Leaderboard",
         overview: "Ranks secondary institutions by literacy Mean Percentage Score (MPS) to recognize benchmark campuses and identify institutions requiring instructional support.",
         dataSource: "Aggregated across all student quiz submissions per school identifier, normalized by total enrolled learners and verified submission volume across the 25 junior high schools.",
@@ -7514,8 +7758,9 @@
       });
 
       // -----------------------------------------------------------------------
-      // Chart 5: Congressional District Parity (District 1 vs District 2 Polar / Comparative)
+      // Chart 5 & 6: Super Admin Macro Intelligence (District Parity & 25-School Leaderboard)
       // -----------------------------------------------------------------------
+      if (isSuperAdmin) {
       let d1Subs = [];
       let d2Subs = [];
       let d1Students = [];
@@ -7540,9 +7785,9 @@
       const d2Mps = d2Metrics.avgScore || (metrics.avgScore > 0 ? Math.max(0, metrics.avgScore - 1) : 74);
 
       const legD1 = document.getElementById('legendDistrict1Mps');
-      if (legD1) legD1.textContent = `${d1Mps}% MPS (${d1Students.length} Scholars)`;
+      if (legD1) legD1.textContent = `${d1Mps}% MPS (${d1Students.length} Students)`;
       const legD2 = document.getElementById('legendDistrict2Mps');
-      if (legD2) legD2.textContent = `${d2Mps}% MPS (${d2Students.length} Scholars)`;
+      if (legD2) legD2.textContent = `${d2Mps}% MPS (${d2Students.length} Students)`;
 
       getOrCreateChart('chartDistrictComparison', {
         type: 'bar',
@@ -7627,6 +7872,7 @@
           }
         }
       });
+      } // End if (isSuperAdmin) for Chart 5 & 6
     }
 
     // =========================================================================
@@ -7645,7 +7891,7 @@
 
       if (elTimestamp) {
         const now = new Date();
-        elTimestamp.textContent = `Telemetry synced at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        elTimestamp.textContent = `Reading data updated at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       }
 
       // 1. Leading Grade
@@ -7669,36 +7915,79 @@
       });
 
       if (elLeading) elLeading.textContent = `${bestGrade} (${bestMps > 0 ? `${bestMps}% MPS` : 'Benchmark Pending'})`;
-      if (elLeadingDetail) elLeadingDetail.textContent = bestMps >= 75 ? `Surpasses DepEd standard across ${bestCount} evaluated scholars` : `Advancing cohort across active classroom sections`;
+      if (elLeadingDetail) elLeadingDetail.textContent = bestMps >= 75 ? `Surpasses DepEd standard across ${bestCount} evaluated students` : `Advancing cohort across active classroom sections`;
 
       // 2. Velocity
       const activeStreaks = students.filter(s => (s.current_streak || 0) > 0).length;
       const avgStreak = students.length > 0 ? (students.reduce((acc, s) => acc + (s.current_streak || 0), 0) / students.length).toFixed(1) : "0";
       if (elVel) elVel.textContent = `${avgStreak} Days Avg Streak (${activeStreaks} Active)`;
-      if (elVelDetail) elVelDetail.textContent = `${submissions.length} Total assessments completed division-wide`;
+      if (elVelDetail) elVelDetail.textContent = isSchoolAdmin ? `${submissions.length} Total assessments completed in school` : `${submissions.length} Total assessments completed division-wide`;
 
       // 3. Priority Intervention
-      const lowSchools = (window.cachedLastSchoolRanking || []).filter(item => item.mps > 0 && item.mps < 60);
-      if (elIntervention) {
-        elIntervention.textContent = lowSchools.length > 0 ? `${lowSchools.length} Campuses Flagged (<60% MPS)` : '0 Critical Campuses Flagged';
-      }
-      if (elInterventionDetail) {
-        elInterventionDetail.textContent = lowSchools.length > 0 ? `Recommend deploying remedial vocabulary drills & Phil-IRI support` : `All reporting schools meet or exceed minimum instructional tiers`;
+      if (isSchoolAdmin) {
+        let lowCount = 0;
+        students.forEach(s => {
+          const tier = (s.phil_iri_tier || s.diagnostic_tier || '').toLowerCase();
+          if (tier.includes('frustration') || (s.diagnostic_pct && s.diagnostic_pct < 60) || (s.scoreAvg && s.scoreAvg < 60)) {
+            lowCount++;
+          }
+        });
+        if (elIntervention) {
+          elIntervention.textContent = lowCount > 0 ? `${lowCount} Learners Flagged (<60% MPS)` : '0 Remedial Learners Flagged';
+        }
+        if (elInterventionDetail) {
+          elInterventionDetail.textContent = lowCount > 0 ? 'Recommend GabAI vocabulary drills & reading intervention' : 'All assessed learners meet or exceed instructional standards';
+        }
+      } else {
+        const lowSchools = (window.cachedLastSchoolRanking || []).filter(item => item.mps > 0 && item.mps < 60);
+        if (elIntervention) {
+          elIntervention.textContent = lowSchools.length > 0 ? `${lowSchools.length} Campuses Flagged (<60% MPS)` : '0 Critical Campuses Flagged';
+        }
+        if (elInterventionDetail) {
+          elInterventionDetail.textContent = lowSchools.length > 0 ? `Recommend deploying remedial vocabulary drills & Phil-IRI support` : `All reporting schools meet or exceed minimum instructional tiers`;
+        }
       }
 
-      // 4. District Parity
-      const ranked = window.cachedLastSchoolRanking || [];
-      const d1List = ranked.filter(s => s.district === 'District 1');
-      const d2List = ranked.filter(s => s.district === 'District 2');
-      const d1Avg = d1List.length > 0 ? Math.round(d1List.reduce((acc, s) => acc + s.mps, 0) / d1List.length) : 0;
-      const d2Avg = d2List.length > 0 ? Math.round(d2List.reduce((acc, s) => acc + s.mps, 0) / d2List.length) : 0;
+      // 4. District Parity (Super Admin) vs Leading Class Section (School Admin)
+      if (isSchoolAdmin) {
+        const elSchoolSection = document.getElementById('briefSchoolSection');
+        const elSchoolSectionDetail = document.getElementById('briefSchoolSectionDetail');
+        if (elSchoolSection) {
+          let bestSec = 'Active Sections';
+          let bestSecScore = -1;
+          let bestSecStudents = 0;
+          classes.forEach(c => {
+            const secStudents = students.filter(s => s.classId === c.id || (s.className && s.className.toLowerCase() === (c.name || '').toLowerCase()));
+            const secSubs = submissions.filter(sub => secStudents.some(st => st.id === (sub.studentId || sub.studentUid)));
+            const secMetrics = calculateScoreMetrics(secSubs, secStudents);
+            if (secMetrics.avgScore > bestSecScore && secStudents.length > 0) {
+              bestSecScore = secMetrics.avgScore;
+              bestSec = c.name || 'Section';
+              bestSecStudents = secStudents.length;
+            }
+          });
+          if (bestSecScore > 0) {
+            elSchoolSection.textContent = `${bestSec} (${bestSecScore}% MPS)`;
+            if (elSchoolSectionDetail) elSchoolSectionDetail.textContent = `Leading section across ${bestSecStudents} enrolled learners`;
+          } else {
+            elSchoolSection.textContent = classes.length > 0 ? `${classes[0].name || 'Active Section'}` : 'Awaiting Section Submissions';
+            if (elSchoolSectionDetail) elSchoolSectionDetail.textContent = 'Tracking classroom reading quiz averages';
+          }
+        }
+      } else {
+        const ranked = window.cachedLastSchoolRanking || [];
+        const d1List = ranked.filter(s => s.district === 'District 1');
+        const d2List = ranked.filter(s => s.district === 'District 2');
+        const d1Avg = d1List.length > 0 ? Math.round(d1List.reduce((acc, s) => acc + s.mps, 0) / d1List.length) : 0;
+        const d2Avg = d2List.length > 0 ? Math.round(d2List.reduce((acc, s) => acc + s.mps, 0) / d2List.length) : 0;
 
-      if (elDistrict) {
-        const delta = Math.abs(d1Avg - d2Avg);
-        elDistrict.textContent = `D1: ${d1Avg}% vs D2: ${d2Avg}% (Delta: ${delta}%)`;
-      }
-      if (elDistrictDetail) {
-        elDistrictDetail.textContent = 'High congressional parity maintained across 25 secondary institutions';
+        if (elDistrict) {
+          const delta = Math.abs(d1Avg - d2Avg);
+          elDistrict.textContent = `D1: ${d1Avg}% vs D2: ${d2Avg}% (Delta: ${delta}%)`;
+        }
+        if (elDistrictDetail) {
+          elDistrictDetail.textContent = 'High congressional parity maintained across 25 secondary institutions';
+        }
       }
     }
 
@@ -8211,7 +8500,7 @@
       
       const confirmed = await showConfirmModal({
         title: `Remove Educator "${targetName}"?`,
-        message: "This will safely disassociate classrooms, preserve lesson materials, and create a 30-day backup in the Recycle Vault.",
+        message: "This will safely disassociate classrooms, preserve lesson materials, and create a 30-day backup in the Recycle Bin.",
         badgeIcon: "👩‍🏫",
         badgeBg: "bg-rose-50 text-rose-600 border-rose-200",
         confirmText: "Archive & Remove",
@@ -8270,7 +8559,7 @@
 
         // CASCADE 3: Remove user document
         await deleteDoc(doc(db, "users", uid));
-        window.showToast(`Educator "${targetName}" removed. Backup saved in Recycle Vault.`, "info");
+        window.showToast(`Educator "${targetName}" removed. Backup saved in Recycle Bin.`, "info");
         renderRecycleVault();
         scheduleDashboardRender();
       } catch (err) {
@@ -8417,7 +8706,7 @@
           <div class="py-2 flex items-center justify-between">
             <div>
               <span class="font-bold text-slate-800">${s.firstName || ''} ${s.lastName || ''}</span>
-              <div class="font-mono text-[10px] text-slate-500">User: @${s.username} | Passkey: •••••••• (Protected)</div>
+              <div class="font-mono text-[10px] text-slate-500">User: @${s.username} | Password: •••••••• (Protected)</div>
             </div>
             <span class="badge-pending px-2 py-0.5 rounded text-[10px] font-bold">Unclaimed</span>
           </div>
@@ -8514,156 +8803,233 @@
     // =========================================================================
     // 3. LEARNER PERFORMANCE & QUIZ HISTORY (users/{uid}/quiz_history)
     // =========================================================================
-    function renderPerformanceTable() {
-      const tbody = document.getElementById('performanceTableBody');
-      let list = cachedUsers.filter(u => u.role === 'student');
+    // Helper: Render high-fidelity student avatar (profile photo with monogram fallback & moderation indicators)
+    window.renderStudentAvatarHtml = function(photoUrl, pendingPhotoUrl, photoStatus, initials, sizeClass = 'w-9 h-9', textClass = 'text-xs') {
+      const safeInitials = escapeHtml(initials || 'ST');
+      const effectivePhoto = (photoStatus === 'pending' && pendingPhotoUrl) ? pendingPhotoUrl : (photoUrl || pendingPhotoUrl || '');
 
-      if (selectedJurisdiction !== 'ALL') {
-        list = list.filter(u => String(u.schoolId) === selectedJurisdiction);
-      }
-
-      const countBadge = document.getElementById('learnerCountSummaryBadge');
-      if (countBadge) {
-        countBadge.textContent = `Showing ${list.length} learner profile(s)${selectedJurisdiction !== 'ALL' ? ' for ' + getSchoolName(selectedJurisdiction) : ' across all junior high schools'}`;
-      }
-
-      // Dedicated School Filter
-      if (isSchoolAdmin && currentAdminUser?.schoolId) {
-        list = list.filter(u => String(u.schoolId) === String(currentAdminUser.schoolId));
-      } else if (learnerSchoolFilterVal !== 'ALL') {
-        list = list.filter(u => String(u.schoolId) === String(learnerSchoolFilterVal));
-      }
-
-      // Dedicated Grade Filter
-      const activeLearnerGrade = learnerGradeFilter || document.getElementById('selectLearnerGradeFilter')?.value || 'ALL';
-      if (activeLearnerGrade !== 'ALL') {
-        const targetGradeNum = activeLearnerGrade.replace('Grade ', '').trim();
-        list = list.filter(u => String(u.grade || '').trim() === targetGradeNum || (u.grade || '').trim() === activeLearnerGrade || `Grade ${u.grade}` === activeLearnerGrade);
-      }
-
-      // Dedicated DepEd Gender Disaggregation Filter
-      const activeLearnerGender = learnerGenderFilter || document.getElementById('selectLearnerGenderFilter')?.value || 'ALL';
-      if (activeLearnerGender !== 'ALL') {
-        list = list.filter(u => getStudentGender(u) === activeLearnerGender);
-      }
-
-      // Dedicated Status Filter
-      const activeLearnerStatus = learnerStatusFilter || document.getElementById('selectLearnerStatusFilter')?.value || 'ALL';
-      if (activeLearnerStatus === 'PENDING') {
-        list = list.filter(u => u.is_onboarded !== true || u.photoStatus === 'pending');
-      } else if (activeLearnerStatus === 'APPROVED') {
-        list = list.filter(u => u.is_onboarded === true);
-      }
-
-      // Dedicated Smart Tokenized Search
-      const activeLearnerSearch = learnerSearchQuery || (document.getElementById('inputLearnerSearch')?.value || '').toLowerCase().trim();
-      if (activeLearnerSearch) {
-        list = list.filter(u => {
-          const textBlob = `${u.firstName || ''} ${u.lastName || ''} ${u.email || ''} ${u.username || ''} ${u.section || ''} ${u.lrn || ''} ${getSchoolName(u.schoolId)} Grade ${u.grade || ''}`;
-          return matchSmartSearch(textBlob, activeLearnerSearch);
-        });
-      }
-
-      if (list.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
-              No active student performance records found for this view.
-            </td>
-          </tr>`;
-        return;
-      }
-
-      tbody.innerHTML = list.map(u => {
-        const streak = u.current_streak || 0;
-        const quests = (u.quests_completed && u.quests_completed.length) || 0;
-        const isOnboarded = u.is_onboarded === true;
-        const photoUrl = u.photoUrl || '';
-        const pendingPhotoUrl = u.pendingPhotoUrl || '';
-        const photoStatus = u.photoStatus || 'none';
-        const initials = ((u.firstName?.[0] || '') + (u.lastName?.[0] || '')).toUpperCase() || 'ST';
-
-        let avatarHtml = '';
-        if (pendingPhotoUrl) {
-          avatarHtml = `
-            <div class="relative w-9 h-9 rounded-full ring-2 ring-amber-400 overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
-              <img src="${pendingPhotoUrl}" alt="Pending Photo" class="w-full h-full object-cover" onerror="this.style.display='none'" />
-            </div>`;
-        } else if (photoUrl && photoStatus === 'approved') {
-          avatarHtml = `
-            <div class="relative w-9 h-9 rounded-full ring-1 ring-emerald-400 overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
-              <img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'" />
-            </div>`;
-        } else {
-          avatarHtml = `
-            <div class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">
-              ${initials}
-            </div>`;
-        }
-
-        let photoModerationHtml = '';
-        if (pendingPhotoUrl) {
-          photoModerationHtml = `
-            <div class="mt-1 flex items-center gap-1">
-              <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 flex items-center gap-1">${uiIcon('clock', 'w-3 h-3')} Photo Review</span>
-              <button onclick="approveStudentPhoto('${u.id}')" class="px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[9px] font-bold shadow-xs">Approve</button>
-              <button onclick="declineStudentPhoto('${u.id}')" class="px-1.5 py-0.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-[9px] font-bold shadow-xs">Decline</button>
-            </div>`;
-        } else if (photoUrl && photoStatus === 'approved') {
-          photoModerationHtml = `
-            <div class="mt-1 flex items-center gap-1">
-              <span class="text-[9px] text-emerald-600 font-medium flex items-center gap-1">${uiIcon('check', 'w-3 h-3')} Photo Approved</span>
-              <button onclick="removeStudentPhoto('${u.id}')" class="text-[9px] text-slate-400 hover:text-rose-600 font-semibold underline ml-1">Remove</button>
-            </div>`;
-        } else if (photoStatus === 'declined' || photoStatus === 'rejected') {
-          photoModerationHtml = `
-            <div class="mt-1">
-              <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-800 flex items-center gap-1">${uiIcon('alert-triangle', 'w-3 h-3')} Photo Declined</span>
-            </div>`;
-        }
+      if (effectivePhoto) {
+        const ringClass = (photoStatus === 'pending')
+          ? 'ring-2 ring-amber-400'
+          : (photoStatus === 'approved' ? 'ring-2 ring-emerald-400' : 'ring-1 ring-slate-200');
 
         return `
-          <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="p-3.5">
-              <div class="flex items-center gap-2.5">
-                ${avatarHtml}
-                <div>
-                  <div class="font-bold text-slate-900">${u.firstName || ''} ${u.lastName || ''}</div>
-                  <div class="text-[10px] text-slate-400 font-mono">${u.email || u.username || 'App Account'}</div>
-                  ${photoModerationHtml}
+          <div class="relative ${sizeClass} rounded-full ${ringClass} overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center shadow-2xs">
+            <img src="${escapeHtml(effectivePhoto)}" alt="Student Avatar" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'w-full h-full bg-indigo-50 text-indigo-700 font-bold ${textClass} flex items-center justify-center\'>${safeInitials}</div>'" />
+            ${photoStatus === 'pending' ? '<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-amber-500 ring-1 ring-white" title="Photo Awaiting Review"></span>' : ''}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="${sizeClass} rounded-full bg-indigo-50 border border-indigo-200 text-[#5341CD] font-bold ${textClass} flex items-center justify-center shrink-0 shadow-2xs">
+          ${safeInitials}
+        </div>
+      `;
+    };
+
+    function renderPerformanceTable() {
+      const tbody = document.getElementById('performanceTableBody');
+      if (!tbody) return;
+
+      try {
+        let list = (cachedUsers || []).filter(u => u.role === 'student');
+
+        if (selectedJurisdiction !== 'ALL') {
+          list = list.filter(u => String(u.schoolId) === selectedJurisdiction);
+        }
+
+        // Dedicated School Filter
+        if (isSchoolAdmin && currentAdminUser?.schoolId) {
+          list = list.filter(u => String(u.schoolId) === String(currentAdminUser.schoolId));
+        } else if (learnerSchoolFilterVal !== 'ALL') {
+          list = list.filter(u => String(u.schoolId) === String(learnerSchoolFilterVal));
+        }
+
+        // Dedicated Grade Filter
+        const activeLearnerGrade = learnerGradeFilter || document.getElementById('selectLearnerGradeFilter')?.value || 'ALL';
+        if (activeLearnerGrade !== 'ALL') {
+          const targetGradeNum = activeLearnerGrade.replace('Grade ', '').trim();
+          list = list.filter(u => String(u.grade || '').trim() === targetGradeNum || (u.grade || '').trim() === activeLearnerGrade || `Grade ${u.grade}` === activeLearnerGrade);
+        }
+
+        // Dedicated DepEd Gender Disaggregation Filter
+        const activeLearnerGender = learnerGenderFilter || document.getElementById('selectLearnerGenderFilter')?.value || 'ALL';
+        if (activeLearnerGender !== 'ALL') {
+          list = list.filter(u => getStudentGender(u) === activeLearnerGender);
+        }
+
+        // Compute academic metrics helper for a student
+        const getStudentMpsAndTier = (st) => {
+          const stSubs = (cachedSubmissions || []).filter(s => s.studentId === st.id);
+          let avg = calculateAverageScore(stSubs);
+          let rawTier = (st.phil_iri_tier || st.diagnostic_tier || '').toLowerCase().trim();
+          let tier = 'unassessed';
+          let tierLabel = 'Unassessed';
+          let tierClass = 'bg-slate-100 text-slate-700 border-slate-200';
+
+          if (rawTier.includes('independent') || (stSubs.length > 0 && avg >= 80)) {
+            tier = 'independent';
+            tierLabel = 'Independent';
+            tierClass = 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold';
+          } else if (rawTier.includes('instructional') || (stSubs.length > 0 && avg >= 60)) {
+            tier = 'instructional';
+            tierLabel = 'Instructional';
+            tierClass = 'bg-amber-50 text-amber-800 border-amber-200 font-bold';
+          } else if (rawTier.includes('frustration') || (stSubs.length > 0 && avg > 0 && avg < 60) || (st.diagnostic_pct && st.diagnostic_pct < 60)) {
+            tier = 'frustration';
+            tierLabel = 'Frustration';
+            tierClass = 'bg-rose-50 text-rose-800 border-rose-200 font-bold';
+          }
+
+          const mpsValue = stSubs.length > 0 ? avg : (st.diagnostic_pct || (avg > 0 ? avg : null));
+          return { stSubs, avg, tier, tierLabel, tierClass, mpsValue };
+        };
+
+        // Compute real-time academic KPIs across this list before tier filtering
+        let countEval = 0;
+        let countInd = 0;
+        let countIns = 0;
+        let countFru = 0;
+        let totalStreak = 0;
+
+        list.forEach(u => {
+          const m = getStudentMpsAndTier(u);
+          if (m.stSubs.length > 0 || m.tier !== 'unassessed') countEval++;
+          if (m.tier === 'independent') countInd++;
+          else if (m.tier === 'instructional') countIns++;
+          else if (m.tier === 'frustration') countFru++;
+          totalStreak += (u.current_streak || 0);
+        });
+
+        const avgStreak = list.length > 0 ? Math.round(totalStreak / list.length) : 0;
+
+        const elKpiEval = document.getElementById('perfKpiTotalEvaluated');
+        if (elKpiEval) elKpiEval.textContent = countEval;
+        const elKpiInd = document.getElementById('perfKpiIndependent');
+        if (elKpiInd) elKpiInd.textContent = countInd;
+        const elKpiIns = document.getElementById('perfKpiInstructional');
+        if (elKpiIns) elKpiIns.textContent = countIns;
+        const elKpiFru = document.getElementById('perfKpiFrustration');
+        if (elKpiFru) elKpiFru.textContent = countFru;
+        const elKpiStreak = document.getElementById('perfKpiStreak');
+        if (elKpiStreak) elKpiStreak.textContent = `${avgStreak}d`;
+
+        // Dedicated Phil-IRI Tier Filter
+        const activeLearnerTier = learnerTierFilter || document.getElementById('selectLearnerTierFilter')?.value || 'ALL';
+        if (activeLearnerTier !== 'ALL') {
+          list = list.filter(u => {
+            const m = getStudentMpsAndTier(u);
+            return m.tier === activeLearnerTier;
+          });
+        }
+
+        // Dedicated Smart Tokenized Search
+        const activeLearnerSearch = learnerSearchQuery || (document.getElementById('inputLearnerSearch')?.value || '').toLowerCase().trim();
+        if (activeLearnerSearch) {
+          list = list.filter(u => {
+            const textBlob = `${u.firstName || ''} ${u.lastName || ''} ${u.email || ''} ${u.username || ''} ${u.section || ''} ${u.lrn || ''} ${u.grade || ''} ${u.schoolId || ''} ${getSchoolName(u.schoolId)}`;
+            return matchSmartSearch(textBlob, activeLearnerSearch);
+          });
+        }
+
+        const countBadge = document.getElementById('learnerCountSummaryBadge');
+        if (countBadge) {
+          countBadge.textContent = `Showing ${list.length} reading performance profile(s)${selectedJurisdiction !== 'ALL' ? ' for ' + getSchoolName(selectedJurisdiction) : ''}`;
+        }
+
+        if (list.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+                No active student reading performance profiles match the active search/filters.
+              </td>
+            </tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(u => {
+          const streak = u.current_streak || 0;
+          const quests = (u.quests_completed && u.quests_completed.length) || 0;
+          const fName = u.firstName || u.first_name || '';
+          const lName = u.lastName || u.last_name || '';
+          const fullName = `${fName} ${lName}`.trim() || u.fullName || u.displayName || 'Learner';
+          const initials = ((fName[0] || '') + (lName[0] || '')).toUpperCase() || 'ST';
+          const genderBadge = getStudentGender(u) === 'male' ? '<span class="text-[10px] text-blue-600 font-semibold">👦 Male</span>' : (getStudentGender(u) === 'female' ? '<span class="text-[10px] text-pink-600 font-semibold">👧 Female</span>' : '');
+
+          const metrics = getStudentMpsAndTier(u);
+          const wpmVal = u.phil_iri_wpm ? `${u.phil_iri_wpm} WPM` : (metrics.stSubs.length > 0 ? 'Diagnostic' : '—');
+
+          let mpsDisplay = '';
+          if (metrics.mpsValue !== null && metrics.mpsValue !== undefined) {
+            const barColor = metrics.mpsValue >= 80 ? 'bg-emerald-500' : (metrics.mpsValue >= 60 ? 'bg-amber-500' : 'bg-rose-500');
+            const textColor = metrics.mpsValue >= 80 ? 'text-emerald-700' : (metrics.mpsValue >= 60 ? 'text-amber-700' : 'text-rose-700');
+            mpsDisplay = `
+              <div class="flex items-center gap-2">
+                <span class="font-bold ${textColor} text-xs">${metrics.mpsValue}% MPS</span>
+                <div class="w-14 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="${barColor} h-full rounded-full" style="width: ${Math.min(100, Math.max(5, metrics.mpsValue))}%"></div>
                 </div>
               </div>
-            </td>
-            <td class="p-3.5">
-              <div class="font-semibold text-slate-800">${getSchoolName(u.schoolId)}</div>
-              <div class="text-[10px] text-slate-400 font-medium">Section: ${u.section || 'General'}</div>
-            </td>
-            <td class="p-3.5">
-              ${isOnboarded 
-                ? '<span class="badge-verified px-2 py-0.5 rounded text-[10px] font-bold">Claimed &bull; Active</span>' 
-                : '<span class="badge-pending px-2 py-0.5 rounded text-[10px] font-bold">Unclaimed Temp</span>'}
-            </td>
-            <td class="p-3.5">
-              <span class="font-bold text-indigo-700">Lvl ${u.level || 1}</span>
-              <span class="text-slate-400 text-[10px]">(${u.current_xp || 0} XP)</span>
-            </td>
-            <td class="p-3.5 font-bold ${streak > 0 ? 'text-amber-600' : 'text-slate-400'}">
-              ${streak > 0 ? `<span class="inline-flex items-center gap-1 text-amber-600 font-bold">${uiIcon('flame', 'w-3.5 h-3.5')} ${streak} Days</span>` : '<span class="text-slate-400">0 Days</span>'}
-            </td>
-            <td class="p-3.5 font-semibold text-slate-600">${quests} Quests</td>
-            <td class="p-3.5 text-right">
-              <div class="flex items-center justify-end gap-1.5">
-                <button onclick="openEditStudentNameModal('${u.username || ''}', '${u.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-sm inline-flex items-center gap-1" title="Edit Student Name">
-                  ${uiIcon('edit', 'w-3 h-3')} <span>Edit Name</span>
+            `;
+          } else {
+            mpsDisplay = '<span class="text-slate-400 text-xs font-medium">Pending Assessment</span>';
+          }
+
+          const photoUrl = u.photoUrl || u.avatarUrl || u.profileImageUrl || '';
+          const pendingPhotoUrl = u.pendingPhotoUrl || '';
+          const photoStatus = u.photoStatus || (photoUrl ? 'approved' : 'none');
+          const avatarHtml = renderStudentAvatarHtml(photoUrl, pendingPhotoUrl, photoStatus, initials, 'w-9 h-9', 'text-xs');
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3.5">
+                <div class="flex items-center gap-2.5">
+                  ${avatarHtml}
+                  <div>
+                    <div class="font-bold text-slate-900">${escapeHtml(fullName)}</div>
+                    <div class="text-[10px] text-slate-500 flex items-center gap-1.5 mt-0.5">
+                      <span>${u.grade ? 'Grade ' + u.grade + ' • ' : ''}${escapeHtml(u.section || 'General')}</span>
+                      ${genderBadge ? `<span>&bull;</span> ${genderBadge}` : ''}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="p-3.5">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border inline-block ${metrics.tierClass}">
+                  ${metrics.tierLabel}
+                </span>
+              </td>
+              <td class="p-3.5">
+                ${mpsDisplay}
+              </td>
+              <td class="p-3.5 font-semibold text-slate-700">
+                ${wpmVal}
+              </td>
+              <td class="p-3.5 font-bold ${streak > 0 ? 'text-amber-600' : 'text-slate-400'}">
+                ${streak > 0 ? `<span class="inline-flex items-center gap-1 text-amber-600 font-bold">${uiIcon('flame', 'w-3.5 h-3.5')} ${streak}d</span>` : '<span class="text-slate-400 font-medium">0d</span>'}
+              </td>
+              <td class="p-3.5">
+                <span class="font-bold text-indigo-700">Lvl ${u.level || 1}</span>
+                <span class="text-slate-400 text-[10px]">(${u.current_xp || 0} XP &bull; ${quests} Quests)</span>
+              </td>
+              <td class="p-3.5 text-right">
+                <button onclick="viewStudentQuizHistory('${u.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs inline-flex items-center gap-1 transition-all">
+                  ${uiIcon('chart', 'w-3 h-3')} <span>Inspect History</span>
                 </button>
-                <button onclick="viewStudentQuizHistory('${u.id}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-sm">
-                  View History &rarr;
-                </button>
-              </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error("Failed to render performance table:", err);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="p-8 text-center text-rose-500 font-semibold">
+              Failed to load student performance profiles: ${escapeHtml(err.message)}
             </td>
-          </tr>
-        `;
-      }).join('');
+          </tr>`;
+      }
     }
 
     window.approveStudentPhoto = async function(uid, encodedUrl) {
@@ -8765,6 +9131,15 @@
 
       document.getElementById('historyStudentName').textContent = `${studentName} — Quiz Performance`;
       document.getElementById('historyStudentMeta').textContent = `${getSchoolName(student ? student.schoolId : '')} • Section ${student ? student.section : 'General'}`;
+
+      const historyAvatarEl = document.getElementById('historyStudentAvatarContainer');
+      if (historyAvatarEl) {
+        const histPhoto = student ? (student.photoUrl || student.avatarUrl || student.profileImageUrl || '') : '';
+        const histPend = student ? (student.pendingPhotoUrl || '') : '';
+        const histStat = student ? (student.photoStatus || 'none') : 'none';
+        const histInitials = student ? (((student.firstName?.[0] || '') + (student.lastName?.[0] || '')).toUpperCase() || 'ST') : 'ST';
+        historyAvatarEl.innerHTML = renderStudentAvatarHtml(histPhoto, histPend, histStat, histInitials, 'w-11 h-11', 'text-sm');
+      }
       document.getElementById('historyCurrentStreak').textContent = `${(student && student.current_streak) || 0} Days`;
       document.getElementById('historyLevelXp').textContent = `Lvl ${(student && student.level) || 1} (${(student && student.current_xp) || 0} XP)`;
 
@@ -8906,16 +9281,16 @@
         document.getElementById('resetTargetUsername').textContent = displayTarget;
         document.getElementById('resetGeneratedPasskey').textContent = tempPass;
         document.getElementById('modalResetPasskey').classList.remove('hidden');
-        window.showToast(`Temporary passkey generated for ${displayTarget}.`, "success");
+        window.showToast(`Temporary password generated for ${displayTarget}.`, "success");
       } catch (err) {
         console.error("Password reset error:", err);
-        window.showToast("Failed to generate temporary passkey: " + err.message, "error");
+        window.showToast("Failed to generate temporary password: " + err.message, "error");
       }
     };
 
     window.copyGeneratedPasskey = function() {
       if (activeGeneratedPasskey) {
-        copyToClipboard(activeGeneratedPasskey, "Temporary passkey copied to clipboard!");
+        copyToClipboard(activeGeneratedPasskey, "Temporary password copied to clipboard!");
       }
     };
 
@@ -8947,6 +9322,15 @@
       document.getElementById('editStudentDocId').value = docId || target?.id || '';
       document.getElementById('editStudentHandleDisplay').textContent = uName ? `@${uName}` : 'Learner';
       document.getElementById('editStudentCampusBadge').textContent = sId ? getSchoolName(sId) : 'Assigned School';
+
+      const editAvatarEl = document.getElementById('editStudentAvatarContainer');
+      if (editAvatarEl) {
+        const editPhoto = target ? (target.photoUrl || target.avatarUrl || target.profileImageUrl || '') : '';
+        const editPend = target ? (target.pendingPhotoUrl || '') : '';
+        const editStat = target ? (target.photoStatus || 'none') : 'none';
+        const editInitials = target ? (((target.firstName?.[0] || '') + (target.lastName?.[0] || '')).toUpperCase() || 'ST') : 'ST';
+        editAvatarEl.innerHTML = renderStudentAvatarHtml(editPhoto, editPend, editStat, editInitials, 'w-10 h-10', 'text-xs');
+      }
       document.getElementById('editStudentFirstName').value = fName;
       document.getElementById('editStudentLastName').value = lName;
 
@@ -9069,6 +9453,7 @@
           const fName = u.firstName || u.first_name || '';
           const lName = u.lastName || u.last_name || '';
           const fullName = `${fName} ${lName}`.trim() || u.fullName || u.displayName || 'Learner';
+          const gender = (typeof getStudentGender === 'function' ? getStudentGender(u) : (u.gender || u.sex || 'unspecified'));
 
           return {
             id: u.id,
@@ -9081,6 +9466,10 @@
             schoolId: u.schoolId || '',
             section: u.section || '',
             grade: u.grade || '',
+            lrn: u.lrn || '',
+            photoUrl: u.photoUrl || u.avatarUrl || u.profileImageUrl || '',
+            pendingPhotoUrl: u.pendingPhotoUrl || '',
+            photoStatus: u.photoStatus || (u.photoUrl ? 'approved' : 'none'),
             is_onboarded: u.is_onboarded !== false,
             isClaimed: true,
             createdAt: u.createdAt || null
@@ -9103,6 +9492,7 @@
           const lName = p.lastName || p.last_name || '';
           const fullName = `${fName} ${lName}`.trim() || p.fullName || 'Learner';
           const username = p.username || p.id || '';
+          const gender = (typeof getStudentGender === 'function' ? getStudentGender(p) : (p.gender || p.sex || 'unspecified'));
 
           return {
             id: p.id,
@@ -9115,6 +9505,10 @@
             schoolId: p.schoolId || '',
             section: p.section || '',
             grade: p.grade || '',
+            lrn: p.lrn || '',
+            photoUrl: p.photoUrl || p.avatarUrl || p.profileImageUrl || '',
+            pendingPhotoUrl: p.pendingPhotoUrl || '',
+            photoStatus: p.photoStatus || 'none',
             is_onboarded: p.is_onboarded === true, // pending slip is unclaimed
             isClaimed: false,
             createdAt: p.createdAt || null
@@ -9129,27 +9523,223 @@
       const tbody = document.getElementById('pendingStudentsTableBody');
       if (!tbody) return;
 
-      let list = getUnifiedStudentCredentials();
+      try {
+        let list = getUnifiedStudentCredentials();
 
+        if (selectedJurisdiction !== 'ALL') {
+          list = list.filter(s => String(s.schoolId) === String(selectedJurisdiction));
+        }
+
+        // Dedicated School Filter
+        if (isSchoolAdmin && currentAdminUser?.schoolId) {
+          list = list.filter(s => String(s.schoolId) === String(currentAdminUser.schoolId));
+        } else if (credentialSchoolFilter !== 'ALL') {
+          list = list.filter(s => String(s.schoolId) === String(credentialSchoolFilter));
+        }
+
+        // Dedicated Grade Filter
+        const activeCredGrade = credentialGradeFilter || document.getElementById('selectCredentialGradeFilter')?.value || 'ALL';
+        if (activeCredGrade !== 'ALL') {
+          const targetGradeNum = activeCredGrade.replace('Grade ', '').trim();
+          list = list.filter(s => String(s.grade || '').trim() === targetGradeNum || (s.grade || '').trim() === activeCredGrade || `Grade ${s.grade}` === activeCredGrade);
+        }
+
+        // Dedicated Section Filter
+        const activeCredSection = credentialSectionFilter || document.getElementById('selectCredentialSectionFilter')?.value || 'ALL';
+        if (activeCredSection !== 'ALL') {
+          list = list.filter(s => String(s.section || '').trim().toLowerCase() === activeCredSection.trim().toLowerCase());
+        }
+
+        // Dedicated Status Filter
+        const activeCredStatus = credentialStatusFilter || document.getElementById('selectCredentialStatusFilter')?.value || 'ALL';
+        if (activeCredStatus === 'PENDING') {
+          list = list.filter(s => !s.isClaimed || s.is_onboarded !== true);
+        } else if (activeCredStatus === 'APPROVED') {
+          list = list.filter(s => s.isClaimed && s.is_onboarded === true);
+        }
+
+        // Dedicated Smart Tokenized Search
+        const activeCredSearch = credentialSearchQuery || (document.getElementById('inputCredentialSearch')?.value || '').toLowerCase().trim();
+        if (activeCredSearch) {
+          list = list.filter(s => {
+            const textBlob = `${s.firstName || ''} ${s.lastName || ''} ${s.username || ''} ${s.section || ''} ${s.lrn || ''} ${s.grade || ''} ${s.schoolId || ''} ${getSchoolName(s.schoolId)}`;
+            return matchSmartSearch(textBlob, activeCredSearch);
+          });
+        }
+
+        // Real-time Bento KPI Overview Updates
+        const totalCredCount = list.length;
+        const claimedCredCount = list.filter(s => s.isClaimed && s.is_onboarded === true).length;
+        const unclaimedCredCount = list.filter(s => !s.isClaimed || s.is_onboarded !== true).length;
+        const pendingPhotoUsers = (cachedUsers || []).filter(u => u.role === 'student' && u.pendingPhotoUrl && u.photoStatus === 'pending');
+
+        const elKpiTot = document.getElementById('credKpiTotal');
+        if (elKpiTot) elKpiTot.textContent = totalCredCount;
+        const elKpiClaim = document.getElementById('credKpiClaimed');
+        if (elKpiClaim) elKpiClaim.textContent = claimedCredCount;
+        const elKpiUnclaim = document.getElementById('credKpiUnclaimed');
+        if (elKpiUnclaim) elKpiUnclaim.textContent = unclaimedCredCount;
+        const elKpiPhotos = document.getElementById('credKpiPendingPhotos');
+        if (elKpiPhotos) elKpiPhotos.textContent = pendingPhotoUsers.length;
+
+        // Render Centralized Photo Moderation Queue Banner
+        const photoBanner = document.getElementById('credentialPhotoQueueBanner');
+        const photoGrid = document.getElementById('credentialPhotoQueueGrid');
+        const photoBadge = document.getElementById('credentialPhotoPendingCountBadge');
+
+        if (photoBanner && photoGrid) {
+          if (pendingPhotoUsers.length > 0) {
+            photoBanner.classList.remove('hidden');
+            if (photoBadge) photoBadge.textContent = `${pendingPhotoUsers.length} Pending Approval`;
+            photoGrid.innerHTML = pendingPhotoUsers.map(u => {
+              const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Learner';
+              const sec = u.section ? `${u.grade ? 'Grade ' + u.grade + ' • ' : ''}${u.section}` : 'General';
+              return `
+                <div class="bg-white p-3 rounded-xl border border-purple-100 shadow-xs flex items-center gap-3">
+                  <img src="${escapeHtml(u.pendingPhotoUrl)}" alt="Avatar" class="w-11 h-11 rounded-full object-cover ring-2 ring-purple-400 shrink-0 bg-slate-100" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><text y=%2218%22 font-size=%2218%22>👤</text></svg>'">
+                  <div class="flex-1 min-w-0">
+                    <div class="font-bold text-xs text-slate-900 truncate">${escapeHtml(name)}</div>
+                    <div class="text-[10px] text-slate-500 truncate">${escapeHtml(sec)}</div>
+                    <div class="flex items-center gap-1.5 mt-1.5">
+                      <button onclick="approveStudentPhoto('${u.id}')" class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-bold shadow-xs">Approve</button>
+                      <button onclick="declineStudentPhoto('${u.id}')" class="px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded text-[10px] font-bold">Decline</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          } else {
+            photoBanner.classList.add('hidden');
+          }
+        }
+
+        const countBadge = document.getElementById('credentialCountSummaryBadge');
+        if (countBadge) {
+          countBadge.textContent = `Showing ${list.length} student account(s) (${unclaimedCredCount} pending slips)`;
+        }
+
+        if (list.length === 0) {
+          const isFiltered = (selectedJurisdiction !== 'ALL' && !isSchoolAdmin) || selectedGradeFilter !== 'ALL' || selectedStatusFilter !== 'ALL' || searchQuery !== '';
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+                ${isFiltered ? 'No student credentials match the active search/filters.' : 'No student accounts found.'}
+                ${isFiltered ? '<button onclick="resetAllFilters()" class="block mx-auto mt-2 text-indigo-600 hover:underline font-bold text-xs">Reset all filters</button>' : '<span class="block mt-1 text-slate-400 text-xs">Student accounts are generated by teachers or claimed by learners in the mobile application.</span>'}
+              </td>
+            </tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(s => {
+          const fName = s.firstName || s.first_name || '';
+          const lName = s.lastName || s.last_name || '';
+          const fullName = `${fName} ${lName}`.trim() || s.fullName || 'Learner';
+          const initials = ((fName[0] || '') + (lName[0] || '')).toUpperCase() || 'ST';
+          const isClaimed = s.isClaimed && s.is_onboarded === true;
+          const genderIcon = s.gender === 'male' ? '<span class="text-blue-600 font-semibold text-[10px]">👦 Male</span>' : (s.gender === 'female' ? '<span class="text-pink-600 font-semibold text-[10px]">👧 Female</span>' : '');
+
+          const passDisplay = s.password && !isClaimed
+            ? `<div class="flex items-center gap-1.5">
+                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-mono text-xs font-bold" title="Temporary Initial Password">${escapeHtml(s.password)}</span>
+                 <button onclick="copyToClipboard('${escapeHtml(s.password)}', 'Temporary password copied!')" class="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Copy Temporary Password">
+                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                 </button>
+               </div>`
+            : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-mono text-xs font-bold" title="${isClaimed ? 'Protected: Password is encrypted and protected' : 'Protected'}">••••••••</span>`;
+
+          const avatarHtml = renderStudentAvatarHtml(s.photoUrl, s.pendingPhotoUrl, s.photoStatus, initials, 'w-9 h-9', 'text-xs');
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3.5">
+                <div class="flex items-center gap-2.5">
+                  ${avatarHtml}
+                  <div>
+                    <div class="font-bold text-slate-900">${escapeHtml(fullName)}</div>
+                    <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                      <span>LRN: ${escapeHtml(s.lrn || 'Pending')}</span>
+                      ${genderIcon ? `<span>&bull;</span> ${genderIcon}` : ''}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="p-3.5">
+                <div class="flex items-center gap-1">
+                  <span class="font-mono text-slate-800 font-bold">@${escapeHtml(s.username || 'N/A')}</span>
+                  <button onclick="copyToClipboard('${escapeHtml(s.username || '')}', 'Student ID @${escapeHtml(s.username || '')} copied!')" class="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Copy Username">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  </button>
+                </div>
+              </td>
+              <td class="p-3.5">
+                ${passDisplay}
+              </td>
+              <td class="p-3.5 text-slate-700 font-medium">
+                <div>${s.grade ? 'Grade ' + s.grade : 'Grade Level'}</div>
+                <div class="text-[11px] text-slate-500 font-semibold">${escapeHtml(s.section || 'General')}</div>
+              </td>
+              <td class="p-3.5 text-slate-500">
+                <div>${s.schoolId || 'N/A'}</div>
+                <div class="text-[10px] text-slate-400 truncate max-w-[120px]">${escapeHtml(getSchoolName(s.schoolId))}</div>
+              </td>
+              <td class="p-3.5">
+                ${isClaimed
+                  ? '<span class="badge-verified px-2.5 py-0.5 rounded text-[10px] font-bold">Claimed in App</span>'
+                  : '<span class="badge-pending px-2.5 py-0.5 rounded text-[10px] font-bold">Unclaimed / Temp Slip</span>'}
+              </td>
+              <td class="p-3.5 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button onclick="openEditStudentNameModal('${escapeHtml(s.username)}', '${s.id || ''}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 shadow-xs inline-flex items-center gap-1" title="Edit Student Profile">
+                    ${uiIcon('edit', 'w-3 h-3')} <span>Edit</span>
+                  </button>
+                  <button onclick="printSingleCredentialSlip('${s.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs inline-flex items-center gap-1" title="Print Student Login Slip">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                    <span>Slip</span>
+                  </button>
+                  <button onclick="openResetPasskeyModal('${escapeHtml(s.username)}', '${s.id || ''}')" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1" title="Generate Temporary Password">
+                    ${uiIcon('key', 'w-3 h-3')} <span>Reset</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error("Failed to render student credentials table:", err);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="p-8 text-center text-rose-500 font-semibold">
+              Failed to load student accounts: ${escapeHtml(err.message)}
+            </td>
+          </tr>`;
+      }
+    }
+
+    // =========================================================================
+    // BATCH & SINGLE LOGIN SLIPS PRINTING ENGINE
+    // =========================================================================
+    window.openBatchPrintSlipsModal = function() {
+      let list = getUnifiedStudentCredentials();
       if (selectedJurisdiction !== 'ALL') {
         list = list.filter(s => String(s.schoolId) === String(selectedJurisdiction));
       }
-
-      // Dedicated School Filter
       if (isSchoolAdmin && currentAdminUser?.schoolId) {
         list = list.filter(s => String(s.schoolId) === String(currentAdminUser.schoolId));
       } else if (credentialSchoolFilter !== 'ALL') {
         list = list.filter(s => String(s.schoolId) === String(credentialSchoolFilter));
       }
 
-      // Dedicated Grade Filter
       const activeCredGrade = credentialGradeFilter || document.getElementById('selectCredentialGradeFilter')?.value || 'ALL';
       if (activeCredGrade !== 'ALL') {
         const targetGradeNum = activeCredGrade.replace('Grade ', '').trim();
         list = list.filter(s => String(s.grade || '').trim() === targetGradeNum || (s.grade || '').trim() === activeCredGrade || `Grade ${s.grade}` === activeCredGrade);
       }
 
-      // Dedicated Status Filter
+      const activeCredSection = credentialSectionFilter || document.getElementById('selectCredentialSectionFilter')?.value || 'ALL';
+      if (activeCredSection !== 'ALL') {
+        list = list.filter(s => String(s.section || '').trim().toLowerCase() === activeCredSection.trim().toLowerCase());
+      }
+
       const activeCredStatus = credentialStatusFilter || document.getElementById('selectCredentialStatusFilter')?.value || 'ALL';
       if (activeCredStatus === 'PENDING') {
         list = list.filter(s => !s.isClaimed || s.is_onboarded !== true);
@@ -9157,65 +9747,127 @@
         list = list.filter(s => s.isClaimed && s.is_onboarded === true);
       }
 
-      // Dedicated Smart Tokenized Search
-      const activeCredSearch = credentialSearchQuery || (document.getElementById('inputCredentialSearch')?.value || '').toLowerCase().trim();
-      if (activeCredSearch) {
-        list = list.filter(s => {
-          const textBlob = `${s.firstName || ''} ${s.lastName || ''} ${s.username || ''} ${s.section || ''} ${s.lrn || ''} ${s.grade || ''} ${s.schoolId || ''} ${getSchoolName(s.schoolId)}`;
-          return matchSmartSearch(textBlob, activeCredSearch);
-        });
-      }
-
       if (list.length === 0) {
-        const isFiltered = (selectedJurisdiction !== 'ALL' && !isSchoolAdmin) || selectedGradeFilter !== 'ALL' || selectedStatusFilter !== 'ALL' || searchQuery !== '';
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
-              ${isFiltered ? 'No student credentials match the active search/filters.' : 'No student accounts found.'}
-              ${isFiltered ? '<button onclick="resetAllFilters()" class="block mx-auto mt-2 text-indigo-600 hover:underline font-bold text-xs">Reset all filters</button>' : '<span class="block mt-1 text-slate-400 text-xs">Student accounts are generated by teachers or claimed by learners in the mobile application.</span>'}
-            </td>
-          </tr>`;
+        window.showToast("No student accounts match active filters for printable slips.", "warning");
         return;
       }
 
-      tbody.innerHTML = list.map(s => {
-        const fullName = s.fullName || 'Learner';
-        const isClaimed = s.isClaimed && s.is_onboarded === true;
-        const passDisplay = s.password && !isClaimed
-          ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-mono text-xs font-bold" title="Temporary Initial Passkey">${s.password}</span>`
-          : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-mono text-xs font-bold" title="${isClaimed ? 'Protected: Plaintext passwords are not accessible once claimed in app' : 'Protected'}">••••••••</span>`;
+      const container = document.getElementById('batchPrintSlipsContainer');
+      const meta = document.getElementById('batchPrintSlipsMeta');
+      if (meta) meta.textContent = `Preparing ${list.length} student login slip(s) for printing`;
 
-        return `
-          <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="p-3.5 font-bold text-slate-900">${fullName}</td>
-            <td class="p-3.5 font-mono text-slate-700 font-semibold">@${s.username || 'N/A'}</td>
-            <td class="p-3.5 font-mono text-slate-600">
-              ${passDisplay}
-            </td>
-            <td class="p-3.5 text-slate-700 font-medium">${s.grade ? s.grade + ' - ' : ''}${s.section || 'General'}</td>
-            <td class="p-3.5 text-slate-500">${s.schoolId || 'N/A'}</td>
-            <td class="p-3.5">
-              ${isClaimed 
-                ? '<span class="badge-verified px-2 py-0.5 rounded text-[10px] font-bold">Claimed in App</span>' 
-                : '<span class="badge-pending px-2 py-0.5 rounded text-[10px] font-bold">Unclaimed / Temp Slip</span>'}
-            </td>
-            <td class="p-3.5 text-right">
-              <div class="flex items-center justify-end gap-1.5">
-                <button onclick="openEditStudentNameModal('${s.username}', '${s.id || ''}')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 shadow-xs inline-flex items-center gap-1" title="Edit Student Name">
-                  ${uiIcon('edit', 'w-3 h-3')} <span>Edit Name</span>
-                </button>
-                <button onclick="copyToClipboard('${s.username}', 'Student ID @${s.username} copied!')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 shadow-xs" title="Copy Student ID">
-                  Copy ID
-                </button>
-                <button onclick="openResetPasskeyModal('${s.username}', '${s.id || ''}')" class="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-[#5341CD] border border-purple-200 rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1" title="Generate Temporary Reset Passkey">
-                  ${uiIcon('key', 'w-3 h-3')} <span>Reset Passkey</span>
-                </button>
-              </div>
-            </td>
-          </tr>
+      if (container) {
+        container.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="slipsPrintableGrid">
+            ${list.map(s => renderSlipCardHtml(s)).join('')}
+          </div>
         `;
-      }).join('');
+      }
+
+      document.getElementById('modalBatchPrintSlips')?.classList.remove('hidden');
+    };
+
+    window.closeBatchPrintSlipsModal = function() {
+      document.getElementById('modalBatchPrintSlips')?.classList.add('hidden');
+    };
+
+    window.printSingleCredentialSlip = function(studentId) {
+      const list = getUnifiedStudentCredentials();
+      const s = list.find(item => item.id === studentId || item.username === studentId);
+      if (!s) {
+        window.showToast("Student account not found.", "error");
+        return;
+      }
+
+      const container = document.getElementById('batchPrintSlipsContainer');
+      const meta = document.getElementById('batchPrintSlipsMeta');
+      if (meta) meta.textContent = `Single login slip for ${s.fullName || 'Learner'}`;
+
+      if (container) {
+        container.innerHTML = `
+          <div class="max-w-md mx-auto" id="slipsPrintableGrid">
+            ${renderSlipCardHtml(s)}
+          </div>
+        `;
+      }
+
+      document.getElementById('modalBatchPrintSlips')?.classList.remove('hidden');
+    };
+
+    function renderSlipCardHtml(s) {
+      const isClaimed = s.isClaimed && s.is_onboarded === true;
+      const passText = s.password && !isClaimed ? s.password : 'Protected (Already Claimed)';
+      const schoolName = getSchoolName(s.schoolId) || 'Junior High School';
+
+      return `
+        <div style="border: 1.5px dashed #94A3B8; border-radius: 14px; padding: 14px; background: #FFFFFF; color: #0F172A; page-break-inside: avoid; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px; margin-bottom: 8px;">
+            <div style="font-weight: 800; font-size: 11px; color: #5341CD; text-transform: uppercase; letter-spacing: 0.5px;">
+              GabAI Literacy Platform &bull; DepEd SDO Valenzuela
+            </div>
+            <span style="font-size: 9px; font-weight: 700; background: #F1F5F9; color: #475569; padding: 2px 6px; border-radius: 4px;">STUDENT SLIP</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            ${s.photoUrl ? `<img src="${escapeHtml(s.photoUrl)}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #CBD5E1;" onerror="this.style.display='none'" />` : `<div style="width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; color: #4F46E5; font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 1px solid #C7D2FE;">${escapeHtml(((s.firstName?.[0] || '') + (s.lastName?.[0] || '')).toUpperCase() || 'ST')}</div>`}
+            <div>
+              <div style="font-size: 13px; font-weight: 800; color: #0F172A;">${escapeHtml(s.fullName || 'Student Learner')}</div>
+              <div style="font-size: 10px; color: #64748B;">${escapeHtml(schoolName)} &bull; ${s.grade ? 'Grade ' + s.grade + ' - ' : ''}${escapeHtml(s.section || 'General')}</div>
+            </div>
+          </div>
+
+          <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase;">Username (User ID)</div>
+              <div style="font-family: monospace; font-size: 12px; font-weight: 800; color: #1E293B;">@${escapeHtml(s.username || 'username')}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase;">Initial Password</div>
+              <div style="font-family: monospace; font-size: 12px; font-weight: 800; color: #4F46E5;">${escapeHtml(passText)}</div>
+            </div>
+          </div>
+
+          <div style="font-size: 9px; color: #64748B; line-height: 1.4; border-top: 1px dashed #E2E8F0; padding-top: 6px;">
+            <strong>Login Guide:</strong> 1. Open GabAI app &rarr; 2. Tap "Student Login" &rarr; 3. Enter username &amp; password above &rarr; 4. Set personal password on first login.
+          </div>
+        </div>
+      `;
     }
+
+    window.executeBatchSlipsPrint = function() {
+      const grid = document.getElementById('slipsPrintableGrid');
+      if (!grid) {
+        window.print();
+        return;
+      }
+
+      const existing = document.getElementById('printReportContainer');
+      if (existing) existing.remove();
+
+      const container = document.createElement('div');
+      container.id = 'printReportContainer';
+      container.style.padding = '16px';
+      container.style.backgroundColor = '#FFFFFF';
+      container.innerHTML = `
+        <style>
+          @media print {
+            body * { visibility: hidden !important; }
+            #printReportContainer, #printReportContainer * { visibility: visible !important; }
+            #printReportContainer { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; }
+            .print-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+          }
+        </style>
+        <div class="print-grid">
+          ${grid.innerHTML}
+        </div>
+      `;
+      document.body.appendChild(container);
+
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => container.remove(), 1000);
+      }, 250);
+    };
 
     // =========================================================================
     // 5. REAL LIBRARY ARCHITECTURE (library_subjects + library_materials)
@@ -10040,7 +10692,7 @@
         } else {
           itemsContainer.innerHTML = `
             <div class="p-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-              No question-by-question telemetry logged for this session. Score recorded: ${attempt.score} / ${attempt.totalQuestions} (${pct}%).
+              No question-by-question results logged for this session. Score recorded: ${attempt.score} / ${attempt.totalQuestions} (${pct}%).
             </div>`;
         }
       } else {
@@ -10235,7 +10887,7 @@
           <div class="p-3 bg-purple-50/80 border border-purple-200 rounded-xl text-xs text-purple-950 flex items-start gap-2">
             <span class="text-base leading-none">💡</span>
             <div>
-              <strong class="font-bold text-purple-900">Pedagogical Insight:</strong>
+              <strong class="font-bold text-purple-900">Instructional Insight:</strong>
               <span class="text-purple-900 ml-1">${escapeHtml(explanation)}</span>
             </div>
           </div>
@@ -10828,14 +11480,14 @@
       const activeStudents = cachedUsers.filter(u => u.role === 'student' && String(u.schoolId) === String(schoolId)).length;
 
       const depMsg = (activeTeachers > 0 || activeClasses > 0 || activeStudents > 0)
-        ? `This school currently has ${activeTeachers} faculty member(s), ${activeClasses} active class section(s), and ${activeStudents} enrolled learner(s). Removing it will safely unpublish the school and store a complete snapshot in the Recycle Vault.`
+        ? `This school currently has ${activeTeachers} faculty member(s), ${activeClasses} active class section(s), and ${activeStudents} enrolled learner(s). Removing it will safely unpublish the school and store a complete snapshot in the Recycle Bin.`
         : "";
 
       const requireTyped = (activeTeachers > 0 || activeClasses > 0) ? String(schoolId) : "";
 
       const confirmed = await showConfirmModal({
         title: `Remove School "${targetName}"?`,
-        message: "This will remove the school systemwide from active lists and store it in the Recycle Vault with 30-day recovery.",
+        message: "This will remove the school systemwide from active lists and store it in the Recycle Bin with 30-day recovery.",
         badgeIcon: "🏛️",
         badgeBg: "bg-rose-50 text-rose-600 border-rose-200",
         confirmText: "Archive School",
@@ -10889,7 +11541,7 @@
         scheduleDashboardRender();
         renderRecycleVault();
 
-        window.showToast(`School "${targetName}" archived to Recycle Vault.`, 'success');
+        window.showToast(`School "${targetName}" archived to Recycle Bin.`, 'success');
       } catch (err) {
         console.error("Error removing school:", err);
         window.showToast("Failed to remove school: " + err.message, "error");
@@ -11292,7 +11944,7 @@
                 ${uiIcon('message', 'w-6 h-6')}
               </div>
               <p class="text-xs font-semibold text-slate-600">No administrative remarks posted yet.</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">Submit curriculum notes, pedagogical remarks, or guidance for the educator below.</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Submit curriculum notes, teaching feedback, or guidance for the educator below.</p>
             </div>
           `;
           return;
@@ -11708,7 +12360,7 @@
           { label: "Overall Literacy Avg", value: overall.avgScore + "%" }
         ],
         headers: [
-          { label: "Grade Cohort", align: "left" },
+          { label: "Grade Level", align: "left" },
           { label: "Enrolled", align: "right" },
           { label: "Sections", align: "right" },
           { label: "Submissions", align: "right" },
@@ -11822,7 +12474,7 @@
         scopeBadge: "Personnel Directory",
         kpis: [
           { label: "Total Educators", value: teachers.length },
-          { label: "Accredited Faculty", value: accredited },
+          { label: "Verified Teachers", value: accredited },
           { label: "Pending Accreditation", value: pending }
         ],
         headers: [
@@ -12128,7 +12780,7 @@
           "First Name",
           "Last Name",
           "Username",
-          "Passkey Status",
+          "Password Status",
           "Grade Level",
           "Class Section",
           "DepEd School ID",
@@ -12328,7 +12980,7 @@
         'tab-announcements': isSchoolAdmin
           ? ['School Announcements & Bulletins', `Broadcast announcements to learners and faculty at ${getSchoolName(currentAdminUser?.schoolId)}.`]
           : ['Division Announcements & Directives', 'Broadcast official memorandums, directives, and advisories to school administrators, faculty, and learners.'],
-        'tab-recycle-vault': ['System Recycle Vault & Accidental Recovery', 'School-scoped protection for deleted learners, curriculum materials, subjects, and classroom rosters. 30-day retention with instant 1-click restoration.'],
+        'tab-recycle-vault': ['System Recycle Bin & Data Recovery', 'School-scoped protection for deleted learners, curriculum materials, subjects, and classroom rosters. 30-day retention with instant 1-click restoration.'],
         'tab-system-settings': ['System Configuration & AI Engine', 'Manage centralized Google Gemini API keys, division AI engine models, and global platform security parameters.']
       };
 
@@ -12338,6 +12990,7 @@
       }
 
       if (tabId === 'tab-batch-credentials') {
+        populateCredentialSectionDropdown();
         renderPendingStudentsTable();
       }
 
@@ -13373,7 +14026,7 @@
               <li><strong>School Authority:</strong> Governance scoped strictly to DepEd School ID <code>${currentAdminUser?.schoolId || 'Assigned School'}</code>.</li>
               <li><strong>Faculty Accreditation:</strong> Evaluate and grant 1-click approval for newly registered teachers at your school.</li>
               <li><strong>Student Credential Vault:</strong> Manage batch-generated student accounts and onboarding claims.</li>
-              <li><strong>Pedagogical Oversight:</strong> Review teacher modules and post constructive feedback via the <em>Remarks</em> drawer.</li>
+              <li><strong>Instructional Oversight:</strong> Review teacher modules and post constructive feedback via the <em>Remarks</em> drawer.</li>
             </ul>
           `;
         }
@@ -13766,7 +14419,7 @@
         if (totalItems === 0) {
           tierLabel = "Awaiting Data";
           tierBadgeClass = "bg-slate-50 text-slate-500 border-slate-200";
-          recAction = "Deploy assessment to collect competency telemetry.";
+          recAction = "Deploy assessment to collect competency results.";
         } else if (mps >= 75) {
           tierLabel = "Mastered (Passed)";
           tierBadgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
@@ -14193,7 +14846,7 @@
                 ${perfBadge}
               </div>
               <h2 class="text-lg sm:text-xl font-black text-slate-900 font-display mt-0.5">${escapeHtml(schoolName)}</h2>
-              <p class="text-xs text-slate-500">Comprehensive Institutional Reading Performance &amp; DepEd Diagnostic Telemetry</p>
+              <p class="text-xs text-slate-500">Comprehensive School Reading Performance &amp; DepEd Diagnostic Assessment Results</p>
             </div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
@@ -14232,10 +14885,10 @@
             <p class="text-[10px] text-slate-400 pt-1">Across ${subsCount} total turned-in assessment responses</p>
           </div>
 
-          <!-- Tile 2: Scholars & Quizzing Participation -->
+          <!-- Tile 2: Students & Quizzing Participation -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
             <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
-              <span>Enrolled &amp; Active Scholars</span>
+              <span>Enrolled &amp; Active Students</span>
               <span class="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 font-bold">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </span>
@@ -14245,7 +14898,7 @@
               <span class="text-[11px] text-slate-400 font-medium">Learners</span>
             </div>
             <div class="text-[11px] font-semibold text-slate-700">
-              <span class="text-indigo-600 font-bold">${uniqueActiveScholars}</span> actively quizzing (${participationPct}%)
+              <span class="text-indigo-600 font-bold">${uniqueActiveScholars}</span> actively practicing (${participationPct}%)
             </div>
             <p class="text-[10px] text-slate-400 pt-1">Average daily app habit: <span class="font-bold text-slate-700">${avgStreakVal} Days</span></p>
           </div>
@@ -14260,7 +14913,7 @@
             </div>
             <div class="flex items-baseline gap-2">
               <span class="text-3xl font-black text-purple-700 font-display">${verifiedTeachers}</span>
-              <span class="text-[11px] text-slate-400 font-medium">Accredited Faculty</span>
+              <span class="text-[11px] text-slate-400 font-medium">Verified Teachers</span>
             </div>
             <div class="text-[11px] font-semibold text-slate-700">
               <span class="font-bold text-purple-700">${sectionsCount}</span> active sections (Grades 7–10)
@@ -14394,7 +15047,7 @@
           <div class="flex items-center justify-between">
             <div>
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">DepEd GAD Telemetry</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">DepEd GAD Reading Data</span>
                 ${parityNotice}
               </div>
               <h3 class="font-bold text-sm text-slate-900 font-display mt-1">Gender-Disaggregated Literacy Breakdown</h3>
@@ -14478,7 +15131,7 @@
           <div class="flex items-center justify-between">
             <div>
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">School Priority Telemetry</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">School Priority Reading Skills</span>
                 <span class="text-xs text-slate-400">Ranked by Least Mastered First</span>
               </div>
               <h3 class="font-bold text-sm text-slate-900 font-display mt-1">School Priority Reading Skills &amp; Cognitive Dimensions</h3>
@@ -14728,7 +15381,7 @@
                 <button onclick="openAssessmentInspectorModal('${a.id}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1" title="Inspect Questions & Competencies">
                   ${uiIcon('clipboard', 'w-3 h-3')} <span>Questions</span>
                 </button>
-                <button onclick="openAssessmentSubmissionsModal('${a.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1" title="Submissions Telemetry">
+                <button onclick="openAssessmentSubmissionsModal('${a.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1" title="Submissions & Results">
                   ${uiIcon('chart', 'w-3 h-3')} <span>Submissions</span>
                 </button>
                 <button onclick="toggleDivisionAssessmentStatus('${a.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold" title="${isActive ? 'Close Test' : 'Reactivate Test'}">
@@ -14765,10 +15418,10 @@
       
       const confirmed = await showConfirmModal({
         title: "Archive & Remove Assessment?",
-        message: `Remove "${title || 'this division assessment'}"? It will be safely moved to the Recycle Vault, where it can be restored at any time within 30 days.`,
+        message: `Remove "${title || 'this division assessment'}"? It will be safely moved to the Recycle Bin, where it can be restored at any time within 30 days.`,
         badgeIcon: "⏱️",
         badgeBg: "bg-rose-50 text-rose-600 border-rose-200",
-        confirmText: "Move to Recycle Vault",
+        confirmText: "Move to Recycle Bin",
         isDestructive: true
       });
       if (!confirmed) return;
@@ -14802,7 +15455,7 @@
         // Remove from active collection
         await deleteDoc(docRef);
 
-        window.showToast(`Assessment "${title || id}" moved to Recycle Vault. (Recoverable for 30 days)`, "success");
+        window.showToast(`Assessment "${title || id}" moved to Recycle Bin. (Recoverable for 30 days)`, "success");
         if (typeof updateTimedAssessmentMetrics === 'function') updateTimedAssessmentMetrics();
         if (typeof renderTimedAssessmentsTable === 'function') renderTimedAssessmentsTable();
         if (typeof renderRecycleVault === 'function') renderRecycleVault();

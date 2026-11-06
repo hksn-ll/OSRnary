@@ -29,6 +29,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import android.text.InputType
 import android.widget.EditText
+import android.widget.TextView
+import android.graphics.Typeface
 import android.widget.LinearLayout
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -283,6 +285,12 @@ class MainActivity : AppCompatActivity() {
                 showForcePasswordChangeDialog(currentUser, currentUser.uid)
                 return false
             }
+
+            val currentGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
+            if (currentGender == "unspecified" || currentGender.isBlank()) {
+                showChooseGenderDialog(currentUser.uid)
+                return false
+            }
         }
 
         // All checks passed! Ensure correct dashboard is loaded
@@ -299,7 +307,6 @@ class MainActivity : AppCompatActivity() {
             message = "Super Admin and School Admin accounts must access GabAI using the Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students.",
             buttonText = "Understood",
             badgeIcon = "🛡️",
-            cancelable = false,
             onAction = {
                 getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
                 FirebaseAuth.getInstance().signOut()
@@ -316,7 +323,6 @@ class MainActivity : AppCompatActivity() {
             message = "Your educator account is awaiting verification by the Division/School Administrator.\n\nPlease contact your admin for activation.",
             buttonText = "Understood",
             badgeIcon = "⏳",
-            cancelable = false,
             onAction = {
                 getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
                 FirebaseAuth.getInstance().signOut()
@@ -363,6 +369,81 @@ class MainActivity : AppCompatActivity() {
         container.addView(etNewPass)
         container.addView(etConfirmPass)
 
+        val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        var selectedGender = prefs.getString("cached_user_gender", "unspecified") ?: "unspecified"
+
+        val tvGenderLabel = TextView(this).apply {
+            text = "Learner Gender (DepEd SF1 Standard)"
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(Color.parseColor("#475569"))
+            setPadding(0, (14 * density).toInt(), 0, (6 * density).toInt())
+        }
+        val genderRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = (4 * density).toInt() }
+        }
+
+        val btnMale = TextView(this).apply {
+            text = "👦 Male (Boy)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginEnd = (6 * density).toInt()
+            }
+        }
+
+        val btnFemale = TextView(this).apply {
+            text = "👧 Female (Girl)"
+            textSize = 12.5f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = (6 * density).toInt()
+            }
+        }
+
+        fun updateGenderPills() {
+            if (selectedGender == "male") {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_boy)
+                btnMale.setTextColor(Color.parseColor("#3730A3"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            } else if (selectedGender == "female") {
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_girl)
+                btnFemale.setTextColor(Color.parseColor("#9D174D"))
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+            } else {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            }
+        }
+        updateGenderPills()
+
+        btnMale.setOnClickListener {
+            selectedGender = "male"
+            updateGenderPills()
+        }
+        btnFemale.setOnClickListener {
+            selectedGender = "female"
+            updateGenderPills()
+        }
+
+        genderRow.addView(btnMale)
+        genderRow.addView(btnFemale)
+
+        container.addView(tvGenderLabel)
+        container.addView(genderRow)
+
         val forceDialog = GabAIDialogs.showCustomDialog(
             context = this,
             title = "Create New Password",
@@ -383,14 +464,20 @@ class MainActivity : AppCompatActivity() {
                     GabAIUtils.showSnackbar(this, "Passwords do not match")
                     return@showCustomDialog
                 }
+                if (selectedGender == "unspecified") {
+                    GabAIUtils.showSnackbar(this, "Please select whether you are Male (Boy) or Female (Girl)")
+                    return@showCustomDialog
+                }
 
                 GabAIUtils.showGlobalLoading(this, "Updating Password...")
                 user.updatePassword(newPass).addOnCompleteListener { updateTask ->
                     if (updateTask.isSuccessful) {
+                        prefs.edit().putString("cached_user_gender", selectedGender).apply()
                         FirebaseFirestore.getInstance().collection("users").document(uid).update(
                             mapOf(
                                 "mustChangePassword" to false,
-                                "tempPassword" to FieldValue.delete()
+                                "tempPassword" to FieldValue.delete(),
+                                "gender" to selectedGender
                             )
                         ).addOnCompleteListener {
                             GabAIUtils.hideGlobalLoading(this)
@@ -416,6 +503,132 @@ class MainActivity : AppCompatActivity() {
         forceDialog.setCanceledOnTouchOutside(false)
     }
 
+    private fun showChooseGenderDialog(uid: String) {
+        val density = resources.displayMetrics.density
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, (4 * density).toInt(), 0, (4 * density).toInt())
+        }
+
+        val tvNote = TextView(this).apply {
+            text = "Welcome to GabAI! Please choose whether you are Male or Female for your learner profile (DepEd SF1 standard)."
+            textSize = 13f
+            setTextColor(Color.parseColor("#475569"))
+            setPadding(0, 0, 0, (14 * density).toInt())
+        }
+        container.addView(tvNote)
+
+        var selectedGender = "unspecified"
+
+        val genderRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = (4 * density).toInt() }
+        }
+
+        val btnMale = TextView(this).apply {
+            text = "👦 Male (Boy)"
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setBackgroundResource(R.drawable.bg_pill_white)
+            setTextColor(Color.parseColor("#64748B"))
+            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginEnd = (6 * density).toInt()
+            }
+        }
+
+        val btnFemale = TextView(this).apply {
+            text = "👧 Female (Girl)"
+            textSize = 13f
+            setTypeface(null, Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setBackgroundResource(R.drawable.bg_pill_white)
+            setTextColor(Color.parseColor("#64748B"))
+            setPadding((14 * density).toInt(), (12 * density).toInt(), (14 * density).toInt(), (12 * density).toInt())
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = (6 * density).toInt()
+            }
+        }
+
+        fun updateGenderPills() {
+            if (selectedGender == "male") {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_boy)
+                btnMale.setTextColor(Color.parseColor("#3730A3"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            } else if (selectedGender == "female") {
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_girl)
+                btnFemale.setTextColor(Color.parseColor("#9D174D"))
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+            } else {
+                btnMale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnMale.setTextColor(Color.parseColor("#64748B"))
+                btnFemale.setBackgroundResource(R.drawable.bg_pill_white)
+                btnFemale.setTextColor(Color.parseColor("#64748B"))
+            }
+        }
+
+        btnMale.setOnClickListener {
+            selectedGender = "male"
+            updateGenderPills()
+        }
+        btnFemale.setOnClickListener {
+            selectedGender = "female"
+            updateGenderPills()
+        }
+
+        genderRow.addView(btnMale)
+        genderRow.addView(btnFemale)
+        container.addView(genderRow)
+
+        val genderDialog = GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Choose Your Gender",
+            subtitle = "Learner Profile Setup",
+            customView = container,
+            confirmText = "Continue",
+            cancelText = "Sign Out",
+            badgeIcon = "👤",
+            onConfirm = { dialog ->
+                if (selectedGender == "unspecified") {
+                    GabAIUtils.showSnackbar(this, "Please select whether you are Male (Boy) or Female (Girl)")
+                    return@showCustomDialog
+                }
+
+                GabAIUtils.showGlobalLoading(this, "Saving Profile...")
+                val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+                prefs.edit().putString("cached_user_gender", selectedGender).apply()
+
+                FirebaseFirestore.getInstance().collection("users").document(uid).update(
+                    "gender", selectedGender
+                ).addOnCompleteListener { task ->
+                    GabAIUtils.hideGlobalLoading(this)
+                    if (task.isSuccessful) {
+                        dialog.dismiss()
+                        GabAIUtils.showSnackbar(this, "Profile updated! Welcome to GabAI! 🎉")
+                        loadDashboard("student")
+                    } else {
+                        GabAIUtils.showSnackbar(this, task.exception?.localizedMessage ?: "Failed to save gender")
+                    }
+                }
+            },
+            onCancel = { dialog ->
+                getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
+                FirebaseAuth.getInstance().signOut()
+                dialog.dismiss()
+                startActivity(Intent(this, AuthActivity::class.java))
+                finish()
+            }
+        )
+        genderDialog.setCancelable(false)
+        genderDialog.setCanceledOnTouchOutside(false)
+    }
+
     private fun showAccountDeletedDialog() {
         GabAIDialogs.showNoticeDialog(
             context = this,
@@ -423,7 +636,6 @@ class MainActivity : AppCompatActivity() {
             message = "Your account details could not be found. It may have been deleted by your adviser or school administrator.\n\nPlease log out.",
             buttonText = "Log Out",
             badgeIcon = "🚫",
-            cancelable = false,
             onAction = {
                 getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit().remove("cached_user_role").apply()
                 FirebaseAuth.getInstance().signOut()

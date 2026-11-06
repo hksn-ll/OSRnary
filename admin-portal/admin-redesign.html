@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  GabAI School Division Admin Portal — UI REDESIGN TEMPLATE (UI ONLY)
+  ----------------------------------------------------------------------------
+  • Pure presentation layer. No API / Firebase / data logic lives here.
+  • Every tab ID, nav button ID, tbody ID, canvas ID, KPI ID, filter ID and
+    inline handler name mirrors admin.html so the existing JavaScript can be
+    re-attached without renaming anything.
+  • Table rows / cards marked "MOCK" are visual placeholders only — the real
+    renderers overwrite each "DYNAMIC DATA TARGET" container.
+  • Chart cards layer a static SVG preview (.chart-mock) under the real
+    <canvas>. Delete the .chart-mock SVG once Chart.js is bound.
+  • The <script> at the bottom is PREVIEW-ONLY. Replace it with admin.html logic.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GabAI School Admin Portal</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN (bound later by admin.html logic) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Nunito Sans"', 'system-ui', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif']
+          },
+          colors: {
+            gabai: {
+              purple: '#6C5CE7', indigo: '#5341CD', mint: '#00B894', emerald: '#10B981',
+              teal: '#006B55', rose: '#FD79A8', magenta: '#A31E79', amber: '#F59E0B',
+              dark: '#0F172A', muted: '#64748B', border: '#E2E8F0', surface: '#FFFFFF', canvas: '#F8FAFC'
+            }
+          },
+          boxShadow: {
+            card: '0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.12)',
+            lift: '0 2px 4px rgba(15,23,42,.04), 0 24px 48px -20px rgba(83,65,205,.28)',
+            glow: '0 8px 24px -8px rgba(83,65,205,.55)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- ===================== DESIGN SYSTEM TOKENS ===================== -->
+  <style type="text/tailwindcss">
+    @layer base {
+      html { -webkit-font-smoothing: antialiased; }
+      body { @apply font-sans text-slate-700 text-[13px]; }
+      h1, h2, h3, h4, .font-display { font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.01em; }
+      ::selection { background: rgba(108, 92, 231, .18); }
+      *::-webkit-scrollbar { width: 10px; height: 10px; }
+      *::-webkit-scrollbar-thumb { background: rgba(100,116,139,.25); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+      *::-webkit-scrollbar-thumb:hover { background-color: rgba(100,116,139,.45); }
+    }
+    @layer components {
+      /* ---------- Surfaces ---------- */
+      .bg-aurora {
+        background-color: #F6F7FB;
+        background-image:
+          radial-gradient(1200px 600px at -10% -10%, rgba(108,92,231,.14), transparent 60%),
+          radial-gradient(900px 500px at 110% -5%, rgba(0,184,148,.11), transparent 60%),
+          radial-gradient(900px 700px at 100% 110%, rgba(56,189,248,.10), transparent 60%),
+          radial-gradient(800px 600px at -5% 105%, rgba(253,121,168,.10), transparent 60%);
+        background-attachment: fixed;
+      }
+      .glass { @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150 border border-white/70; }
+      .card { @apply relative bg-white/85 backdrop-blur-xl border border-slate-200/70 rounded-2xl shadow-card; }
+      .card-hover { @apply transition duration-300 hover:-translate-y-0.5 hover:shadow-lift hover:border-indigo-200/70; }
+      .card-head { @apply flex flex-wrap items-center justify-between gap-3 px-5 pt-5 pb-4; }
+      .card-title { @apply text-sm font-bold text-slate-900 font-display; }
+      .card-sub { @apply text-xs text-slate-500 mt-0.5; }
+      .eyebrow { @apply text-[10.5px] font-bold uppercase tracking-[0.09em] text-slate-500; }
+      .divider { @apply border-t border-slate-100; }
+
+      /* ---------- Icons ---------- */
+      .ico { width: 1rem; height: 1rem; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .ico-sm { width: .875rem; height: .875rem; }
+      .ico-lg { width: 1.25rem; height: 1.25rem; }
+      .icon-tile { @apply w-10 h-10 rounded-xl grid place-items-center shrink-0; }
+
+      /* ---------- Buttons ---------- */
+      .btn { @apply inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition duration-200 active:scale-[.97] focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20; }
+      .btn-primary { @apply text-white bg-gradient-to-b from-[#6C5CE7] to-[#5341CD] shadow-glow hover:brightness-110; }
+      .btn-dark { @apply text-white bg-slate-900 hover:bg-slate-800 shadow-sm; }
+      .btn-soft { @apply bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm; }
+      .btn-tint { @apply bg-indigo-50 text-[#5341CD] border border-indigo-100 hover:bg-indigo-100; }
+      .btn-ghost { @apply text-slate-600 hover:bg-slate-100 hover:text-slate-900; }
+      .btn-danger { @apply bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100; }
+      .btn-success { @apply bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm; }
+      .btn-icon { @apply w-9 px-0; }
+      .btn-xs { @apply h-7 px-2.5 rounded-lg text-[11px]; }
+      .btn-xs.btn-icon { @apply w-7 px-0; }
+
+      /* ---------- Chips / Segmented ---------- */
+      .chip { @apply inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 transition; }
+      .chip-active, .chip.active { @apply bg-slate-900 border-slate-900 text-white hover:text-white; }
+      .chip-count { @apply min-w-[20px] h-5 px-1.5 rounded-full grid place-items-center text-[10px] font-extrabold bg-slate-100 text-slate-600; }
+      .chip-active .chip-count, .chip.active .chip-count { @apply bg-white/20 text-white; }
+      .seg { @apply inline-flex items-center p-1 rounded-xl bg-slate-100/90 border border-slate-200/60; }
+      .seg > button { @apply h-7 px-3 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-900 transition; }
+      .seg > button.on { @apply bg-white text-slate-900 shadow-sm; }
+
+      /* ---------- Form fields ---------- */
+      .field { @apply relative; }
+      .field > .ico { @apply absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none; }
+      .input { @apply h-9 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 shadow-sm transition focus:outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10; }
+      .input-plain { @apply pl-3 pr-3; }
+      .field-clear { @apply absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-md grid place-items-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 text-sm font-bold; }
+      .select { @apply h-9 rounded-xl border border-slate-200 bg-white pl-3 pr-8 text-xs font-semibold text-slate-700 shadow-sm appearance-none cursor-pointer transition focus:outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right .6rem center; background-size: 14px; }
+      .label { @apply block text-[11px] font-bold text-slate-600 mb-1.5; }
+      .checkbox { @apply w-4 h-4 rounded-[5px] border-slate-300 text-[#5341CD] focus:ring-indigo-500/30 cursor-pointer; }
+
+      /* ---------- Tags / badges ---------- */
+      .tag { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold border whitespace-nowrap; }
+      .tag-dot::before { content: ''; @apply w-1.5 h-1.5 rounded-full bg-current; }
+      .tag-green { @apply bg-emerald-50 text-emerald-700 border-emerald-200/80; }
+      .tag-amber { @apply bg-amber-50 text-amber-700 border-amber-200/80; }
+      .tag-rose { @apply bg-rose-50 text-rose-600 border-rose-200/80; }
+      .tag-indigo { @apply bg-indigo-50 text-[#5341CD] border-indigo-200/80; }
+      .tag-sky { @apply bg-sky-50 text-sky-700 border-sky-200/80; }
+      .tag-slate { @apply bg-slate-100 text-slate-600 border-slate-200; }
+      .tag-dark { @apply bg-slate-900 text-white border-slate-900; }
+      .delta { @apply inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10.5px] font-extrabold; }
+      .delta-up { @apply bg-emerald-50 text-emerald-600; }
+      .delta-down { @apply bg-rose-50 text-rose-600; }
+      .delta-flat { @apply bg-slate-100 text-slate-500; }
+      .kbd { @apply inline-flex items-center h-5 px-1.5 rounded-md border border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-500 font-sans; }
+
+      /* ---------- KPI tiles ---------- */
+      .kpi { @apply card p-4 flex flex-col gap-3 overflow-hidden; }
+      .kpi-top { @apply flex items-start justify-between gap-2; }
+      .kpi-label { @apply text-[11.5px] font-semibold text-slate-500; }
+      .kpi-val { @apply text-[26px] leading-none font-extrabold text-slate-900 font-display tracking-tight; }
+      .kpi-foot { @apply flex items-center gap-2 text-[11px] text-slate-500; }
+
+      /* ---------- Tables ---------- */
+      .tbl-toolbar { @apply flex flex-wrap items-center gap-2 px-5 py-3.5 border-y border-slate-100 bg-slate-50/50; }
+      .tbl-wrap { @apply overflow-auto max-h-[620px]; }
+      .tbl { @apply w-full text-xs border-separate border-spacing-0; }
+      .tbl thead th { @apply sticky top-0 z-10 bg-slate-50/95 backdrop-blur text-left text-[10.5px] uppercase tracking-[0.07em] font-bold text-slate-500 px-4 py-3 border-b border-slate-200 whitespace-nowrap; }
+      .tbl tbody td { @apply px-4 py-3.5 border-b border-slate-100 align-middle text-slate-600; }
+      .tbl tbody tr { @apply transition-colors hover:bg-indigo-50/40; }
+      .tbl tbody tr:last-child td { @apply border-b-0; }
+      .tbl .cell-strong { @apply font-bold text-slate-900; }
+      .tbl-foot { @apply flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-t border-slate-100 text-[11px] text-slate-500; }
+      .pager { @apply inline-flex items-center gap-1; }
+      .pager button { @apply min-w-[28px] h-7 px-2 rounded-lg text-[11px] font-bold text-slate-600 hover:bg-slate-100; }
+      .pager button.on { @apply bg-slate-900 text-white; }
+      .bulk-bar { @apply flex flex-wrap items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white text-xs; }
+
+      /* ---------- Avatars / progress ---------- */
+      .avatar { @apply w-8 h-8 rounded-full grid place-items-center text-[11px] font-extrabold text-white shrink-0 ring-2 ring-white; }
+      .bar { @apply h-1.5 w-full rounded-full bg-slate-100 overflow-hidden; }
+      .bar > span { @apply block h-full rounded-full; }
+
+      /* ---------- Sidebar ---------- */
+      .nav-label { @apply px-3 pt-5 pb-2 text-[10.5px] font-bold uppercase tracking-[0.1em] text-slate-400; }
+      .nav-item { @apply relative w-full flex items-center gap-3 h-10 px-3 rounded-xl text-left text-[13px] font-semibold text-slate-600 transition duration-200 hover:bg-slate-900/[0.04] hover:text-slate-900; }
+      .nav-item .ico { @apply w-[18px] h-[18px] text-slate-400 transition; }
+      .nav-item:hover .ico { @apply text-[#5341CD]; }
+      .nav-active, .nav-item.nav-active { @apply text-white bg-gradient-to-br from-[#6C5CE7] to-[#5341CD] shadow-glow hover:text-white; }
+      .nav-item.nav-active .ico { @apply text-white; }
+      .nav-badge { @apply ml-auto min-w-[20px] h-5 px-1.5 rounded-full grid place-items-center text-[10px] font-extrabold; }
+      .nav-item.nav-active .nav-badge { @apply bg-white text-[#5341CD] border-white; }
+
+      /* ---------- Chart preview layer ---------- */
+      .chart-box { @apply relative w-full; }
+      .chart-box > canvas { position: relative; z-index: 1; }
+      .chart-mock { @apply absolute inset-0 w-full h-full; }
+
+      /* ---------- Overlays ---------- */
+      .ui-overlay { @apply fixed inset-0 z-[80] bg-slate-900/40 backdrop-blur-sm; }
+      .menu-pop { @apply absolute right-0 mt-2 z-50 glass rounded-2xl shadow-lift p-1.5 bg-white/95; }
+      details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
+    }
+
+    /* ---------- Collapsible desktop rail ---------- */
+    @media (min-width: 1024px) {
+      body.rail #mainSidebar { width: 5.25rem; }
+      body.rail #mainSidebar .rail-hide { display: none !important; }
+      body.rail #mainSidebar .nav-item { justify-content: center; padding: 0; }
+      body.rail #mainSidebar .nav-label { text-align: center; padding-left: 0; padding-right: 0; font-size: 0; }
+      body.rail #mainSidebar .nav-label::after { content: '•••'; font-size: 10px; letter-spacing: .1em; }
+      body.rail #mainSidebar .rail-center { justify-content: center; }
+      body.rail #btnRailToggle .ico { transform: rotate(180deg); }
+    }
+    .tab-content { animation: tabIn .35s cubic-bezier(.16,1,.3,1); }
+    @keyframes tabIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .tab-content { animation: none; } }
+  </style>
+</head>
+
+<body class="bg-aurora min-h-screen">
+
+  <!-- ===================== ICON SPRITE (Lucide paths) ===================== -->
+  <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-chevrons-left" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8M16 17H8M10 9H8"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></symbol>
+  </svg>
+
+  <!-- ======================================================================
+       APP SHELL  (id="mainDashboard" preserved — admin.html un-hides it after auth)
+       ====================================================================== -->
+  <div id="mainDashboard" class="w-full min-h-screen flex">
+
+    <!-- Mobile Backdrop -->
+    <div id="mobileSidebarBackdrop" onclick="toggleMobileSidebar(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside id="mainSidebar" aria-label="Main Navigation"
+      class="fixed inset-y-0 left-0 z-40 w-[17.5rem] -translate-x-full lg:translate-x-0 lg:sticky lg:top-0 h-screen shrink-0 flex flex-col glass bg-white/75 border-r border-slate-200/70 transition-[transform,width] duration-300 ease-out">
+
+      <!-- Brand -->
+      <div class="flex items-center gap-3 h-[72px] px-4 border-b border-slate-200/60 rail-center">
+        <a href="../index.html" title="Back to GabAI Main Website" class="shrink-0 transition-transform hover:scale-105">
+          <img src="logo.png" alt="GabAI Logo" class="w-10 h-10 rounded-xl object-cover shadow-sm ring-1 ring-slate-900/5">
+        </a>
+        <div class="rail-hide min-w-0">
+          <div class="font-display font-extrabold text-[15px] text-slate-900 leading-tight">GabAI</div>
+          <div class="text-[11px] text-slate-500 font-semibold truncate">School Division Admin</div>
+        </div>
+        <button id="btnRailToggle" type="button" onclick="toggleSidebarRail()" class="rail-hide hidden lg:grid ml-auto w-8 h-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Collapse sidebar">
+          <svg class="ico"><use href="#i-chevrons-left"/></svg>
+        </button>
+        <button type="button" onclick="toggleMobileSidebar(false)" aria-label="Close navigation" class="lg:hidden ml-auto w-8 h-8 grid place-items-center rounded-lg text-slate-500 hover:bg-slate-100">
+          <svg class="ico"><use href="#i-x"/></svg>
+        </button>
+      </div>
+
+      <!-- Rail expand button (visible only when collapsed) -->
+      <button type="button" onclick="toggleSidebarRail()" class="hidden [body.rail_&]:lg:grid mx-auto mt-3 w-9 h-9 place-items-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Expand sidebar">
+        <svg class="ico rotate-180"><use href="#i-chevrons-left"/></svg>
+      </button>
+
+      <!-- Hidden placeholders for approval metrics (kept for admin.html compatibility) -->
+      <div id="sidebarApprovalAlert" class="hidden">
+        <span id="pendingTeachersBadge" class="hidden">0</span>
+        <p id="pendingTeachersBadgeText" class="hidden"></p>
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex-1 overflow-y-auto px-3 pb-4">
+
+        <!-- 1. Governance & Schools -->
+        <div>
+          <div class="nav-label">Governance &amp; Schools</div>
+          <nav class="space-y-1">
+            <button onclick="switchTab('tab-division-dashboard')" id="btn-tab-division-dashboard" aria-current="page" title="Executive Overview" class="nav-item nav-active"
+              data-title="Division Executive Overview" data-subtitle="Live indicators across participating junior high schools in the Schools Division of Valenzuela City.">
+              <svg class="ico"><use href="#i-grid"/></svg>
+              <span id="overviewBtnLabel" class="rail-hide">Executive Overview</span>
+            </button>
+            <button onclick="switchTab('tab-school-matrix')" id="btn-tab-school-matrix" title="School Directory" class="nav-item"
+              data-title="School Directory" data-subtitle="Registered DepEd junior high schools, school admins and campus-level reading mastery.">
+              <svg class="ico"><use href="#i-building"/></svg>
+              <span class="rail-hide">School Directory</span>
+            </button>
+            <button onclick="switchTab('tab-announcements')" id="btn-tab-announcements" title="Announcements" class="nav-item"
+              data-title="Announcements" data-subtitle="Division directives and school memos broadcast to teachers, learners and admins.">
+              <svg class="ico"><use href="#i-megaphone"/></svg>
+              <span class="rail-hide">Announcements</span>
+              <span id="badgeUnreadAnnouncements" class="nav-badge rail-hide bg-[#6C5CE7] text-white">3</span>
+            </button>
+            <button onclick="switchTab('tab-recycle-vault')" id="btn-tab-recycle-vault" title="Recycle Bin" class="nav-item"
+              data-title="Recycle Bin" data-subtitle="Archived records are kept for 30 days before permanent deletion. Restore anything here.">
+              <svg class="ico"><use href="#i-restore"/></svg>
+              <span class="rail-hide">Recycle Bin</span>
+              <span id="badgeRecycleVaultCount" class="nav-badge rail-hide bg-amber-100 text-amber-800 border border-amber-200">12</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- 2. Faculty & Classes -->
+        <div id="navSectionFacultyClasses">
+          <div class="nav-label">Faculty &amp; Classes</div>
+          <nav class="space-y-1">
+            <button onclick="switchTab('tab-faculty-verification')" id="btn-tab-faculty-verification" title="Faculty &amp; Approvals" class="nav-item"
+              data-title="Faculty &amp; Approvals" data-subtitle="Verify teacher registrations and manage accredited faculty across your jurisdiction.">
+              <svg class="ico"><use href="#i-shield"/></svg>
+              <span class="rail-hide">Faculty &amp; Approvals</span>
+              <span id="navPendingCount" class="nav-badge rail-hide bg-rose-100 text-rose-600 border border-rose-200">4</span>
+            </button>
+            <button onclick="switchTab('tab-classroom-sections')" id="btn-tab-classroom-sections" title="Classes &amp; Section Codes" class="nav-item"
+              data-title="Classes &amp; Section Codes" data-subtitle="Classroom sections, join codes and enrolled learner rosters.">
+              <svg class="ico"><use href="#i-tag"/></svg>
+              <span class="rail-hide">Classes &amp; Section Codes</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- 3. Learners & Analytics -->
+        <div>
+          <div class="nav-label">Learners &amp; Analytics</div>
+          <nav class="space-y-1">
+            <button onclick="switchTab('tab-learner-performance')" id="btn-tab-learner-performance" title="Learner Performance" class="nav-item"
+              data-title="Learner Performance" data-subtitle="Phil-IRI reading tiers, comprehension MPS, reading speed and engagement telemetry.">
+              <svg class="ico"><use href="#i-chart"/></svg>
+              <span class="rail-hide">Learner Performance</span>
+            </button>
+            <button onclick="switchTab('tab-batch-credentials')" id="btn-tab-batch-credentials" title="Student Accounts &amp; Passwords" class="nav-item"
+              data-title="Student Accounts &amp; Passwords" data-subtitle="Provision learner credentials, track claimed accounts and review profile photos.">
+              <svg class="ico"><use href="#i-key"/></svg>
+              <span class="rail-hide">Student Accounts &amp; Passwords</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- 4. Curriculum & Assessments -->
+        <div>
+          <div class="nav-label">Curriculum &amp; Assessments</div>
+          <nav class="space-y-1">
+            <button onclick="switchTab('tab-timed-assessments')" id="btn-tab-timed-assessments" title="Standardized Reading Tests" class="nav-item"
+              data-title="Standardized Reading Tests" data-subtitle="Division-wide timed assessments, competency mastery and pre/post growth analytics.">
+              <svg class="ico"><use href="#i-clock"/></svg>
+              <span class="rail-hide">Standardized Reading Tests</span>
+            </button>
+            <button onclick="switchTab('tab-library-management')" id="btn-tab-library-management" title="Reading Materials &amp; Modules" class="nav-item"
+              data-title="Reading Materials &amp; Modules" data-subtitle="Subject folders, PDF reading modules and attached comprehension quizzes.">
+              <svg class="ico"><use href="#i-book"/></svg>
+              <span class="rail-hide">Reading Materials &amp; Modules</span>
+            </button>
+            <button onclick="switchTab('tab-weekly-assessments')" id="btn-tab-weekly-assessments" title="Weekly Classroom Quizzes" class="nav-item"
+              data-title="Weekly Classroom Quizzes" data-subtitle="Teacher-assigned weekly quizzes, due dates and class submission averages.">
+              <svg class="ico"><use href="#i-clipboard"/></svg>
+              <span class="rail-hide">Weekly Classroom Quizzes</span>
+            </button>
+            <button onclick="switchTab('tab-quiz-attempts')" id="btn-tab-quiz-attempts" title="Quiz Attempt Logs" class="nav-item"
+              data-title="Quiz Attempt Logs" data-subtitle="Every learner quiz attempt with score, accuracy and mastery status.">
+              <svg class="ico"><use href="#i-check-circle"/></svg>
+              <span class="rail-hide">Quiz Attempt Logs</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- 5. System Administration (Super Admin only — admin.html toggles .hidden) -->
+        <div id="navSectionSuperAdminSettings" data-role="super">
+          <div class="nav-label">System Administration</div>
+          <nav class="space-y-1">
+            <button onclick="switchTab('tab-system-settings')" id="btn-tab-system-settings" title="System Settings" class="nav-item"
+              data-title="System Settings" data-subtitle="Centralized Gemini AI configuration and platform health for the whole division.">
+              <svg class="ico"><use href="#i-settings"/></svg>
+              <span class="rail-hide">System Settings</span>
+              <span id="badgeSystemConfigStatus" class="nav-badge rail-hide px-2 bg-emerald-50 text-emerald-700 border border-emerald-200">Live</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Sidebar footer -->
+      <div class="p-3 border-t border-slate-200/60 space-y-2">
+        <div class="rail-hide rounded-2xl p-3.5 bg-gradient-to-br from-[#5341CD] via-[#6C5CE7] to-[#8B7CF6] text-white relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10"></div>
+          <div class="absolute right-4 -bottom-8 w-16 h-16 rounded-full bg-white/10"></div>
+          <div class="relative flex items-center gap-2 text-[11px] font-bold text-white/80"><svg class="ico ico-sm"><use href="#i-sparkles"/></svg> New to the portal?</div>
+          <p class="relative text-xs font-semibold mt-1 leading-snug">Take the 2-minute guided tour of every module.</p>
+          <button type="button" onclick="openHelpHubModal()" class="relative mt-2.5 btn btn-xs bg-white text-[#5341CD] hover:bg-indigo-50">Portal Guide &amp; Tour <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button>
+        </div>
+        <button type="button" onclick="openHelpHubModal()" title="Portal Guide &amp; Tour" class="hidden [body.rail_&]:lg:flex nav-item"><svg class="ico"><use href="#i-help"/></svg></button>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN COLUMN ===================== -->
+    <div class="flex-1 min-w-0 flex flex-col">
+
+      <!-- Top Header -->
+      <header class="sticky top-0 z-30 glass bg-white/70 border-x-0 border-t-0 border-b border-slate-200/70">
+        <div class="flex items-center gap-3 px-4 sm:px-6 lg:px-8 h-[72px]">
+          <button id="btnToggleMobileSidebar" type="button" onclick="toggleMobileSidebar()" class="lg:hidden btn btn-soft btn-icon" aria-label="Toggle navigation menu">
+            <svg class="ico"><use href="#i-menu"/></svg>
+          </button>
+
+          <!-- Breadcrumb + dynamic title -->
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+              <span class="hidden sm:inline">SDO Valenzuela City</span>
+              <svg class="ico ico-sm hidden sm:block"><use href="#i-chevron-right"/></svg>
+              <!-- Jurisdiction selector (preserved id + handler) -->
+              <div id="tourTargetJurisdiction" class="relative inline-flex items-center">
+                <svg class="ico ico-sm absolute left-2 text-[#5341CD] pointer-events-none"><use href="#i-building"/></svg>
+                <select id="jurisdictionSelect" onchange="handleJurisdictionChange(this.value)" class="appearance-none bg-indigo-50/80 hover:bg-indigo-100 border border-indigo-100 rounded-lg pl-6 pr-6 py-0.5 text-[11px] font-bold text-[#5341CD] cursor-pointer focus:outline-none">
+                  <option value="ALL">All Junior High Schools</option>
+                  <option>Valenzuela National High School</option>
+                  <option>Malinta National High School</option>
+                </select>
+                <svg class="ico ico-sm absolute right-1.5 text-[#5341CD] pointer-events-none"><use href="#i-chevron-down"/></svg>
+              </div>
+              <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg>
+              <span id="crumbCurrentTab" class="text-slate-600 truncate">Executive Overview</span>
+            </div>
+            <div class="flex items-center gap-2.5 mt-0.5 min-w-0">
+              <h2 id="currentTabTitle" class="text-lg sm:text-xl font-extrabold text-slate-900 truncate">Division Executive Overview</h2>
+              <span id="roleHeaderBadge" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border bg-indigo-50 text-[#5341CD] border-indigo-200 font-display whitespace-nowrap">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> SDO Super Admin
+              </span>
+            </div>
+            <p id="currentTabSubtitle" class="hidden md:block text-xs text-slate-500 truncate">Live indicators across participating junior high schools in the Schools Division of Valenzuela City.</p>
+          </div>
+
+          <!-- Quick action bar -->
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <button type="button" onclick="openUiModal('commandPalette')" class="hidden xl:flex items-center gap-2 h-9 w-64 px-3 rounded-xl border border-slate-200 bg-white/80 text-xs text-slate-400 hover:border-slate-300 shadow-sm">
+              <svg class="ico"><use href="#i-search"/></svg>
+              <span class="flex-1 text-left">Search learners, schools, tests…</span>
+              <span class="kbd">Ctrl</span><span class="kbd">K</span>
+            </button>
+            <button type="button" onclick="openUiModal('commandPalette')" class="xl:hidden btn btn-soft btn-icon" title="Search (Ctrl+K)"><svg class="ico"><use href="#i-search"/></svg></button>
+            <button type="button" onclick="refreshAllData()" class="btn btn-soft btn-icon" title="Refresh Live Data"><svg class="ico"><use href="#i-refresh"/></svg></button>
+            <button type="button" onclick="openHelpHubModal()" id="btnHeaderHelp" class="hidden sm:inline-flex btn btn-soft btn-icon" title="Help &amp; Interactive Guided Tour"><svg class="ico"><use href="#i-help"/></svg></button>
+
+            <!-- Notifications (zero-JS <details> dropdown) -->
+            <details class="relative">
+              <summary class="btn btn-soft btn-icon cursor-pointer relative" title="Notifications">
+                <svg class="ico"><use href="#i-bell"/></svg>
+                <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+              </summary>
+              <div class="menu-pop w-80">
+                <div class="flex items-center justify-between px-3 py-2">
+                  <span class="text-xs font-bold text-slate-900 font-display">Notifications</span>
+                  <button class="text-[11px] font-bold text-[#5341CD] hover:underline">Mark all read</button>
+                </div>
+                <!-- DYNAMIC DATA TARGET: id="headerNotificationsList" (new, optional) -->
+                <div id="headerNotificationsList" class="space-y-0.5">
+                  <!-- MOCK -->
+                  <a class="flex gap-3 p-2.5 rounded-xl hover:bg-slate-50 cursor-pointer">
+                    <span class="icon-tile w-8 h-8 bg-amber-50 text-amber-600"><svg class="ico ico-sm"><use href="#i-shield"/></svg></span>
+                    <span class="min-w-0"><span class="block text-xs font-semibold text-slate-800">4 teachers awaiting verification</span><span class="block text-[11px] text-slate-400">Faculty &amp; Approvals · 12m ago</span></span>
+                  </a>
+                  <a class="flex gap-3 p-2.5 rounded-xl hover:bg-slate-50 cursor-pointer">
+                    <span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico ico-sm"><use href="#i-check-circle"/></svg></span>
+                    <span class="min-w-0"><span class="block text-xs font-semibold text-slate-800">Q2 Reading Test reached 1,000 submissions</span><span class="block text-[11px] text-slate-400">Standardized Tests · 1h ago</span></span>
+                  </a>
+                  <a class="flex gap-3 p-2.5 rounded-xl hover:bg-slate-50 cursor-pointer">
+                    <span class="icon-tile w-8 h-8 bg-indigo-50 text-[#5341CD]"><svg class="ico ico-sm"><use href="#i-message"/></svg></span>
+                    <span class="min-w-0"><span class="block text-xs font-semibold text-slate-800">12 new replies on “Reading Month Kickoff”</span><span class="block text-[11px] text-slate-400">Announcements · 3h ago</span></span>
+                  </a>
+                </div>
+              </div>
+            </details>
+
+            <!-- User menu -->
+            <details class="relative">
+              <summary class="flex items-center gap-2.5 pl-2 sm:pl-3 ml-1 border-l border-slate-200 cursor-pointer">
+                <span class="avatar w-9 h-9 bg-gradient-to-br from-[#6C5CE7] to-[#00B894]">RA</span>
+                <span class="hidden lg:block text-left">
+                  <span id="adminUserDisplayName" class="block font-bold text-slate-800 text-xs font-display leading-tight">Ramon Aquino</span>
+                  <span id="adminUserEmail" class="block text-[10.5px] text-slate-500 truncate max-w-[150px]">ramon.aquino@deped.gov.ph</span>
+                </span>
+                <svg class="ico ico-sm text-slate-400 hidden lg:block"><use href="#i-chevron-down"/></svg>
+              </summary>
+              <div class="menu-pop w-64">
+                <div class="px-3 py-2.5">
+                  <div class="text-xs font-bold text-slate-900">Ramon Aquino</div>
+                  <div class="text-[11px] text-slate-500">ramon.aquino@deped.gov.ph</div>
+                  <span id="adminRoleBadge" class="inline-block mt-2 bg-indigo-50 text-[#5341CD] border border-indigo-200 text-[10px] px-2 py-0.5 rounded-full font-bold">SDO Super Admin</span>
+                </div>
+                <div class="divider my-1"></div>
+                <button type="button" onclick="openHelpHubModal()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50"><svg class="ico"><use href="#i-help"/></svg> Help &amp; guided tour</button>
+                <button type="button" onclick="switchTab('tab-system-settings')" data-role="super" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50"><svg class="ico"><use href="#i-settings"/></svg> System settings</button>
+                <div class="divider my-1"></div>
+                <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50"><svg class="ico"><use href="#i-logout"/></svg> Sign Out</button>
+              </div>
+            </details>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===================== MAIN OPERATIONAL CANVAS ===================== -->
+      <main id="mainCanvas" class="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ================================================================
+             VIEW 1: EXECUTIVE DASHBOARD   id="tab-division-dashboard"
+             ================================================================ -->
+        <div id="tab-division-dashboard" class="tab-content space-y-6">
+
+          <!-- Division Directives Banner (School Admins) -->
+          <div id="divisionDirectivesBanner" data-role="school" class="hidden card overflow-hidden">
+            <div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-amber-400 to-rose-400"></div>
+            <div class="flex flex-wrap items-center gap-4 p-4 pl-5">
+              <span class="icon-tile bg-amber-50 text-amber-600 ring-1 ring-amber-200"><svg class="ico ico-lg"><use href="#i-alert"/></svg></span>
+              <div class="flex-1 min-w-[220px]">
+                <div class="flex items-center gap-2">
+                  <span class="tag tag-amber uppercase tracking-wider">SDO Division Directive</span>
+                  <span id="directiveDate" class="text-[11px] text-slate-400 font-semibold">Nov 4, 2026</span>
+                </div>
+                <h3 id="directiveTitle" class="text-sm font-bold text-slate-900 mt-1">Submit Q2 Phil-IRI Post-Test results before Nov 15</h3>
+                <p id="directiveSnippet" class="text-xs text-slate-500 line-clamp-1">All JHS campuses must finalize post-test encoding so the division can publish the Q2 reading profile.</p>
+              </div>
+              <button onclick="switchTab('tab-announcements')" class="btn btn-dark">Read directive <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button>
+            </div>
+          </div>
+
+          <!-- Section header + view mode -->
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span id="dashboardScopeTag" class="tag tag-indigo tag-dot">Division-wide · 24 campuses</span>
+              <h2 id="dashboardMainTitle" class="mt-2 text-2xl font-extrabold text-slate-900">Good evening, Ramon 👋</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Here’s how reading literacy is trending across Valenzuela City this quarter.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="seg">
+                <button id="btnViewModeAll" onclick="setExecutiveViewMode('all')" class="on">All</button>
+                <button id="btnViewModeCharts" onclick="setExecutiveViewMode('charts')">Charts</button>
+                <button id="btnViewModeData" onclick="setExecutiveViewMode('data')">Data</button>
+              </div>
+              <button onclick="exportExecutiveOverviewPDF()" class="btn btn-primary"><svg class="ico"><use href="#i-download"/></svg> Export PDF</button>
+            </div>
+          </div>
+
+          <!-- ===== BENTO ROW A: AI briefing + KPI tiles ===== -->
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+
+            <!-- AI Executive Briefing -->
+            <div id="executiveAiBriefingCard" class="xl:col-span-5 relative overflow-hidden rounded-2xl p-5 text-white bg-gradient-to-br from-[#2B1F8F] via-[#5341CD] to-[#7C6CF0] shadow-lift">
+              <div class="absolute -top-20 -right-16 w-64 h-64 rounded-full bg-[#00B894]/25 blur-3xl"></div>
+              <div class="absolute -bottom-24 -left-10 w-64 h-64 rounded-full bg-[#FD79A8]/20 blur-3xl"></div>
+              <div class="relative flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-xl bg-white/15 grid place-items-center ring-1 ring-white/20"><svg class="ico"><use href="#i-sparkles"/></svg></span>
+                  <div>
+                    <div class="text-sm font-bold font-display">AI Executive Briefing</div>
+                    <div class="text-[10.5px] text-white/60">Generated <span id="aiBriefingTimestamp">today, 11:42 PM</span></div>
+                  </div>
+                </div>
+                <span class="tag bg-white/10 border-white/20 text-white">Gemini</span>
+              </div>
+              <!-- DYNAMIC DATA TARGET: id="aiBriefingPoints" -->
+              <div id="aiBriefingPoints" class="relative mt-4 grid grid-cols-2 gap-2.5">
+                <div class="rounded-xl bg-white/10 ring-1 ring-white/10 p-3">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/60">Leading grade</div>
+                  <div id="briefLeadingGrade" class="text-base font-extrabold font-display mt-0.5">Grade 8</div>
+                  <p id="briefLeadingGradeDetail" class="text-[11px] text-white/70 leading-snug">78.2% MPS, +3.1 pts vs Q1</p>
+                </div>
+                <div class="rounded-xl bg-white/10 ring-1 ring-white/10 p-3">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/60">Submission velocity</div>
+                  <div id="briefVelocity" class="text-base font-extrabold font-display mt-0.5">412 / day</div>
+                  <p id="briefVelocityDetail" class="text-[11px] text-white/70 leading-snug">Peak on Tuesdays, 9–11 AM</p>
+                </div>
+                <div class="col-span-2 rounded-xl bg-rose-400/20 ring-1 ring-rose-200/30 p-3">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-rose-100">Priority intervention</div>
+                  <div id="briefPriorityIntervention" class="text-sm font-extrabold font-display mt-0.5">Inferencing (EN7RC-IIIa-2.1)</div>
+                  <p id="briefPriorityDetail" class="text-[11px] text-white/75 leading-snug">Only 58% mastery among Grade 7 — recommend targeted remedial reading sessions.</p>
+                </div>
+                <div id="briefCardDistrictParity" class="rounded-xl bg-white/10 ring-1 ring-white/10 p-3">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/60">District parity</div>
+                  <div id="briefDistrictParity" class="text-base font-extrabold font-display mt-0.5">1.8 pt gap</div>
+                  <p id="briefDistrictDetail" class="text-[11px] text-white/70 leading-snug">District 1 leads narrowly</p>
+                </div>
+                <div id="briefCardSchoolSection" class="rounded-xl bg-white/10 ring-1 ring-white/10 p-3">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/60">Top section</div>
+                  <div id="briefSchoolSection" class="text-base font-extrabold font-display mt-0.5">8 – Sampaguita</div>
+                  <p id="briefSchoolSectionDetail" class="text-[11px] text-white/70 leading-snug">Malinta NHS · 91% MPS</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- KPI tiles -->
+            <div class="xl:col-span-7 flex flex-col gap-4">
+
+              <!-- Super Admin KPI Row -->
+              <div id="superAdminKpiRow" data-role="super" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Active timed tests</span><span class="icon-tile w-8 h-8 bg-indigo-50 text-[#5341CD]"><svg class="ico"><use href="#i-clock"/></svg></span></div>
+                  <div id="saKpiActiveTimedAssessments" class="kpi-val">6</div>
+                  <div class="kpi-foot"><span class="delta delta-up"><svg class="ico ico-sm"><use href="#i-up"/></svg>2</span> launched this week</div>
+                </div>
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Total learners</span><span class="icon-tile w-8 h-8 bg-sky-50 text-sky-600"><svg class="ico"><use href="#i-users"/></svg></span></div>
+                  <div id="saKpiTotalLearners" class="kpi-val">18,432</div>
+                  <div class="kpi-foot"><span class="delta delta-up"><svg class="ico ico-sm"><use href="#i-up"/></svg>12.4%</span> vs last quarter</div>
+                </div>
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Division MPS</span>
+                    <!-- MPS progress ring -->
+                    <span class="relative w-11 h-11 -mt-1 -mr-1">
+                      <svg viewBox="0 0 36 36" class="w-11 h-11 -rotate-90"><circle cx="18" cy="18" r="15.9" fill="none" stroke="#EEF2FF" stroke-width="3.5"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="url(#gMps)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="74.6 100"/><defs><linearGradient id="gMps"><stop offset="0" stop-color="#6C5CE7"/><stop offset="1" stop-color="#00B894"/></linearGradient></defs></svg>
+                      <span id="svgProgressMpsText" class="absolute inset-0 grid place-items-center text-[9px] font-extrabold text-slate-700">75%</span>
+                    </span>
+                  </div>
+                  <div id="saKpiDivisionMPS" class="kpi-val">74.6%</div>
+                  <div class="kpi-foot"><span id="saKpiTargetDelta" class="delta delta-down">−0.4 pt</span> to 75% target</div>
+                </div>
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Campuses</span><span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-building"/></svg></span></div>
+                  <div id="saKpiTotalCampuses" class="kpi-val">24</div>
+                  <div class="kpi-foot"><span class="delta delta-flat">2 districts</span> fully onboarded</div>
+                </div>
+              </div>
+
+              <!-- School Admin KPI Row -->
+              <div id="schoolAdminKpiRow" data-role="school" class="hidden grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Verified teachers</span><span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-shield"/></svg></span></div>
+                  <div id="kpiVerifiedTeachers" class="kpi-val">38</div>
+                  <div class="kpi-foot"><span class="delta delta-up"><svg class="ico ico-sm"><use href="#i-up"/></svg>3</span> this month</div>
+                </div>
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Pending approvals</span><span class="icon-tile w-8 h-8 bg-amber-50 text-amber-600"><svg class="ico"><use href="#i-clock"/></svg></span></div>
+                  <div id="kpiPendingTeachers" class="kpi-val">4</div>
+                  <div class="kpi-foot"><button onclick="switchTab('tab-faculty-verification')" class="font-bold text-[#5341CD] hover:underline">Review now →</button></div>
+                </div>
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Class sections</span><span class="icon-tile w-8 h-8 bg-indigo-50 text-[#5341CD]"><svg class="ico"><use href="#i-tag"/></svg></span></div>
+                  <div id="kpiTotalClasses" class="kpi-val">52</div>
+                  <div class="kpi-foot">Grades 7 – 10</div>
+                </div>
+                <div class="kpi card-hover">
+                  <div class="kpi-top"><span class="kpi-label">Enrolled learners</span><span class="icon-tile w-8 h-8 bg-sky-50 text-sky-600"><svg class="ico"><use href="#i-users"/></svg></span></div>
+                  <div id="kpiTotalStudents" class="kpi-val">2,148</div>
+                  <div class="kpi-foot"><span class="delta delta-up"><svg class="ico ico-sm"><use href="#i-up"/></svg>4.2%</span> vs Q1</div>
+                </div>
+              </div>
+
+              <!-- Secondary KPI bento -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+                <div class="kpi md:col-span-1">
+                  <div class="kpi-top"><span class="kpi-label">Avg. reading score</span><span class="tag tag-green">Phil-IRI</span></div>
+                  <div class="kpi-val"><span id="kpiAvgReadingScore">76.3</span><span class="text-sm text-slate-400 font-bold">%</span></div>
+                  <div class="flex h-2 rounded-full overflow-hidden bg-slate-100">
+                    <div id="barMasteryHigh" class="bg-emerald-500" style="width:38%"></div>
+                    <div id="barMasteryMid" class="bg-[#6C5CE7]" style="width:44%"></div>
+                    <div id="barMasteryLow" class="bg-rose-400" style="width:18%"></div>
+                  </div>
+                  <div class="grid grid-cols-3 text-[10.5px] text-slate-500">
+                    <span><i class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1"></i><b id="kpiMasteryScholars" class="text-slate-800">7,004</b></span>
+                    <span><i class="inline-block w-1.5 h-1.5 rounded-full bg-[#6C5CE7] mr-1"></i><b id="kpiProficientScholars" class="text-slate-800">8,110</b></span>
+                    <span><i class="inline-block w-1.5 h-1.5 rounded-full bg-rose-400 mr-1"></i><b id="kpiSupportScholars" class="text-slate-800">3,318</b></span>
+                  </div>
+                </div>
+                <div class="kpi">
+                  <div class="kpi-top"><span class="kpi-label">Assessment submissions</span><span class="icon-tile w-8 h-8 bg-violet-50 text-violet-600"><svg class="ico"><use href="#i-clipboard"/></svg></span></div>
+                  <div id="kpiTotalAssessmentSubs" class="kpi-val">42,918</div>
+                  <div class="kpi-foot"><span class="tag tag-indigo"><span id="kpiActiveWeeklyCount">31</span> weekly quizzes live</span></div>
+                </div>
+                <div class="kpi">
+                  <div class="kpi-top"><span class="kpi-label">Reading velocity</span><span class="icon-tile w-8 h-8 bg-orange-50 text-orange-500"><svg class="ico"><use href="#i-flame"/></svg></span></div>
+                  <div class="kpi-val"><span id="kpiReadingVelocity">138</span> <span class="text-sm text-slate-400 font-bold">WPM</span></div>
+                  <div class="kpi-foot">🔥 <b id="kpiActiveStreakers" class="text-slate-800">5,240</b> learners on a streak</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== BENTO ROW B: Immediate actions + Assessment pulse ===== -->
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div id="tourTargetImmediateActions" class="card xl:col-span-2 overflow-hidden">
+              <div class="card-head">
+                <div>
+                  <h3 id="quickActionsTitle" class="card-title">Immediate Actions</h3>
+                  <p class="card-sub">Faculty awaiting accreditation in your jurisdiction</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openCreateTeacherModal()" class="btn btn-soft btn-xs"><svg class="ico ico-sm"><use href="#i-plus"/></svg> Add teacher</button>
+                  <button onclick="switchTab('tab-faculty-verification')" class="btn btn-tint btn-xs">View all <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button>
+                </div>
+              </div>
+              <div class="tbl-wrap max-h-72">
+                <table class="tbl">
+                  <thead><tr><th>Educator</th><th>School</th><th>Status</th><th class="text-right">Action</th></tr></thead>
+                  <!-- DYNAMIC DATA TARGET: id="quickPendingTableBody" -->
+                  <tbody id="quickPendingTableBody">
+                    <!-- MOCK rows -->
+                    <tr>
+                      <td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-pink-400 to-rose-500">TG</span><div><div class="cell-strong">Teresa Garcia</div><div class="text-[11px] text-slate-400">t.garcia@deped.gov.ph</div></div></div></td>
+                      <td>Malinta NHS</td>
+                      <td><span class="tag tag-amber tag-dot">Pending</span></td>
+                      <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-soft">Decline</button><button class="btn btn-xs btn-success"><svg class="ico ico-sm"><use href="#i-check"/></svg> Approve</button></div></td>
+                    </tr>
+                    <tr>
+                      <td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-sky-400 to-indigo-500">PB</span><div><div class="cell-strong">Paolo Bautista</div><div class="text-[11px] text-slate-400">p.bautista@deped.gov.ph</div></div></div></td>
+                      <td>Polo NHS</td>
+                      <td><span class="tag tag-amber tag-dot">Pending</span></td>
+                      <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-soft">Decline</button><button class="btn btn-xs btn-success"><svg class="ico ico-sm"><use href="#i-check"/></svg> Approve</button></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="superAdminAssessmentPulse" data-role="super" class="card overflow-hidden">
+              <div class="card-head">
+                <div><h3 class="card-title">Assessment Pulse</h3><p class="card-sub">Live standardized tests</p></div>
+                <button onclick="switchTab('tab-timed-assessments')" class="btn btn-ghost btn-xs">Manage <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button>
+              </div>
+              <!-- DYNAMIC DATA TARGET: id="saActiveAssessmentsList" -->
+              <div id="saActiveAssessmentsList" class="px-5 pb-5 space-y-3">
+                <!-- MOCK -->
+                <div class="p-3.5 rounded-xl border border-slate-200/80 bg-white">
+                  <div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-800">Q2 Phil-IRI Post-Test (G7)</span><span class="tag tag-green tag-dot">Live</span></div>
+                  <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2"><span>1,284 / 1,920 submitted</span><span class="font-bold text-slate-700">67%</span></div>
+                  <div class="bar mt-1.5"><span class="bg-gradient-to-r from-[#6C5CE7] to-[#00B894]" style="width:67%"></span></div>
+                </div>
+                <div class="p-3.5 rounded-xl border border-slate-200/80 bg-white">
+                  <div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-800">Silent Reading Fluency (G9)</span><span class="tag tag-amber tag-dot">Closing 2d</span></div>
+                  <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2"><span>842 / 1,610 submitted</span><span class="font-bold text-slate-700">52%</span></div>
+                  <div class="bar mt-1.5"><span class="bg-gradient-to-r from-amber-400 to-orange-500" style="width:52%"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== CHARTS SECTION ===== -->
+          <div id="executiveChartsSection" class="space-y-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+
+              <!-- Phil-IRI Mastery (doughnut) -->
+              <div class="card p-5">
+                <div class="flex items-start justify-between">
+                  <div><h3 class="card-title">Phil-IRI Mastery</h3><p class="card-sub">Reading tier distribution</p></div>
+                  <button onclick="event.stopPropagation(); openChartExplanationModal('phil_iri_mastery')" class="btn btn-ghost btn-xs btn-icon" title="How is this calculated?"><svg class="ico ico-sm"><use href="#i-info"/></svg></button>
+                </div>
+                <div class="chart-box h-44 mt-3">
+                  <svg class="chart-mock" viewBox="0 0 42 42" preserveAspectRatio="xMidYMid meet"><circle cx="21" cy="21" r="15.9" fill="none" stroke="#F1F5F9" stroke-width="5"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#10B981" stroke-width="5" stroke-dasharray="38 62" stroke-dashoffset="25"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#6C5CE7" stroke-width="5" stroke-dasharray="44 56" stroke-dashoffset="-13"/><circle cx="21" cy="21" r="15.9" fill="none" stroke="#FB7185" stroke-width="5" stroke-dasharray="18 82" stroke-dashoffset="-57"/><text x="21" y="21" text-anchor="middle" font-size="5" font-weight="800" fill="#0F172A" font-family="Plus Jakarta Sans">82%</text><text x="21" y="26" text-anchor="middle" font-size="2.4" fill="#64748B">on/above level</text></svg>
+                  <canvas id="chartPhilIriMastery"></canvas>
+                </div>
+                <div class="mt-3 grid grid-cols-3 gap-2 text-[10.5px]">
+                  <div class="rounded-lg bg-emerald-50 p-2"><div class="text-emerald-700 font-semibold">Independent</div><strong id="chartLegendMastery" class="text-sm text-slate-900">38%</strong></div>
+                  <div class="rounded-lg bg-indigo-50 p-2"><div class="text-[#5341CD] font-semibold">Instructional</div><strong id="chartLegendProficient" class="text-sm text-slate-900">44%</strong></div>
+                  <div class="rounded-lg bg-rose-50 p-2"><div class="text-rose-600 font-semibold">Frustration</div><strong id="chartLegendSupport" class="text-sm text-slate-900">18%</strong></div>
+                </div>
+              </div>
+
+              <!-- Grade Benchmarks (bar) -->
+              <div class="card p-5">
+                <div class="flex items-start justify-between">
+                  <div><h3 class="card-title">Grade Benchmarks</h3><p class="card-sub">MPS per grade vs 75% target</p></div>
+                  <button onclick="event.stopPropagation(); openChartExplanationModal('grade_benchmarks')" class="btn btn-ghost btn-xs btn-icon"><svg class="ico ico-sm"><use href="#i-info"/></svg></button>
+                </div>
+                <div class="chart-box h-60 mt-3">
+                  <svg class="chart-mock" viewBox="0 0 200 120" preserveAspectRatio="none"><g stroke="#F1F5F9"><line x1="0" y1="20" x2="200" y2="20"/><line x1="0" y1="50" x2="200" y2="50"/><line x1="0" y1="80" x2="200" y2="80"/><line x1="0" y1="110" x2="200" y2="110"/></g><line x1="0" y1="37" x2="200" y2="37" stroke="#F59E0B" stroke-dasharray="4 3" stroke-width="1"/><rect x="18" y="48" width="26" height="62" rx="5" fill="#C7D2FE"/><rect x="66" y="30" width="26" height="80" rx="5" fill="#6C5CE7"/><rect x="114" y="40" width="26" height="70" rx="5" fill="#A5B4FC"/><rect x="162" y="44" width="26" height="66" rx="5" fill="#818CF8"/></svg>
+                  <canvas id="chartGradeBenchmarks"></canvas>
+                </div>
+                <div class="flex justify-around text-[10.5px] font-bold text-slate-400 mt-1"><span>G7</span><span>G8</span><span>G9</span><span>G10</span></div>
+              </div>
+
+              <!-- Competencies Radar -->
+              <div class="card p-5">
+                <div class="flex items-start justify-between">
+                  <div><h3 class="card-title">Competency Radar</h3><p class="card-sub">MELC reading domains</p></div>
+                  <button onclick="event.stopPropagation(); openChartExplanationModal('competencies')" class="btn btn-ghost btn-xs btn-icon"><svg class="ico ico-sm"><use href="#i-info"/></svg></button>
+                </div>
+                <div class="chart-box h-60 mt-3">
+                  <svg class="chart-mock" viewBox="0 0 120 120"><g fill="none" stroke="#E2E8F0"><polygon points="60,10 103,35 103,85 60,110 17,85 17,35"/><polygon points="60,27 88,43 88,77 60,93 32,77 32,43"/><polygon points="60,43 74,51 74,69 60,77 46,69 46,51"/></g><polygon points="60,18 96,40 92,80 60,100 30,76 26,38" fill="rgba(108,92,231,.18)" stroke="#6C5CE7" stroke-width="1.5"/><polygon points="60,30 84,46 82,72 60,88 36,72 34,44" fill="rgba(0,184,148,.14)" stroke="#00B894" stroke-width="1" stroke-dasharray="3 2"/></svg>
+                  <canvas id="chartCompetenciesRadar"></canvas>
+                </div>
+              </div>
+
+              <!-- Submission Velocity -->
+              <div class="card p-5">
+                <div class="flex items-start justify-between">
+                  <div><h3 class="card-title">Submission Velocity</h3><p class="card-sub">Last 14 days</p></div>
+                  <button onclick="event.stopPropagation(); openChartExplanationModal('submission_velocity')" class="btn btn-ghost btn-xs btn-icon"><svg class="ico ico-sm"><use href="#i-info"/></svg></button>
+                </div>
+                <div class="chart-box h-52 mt-3">
+                  <svg class="chart-mock" viewBox="0 0 200 100" preserveAspectRatio="none"><defs><linearGradient id="gVel" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#6C5CE7" stop-opacity=".35"/><stop offset="1" stop-color="#6C5CE7" stop-opacity="0"/></linearGradient></defs><path d="M0 80 L15 70 L30 74 L45 55 L60 60 L75 42 L90 48 L105 35 L120 40 L135 28 L150 34 L165 20 L180 26 L200 14 L200 100 L0 100Z" fill="url(#gVel)"/><path d="M0 80 L15 70 L30 74 L45 55 L60 60 L75 42 L90 48 L105 35 L120 40 L135 28 L150 34 L165 20 L180 26 L200 14" fill="none" stroke="#6C5CE7" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+                  <canvas id="chartSubmissionVelocity"></canvas>
+                </div>
+                <div class="mt-3 flex items-center gap-2 text-[11px] text-slate-500"><span class="delta delta-up"><svg class="ico ico-sm"><use href="#i-up"/></svg>18%</span><span id="chartVelocitySummary">5,768 submissions this fortnight</span></div>
+              </div>
+            </div>
+
+            <!-- Super admin charts row -->
+            <div id="superAdminChartsRow" data-role="super" class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              <div class="card p-5 lg:col-span-2">
+                <div class="flex items-start justify-between">
+                  <div><h3 class="card-title">District Parity</h3><p class="card-sub">Congressional district MPS comparison</p></div>
+                  <button onclick="event.stopPropagation(); openChartExplanationModal('district_parity')" class="btn btn-ghost btn-xs btn-icon"><svg class="ico ico-sm"><use href="#i-info"/></svg></button>
+                </div>
+                <div class="chart-box h-48 mt-3">
+                  <svg class="chart-mock" viewBox="0 0 200 100" preserveAspectRatio="none"><rect x="0" y="22" width="152" height="20" rx="6" fill="#6C5CE7"/><rect x="0" y="58" width="148" height="20" rx="6" fill="#00B894"/><line x1="150" y1="10" x2="150" y2="90" stroke="#F59E0B" stroke-dasharray="3 3"/></svg>
+                  <canvas id="chartDistrictComparison"></canvas>
+                </div>
+                <div class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+                  <div class="flex items-center justify-between rounded-lg bg-indigo-50 px-3 py-2"><span class="font-semibold text-[#5341CD]">District 1</span><strong id="legendDistrict1Mps" class="text-slate-900">75.5%</strong></div>
+                  <div class="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2"><span class="font-semibold text-emerald-700">District 2</span><strong id="legendDistrict2Mps" class="text-slate-900">73.7%</strong></div>
+                </div>
+              </div>
+              <div class="card p-5 lg:col-span-3">
+                <div class="flex items-start justify-between">
+                  <div><h3 class="card-title">Top Schools Ranked</h3><p class="card-sub">Literacy MPS leaderboard</p></div>
+                  <div class="flex items-center gap-1">
+                    <button onclick="setExecutiveViewMode('data')" class="btn btn-ghost btn-xs">See full table</button>
+                    <button onclick="event.stopPropagation(); openChartExplanationModal('top_schools')" class="btn btn-ghost btn-xs btn-icon"><svg class="ico ico-sm"><use href="#i-info"/></svg></button>
+                  </div>
+                </div>
+                <div class="chart-box h-60 mt-3">
+                  <svg class="chart-mock" viewBox="0 0 200 110" preserveAspectRatio="none"><g fill="#6C5CE7"><rect x="0" y="4" width="182" height="14" rx="5"/><rect x="0" y="26" width="170" height="14" rx="5" opacity=".85"/><rect x="0" y="48" width="161" height="14" rx="5" opacity=".7"/><rect x="0" y="70" width="150" height="14" rx="5" opacity=".55"/><rect x="0" y="92" width="141" height="14" rx="5" opacity=".4"/></g></svg>
+                  <canvas id="chartTopSchoolsRanked"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== PODIUM ===== -->
+          <div id="executivePodiumSection" class="card p-5 overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div><h3 class="card-title flex items-center gap-2"><svg class="ico text-amber-500"><use href="#i-trophy"/></svg> Literacy Champions</h3><p class="card-sub">Top 3 campuses by reading MPS this quarter</p></div>
+              <span class="tag tag-amber">Q2 · SY 2026–2027</span>
+            </div>
+            <!-- DYNAMIC DATA TARGET: id="executivePodiumGrid" -->
+            <div id="executivePodiumGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+              <!-- MOCK #2 -->
+              <div class="rounded-2xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-4 text-center sm:order-1">
+                <div class="mx-auto w-10 h-10 rounded-full bg-slate-200 text-slate-700 grid place-items-center font-extrabold font-display">2</div>
+                <div class="mt-2 text-xs font-bold text-slate-900">Valenzuela NHS</div><div class="text-[11px] text-slate-400">District 1</div>
+                <div class="mt-3 text-xl font-extrabold font-display text-slate-900">86.1%</div>
+                <div class="h-12 mt-3 rounded-xl bg-gradient-to-t from-slate-200 to-slate-100"></div>
+              </div>
+              <!-- MOCK #1 -->
+              <div class="rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50 to-white p-4 text-center shadow-[0_16px_40px_-20px_rgba(245,158,11,.5)] sm:order-2">
+                <div class="mx-auto w-12 h-12 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-white grid place-items-center font-extrabold font-display text-lg shadow">1</div>
+                <div class="mt-2 text-sm font-bold text-slate-900">Malinta NHS</div><div class="text-[11px] text-slate-400">District 2</div>
+                <div class="mt-3 text-2xl font-extrabold font-display text-amber-600">89.4%</div>
+                <div class="h-20 mt-3 rounded-xl bg-gradient-to-t from-amber-300 to-amber-100"></div>
+              </div>
+              <!-- MOCK #3 -->
+              <div class="rounded-2xl border border-orange-200/70 bg-gradient-to-b from-orange-50/70 to-white p-4 text-center sm:order-3">
+                <div class="mx-auto w-10 h-10 rounded-full bg-orange-200 text-orange-800 grid place-items-center font-extrabold font-display">3</div>
+                <div class="mt-2 text-xs font-bold text-slate-900">Lawang Bato NHS</div><div class="text-[11px] text-slate-400">District 1</div>
+                <div class="mt-3 text-xl font-extrabold font-display text-slate-900">84.7%</div>
+                <div class="h-8 mt-3 rounded-xl bg-gradient-to-t from-orange-200 to-orange-50"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== DATA TABLES SECTION ===== -->
+          <div id="executiveDataTablesSection" class="space-y-4">
+
+            <!-- Grade Matrix -->
+            <div id="gradeMatrixSection" class="card overflow-hidden">
+              <div class="card-head">
+                <div><h3 class="card-title">Junior High Grade Matrix</h3><p id="gradeMatrixSubtitle" class="card-sub">Grade-level reading performance across all campuses</p></div>
+                <div class="flex gap-2">
+                  <button onclick="exportGradeMatrixPDF()" class="btn btn-soft btn-xs"><svg class="ico ico-sm"><use href="#i-file"/></svg> PDF</button>
+                  <button onclick="exportGradeMatrixCSV()" class="btn btn-soft btn-xs"><svg class="ico ico-sm"><use href="#i-download"/></svg> CSV</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-100 border-y border-slate-100">
+                <div class="bg-white px-5 py-3"><div class="eyebrow">Enrolled</div><div id="jhsSummaryEnrolled" class="text-lg font-extrabold font-display text-slate-900">18,432</div></div>
+                <div class="bg-white px-5 py-3"><div class="eyebrow">Sections</div><div id="jhsSummarySections" class="text-lg font-extrabold font-display text-slate-900">486</div></div>
+                <div class="bg-white px-5 py-3"><div class="eyebrow">Average</div><div id="jhsSummaryAvg" class="text-lg font-extrabold font-display text-slate-900">76.3%</div></div>
+                <div class="bg-white px-5 py-3"><div class="eyebrow">Submissions</div><div id="jhsSummarySubmissions" class="text-lg font-extrabold font-display text-slate-900">42,918</div></div>
+              </div>
+              <div class="tbl-wrap">
+                <table class="tbl">
+                  <thead><tr><th>Grade Level</th><th>Enrolled Learners</th><th>Class Sections</th><th>Average Score</th><th>Mastery Spread (High / Mid / Support)</th><th>Submissions</th><th>Academic Status</th></tr></thead>
+                  <!-- DYNAMIC DATA TARGET: id="gradeMatrixTableBody" -->
+                  <tbody id="gradeMatrixTableBody">
+                    <!-- MOCK rows -->
+                    <tr><td class="cell-strong">Grade 7</td><td>4,912</td><td>128</td><td class="cell-strong">71.4%</td>
+                      <td><div class="flex h-2 w-40 rounded-full overflow-hidden"><span class="bg-emerald-500" style="width:30%"></span><span class="bg-[#6C5CE7]" style="width:44%"></span><span class="bg-rose-400" style="width:26%"></span></div></td>
+                      <td>10,284</td><td><span class="tag tag-amber tag-dot">Developing</span></td></tr>
+                    <tr><td class="cell-strong">Grade 8</td><td>4,688</td><td>122</td><td class="cell-strong">78.2%</td>
+                      <td><div class="flex h-2 w-40 rounded-full overflow-hidden"><span class="bg-emerald-500" style="width:42%"></span><span class="bg-[#6C5CE7]" style="width:44%"></span><span class="bg-rose-400" style="width:14%"></span></div></td>
+                      <td>11,902</td><td><span class="tag tag-green tag-dot">On Target</span></td></tr>
+                    <tr><td class="cell-strong">Grade 9</td><td>4,530</td><td>120</td><td class="cell-strong">76.0%</td>
+                      <td><div class="flex h-2 w-40 rounded-full overflow-hidden"><span class="bg-emerald-500" style="width:38%"></span><span class="bg-[#6C5CE7]" style="width:45%"></span><span class="bg-rose-400" style="width:17%"></span></div></td>
+                      <td>10,640</td><td><span class="tag tag-green tag-dot">On Target</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- School Executive Scorecard (School Admin view) -->
+            <div id="schoolExecutiveScorecardSection" data-role="school" class="hidden card p-5 space-y-4">
+              <div id="schoolScorecardHeader" class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3"><span class="icon-tile bg-indigo-50 text-[#5341CD]"><svg class="ico ico-lg"><use href="#i-building"/></svg></span><div><h3 class="card-title">Malinta National High School</h3><p class="card-sub">DepEd ID 305402 · District 2</p></div></div>
+                <span class="tag tag-green tag-dot">Rank #1 in Division</span>
+              </div>
+              <div id="schoolScorecardKpiGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="rounded-xl bg-slate-50 p-3"><div class="eyebrow">Learners</div><div class="text-lg font-extrabold font-display text-slate-900">2,148</div></div>
+                <div class="rounded-xl bg-slate-50 p-3"><div class="eyebrow">School MPS</div><div class="text-lg font-extrabold font-display text-slate-900">89.4%</div></div>
+                <div class="rounded-xl bg-slate-50 p-3"><div class="eyebrow">Teachers</div><div class="text-lg font-extrabold font-display text-slate-900">38</div></div>
+                <div class="rounded-xl bg-slate-50 p-3"><div class="eyebrow">Streakers</div><div class="text-lg font-extrabold font-display text-slate-900">712</div></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div id="schoolPhilIriProfileCard" class="rounded-xl border border-slate-200 p-4"><div class="eyebrow mb-2">Phil-IRI profile</div><div class="flex h-2 rounded-full overflow-hidden"><span class="bg-emerald-500" style="width:52%"></span><span class="bg-[#6C5CE7]" style="width:38%"></span><span class="bg-rose-400" style="width:10%"></span></div></div>
+                <div id="schoolGenderDisaggCard" class="rounded-xl border border-slate-200 p-4"><div class="eyebrow mb-2">Gender disaggregation</div><div class="text-xs text-slate-600">Female <b>91.2%</b> · Male <b>87.5%</b></div></div>
+                <div id="schoolCompetenciesCard" class="rounded-xl border border-slate-200 p-4"><div class="eyebrow mb-2">Weakest competency</div><div class="text-xs font-bold text-slate-800">Inferencing</div><div class="text-[11px] text-slate-500">72% mastery</div></div>
+              </div>
+            </div>
+
+            <!-- Division Spotlight / School Ranking -->
+            <div id="divisionSpotlightSection" class="grid grid-cols-1 2xl:grid-cols-4 gap-4">
+              <div class="card overflow-hidden 2xl:col-span-3">
+                <div class="card-head">
+                  <div><h3 class="card-title">School Literacy Ranking</h3><p class="card-sub">Sorted by literacy MPS · <span id="totalSchoolsCountBadge" class="font-bold text-slate-700">24 schools</span></p></div>
+                  <button onclick="exportSchoolRankingCSV()" class="btn btn-soft btn-xs"><svg class="ico ico-sm"><use href="#i-download"/></svg> Export CSV</button>
+                </div>
+                <div class="tbl-toolbar">
+                  <div class="field w-full sm:w-72">
+                    <svg class="ico"><use href="#i-search"/></svg>
+                    <input id="inputSchoolRankingSearch" type="text" placeholder="Search schools…" class="input" oninput="handleSchoolRankingSearch(this.value); document.getElementById('btnClearSchoolRankingSearch').classList.toggle('hidden', !this.value);">
+                    <button id="btnClearSchoolRankingSearch" onclick="clearSchoolRankingSearch()" class="field-clear hidden">&times;</button>
+                  </div>
+                  <div id="schoolRankingFilterChips" class="flex flex-wrap gap-1.5">
+                    <button id="chipSchoolRank-ALL" onclick="setSchoolRankingFilterChip('ALL')" class="chip chip-active">All</button>
+                    <button id="chipSchoolRank-District1" onclick="setSchoolRankingFilterChip('District 1')" class="chip">District 1</button>
+                    <button id="chipSchoolRank-District2" onclick="setSchoolRankingFilterChip('District 2')" class="chip">District 2</button>
+                    <button id="chipSchoolRank-LEADERS" onclick="setSchoolRankingFilterChip('LEADERS')" class="chip"><i class="w-1.5 h-1.5 rounded-full bg-emerald-500"></i>Leaders</button>
+                    <button id="chipSchoolRank-DEVELOPING" onclick="setSchoolRankingFilterChip('DEVELOPING')" class="chip"><i class="w-1.5 h-1.5 rounded-full bg-amber-500"></i>Developing</button>
+                    <button id="chipSchoolRank-SUPPORT" onclick="setSchoolRankingFilterChip('SUPPORT')" class="chip"><i class="w-1.5 h-1.5 rounded-full bg-rose-500"></i>Needs support</button>
+                  </div>
+                </div>
+                <div class="tbl-wrap">
+                  <table class="tbl">
+                    <thead><tr><th>Rank</th><th>Secondary School Name</th><th>Congressional District</th><th>Enrolled Learners</th><th>Submissions</th><th>Literacy MPS</th><th>Mastery Spread</th><th class="text-right">Action</th></tr></thead>
+                    <!-- DYNAMIC DATA TARGET: id="schoolRankingTableBody" -->
+                    <tbody id="schoolRankingTableBody">
+                      <!-- MOCK rows -->
+                      <tr><td><span class="w-7 h-7 rounded-lg grid place-items-center bg-amber-100 text-amber-700 font-extrabold">1</span></td><td class="cell-strong">Malinta National High School</td><td><span class="tag tag-slate">District 2</span></td><td>2,148</td><td>5,612</td><td><span class="cell-strong text-emerald-600">89.4%</span></td>
+                        <td><div class="flex h-1.5 w-28 rounded-full overflow-hidden"><span class="bg-emerald-500" style="width:52%"></span><span class="bg-[#6C5CE7]" style="width:38%"></span><span class="bg-rose-400" style="width:10%"></span></div></td>
+                        <td class="text-right"><button class="btn btn-xs btn-tint">View <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button></td></tr>
+                      <tr><td><span class="w-7 h-7 rounded-lg grid place-items-center bg-slate-100 text-slate-600 font-extrabold">2</span></td><td class="cell-strong">Valenzuela National High School</td><td><span class="tag tag-slate">District 1</span></td><td>3,204</td><td>8,140</td><td><span class="cell-strong text-emerald-600">86.1%</span></td>
+                        <td><div class="flex h-1.5 w-28 rounded-full overflow-hidden"><span class="bg-emerald-500" style="width:46%"></span><span class="bg-[#6C5CE7]" style="width:41%"></span><span class="bg-rose-400" style="width:13%"></span></div></td>
+                        <td class="text-right"><button class="btn btn-xs btn-tint">View <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button></td></tr>
+                      <tr><td><span class="w-7 h-7 rounded-lg grid place-items-center bg-slate-100 text-slate-600 font-extrabold">3</span></td><td class="cell-strong">Lawang Bato National High School</td><td><span class="tag tag-slate">District 1</span></td><td>1,876</td><td>4,390</td><td><span class="cell-strong text-amber-600">84.7%</span></td>
+                        <td><div class="flex h-1.5 w-28 rounded-full overflow-hidden"><span class="bg-emerald-500" style="width:40%"></span><span class="bg-[#6C5CE7]" style="width:44%"></span><span class="bg-rose-400" style="width:16%"></span></div></td>
+                        <td class="text-right"><button class="btn btn-xs btn-tint">View <svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="card p-5">
+                <h3 class="card-title">Rising Campuses</h3>
+                <p class="card-sub">Biggest MPS gains vs Q1</p>
+                <!-- DYNAMIC DATA TARGET: id="topCampusesList" -->
+                <div id="topCampusesList" class="mt-4 space-y-3">
+                  <!-- MOCK -->
+                  <div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-up"/></svg></span><div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 truncate">Gen. T. de Leon NHS</div><div class="text-[11px] text-slate-400">81.2% MPS</div></div><span class="delta delta-up">+6.4</span></div>
+                  <div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-up"/></svg></span><div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 truncate">Paso de Blas NHS</div><div class="text-[11px] text-slate-400">77.9% MPS</div></div><span class="delta delta-up">+5.1</span></div>
+                  <div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-up"/></svg></span><div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 truncate">Arkong Bato NHS</div><div class="text-[11px] text-slate-400">75.3% MPS</div></div><span class="delta delta-up">+4.0</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /tab-division-dashboard -->
+
+        <!-- ================================================================
+             VIEW: FACULTY & APPROVALS   id="tab-faculty-verification"
+             ================================================================ -->
+        <div id="tab-faculty-verification" class="tab-content hidden space-y-5">
+
+          <!-- Role banner -->
+          <div id="facultyRoleBanner" class="card p-4 flex flex-wrap items-center gap-4">
+            <span id="facultyRoleBannerIcon" class="icon-tile bg-gradient-to-br from-[#6C5CE7] to-[#5341CD] text-white shadow-glow"><svg class="ico ico-lg"><use href="#i-shield"/></svg></span>
+            <div class="flex-1 min-w-[220px]">
+              <strong id="facultyRoleBannerTitle" class="block text-sm font-bold text-slate-900 font-display">Division-level faculty authority</strong>
+              <p id="facultyRoleBannerDesc" class="text-xs text-slate-500">You can verify, suspend and reassign teachers in every school of SDO Valenzuela City.</p>
+            </div>
+            <span id="facultyRoleJurisdictionTag" class="tag tag-indigo tag-dot">All 24 campuses</span>
+          </div>
+
+          <div class="card overflow-hidden">
+            <div class="card-head">
+              <div class="seg">
+                <button id="filterBtn-ALL" onclick="setTeacherFilter('ALL')" class="on flex items-center gap-1.5">All <span id="countAllTeachers" class="chip-count">412</span></button>
+                <button id="filterBtn-PENDING" onclick="setTeacherFilter('PENDING')" class="flex items-center gap-1.5">Pending <span id="countPendingTeachers" class="chip-count bg-amber-100 text-amber-700">4</span></button>
+                <button id="filterBtn-APPROVED" onclick="setTeacherFilter('APPROVED')" class="flex items-center gap-1.5">Approved <span id="countApprovedTeachers" class="chip-count">408</span></button>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="exportFacultyRegistryPDF()" class="btn btn-soft"><svg class="ico"><use href="#i-file"/></svg> PDF</button>
+                <button onclick="exportFacultyRegistryCSV()" class="btn btn-soft"><svg class="ico"><use href="#i-download"/></svg> CSV</button>
+                <button onclick="openCreateTeacherModal()" class="btn btn-primary"><svg class="ico"><use href="#i-plus"/></svg> Add teacher</button>
+              </div>
+            </div>
+            <div class="tbl-toolbar">
+              <div class="field w-full sm:w-80">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="inputFacultySearch" type="text" oninput="handleFacultySearch(this.value)" placeholder="Search by name, email or school…" class="input">
+                <button id="btnClearFacultySearch" onclick="clearFacultySearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <div id="facultySchoolFilterContainer">
+                <select id="selectFacultySchoolFilter" onchange="handleFacultySchoolFilter(this.value)" class="select"><option value="ALL">All schools</option><option>Malinta NHS</option><option>Valenzuela NHS</option></select>
+              </div>
+            </div>
+            <!-- Bulk action bar (show when rows are selected) -->
+            <div id="facultyBulkBar" class="bulk-bar">
+              <span class="font-bold">2 selected</span><span class="opacity-50">|</span>
+              <button class="btn btn-xs bg-white/15 hover:bg-white/25 text-white"><svg class="ico ico-sm"><use href="#i-check"/></svg> Approve</button>
+              <button class="btn btn-xs bg-white/15 hover:bg-white/25 text-white"><svg class="ico ico-sm"><use href="#i-x"/></svg> Decline</button>
+              <button class="ml-auto btn btn-xs text-white/80 hover:text-white">Clear selection</button>
+            </div>
+            <div id="tourTargetTeachersTable" class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th class="w-10"><input type="checkbox" class="checkbox"></th><th>Faculty Member</th><th>Official Email</th><th>Assigned Institution</th><th>Registered Date</th><th>Accreditation Status</th><th class="text-right">Actions</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="teachersTableBody" -->
+                <tbody id="teachersTableBody">
+                  <!-- MOCK rows -->
+                  <tr class="bg-indigo-50/40"><td><input type="checkbox" class="checkbox" checked></td>
+                    <td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-pink-400 to-rose-500">TG</span><div><div class="cell-strong">Teresa Garcia</div><div class="text-[11px] text-slate-400">English · Grade 7</div></div></div></td>
+                    <td>t.garcia@deped.gov.ph</td><td>Malinta NHS</td><td>Nov 3, 2026</td><td><span class="tag tag-amber tag-dot">Pending review</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-soft">Decline</button><button class="btn btn-xs btn-success">Approve</button></div></td></tr>
+                  <tr class="bg-indigo-50/40"><td><input type="checkbox" class="checkbox" checked></td>
+                    <td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-sky-400 to-indigo-500">PB</span><div><div class="cell-strong">Paolo Bautista</div><div class="text-[11px] text-slate-400">Filipino · Grade 8</div></div></div></td>
+                    <td>p.bautista@deped.gov.ph</td><td>Polo NHS</td><td>Nov 2, 2026</td><td><span class="tag tag-amber tag-dot">Pending review</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-soft">Decline</button><button class="btn btn-xs btn-success">Approve</button></div></td></tr>
+                  <tr><td><input type="checkbox" class="checkbox"></td>
+                    <td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-emerald-400 to-teal-500">LF</span><div><div class="cell-strong">Liza Fernandez</div><div class="text-[11px] text-slate-400">Reading Coordinator</div></div></div></td>
+                    <td>l.fernandez@deped.gov.ph</td><td>Valenzuela NHS</td><td>Aug 14, 2026</td><td><span class="tag tag-green tag-dot">Accredited</span></td>
+                    <td class="text-right"><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tbl-foot"><span>Showing <b class="text-slate-700">1–25</b> of <b class="text-slate-700">412</b> teachers</span><div class="pager"><button><svg class="ico ico-sm"><use href="#i-chevron-left"/></svg></button><button class="on">1</button><button>2</button><button>3</button><button>…</button><button>17</button><button><svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button></div></div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: CLASSES & SECTION CODES   id="tab-classroom-sections"
+             ================================================================ -->
+        <div id="tab-classroom-sections" class="tab-content hidden space-y-5">
+          <div class="card overflow-hidden">
+            <div class="card-head">
+              <div><h3 class="card-title">Classroom Sections Roster</h3><p class="card-sub"><strong id="sectionsCountDisplay" class="text-slate-700">486</strong> sections with active join codes</p></div>
+            </div>
+            <div class="tbl-toolbar">
+              <div class="field w-full sm:w-80">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="inputSectionSearch" type="text" oninput="handleSectionSearch(this.value)" placeholder="Search section, code or adviser…" class="input">
+                <button id="btnClearSectionSearch" onclick="clearSectionSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <select id="selectSectionGradeFilter" onchange="handleSectionGradeFilter(this.value)" class="select"><option value="ALL">All grades</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option></select>
+              <div id="sectionSchoolFilterContainer"><select id="selectSectionSchoolFilter" onchange="handleSectionSchoolFilter(this.value)" class="select"><option value="ALL">All schools</option></select></div>
+            </div>
+            <div id="tourTargetSectionsTable" class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Section Name</th><th>Grade Level</th><th>School</th><th>Section Join Code</th><th>Initiation Items</th><th>Enrolled Learners</th><th class="text-right">Roster &amp; Code</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="sectionsTableBody" -->
+                <tbody id="sectionsTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-indigo-50 text-[#5341CD] font-extrabold font-display text-xs">8S</span><div><div class="cell-strong">Sampaguita</div><div class="text-[11px] text-slate-400">Adviser: L. Fernandez</div></div></div></td>
+                    <td><span class="tag tag-indigo">Grade 8</span></td><td>Malinta NHS</td>
+                    <td><button class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900 text-white font-mono text-[11px] font-bold tracking-widest hover:bg-slate-700">GAB-8S4K <svg class="ico ico-sm opacity-60"><use href="#i-copy"/></svg></button></td>
+                    <td>12 items</td><td><div class="flex items-center gap-2"><div class="flex -space-x-2"><span class="avatar w-6 h-6 text-[9px] bg-sky-400">JD</span><span class="avatar w-6 h-6 text-[9px] bg-pink-400">MS</span><span class="avatar w-6 h-6 text-[9px] bg-amber-400">AR</span></div><b class="text-slate-800">42</b></div></td>
+                    <td class="text-right"><button class="btn btn-xs btn-tint">Open roster</button></td></tr>
+                  <tr><td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-emerald-50 text-emerald-600 font-extrabold font-display text-xs">7M</span><div><div class="cell-strong">Mabini</div><div class="text-[11px] text-slate-400">Adviser: T. Garcia</div></div></div></td>
+                    <td><span class="tag tag-green">Grade 7</span></td><td>Malinta NHS</td>
+                    <td><button class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900 text-white font-mono text-[11px] font-bold tracking-widest hover:bg-slate-700">GAB-7M2Q <svg class="ico ico-sm opacity-60"><use href="#i-copy"/></svg></button></td>
+                    <td>10 items</td><td><div class="flex items-center gap-2"><div class="flex -space-x-2"><span class="avatar w-6 h-6 text-[9px] bg-violet-400">KM</span><span class="avatar w-6 h-6 text-[9px] bg-teal-400">BV</span></div><b class="text-slate-800">39</b></div></td>
+                    <td class="text-right"><button class="btn btn-xs btn-tint">Open roster</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tbl-foot"><span>Showing <b class="text-slate-700">1–25</b> of <b class="text-slate-700">486</b></span><div class="pager"><button><svg class="ico ico-sm"><use href="#i-chevron-left"/></svg></button><button class="on">1</button><button>2</button><button>3</button><button><svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button></div></div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: LEARNER PERFORMANCE   id="tab-learner-performance"
+             ================================================================ -->
+        <div id="tab-learner-performance" class="tab-content hidden space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span id="academicPerformanceScopeBadge" class="tag tag-indigo tag-dot">Division scope</span>
+              <span class="tag tag-rose"><svg class="ico ico-sm"><use href="#i-alert"/></svg><span id="kpiAtRiskLearners">3,318</span> at-risk learners</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="exportInterventionsPDF()" class="btn btn-danger"><svg class="ico"><use href="#i-target"/></svg> Intervention list</button>
+              <button onclick="exportLearnersReportPDF()" class="btn btn-soft"><svg class="ico"><use href="#i-file"/></svg> Report PDF</button>
+              <button onclick="exportAllLearnersCSV()" class="btn btn-soft"><svg class="ico"><use href="#i-download"/></svg> CSV</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+            <div class="kpi"><span class="kpi-label">Total evaluated</span><div id="perfKpiTotalEvaluated" class="kpi-val">16,940</div><div class="bar"><span class="bg-slate-800" style="width:92%"></span></div></div>
+            <div class="kpi"><span class="kpi-label text-emerald-700">Independent</span><div id="perfKpiIndependent" class="kpi-val text-emerald-600">7,004</div><div class="bar"><span class="bg-emerald-500" style="width:41%"></span></div></div>
+            <div class="kpi"><span class="kpi-label text-[#5341CD]">Instructional</span><div id="perfKpiInstructional" class="kpi-val text-[#5341CD]">6,618</div><div class="bar"><span class="bg-[#6C5CE7]" style="width:39%"></span></div></div>
+            <div class="kpi"><span class="kpi-label text-rose-600">Frustration</span><div id="perfKpiFrustration" class="kpi-val text-rose-500">3,318</div><div class="bar"><span class="bg-rose-400" style="width:20%"></span></div></div>
+            <div class="kpi"><span class="kpi-label">Active streaks</span><div id="perfKpiStreak" class="kpi-val">🔥 5,240</div><div class="kpi-foot">avg 9.3 days</div></div>
+          </div>
+
+          <div class="card overflow-hidden">
+            <div class="tbl-toolbar border-t-0">
+              <div class="field w-full lg:w-72">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="inputLearnerSearch" type="text" oninput="handleLearnerSearch(this.value)" placeholder="Search learner name or LRN…" class="input">
+                <button id="btnClearLearnerSearch" onclick="clearLearnerSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <select id="selectLearnerGradeFilter" onchange="handleLearnerGradeFilter(this.value)" class="select"><option value="ALL">All grades</option><option>Grade 7</option><option>Grade 8</option></select>
+              <select id="selectLearnerTierFilter" onchange="handleLearnerTierFilter(this.value)" class="select"><option value="ALL">All Phil-IRI tiers</option><option>Independent</option><option>Instructional</option><option>Frustration</option></select>
+              <select id="selectLearnerGenderFilter" onchange="handleLearnerGenderFilter(this.value)" class="select"><option value="ALL">All genders</option><option>Female</option><option>Male</option></select>
+              <div id="learnerSchoolFilterContainer"><select id="learnerSchoolFilter" onchange="handleLearnerSchoolFilterChange(this.value)" class="select"><option value="ALL">All schools</option></select></div>
+              <div id="learnerCountSummaryBadge" class="ml-auto tag tag-slate">16,940 learners</div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Learner &amp; Section</th><th>Phil-IRI Tier</th><th>Comprehension MPS</th><th>Reading Speed</th><th>Reading Streak</th><th>Gamification (Lvl &amp; XP)</th><th class="text-right">Comprehension Telemetry</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="performanceTableBody" -->
+                <tbody id="performanceTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-pink-400 to-fuchsia-500">MS</span><div><div class="cell-strong">Maria Clara Santos</div><div class="text-[11px] text-slate-400">G8 – Sampaguita · Malinta NHS</div></div></div></td>
+                    <td><span class="tag tag-green tag-dot">Independent</span></td>
+                    <td><div class="flex items-center gap-2 w-36"><div class="bar"><span class="bg-emerald-500" style="width:92%"></span></div><b class="text-slate-800">92%</b></div></td>
+                    <td><b class="text-slate-800">168</b> WPM</td><td>🔥 <b class="text-slate-800">24</b> days</td>
+                    <td><div class="flex items-center gap-2"><span class="tag tag-indigo">Lvl 18</span><span class="text-[11px]">4,820 XP</span></div></td>
+                    <td class="text-right"><button class="btn btn-xs btn-tint"><svg class="ico ico-sm"><use href="#i-activity"/></svg> Telemetry</button></td></tr>
+                  <tr><td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-sky-400 to-blue-500">JD</span><div><div class="cell-strong">Juan Dela Cruz</div><div class="text-[11px] text-slate-400">G7 – Mabini · Malinta NHS</div></div></div></td>
+                    <td><span class="tag tag-indigo tag-dot">Instructional</span></td>
+                    <td><div class="flex items-center gap-2 w-36"><div class="bar"><span class="bg-[#6C5CE7]" style="width:74%"></span></div><b class="text-slate-800">74%</b></div></td>
+                    <td><b class="text-slate-800">121</b> WPM</td><td>🔥 <b class="text-slate-800">6</b> days</td>
+                    <td><div class="flex items-center gap-2"><span class="tag tag-indigo">Lvl 9</span><span class="text-[11px]">1,960 XP</span></div></td>
+                    <td class="text-right"><button class="btn btn-xs btn-tint"><svg class="ico ico-sm"><use href="#i-activity"/></svg> Telemetry</button></td></tr>
+                  <tr><td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-amber-400 to-orange-500">AR</span><div><div class="cell-strong">Andrei Reyes</div><div class="text-[11px] text-slate-400">G7 – Mabini · Malinta NHS</div></div></div></td>
+                    <td><span class="tag tag-rose tag-dot">Frustration</span></td>
+                    <td><div class="flex items-center gap-2 w-36"><div class="bar"><span class="bg-rose-400" style="width:48%"></span></div><b class="text-slate-800">48%</b></div></td>
+                    <td><b class="text-slate-800">84</b> WPM</td><td class="text-slate-400">—</td>
+                    <td><div class="flex items-center gap-2"><span class="tag tag-slate">Lvl 3</span><span class="text-[11px]">410 XP</span></div></td>
+                    <td class="text-right"><button class="btn btn-xs btn-tint"><svg class="ico ico-sm"><use href="#i-activity"/></svg> Telemetry</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tbl-foot"><span>Showing <b class="text-slate-700">1–50</b> of <b class="text-slate-700">16,940</b></span><div class="pager"><button><svg class="ico ico-sm"><use href="#i-chevron-left"/></svg></button><button class="on">1</button><button>2</button><button>3</button><button>…</button><button><svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button></div></div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: STUDENT ACCOUNTS & PASSWORDS   id="tab-batch-credentials"
+             ================================================================ -->
+        <div id="tab-batch-credentials" class="tab-content hidden space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <span id="studentAccountsScopeBadge" class="tag tag-indigo tag-dot">Division scope</span>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="openBatchPrintSlipsModal()" class="btn btn-soft"><svg class="ico"><use href="#i-printer"/></svg> Print credential slips</button>
+              <button onclick="exportCredentialVaultCSV()" class="btn btn-primary"><svg class="ico"><use href="#i-download"/></svg> Export vault CSV</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Total accounts</span><span class="icon-tile w-8 h-8 bg-slate-100 text-slate-600"><svg class="ico"><use href="#i-users"/></svg></span></div><div id="credKpiTotal" class="kpi-val">18,432</div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Claimed</span><span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-check-circle"/></svg></span></div><div id="credKpiClaimed" class="kpi-val">16,201</div><div class="bar"><span class="bg-emerald-500" style="width:88%"></span></div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Unclaimed</span><span class="icon-tile w-8 h-8 bg-amber-50 text-amber-600"><svg class="ico"><use href="#i-lock"/></svg></span></div><div id="credKpiUnclaimed" class="kpi-val">2,231</div><div class="bar"><span class="bg-amber-400" style="width:12%"></span></div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Photos to review</span><span class="icon-tile w-8 h-8 bg-rose-50 text-rose-500"><svg class="ico"><use href="#i-image"/></svg></span></div><div id="credKpiPendingPhotos" class="kpi-val">7</div></div>
+          </div>
+
+          <!-- Photo approval queue -->
+          <div id="credentialPhotoQueueBanner" class="card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2"><h3 class="card-title">Profile photo queue</h3><span id="credentialPhotoPendingCountBadge" class="tag tag-rose">7 pending</span></div>
+              <button class="btn btn-ghost btn-xs">Approve all</button>
+            </div>
+            <!-- DYNAMIC DATA TARGET: id="credentialPhotoQueueGrid" -->
+            <div id="credentialPhotoQueueGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <!-- MOCK -->
+              <div class="rounded-xl border border-slate-200 bg-white p-3 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-200 to-pink-200 grid place-items-center text-violet-700 font-extrabold">KM</div>
+                <div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 truncate">Kyla Mendoza</div><div class="text-[11px] text-slate-400">G9 – Rizal</div></div>
+                <div class="flex gap-1"><button class="btn btn-xs btn-icon btn-soft"><svg class="ico ico-sm"><use href="#i-x"/></svg></button><button class="btn btn-xs btn-icon btn-success"><svg class="ico ico-sm"><use href="#i-check"/></svg></button></div>
+              </div>
+              <div class="rounded-xl border border-slate-200 bg-white p-3 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-200 to-sky-200 grid place-items-center text-teal-700 font-extrabold">BV</div>
+                <div class="flex-1 min-w-0"><div class="text-xs font-bold text-slate-800 truncate">Bea Villanueva</div><div class="text-[11px] text-slate-400">G8 – Sampaguita</div></div>
+                <div class="flex gap-1"><button class="btn btn-xs btn-icon btn-soft"><svg class="ico ico-sm"><use href="#i-x"/></svg></button><button class="btn btn-xs btn-icon btn-success"><svg class="ico ico-sm"><use href="#i-check"/></svg></button></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tourTargetBatchVault" class="card overflow-hidden">
+            <div class="tbl-toolbar border-t-0">
+              <div class="field w-full lg:w-72">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="inputCredentialSearch" type="text" oninput="handleCredentialSearch(this.value)" placeholder="Search name, LRN or username…" class="input">
+                <button id="btnClearCredentialSearch" onclick="clearCredentialSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <select id="selectCredentialGradeFilter" onchange="handleCredentialGradeFilter(this.value)" class="select"><option value="ALL">All grades</option></select>
+              <select id="selectCredentialSectionFilter" onchange="handleCredentialSectionFilter(this.value)" class="select"><option value="ALL">All sections</option></select>
+              <select id="selectCredentialStatusFilter" onchange="handleCredentialStatusFilter(this.value)" class="select"><option value="ALL">All statuses</option><option>Claimed</option><option>Unclaimed</option></select>
+              <div id="credentialSchoolFilterContainer"><select id="selectCredentialSchoolFilter" onchange="handleCredentialSchoolFilter(this.value)" class="select"><option value="ALL">All schools</option></select></div>
+              <div id="credentialCountSummaryBadge" class="ml-auto tag tag-slate">18,432 accounts</div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Learner &amp; LRN</th><th>System Username</th><th>Password Status</th><th>Grade &amp; Section</th><th>School ID</th><th>Account Status</th><th class="text-right">Account Actions</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="pendingStudentsTableBody" -->
+                <tbody id="pendingStudentsTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-sky-400 to-blue-500">JD</span><div><div class="cell-strong">Juan Dela Cruz</div><div class="text-[11px] text-slate-400 font-mono">LRN 136512090021</div></div></div></td>
+                    <td><span class="font-mono text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-700">jdelacruz.mnhs</span></td>
+                    <td><span class="inline-flex items-center gap-1.5 text-[11px]"><svg class="ico ico-sm text-emerald-500"><use href="#i-lock"/></svg> Changed by learner</span></td>
+                    <td>G7 – Mabini</td><td class="font-mono text-[11px]">305402</td><td><span class="tag tag-green tag-dot">Claimed</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-soft"><svg class="ico ico-sm"><use href="#i-key"/></svg> Reset</button><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button></div></td></tr>
+                  <tr><td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-amber-400 to-orange-500">AR</span><div><div class="cell-strong">Andrei Reyes</div><div class="text-[11px] text-slate-400 font-mono">LRN 136512090047</div></div></div></td>
+                    <td><span class="font-mono text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-700">areyes.mnhs</span></td>
+                    <td><span class="inline-flex items-center gap-1.5 text-[11px]"><svg class="ico ico-sm text-amber-500"><use href="#i-key"/></svg> Temporary password</span></td>
+                    <td>G7 – Mabini</td><td class="font-mono text-[11px]">305402</td><td><span class="tag tag-amber tag-dot">Unclaimed</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-soft"><svg class="ico ico-sm"><use href="#i-printer"/></svg> Slip</button><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tbl-foot"><span>Showing <b class="text-slate-700">1–50</b> of <b class="text-slate-700">18,432</b></span><div class="pager"><button><svg class="ico ico-sm"><use href="#i-chevron-left"/></svg></button><button class="on">1</button><button>2</button><button>3</button><button><svg class="ico ico-sm"><use href="#i-chevron-right"/></svg></button></div></div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: SCHOOL DIRECTORY   id="tab-school-matrix"
+             ================================================================ -->
+        <div id="tab-school-matrix" class="tab-content hidden space-y-5">
+          <div class="card overflow-hidden">
+            <div class="card-head">
+              <div><h3 class="card-title">Registered Junior High Schools</h3><p class="card-sub"><span id="matrixResultsCount" class="font-bold text-slate-700">24 schools</span> in SDO Valenzuela City</p></div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="exportSchoolsMatrixPDF()" class="btn btn-soft"><svg class="ico"><use href="#i-file"/></svg> PDF</button>
+                <button onclick="exportSchoolsMatrixCSV()" class="btn btn-soft"><svg class="ico"><use href="#i-download"/></svg> CSV</button>
+                <button onclick="openAddSchoolModal()" class="btn btn-primary"><svg class="ico"><use href="#i-plus"/></svg> Register school</button>
+              </div>
+            </div>
+            <div class="tbl-toolbar">
+              <div class="field w-full sm:w-80">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="inputMatrixSchoolSearch" type="text" oninput="handleMatrixSchoolSearch(this.value)" placeholder="Search school name or DepEd ID…" class="input">
+                <button id="btnClearMatrixSearch" onclick="clearMatrixSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <div class="flex gap-1.5">
+                <button id="chipMatrixDist-ALL" onclick="setMatrixDistrictFilter('ALL')" class="chip chip-active">All districts</button>
+                <button id="chipMatrixDist-District1" onclick="setMatrixDistrictFilter('District 1')" class="chip">District 1</button>
+                <button id="chipMatrixDist-District2" onclick="setMatrixDistrictFilter('District 2')" class="chip">District 2</button>
+              </div>
+            </div>
+            <div id="tourTargetSchoolMatrix" class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>DepEd ID</th><th>Secondary School Name</th><th>Verified Teachers &amp; Classes</th><th>Enrolled Learners</th><th>Reading Mastery</th><th>School Admin (SDO Invite)</th><th class="text-right">Action</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="schoolsTableBody" -->
+                <tbody id="schoolsTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td class="font-mono text-[11px] text-slate-500">305402</td>
+                    <td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-indigo-50 text-[#5341CD]"><svg class="ico"><use href="#i-building"/></svg></span><div><div class="cell-strong">Malinta National High School</div><div class="text-[11px] text-slate-400">District 2 · Malinta</div></div></div></td>
+                    <td><b class="text-slate-800">38</b> teachers · <b class="text-slate-800">52</b> classes</td><td>2,148</td>
+                    <td><div class="flex items-center gap-2 w-32"><div class="bar"><span class="bg-emerald-500" style="width:89%"></span></div><b class="text-slate-800">89%</b></div></td>
+                    <td><div class="flex items-center gap-2"><span class="avatar w-6 h-6 text-[9px] bg-teal-500">LF</span><span class="text-[11px]">l.fernandez@deped.gov.ph</span><span class="tag tag-green">Active</span></div></td>
+                    <td class="text-right"><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button></td></tr>
+                  <tr><td class="font-mono text-[11px] text-slate-500">305395</td>
+                    <td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-building"/></svg></span><div><div class="cell-strong">Polo National High School</div><div class="text-[11px] text-slate-400">District 1 · Polo</div></div></div></td>
+                    <td><b class="text-slate-800">22</b> teachers · <b class="text-slate-800">30</b> classes</td><td>1,302</td>
+                    <td><div class="flex items-center gap-2 w-32"><div class="bar"><span class="bg-amber-400" style="width:71%"></span></div><b class="text-slate-800">71%</b></div></td>
+                    <td><button class="btn btn-xs btn-tint"><svg class="ico ico-sm"><use href="#i-send"/></svg> Send invite</button></td>
+                    <td class="text-right"><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: READING MATERIALS & MODULES   id="tab-library-management"
+             ================================================================ -->
+        <div id="tab-library-management" class="tab-content hidden space-y-5">
+          <div class="flex items-center justify-between">
+            <h3 class="card-title flex items-center gap-2"><svg class="ico text-[#5341CD]"><use href="#i-folder"/></svg> Subject folders</h3>
+            <span class="text-[11px] text-slate-400">Click a folder to filter modules</span>
+          </div>
+          <!-- DYNAMIC DATA TARGET: id="subjectFoldersContainer" -->
+          <div id="subjectFoldersContainer" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+            <!-- MOCK folders -->
+            <button onclick="toggleSubjectFilter('English')" class="card card-hover p-4 text-left ring-2 ring-[#6C5CE7]/60">
+              <span class="icon-tile bg-gradient-to-br from-[#6C5CE7] to-[#5341CD] text-white shadow-glow"><svg class="ico ico-lg"><use href="#i-book"/></svg></span>
+              <div class="mt-3 text-sm font-bold text-slate-900 font-display">English</div>
+              <div class="text-[11px] text-slate-400">48 modules · 312 quiz items</div>
+            </button>
+            <button onclick="toggleSubjectFilter('Filipino')" class="card card-hover p-4 text-left">
+              <span class="icon-tile bg-rose-50 text-rose-500"><svg class="ico ico-lg"><use href="#i-book"/></svg></span>
+              <div class="mt-3 text-sm font-bold text-slate-900 font-display">Filipino</div>
+              <div class="text-[11px] text-slate-400">36 modules · 240 quiz items</div>
+            </button>
+            <button onclick="toggleSubjectFilter('Science')" class="card card-hover p-4 text-left">
+              <span class="icon-tile bg-emerald-50 text-emerald-600"><svg class="ico ico-lg"><use href="#i-book"/></svg></span>
+              <div class="mt-3 text-sm font-bold text-slate-900 font-display">Science</div>
+              <div class="text-[11px] text-slate-400">22 modules · 118 quiz items</div>
+            </button>
+          </div>
+
+          <div id="tourTargetMaterialsTable" class="card overflow-hidden">
+            <!-- Active subject filter banner -->
+            <div id="materialsActiveFilterBanner" class="flex items-center gap-3 px-5 py-3 bg-indigo-50/70 border-b border-indigo-100 text-xs">
+              <svg class="ico text-[#5341CD]"><use href="#i-filter"/></svg>
+              <span class="text-slate-600">Filtered by <strong id="filterBannerSubjectName" class="text-[#5341CD]">English</strong> · <span id="filterBannerCount">48 modules</span></span>
+              <button onclick="toggleSubjectFilter('ALL')" class="ml-auto btn btn-xs btn-soft">Clear filter</button>
+            </div>
+            <div class="tbl-toolbar border-t-0">
+              <div class="field w-full sm:w-80">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="inputMaterialSearch" type="text" oninput="handleMaterialSearch(this.value)" placeholder="Search module title…" class="input">
+                <button id="btnClearMaterialSearch" onclick="clearMaterialSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <select id="selectMaterialGradeFilter" onchange="handleMaterialGradeFilter(this.value)" class="select"><option value="ALL">All grades</option></select>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Document Title</th><th>Parent Subject</th><th>School</th><th>PDF Document Link</th><th>Attached Quiz Questions</th><th class="text-right">Actions</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="materialsTableBody" -->
+                <tbody id="materialsTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-rose-50 text-rose-500"><svg class="ico"><use href="#i-file"/></svg></span><div><div class="cell-strong">Q2 M3: Making Inferences from Texts</div><div class="text-[11px] text-slate-400">Grade 7 · 2.4 MB</div></div></div></td>
+                    <td><span class="tag tag-indigo">English</span></td><td>Division-wide</td>
+                    <td><a class="inline-flex items-center gap-1 font-bold text-[#5341CD] hover:underline cursor-pointer">Open PDF <svg class="ico ico-sm"><use href="#i-external"/></svg></a></td>
+                    <td><span class="tag tag-green">10 questions</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1"><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico ico-sm"><use href="#i-edit"/></svg></button><button class="btn btn-xs btn-ghost btn-icon text-rose-500"><svg class="ico ico-sm"><use href="#i-trash"/></svg></button></div></td></tr>
+                  <tr><td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-rose-50 text-rose-500"><svg class="ico"><use href="#i-file"/></svg></span><div><div class="cell-strong">Q2 M4: Analyzing Text Structure</div><div class="text-[11px] text-slate-400">Grade 8 · 1.8 MB</div></div></div></td>
+                    <td><span class="tag tag-indigo">English</span></td><td>Malinta NHS</td>
+                    <td><a class="inline-flex items-center gap-1 font-bold text-[#5341CD] hover:underline cursor-pointer">Open PDF <svg class="ico ico-sm"><use href="#i-external"/></svg></a></td>
+                    <td><span class="tag tag-slate">No quiz yet</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1"><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico ico-sm"><use href="#i-edit"/></svg></button><button class="btn btn-xs btn-ghost btn-icon text-rose-500"><svg class="ico ico-sm"><use href="#i-trash"/></svg></button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: STANDARDIZED READING TESTS   id="tab-timed-assessments"
+             ================================================================ -->
+        <div id="tab-timed-assessments" class="tab-content hidden space-y-5">
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Total timed tests</span><span class="icon-tile w-8 h-8 bg-indigo-50 text-[#5341CD]"><svg class="ico"><use href="#i-clock"/></svg></span></div><div id="statTotalTimedTests" class="kpi-val">18</div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Active now</span><span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-zap"/></svg></span></div><div id="statActiveTimedTests" class="kpi-val">6</div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Division submissions</span><span class="icon-tile w-8 h-8 bg-sky-50 text-sky-600"><svg class="ico"><use href="#i-clipboard"/></svg></span></div><div id="statDivisionSubmissions" class="kpi-val">9,812</div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Division avg. score</span><span class="icon-tile w-8 h-8 bg-amber-50 text-amber-600"><svg class="ico"><use href="#i-target"/></svg></span></div><div id="statDivisionAvgScore" class="kpi-val">74.6%</div></div>
+          </div>
+
+          <div class="card overflow-hidden">
+            <div class="card-head">
+              <div class="flex items-center gap-2"><h3 class="card-title">Division Timed Assessments</h3><span id="timedAssessmentsCountBadge" class="tag tag-slate">18 tests</span></div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="exportDivisionTimedTestsCSV()" class="btn btn-soft"><svg class="ico"><use href="#i-download"/></svg> CSV</button>
+                <button id="btnOpenAITimedAssessmentGenerator" onclick="openAITimedAssessmentGeneratorModal()" class="btn btn-primary"><svg class="ico"><use href="#i-sparkles"/></svg> Generate with AI</button>
+              </div>
+            </div>
+            <div class="tbl-toolbar">
+              <div class="field w-full lg:w-72">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="timedAssessmentSearchInput" type="text" oninput="renderTimedAssessmentsTable(); document.getElementById('btnClearTimedAssessmentSearch').classList.toggle('hidden', !this.value);" placeholder="Search division test title, purpose…" class="input">
+                <button id="btnClearTimedAssessmentSearch" onclick="clearTimedAssessmentSearch()" class="field-clear hidden" title="Clear Search">&times;</button>
+              </div>
+              <select id="timedAssessmentDistrictFilter" onchange="renderTimedAssessmentsTable()" class="select"><option value="ALL">All districts</option></select>
+              <select id="timedAssessmentSchoolFilter" onchange="handleTimedAssessmentSchoolFilterChange(this.value)" class="select"><option value="ALL">All schools</option></select>
+              <select id="timedAssessmentStatusFilter" onchange="renderTimedAssessmentsTable()" class="select"><option value="ALL">All statuses</option><option>Active</option><option>Scheduled</option><option>Closed</option></select>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Standardized Assessment &amp; Focus</th><th>Target Scope &amp; Grade Level</th><th>Countdown Timer</th><th>Reading Passage</th><th>Division Submissions &amp; MPS</th><th>Test Status</th><th class="text-right">Actions</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="timedAssessmentsTableBody" -->
+                <tbody id="timedAssessmentsTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="cell-strong">Q2 Phil-IRI Post-Test</div><div class="text-[11px] text-slate-400">Summative · Comprehension</div></td>
+                    <td><div class="flex flex-wrap gap-1"><span class="tag tag-indigo">Division-wide</span><span class="tag tag-slate">Grade 7</span></div></td>
+                    <td><span class="inline-flex items-center gap-1.5 font-mono font-bold text-slate-800"><svg class="ico ico-sm text-[#5341CD]"><use href="#i-clock"/></svg>25:00</span></td>
+                    <td><span class="text-[11px]">“The Boy Who Planted Trees” · 412 words</span></td>
+                    <td><div class="w-40"><div class="flex justify-between text-[11px]"><span>1,284 subs</span><b class="text-slate-800">72.8%</b></div><div class="bar mt-1"><span class="bg-[#6C5CE7]" style="width:73%"></span></div></div></td>
+                    <td><span class="tag tag-green tag-dot">Active</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1"><button class="btn btn-xs btn-tint">Results</button><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button></div></td></tr>
+                  <tr><td><div class="cell-strong">Silent Reading Fluency Check</div><div class="text-[11px] text-slate-400">Diagnostic · Fluency</div></td>
+                    <td><div class="flex flex-wrap gap-1"><span class="tag tag-sky">District 1</span><span class="tag tag-slate">Grade 9</span></div></td>
+                    <td><span class="inline-flex items-center gap-1.5 font-mono font-bold text-slate-800"><svg class="ico ico-sm text-[#5341CD]"><use href="#i-clock"/></svg>15:00</span></td>
+                    <td><span class="text-[11px]">“Bayanihan in the City” · 360 words</span></td>
+                    <td><div class="w-40"><div class="flex justify-between text-[11px]"><span>842 subs</span><b class="text-slate-800">69.1%</b></div><div class="bar mt-1"><span class="bg-amber-400" style="width:69%"></span></div></div></td>
+                    <td><span class="tag tag-amber tag-dot">Closing in 2d</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1"><button class="btn btn-xs btn-tint">Results</button><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <!-- Competencies matrix -->
+            <div id="competenciesMatrixSection" class="card overflow-hidden">
+              <div class="card-head">
+                <div><h3 class="card-title">MELC Competency Mastery</h3><p class="card-sub">Item analysis across all standardized tests</p></div>
+                <button onclick="exportCompetenciesCSV()" class="btn btn-soft btn-xs"><svg class="ico ico-sm"><use href="#i-download"/></svg> CSV</button>
+              </div>
+              <div class="tbl-wrap max-h-96">
+                <table class="tbl">
+                  <thead><tr><th>Competency Code &amp; Domain</th><th>Specific Reading Skill</th><th>Total Items Tested</th><th>Mean % Score (MPS)</th><th>DepEd Mastery Classification</th><th>DepEd Recommended Intervention</th></tr></thead>
+                  <!-- DYNAMIC DATA TARGET: id="competenciesTableBody" -->
+                  <tbody id="competenciesTableBody">
+                    <!-- MOCK rows -->
+                    <tr><td><div class="font-mono text-[11px] font-bold text-slate-800">EN7RC-IIIa-2.1</div><div class="text-[11px] text-slate-400">Reading Comprehension</div></td><td>Making inferences</td><td>4,210</td><td class="cell-strong text-rose-500">58.2%</td><td><span class="tag tag-rose">Low Mastery</span></td><td class="text-[11px]">Remedial guided reading</td></tr>
+                    <tr><td><div class="font-mono text-[11px] font-bold text-slate-800">EN8RC-IIa-8</div><div class="text-[11px] text-slate-400">Reading Comprehension</div></td><td>Identifying main idea</td><td>3,980</td><td class="cell-strong text-emerald-600">84.6%</td><td><span class="tag tag-green">Mastered</span></td><td class="text-[11px]">Enrichment activities</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- Pre/Post growth -->
+            <div id="prePostGrowthMatrixSection" class="card overflow-hidden">
+              <div class="card-head"><div><h3 class="card-title">Pre-Test vs Post-Test Growth</h3><p class="card-sub">Diagnostic → summative MPS gain per cohort</p></div></div>
+              <div class="tbl-wrap max-h-96">
+                <table class="tbl">
+                  <thead><tr><th>Cohort / Grade Level</th><th>Assessed Learners</th><th>Pre-Test (Diagnostic) MPS</th><th>Post-Test (Summative) MPS</th><th>Net Gain (&Delta;MPS)</th><th>Reading Tier Progression</th></tr></thead>
+                  <!-- DYNAMIC DATA TARGET: id="prePostGrowthTableBody" -->
+                  <tbody id="prePostGrowthTableBody">
+                    <!-- MOCK rows -->
+                    <tr><td class="cell-strong">Grade 7</td><td>4,620</td><td>63.1%</td><td>71.4%</td><td><span class="delta delta-up">+8.3</span></td><td class="text-[11px]">412 moved Frustration → Instructional</td></tr>
+                    <tr><td class="cell-strong">Grade 8</td><td>4,402</td><td>72.0%</td><td>78.2%</td><td><span class="delta delta-up">+6.2</span></td><td class="text-[11px]">388 moved Instructional → Independent</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: WEEKLY CLASSROOM QUIZZES   id="tab-weekly-assessments"
+             ================================================================ -->
+        <div id="tab-weekly-assessments" class="tab-content hidden space-y-5">
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="kpi"><span class="kpi-label">Total quizzes</span><div id="statTotalAssessments" class="kpi-val">284</div></div>
+            <div class="kpi"><span class="kpi-label">Active this week</span><div id="statActiveAssessments" class="kpi-val text-emerald-600">31</div></div>
+            <div class="kpi"><span class="kpi-label">Total submissions</span><div id="statTotalSubmissions" class="kpi-val">33,106</div></div>
+            <div class="kpi"><span class="kpi-label">Avg. score</span><div id="statAvgAssessmentScore" class="kpi-val">78.9%</div></div>
+          </div>
+          <div class="card overflow-hidden">
+            <div class="card-head">
+              <div class="flex items-center gap-2"><h3 class="card-title">Weekly Classroom Quizzes</h3><span id="assessmentsCountBadge" class="tag tag-slate">284 quizzes</span></div>
+              <button onclick="exportWeeklyAssessmentsCSV()" class="btn btn-soft"><svg class="ico"><use href="#i-download"/></svg> Export CSV</button>
+            </div>
+            <div class="tbl-toolbar">
+              <div class="field w-full lg:w-80">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="assessmentSearchInput" type="text" oninput="renderAssessmentsTable(); document.getElementById('btnClearAssessmentSearch').classList.toggle('hidden', !this.value);" placeholder="Search title, subject, teacher, class…" class="input">
+                <button id="btnClearAssessmentSearch" onclick="clearAssessmentSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <select id="assessmentGradeFilter" onchange="renderAssessmentsTable()" class="select"><option value="ALL">All grades</option></select>
+              <select id="assessmentStatusFilter" onchange="renderAssessmentsTable()" class="select"><option value="ALL">All statuses</option><option>Open</option><option>Closed</option></select>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Assessment &amp; Subject</th><th>Target Class &amp; School</th><th>Assigned Educator</th><th>Due Date</th><th>Submissions &amp; Avg Score</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="assessmentsTableBody" -->
+                <tbody id="assessmentsTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="cell-strong">Week 6: Context Clues</div><span class="tag tag-indigo mt-1">English</span></td><td><div class="text-slate-800 font-semibold">G7 – Mabini</div><div class="text-[11px] text-slate-400">Malinta NHS</div></td>
+                    <td><div class="flex items-center gap-2"><span class="avatar w-6 h-6 text-[9px] bg-rose-400">TG</span>T. Garcia</div></td>
+                    <td><span class="inline-flex items-center gap-1.5"><svg class="ico ico-sm text-slate-400"><use href="#i-calendar"/></svg>Nov 8, 2026</span></td>
+                    <td><b class="text-slate-800">36/39</b> · 81.4%</td><td><span class="tag tag-green tag-dot">Open</span></td>
+                    <td class="text-right"><button class="btn btn-xs btn-tint">View</button></td></tr>
+                  <tr><td><div class="cell-strong">Linggo 6: Pagbubuod</div><span class="tag tag-rose mt-1">Filipino</span></td><td><div class="text-slate-800 font-semibold">G8 – Sampaguita</div><div class="text-[11px] text-slate-400">Malinta NHS</div></td>
+                    <td><div class="flex items-center gap-2"><span class="avatar w-6 h-6 text-[9px] bg-sky-400">PB</span>P. Bautista</div></td>
+                    <td><span class="inline-flex items-center gap-1.5"><svg class="ico ico-sm text-slate-400"><use href="#i-calendar"/></svg>Nov 1, 2026</span></td>
+                    <td><b class="text-slate-800">42/42</b> · 86.0%</td><td><span class="tag tag-slate tag-dot">Closed</span></td>
+                    <td class="text-right"><button class="btn btn-xs btn-tint">View</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: QUIZ ATTEMPT LOGS   id="tab-quiz-attempts"
+             ================================================================ -->
+        <div id="tab-quiz-attempts" class="tab-content hidden space-y-5">
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="kpi"><span class="kpi-label">Total attempts</span><div id="statTotalQuizAttempts" class="kpi-val">61,204</div></div>
+            <div class="kpi"><span class="kpi-label">Avg. accuracy</span><div id="statAvgQuizAccuracy" class="kpi-val">77.2%</div></div>
+            <div class="kpi"><span class="kpi-label">High-mastery rate</span><div id="statHighMasteryRate" class="kpi-val text-emerald-600">41%</div></div>
+            <div class="kpi"><span class="kpi-label">Active scholars</span><div id="statActiveQuizScholars" class="kpi-val">12,880</div></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <h3 class="card-title">Quiz categories</h3>
+            <button onclick="refreshQuizAttemptsData()" class="btn btn-soft btn-xs"><svg class="ico ico-sm"><use href="#i-refresh"/></svg> Refresh</button>
+          </div>
+          <!-- DYNAMIC DATA TARGET: id="quizCategoryFoldersContainer" -->
+          <div id="quizCategoryFoldersContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- MOCK -->
+            <button class="card card-hover p-4 text-left ring-2 ring-[#6C5CE7]/60"><div class="flex items-center justify-between"><span class="icon-tile w-9 h-9 bg-indigo-50 text-[#5341CD]"><svg class="ico"><use href="#i-layers"/></svg></span><span class="tag tag-dark">All</span></div><div class="mt-3 text-sm font-bold text-slate-900 font-display">All attempts</div><div class="text-[11px] text-slate-400">61,204 logs</div></button>
+            <button class="card card-hover p-4 text-left"><div class="flex items-center justify-between"><span class="icon-tile w-9 h-9 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-book"/></svg></span></div><div class="mt-3 text-sm font-bold text-slate-900 font-display">Module quizzes</div><div class="text-[11px] text-slate-400">38,410 logs</div></button>
+            <button class="card card-hover p-4 text-left"><div class="flex items-center justify-between"><span class="icon-tile w-9 h-9 bg-amber-50 text-amber-600"><svg class="ico"><use href="#i-zap"/></svg></span></div><div class="mt-3 text-sm font-bold text-slate-900 font-display">Vocabulary games</div><div class="text-[11px] text-slate-400">22,794 logs</div></button>
+          </div>
+
+          <div class="card overflow-hidden">
+            <div class="card-head">
+              <div class="flex items-center gap-2"><span id="quizAttemptsTableTitle" class="card-title">All Quiz Attempts</span><span id="quizAttemptsCountBadge" class="tag tag-slate">61,204</span></div>
+              <button onclick="exportQuizAttemptsCSV()" class="btn btn-soft"><svg class="ico"><use href="#i-download"/></svg> Export CSV</button>
+            </div>
+            <div class="tbl-toolbar">
+              <div class="field w-full lg:w-72">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="inputQuizSearch" type="text" oninput="handleQuizSearchChange(this.value); document.getElementById('btnClearQuizSearch').classList.toggle('hidden', !this.value);" placeholder="Search learner or quiz title…" class="input">
+                <button id="btnClearQuizSearch" onclick="clearQuizSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <select id="selectQuizGradeFilter" onchange="handleQuizGradeFilterChange(this.value)" class="select"><option value="ALL">All grades</option></select>
+              <select id="selectQuizSchoolFilter" onchange="handleQuizSchoolFilterChange(this.value)" class="select"><option value="ALL">All schools</option></select>
+              <select id="selectQuizMasteryFilter" onchange="handleQuizMasteryFilterChange(this.value)" class="select"><option value="ALL">All mastery levels</option><option>High</option><option>Developing</option><option>Needs support</option></select>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Learner &amp; Section</th><th>School</th><th>Quiz Category &amp; Title</th><th>Score &amp; Accuracy</th><th>Mastery Status</th><th>Submitted At</th><th class="text-right">Actions</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="quizAttemptsTableBody" -->
+                <tbody id="quizAttemptsTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-pink-400 to-fuchsia-500">MS</span><div><div class="cell-strong">Maria Clara Santos</div><div class="text-[11px] text-slate-400">G8 – Sampaguita</div></div></div></td>
+                    <td>Malinta NHS</td><td><div class="text-[11px] text-slate-400">Module quiz</div><div class="font-semibold text-slate-800">Q2 M4: Text Structure</div></td>
+                    <td><b class="text-slate-800">10/10</b> · 100%</td><td><span class="tag tag-green tag-dot">High mastery</span></td><td class="text-[11px]">Nov 5, 2026 · 9:14 PM</td>
+                    <td class="text-right"><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico ico-sm"><use href="#i-eye"/></svg></button></td></tr>
+                  <tr><td><div class="flex items-center gap-3"><span class="avatar bg-gradient-to-br from-amber-400 to-orange-500">AR</span><div><div class="cell-strong">Andrei Reyes</div><div class="text-[11px] text-slate-400">G7 – Mabini</div></div></div></td>
+                    <td>Malinta NHS</td><td><div class="text-[11px] text-slate-400">Vocabulary game</div><div class="font-semibold text-slate-800">Spot the Impostor</div></td>
+                    <td><b class="text-slate-800">4/10</b> · 40%</td><td><span class="tag tag-rose tag-dot">Needs support</span></td><td class="text-[11px]">Nov 5, 2026 · 7:02 PM</td>
+                    <td class="text-right"><button class="btn btn-xs btn-ghost btn-icon"><svg class="ico ico-sm"><use href="#i-eye"/></svg></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: ANNOUNCEMENTS   id="tab-announcements"
+             ================================================================ -->
+        <div id="tab-announcements" class="tab-content hidden space-y-5">
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Active posts</span><span class="icon-tile w-8 h-8 bg-indigo-50 text-[#5341CD]"><svg class="ico"><use href="#i-megaphone"/></svg></span></div><div id="statActiveAnnouncements" class="kpi-val">14</div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Audience reached</span><span class="icon-tile w-8 h-8 bg-sky-50 text-sky-600"><svg class="ico"><use href="#i-users"/></svg></span></div><div id="statTargetAudienceCount" class="kpi-val">18.8k</div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Total replies</span><span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico"><use href="#i-message"/></svg></span></div><div id="statTotalReplies" class="kpi-val">326</div></div>
+            <div class="kpi"><div class="kpi-top"><span class="kpi-label">Scope</span><span class="icon-tile w-8 h-8 bg-amber-50 text-amber-600"><svg class="ico"><use href="#i-building"/></svg></span></div><div id="statAnnouncementsScope" class="kpi-val text-lg">Division</div></div>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
+            <div class="xl:col-span-2 space-y-4">
+              <div class="card p-3 flex flex-wrap items-center gap-2">
+                <div class="field flex-1 min-w-[220px]">
+                  <svg class="ico"><use href="#i-search"/></svg>
+                  <input id="announcementSearchInput" type="text" oninput="filterAnnouncementsTable(); document.getElementById('btnClearAnnouncementSearch').classList.toggle('hidden', !this.value);" placeholder="Search announcements by title or content…" class="input">
+                  <button id="btnClearAnnouncementSearch" onclick="clearAnnouncementSearch()" class="field-clear hidden">&times;</button>
+                </div>
+                <select id="announcementAudienceFilter" onchange="filterAnnouncementsTable()" class="select"><option value="ALL">All audiences</option><option>Teachers</option><option>Students</option><option>Admins</option></select>
+                <select id="announcementScopeFilter" onchange="filterAnnouncementsTable()" class="select"><option value="ALL">All scopes</option><option>Division</option><option>School</option></select>
+              </div>
+              <!-- DYNAMIC DATA TARGET: id="announcementsFeedContainer" -->
+              <div id="announcementsFeedContainer" class="space-y-4">
+                <!-- MOCK post -->
+                <article class="card p-5">
+                  <div class="flex items-start gap-3">
+                    <span class="avatar w-10 h-10 bg-gradient-to-br from-[#6C5CE7] to-[#00B894]">SDO</span>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex flex-wrap items-center gap-2"><span class="text-xs font-bold text-slate-900">SDO Valenzuela City</span><span class="tag tag-amber">Pinned · Directive</span><span class="text-[11px] text-slate-400">Nov 4 · 2:30 PM</span></div>
+                      <h4 class="mt-1.5 text-sm font-bold text-slate-900">Submit Q2 Phil-IRI Post-Test results before Nov 15</h4>
+                      <p class="mt-1 text-xs text-slate-600 leading-relaxed">All JHS campuses must finalize post-test encoding in GabAI so the division can publish the Q2 reading profile. Coordinators may request extensions through their school admin.</p>
+                      <div class="mt-3 flex flex-wrap items-center gap-2"><span class="tag tag-slate"><svg class="ico ico-sm"><use href="#i-users"/></svg>Teachers · Admins</span><span class="tag tag-indigo">Division-wide</span></div>
+                      <div class="mt-4 pt-3 divider flex items-center gap-4 text-[11px] font-semibold text-slate-500">
+                        <button class="inline-flex items-center gap-1.5 hover:text-[#5341CD]"><svg class="ico ico-sm"><use href="#i-eye"/></svg>1,204 views</button>
+                        <button class="inline-flex items-center gap-1.5 hover:text-[#5341CD]"><svg class="ico ico-sm"><use href="#i-message"/></svg>48 replies</button>
+                        <button class="ml-auto btn btn-xs btn-ghost btn-icon"><svg class="ico"><use href="#i-more"/></svg></button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+                <article class="card p-5">
+                  <div class="flex items-start gap-3">
+                    <span class="avatar w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-500">MN</span>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex flex-wrap items-center gap-2"><span class="text-xs font-bold text-slate-900">Malinta NHS Admin</span><span class="tag tag-sky">Event</span><span class="text-[11px] text-slate-400">Nov 2 · 9:00 AM</span></div>
+                      <h4 class="mt-1.5 text-sm font-bold text-slate-900">📚 Reading Month Kickoff — Readathon this Friday!</h4>
+                      <p class="mt-1 text-xs text-slate-600 leading-relaxed">Learners who keep a 7-day GabAI streak during Reading Month earn the exclusive “Bookworm” badge 🏅.</p>
+                      <div class="mt-4 pt-3 divider flex items-center gap-4 text-[11px] font-semibold text-slate-500">
+                        <button class="inline-flex items-center gap-1.5 hover:text-[#5341CD]"><svg class="ico ico-sm"><use href="#i-eye"/></svg>2,310 views</button>
+                        <button class="inline-flex items-center gap-1.5 hover:text-[#5341CD]"><svg class="ico ico-sm"><use href="#i-message"/></svg>112 replies</button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <!-- Composer CTA -->
+            <aside class="card p-5 xl:sticky xl:top-28 space-y-4">
+              <span class="icon-tile bg-gradient-to-br from-[#6C5CE7] to-[#5341CD] text-white shadow-glow"><svg class="ico ico-lg"><use href="#i-send"/></svg></span>
+              <div><h3 class="card-title">Broadcast an announcement</h3><p class="card-sub">Reach teachers, learners and school admins instantly on the GabAI mobile app.</p></div>
+              <button onclick="openCreateAnnouncementModal()" class="btn btn-primary w-full"><svg class="ico"><use href="#i-plus"/></svg> New announcement</button>
+              <div class="divider pt-3 text-[11px] text-slate-500 space-y-2">
+                <div class="flex items-center gap-2"><svg class="ico ico-sm text-emerald-500"><use href="#i-check"/></svg> Push notification to mobile app</div>
+                <div class="flex items-center gap-2"><svg class="ico ico-sm text-emerald-500"><use href="#i-check"/></svg> Per-audience view tracking</div>
+                <div class="flex items-center gap-2"><svg class="ico ico-sm text-emerald-500"><use href="#i-check"/></svg> Threaded replies</div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: RECYCLE BIN   id="tab-recycle-vault"
+             ================================================================ -->
+        <div id="tab-recycle-vault" class="tab-content hidden space-y-5">
+          <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="kpi"><span class="kpi-label">Archived records</span><div id="statVaultTotal" class="kpi-val">12</div></div>
+            <div class="kpi"><span class="kpi-label">Students</span><div id="statVaultStudents" class="kpi-val">5</div></div>
+            <div class="kpi"><span class="kpi-label">Materials</span><div id="statVaultMaterials" class="kpi-val">4</div></div>
+            <div class="kpi"><span class="kpi-label">Classes</span><div id="statVaultClasses" class="kpi-val">3</div></div>
+          </div>
+
+          <div class="card overflow-hidden">
+            <div class="card-head">
+              <div class="seg">
+                <button id="btnVaultStatusArchived" onclick="setVaultStatusFilter('archived')" class="on">Archived</button>
+                <button id="btnVaultStatusRestored" onclick="setVaultStatusFilter('restored')">Restored</button>
+                <button id="btnVaultStatusAll" onclick="setVaultStatusFilter('ALL')">All</button>
+              </div>
+              <button onclick="renderRecycleVault()" class="btn btn-soft"><svg class="ico"><use href="#i-refresh"/></svg> Refresh</button>
+            </div>
+            <div class="tbl-toolbar">
+              <div class="field w-full lg:w-72">
+                <svg class="ico"><use href="#i-search"/></svg>
+                <input id="vaultSearchInput" type="text" oninput="filterRecycleVault(); document.getElementById('btnClearVaultSearch').classList.toggle('hidden', !this.value);" placeholder="Search archived records…" class="input">
+                <button id="btnClearVaultSearch" onclick="clearVaultSearch()" class="field-clear hidden">&times;</button>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <button id="chip-vault-ALL" onclick="setVaultTypeFilter('ALL')" class="chip chip-active">All</button>
+                <button id="chip-vault-student" onclick="setVaultTypeFilter('student')" class="chip">Students</button>
+                <button id="chip-vault-material" onclick="setVaultTypeFilter('material')" class="chip">Materials</button>
+                <button id="chip-vault-subject" onclick="setVaultTypeFilter('subject')" class="chip">Subjects</button>
+                <button id="chip-vault-school" onclick="setVaultTypeFilter('school')" class="chip">Schools</button>
+                <button id="chip-vault-teacher" onclick="setVaultTypeFilter('teacher')" class="chip">Teachers</button>
+                <button id="chip-vault-class" onclick="setVaultTypeFilter('class')" class="chip">Classes</button>
+                <button id="chip-vault-assessment" onclick="setVaultTypeFilter('assessment')" class="chip">Assessments</button>
+              </div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th>Archived Record</th><th>Original Location</th><th>Deletion Context</th><th>Archived Date &amp; Expiry</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
+                <!-- DYNAMIC DATA TARGET: id="recycleVaultTableBody" -->
+                <tbody id="recycleVaultTableBody">
+                  <!-- MOCK rows -->
+                  <tr><td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-sky-50 text-sky-600"><svg class="ico"><use href="#i-users"/></svg></span><div><div class="cell-strong">Kyla Mendoza</div><div class="text-[11px] text-slate-400">Student account</div></div></div></td>
+                    <td>Malinta NHS › G9 – Rizal</td><td class="text-[11px]">Transferred out · by L. Fernandez</td>
+                    <td><div class="text-slate-800 font-semibold">Oct 28, 2026</div><div class="text-[11px] text-amber-600 font-bold">Expires in 22 days</div></td>
+                    <td><span class="tag tag-amber tag-dot">Archived</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-tint"><svg class="ico ico-sm"><use href="#i-restore"/></svg> Restore</button><button class="btn btn-xs btn-ghost btn-icon text-rose-500"><svg class="ico ico-sm"><use href="#i-trash"/></svg></button></div></td></tr>
+                  <tr><td><div class="flex items-center gap-3"><span class="icon-tile w-9 h-9 bg-rose-50 text-rose-500"><svg class="ico"><use href="#i-file"/></svg></span><div><div class="cell-strong">Q1 M2: Noting Details (old)</div><div class="text-[11px] text-slate-400">Reading material</div></div></div></td>
+                    <td>English folder</td><td class="text-[11px]">Replaced by revised module</td>
+                    <td><div class="text-slate-800 font-semibold">Oct 12, 2026</div><div class="text-[11px] text-rose-500 font-bold">Expires in 6 days</div></td>
+                    <td><span class="tag tag-amber tag-dot">Archived</span></td>
+                    <td class="text-right"><div class="inline-flex gap-1.5"><button class="btn btn-xs btn-tint"><svg class="ico ico-sm"><use href="#i-restore"/></svg> Restore</button><button class="btn btn-xs btn-ghost btn-icon text-rose-500"><svg class="ico ico-sm"><use href="#i-trash"/></svg></button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Empty state (admin.html toggles .hidden) -->
+            <div id="vaultEmptyState" class="hidden py-16 text-center">
+              <span class="mx-auto icon-tile w-14 h-14 bg-emerald-50 text-emerald-500"><svg class="ico ico-lg"><use href="#i-check-circle"/></svg></span>
+              <h4 class="mt-3 text-sm font-bold text-slate-900">Recycle bin is empty</h4>
+              <p class="text-xs text-slate-500">Archived records will appear here for 30 days.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             VIEW: SYSTEM SETTINGS   id="tab-system-settings"  (Super Admin)
+             ================================================================ -->
+        <div id="tab-system-settings" class="tab-content hidden space-y-5">
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
+
+            <!-- Gemini configuration -->
+            <div class="card xl:col-span-2 overflow-hidden">
+              <div class="p-5 bg-gradient-to-br from-slate-900 via-[#2B1F8F] to-[#5341CD] text-white relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-[#00B894]/20 blur-3xl"></div>
+                <div class="relative flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <span class="w-11 h-11 rounded-xl bg-white/10 ring-1 ring-white/20 grid place-items-center"><svg class="ico ico-lg"><use href="#i-sparkles"/></svg></span>
+                    <div><h3 class="text-base font-bold font-display">Centralized Gemini AI Engine</h3><p class="text-xs text-white/60">One key powers AI briefings, test generation and learner feedback division-wide.</p></div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span id="systemConfigLiveBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400/20 text-emerald-200 border border-emerald-400/30">Engine Live</span>
+                    <button onclick="loadCentralizedGeminiConfig(true)" class="btn btn-xs bg-white/10 hover:bg-white/20 text-white"><svg class="ico ico-sm"><use href="#i-refresh"/></svg> Reload</button>
+                  </div>
+                </div>
+              </div>
+              <div class="p-5 space-y-5">
+                <div class="flex flex-wrap items-center gap-3">
+                  <div id="geminiConfigStatusPill" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Connected · gemini-2.5-flash</div>
+                </div>
+
+                <div id="activeKeyDisplayBox" class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+                  <div class="flex items-center justify-between">
+                    <span class="eyebrow">Active API key</span>
+                    <span id="keyLastUpdatedLabel" class="text-[11px] text-slate-400">Updated Oct 30, 2026 by R. Aquino</span>
+                  </div>
+                  <div class="mt-2 flex items-center gap-2">
+                    <div id="maskedKeyPreview" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider px-3 py-2 rounded-xl bg-white border border-slate-200">AIza••••••••••••••••••••••Xk2Q</div>
+                    <button id="btnToggleKeyVisibility" onclick="toggleSystemApiKeyVisibility()" class="btn btn-soft"><svg class="ico"><use href="#i-eye"/></svg> <span id="eyeBtnText">Show</span></button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="label" for="inputCentralGeminiKey">Replace API key</label>
+                  <div class="field">
+                    <svg class="ico"><use href="#i-key"/></svg>
+                    <input id="inputCentralGeminiKey" type="password" placeholder="Paste a new Google AI Studio key (AIza…)" class="input h-11 font-mono">
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-1.5">Keys are stored server-side and never exposed to the mobile app.</p>
+                </div>
+
+                <div id="testConnectionFeedbackBox" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700 font-semibold flex items-center gap-2">
+                  <svg class="ico"><use href="#i-check-circle"/></svg> Connection successful — 412 ms round trip.
+                </div>
+
+                <div class="flex flex-wrap items-center justify-end gap-2 pt-2 divider">
+                  <button id="btnClearGeminiKey" onclick="clearCentralizedGeminiConfig()" class="btn btn-danger mt-3"><svg class="ico"><use href="#i-trash"/></svg> Remove key</button>
+                  <button id="btnTestGeminiKey" onclick="testGeminiApiConnection()" class="btn btn-soft mt-3"><svg class="ico"><use href="#i-zap"/></svg> Test connection</button>
+                  <button id="btnSaveGeminiKey" onclick="saveCentralizedGeminiConfig()" class="btn btn-primary mt-3"><svg class="ico"><use href="#i-check"/></svg> Save configuration</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Platform health (visual only) -->
+            <div class="space-y-4">
+              <div class="card p-5">
+                <h3 class="card-title">Platform health</h3>
+                <p class="card-sub">Realtime service status</p>
+                <!-- DYNAMIC DATA TARGET: id="systemHealthList" (new, optional) -->
+                <div id="systemHealthList" class="mt-4 space-y-3 text-xs">
+                  <div class="flex items-center gap-3"><span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico ico-sm"><use href="#i-database"/></svg></span><span class="flex-1 font-semibold text-slate-700">Database</span><span class="tag tag-green tag-dot">Operational</span></div>
+                  <div class="flex items-center gap-3"><span class="icon-tile w-8 h-8 bg-emerald-50 text-emerald-600"><svg class="ico ico-sm"><use href="#i-lock"/></svg></span><span class="flex-1 font-semibold text-slate-700">Authentication</span><span class="tag tag-green tag-dot">Operational</span></div>
+                  <div class="flex items-center gap-3"><span class="icon-tile w-8 h-8 bg-amber-50 text-amber-600"><svg class="ico ico-sm"><use href="#i-sparkles"/></svg></span><span class="flex-1 font-semibold text-slate-700">Gemini quota</span><span class="tag tag-amber tag-dot">78% used</span></div>
+                </div>
+              </div>
+              <div class="card p-5 bg-gradient-to-br from-amber-50/80 to-white">
+                <div class="flex items-center gap-2 text-amber-700 text-xs font-bold"><svg class="ico"><use href="#i-alert"/></svg> Security reminder</div>
+                <p class="mt-1.5 text-xs text-slate-600 leading-relaxed">Rotate the Gemini API key every 90 days and never share it in chat groups or documents.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+  <!-- /mainDashboard -->
