@@ -113,8 +113,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val isPreview = intent.getBooleanExtra("PREVIEW_MODE", false)
         val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser == null) {
+        if (!isPreview && currentUser == null) {
             startActivity(Intent(this, AuthActivity::class.java))
             finish()
             return
@@ -124,16 +125,18 @@ class MainActivity : AppCompatActivity() {
         val cachedRole = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
             .getString("cached_user_role", null)
 
-        val initialDisplayRole = userRole ?: cachedRole
+        val initialDisplayRole = userRole ?: cachedRole ?: if (isPreview) "student" else null
 
         if (initialDisplayRole != null) {
             // 🟢 ZERO-LATENCY INSTANT LAUNCH (Eliminates placeholder loading flickers)
             loadDashboard(initialDisplayRole)
-            FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
-                .get().addOnSuccessListener { doc ->
-                    checkAccountStatusAndProceed(doc, currentUser, initialDisplayRole)
-                }
-        } else {
+            if (currentUser != null) {
+                FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
+                    .get().addOnSuccessListener { doc ->
+                        checkAccountStatusAndProceed(doc, currentUser, initialDisplayRole)
+                    }
+            }
+        } else if (currentUser != null) {
             GabAIUtils.showGlobalLoading(this, "Verifying Account...")
 
             FirebaseFirestore.getInstance().collection("users").document(currentUser.uid)
@@ -892,10 +895,12 @@ class MainActivity : AppCompatActivity() {
         }
         binding.root.tag = role // Save role so the bottom menu knows which one to show
         applyRoleUi(role)
-        val targetTag = if (role == "teacher") "teacher_home" else "student_home"
+        val tab = intent.getStringExtra("TAB")
+        val targetTag = if (tab == "profile") "profile" else if (role == "teacher") "teacher_home" else "student_home"
         showFragmentByTag(targetTag)
 
-        if (role == "student") {
+        val skipIntro = intent.getBooleanExtra("SKIP_INTRO", false)
+        if (role == "student" && !skipIntro) {
             val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
             val hasSeenIntro = prefs.getBoolean(StudentIntroActivity.PREF_HAS_SEEN_INTRO, false)
             if (!hasSeenIntro) {
