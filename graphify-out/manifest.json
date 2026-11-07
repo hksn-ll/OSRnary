@@ -102,9 +102,9 @@
     "semantic_hash": "8c7b75af13832fd15fe814e0ac3a6820"
   },
   "app/src/main/java/com/example/gabai/MainActivity.kt": {
-    "mtime": 1793901015.29015,
-    "seen": 1793901108.0048733,
-    "ast_hash": "c348b565ebb537411772404af9c9b8b7",
+    "mtime": 1794086209.3630939,
+    "seen": 1794086632.4162369,
+    "ast_hash": "4cc7aa3c517fff835f4cced46856ee77",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ManageClassesActivity.kt": {
@@ -1179,6 +1179,126 @@
     "mtime": 1793902521.973158,
     "seen": 1793904165.4412858,
     "ast_hash": "72c4f2396bd5213bec281fd908a4d3a5",
+    "semantic_hash": ""
+  },
+  "scripts/capture_all_screens.sh": {
+    "mtime": 1794086209.4222467,
+    "seen": 1794086632.4163027,
+    "ast_hash": "a3875cc1a714271443b9ed3475c48e2f",
+    "semantic_hash": ""
+  },
+  ".github/workflows/capture-screenshots.yml": {
+    "mtime": 1794086209.361493,
+    "seen": 1794086632.416307,
+    "ast_hash": "5e996894cfa6dd6ecc5ae8b379a3e4fd",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_76_leaderboard.png": {
+    "mtime": 1794086209.365304,
+    "seen": 1794086632.416369,
+    "ast_hash": "446695f5d100ee54823e7382538b133a",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_achievements.png": {
+    "mtime": 1794086209.3668838,
+    "seen": 1794086632.4163702,
+    "ast_hash": "c9b85660021ecdea4d3012fa8e13e927",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_daily_quests.png": {
+    "mtime": 1794086209.368969,
+    "seen": 1794086632.416371,
+    "ast_hash": "4a02162f7d1b74417d38f12ded8293bd",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_dev_easter_egg.png": {
+    "mtime": 1794086209.371073,
+    "seen": 1794086632.416372,
+    "ast_hash": "d7e1edb7af99a3ae441d4f09971e7954",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_help_center.png": {
+    "mtime": 1794086209.3740726,
+    "seen": 1794086632.416373,
+    "ast_hash": "20b67508acf35cf5fbd1aea6024415d7",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_initiation_check.png": {
+    "mtime": 1794086209.3795812,
+    "seen": 1794086632.416374,
+    "ast_hash": "447bdbe5434af55547ce185483f2ee85",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_manage_classes.png": {
+    "mtime": 1794086209.3805814,
+    "seen": 1794086632.4163747,
+    "ast_hash": "57097b3d7c55851ecbc0e15e083b4bb1",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_progress_dashboard.png": {
+    "mtime": 1794086209.3825805,
+    "seen": 1794086632.4163759,
+    "ast_hash": "dc9b858150f8be5102dcd6169282e7a0",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_quiz_editor.png": {
+    "mtime": 1794086209.3890853,
+    "seen": 1794086632.4163768,
+    "ast_hash": "0f827acb9ab4d388e617a1ce4d23c564",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_smart_word_meaning.png": {
+    "mtime": 1794086209.3914976,
+    "seen": 1794086632.4163778,
+    "ast_hash": "c374f0eca54106b6433810e5054dbc2c",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_student_home.png": {
+    "mtime": 1794086209.394521,
+    "seen": 1794086632.4163792,
+    "ast_hash": "2307d6de1de605ce0d2b42f54ebe940d",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_student_intro.png": {
+    "mtime": 1794086209.396504,
+    "seen": 1794086632.4163802,
+    "ast_hash": "2f08230db427989db101fc8a9f2ba056",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_student_profile.png": {
+    "mtime": 1794086209.400035,
+    "seen": 1794086632.4163811,
+    "ast_hash": "f9417bd22311d6567858d0ccb888f188",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_teacher_home.png": {
+    "mtime": 1794086209.403199,
+    "seen": 1794086632.4163823,
+    "ast_hash": "c8c4a2fd65e3cacefbd83545668cb078",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_teacher_library.png": {
+    "mtime": 1794086209.4052038,
+    "seen": 1794086632.416383,
+    "ast_hash": "a0116d27775b6946116412c7d231ffd8",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_teacher_profile.png": {
+    "mtime": 1794086209.4072034,
+    "seen": 1794086632.416384,
+    "ast_hash": "b40f188465895d915f6541349adafa40",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_timed_assessment.png": {
+    "mtime": 1794086209.4137206,
+    "seen": 1794086632.416385,
+    "ast_hash": "0f827acb9ab4d388e617a1ce4d23c564",
+    "semantic_hash": ""
+  },
+  "manual_assets/screenshots/mobile/fig_weekly_assessment.png": {
+    "mtime": 1794086209.4202237,
+    "seen": 1794086632.4163861,
+    "ast_hash": "0f827acb9ab4d388e617a1ce4d23c564",
     "semantic_hash": ""
   }
 }
