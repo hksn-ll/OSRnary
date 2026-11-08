@@ -1,0 +1,5 @@
+# Netlify Rewrites & Clean URL Routing for GabAI
+/admin              /admin-portal/admin.html       200
+/admin.html         /admin-portal/admin.html       200
+/admin/*            /admin-portal/admin.html       200
+/portal             /admin-portal/index.html       200

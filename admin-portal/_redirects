@@ -1,0 +1,3 @@
+# Netlify Rewrites if Publish Directory is set to admin-portal
+/admin              /admin.html       200
+/admin/*            /admin.html       200

@@ -6286,7 +6286,7 @@
 
         // Sidebar Navigation Visibility: Super Admin focuses strictly on division macro intelligence
         if (navFaculty) navFaculty.style.display = 'none';
-        if (btnBatch) btnBatch.style.display = 'none';
+        if (btnBatch) btnBatch.style.display = 'flex';
         if (btnLib) btnLib.style.display = 'none';
         if (btnQuiz) btnQuiz.style.display = 'none';
         if (btnTimed) btnTimed.style.display = 'flex';
@@ -6478,15 +6478,21 @@
       }, (err) => console.error("Classes listener:", err));
       unsubs.push(unsubClasses);
 
-      // 3. pending_students
-      const pendingRef = (isSchoolAdmin && currentAdminUser?.schoolId)
-        ? query(collection(db, "pending_students"), where("schoolId", "==", String(currentAdminUser.schoolId)))
-        : collection(db, "pending_students");
-
-      const unsubPending = onSnapshot(pendingRef, (snapshot) => {
+      // 3. pending_students (Unified division listener with school-scoped fallback)
+      const unsubPending = onSnapshot(collection(db, "pending_students"), (snapshot) => {
         cachedPendingStudents = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         scheduleDashboardRender();
-      }, (err) => console.warn("Pending students listener:", err));
+      }, (err) => {
+        console.warn("Pending students division listener warning:", err);
+        // Resilient fallback: if division-wide listing is restricted, subscribe via school-scoped query
+        if (isSchoolAdmin && currentAdminUser?.schoolId) {
+          const fallbackRef = query(collection(db, "pending_students"), where("schoolId", "==", String(currentAdminUser.schoolId)));
+          onSnapshot(fallbackRef, (snapshot) => {
+            cachedPendingStudents = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            scheduleDashboardRender();
+          }, (err2) => console.error("Pending students fallback error:", err2));
+        }
+      });
       unsubs.push(unsubPending);
 
       // 4. library_subjects (TeacherLibraryActivity.kt)
@@ -7025,7 +7031,7 @@
         classes = classes.filter(c => String(c.grade || '').trim() === gNum || String(c.grade || '').trim() === credentialGradeFilter);
       }
 
-      const sections = Array.from(new Set(classes.map(c => (c.name || '').trim()).filter(Boolean))).sort();
+      const sections = Array.from(new Set(classes.map(c => (c.section || c.className || c.name || '').trim()).filter(Boolean))).sort();
 
       select.innerHTML = '<option value="ALL">All Class Sections</option>' +
         sections.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
@@ -7115,7 +7121,28 @@
     // Shims for legacy/external compatibility
     window.handleGlobalSearch = function(q) {};
     window.clearGlobalSearch = function() {};
-    window.resetAllFilters = function() {};
+    window.resetCredentialFilters = function() {
+      credentialSearchQuery = '';
+      credentialGradeFilter = 'ALL';
+      credentialSectionFilter = 'ALL';
+      credentialStatusFilter = 'ALL';
+      credentialSchoolFilter = 'ALL';
+      const inSearch = document.getElementById('inputCredentialSearch');
+      if (inSearch) inSearch.value = '';
+      const selGrade = document.getElementById('selectCredentialGradeFilter');
+      if (selGrade) selGrade.value = 'ALL';
+      const selSec = document.getElementById('selectCredentialSectionFilter');
+      if (selSec) selSec.value = 'ALL';
+      const selStat = document.getElementById('selectCredentialStatusFilter');
+      if (selStat) selStat.value = 'ALL';
+      const selSchool = document.getElementById('selectCredentialSchoolFilter');
+      if (selSchool) selSchool.value = 'ALL';
+      const btnClear = document.getElementById('btnClearCredentialSearch');
+      if (btnClear) btnClear.classList.add('hidden');
+      populateCredentialSectionDropdown();
+      renderPendingStudentsTable();
+    };
+    window.resetAllFilters = window.resetCredentialFilters;
     window.handleGlobalGradeFilter = function(val) {};
     window.handleGlobalStatusFilter = function(val) {};
     window.handleGlobalDistrictFilter = function(val) {};
@@ -8828,6 +8855,26 @@
       `;
     };
 
+    // Helper: Safely resolve student's schoolId with class-section fallback
+    window.resolveStudentSchoolId = function(student) {
+      if (!student) return '';
+      const direct = student.schoolId || student.school_id;
+      if (direct && String(direct).trim() !== '' && String(direct).trim() !== 'null' && String(direct).trim() !== 'undefined') {
+        return String(direct).trim();
+      }
+      const sec = String(student.section || '').trim().toLowerCase();
+      if (sec && Array.isArray(cachedClasses) && cachedClasses.length > 0) {
+        const matched = cachedClasses.find(c => {
+          const cSec = String(c.section || c.className || c.name || '').trim().toLowerCase();
+          return cSec === sec;
+        });
+        if (matched && matched.schoolId) {
+          return String(matched.schoolId).trim();
+        }
+      }
+      return '';
+    };
+
     function renderPerformanceTable() {
       const tbody = document.getElementById('performanceTableBody');
       if (!tbody) return;
@@ -8835,15 +8882,18 @@
       try {
         let list = (cachedUsers || []).filter(u => u.role === 'student');
 
-        if (selectedJurisdiction !== 'ALL') {
-          list = list.filter(u => String(u.schoolId) === selectedJurisdiction);
-        }
-
-        // Dedicated School Filter
+        // Robust School Scoping with class section fallback
         if (isSchoolAdmin && currentAdminUser?.schoolId) {
-          list = list.filter(u => String(u.schoolId) === String(currentAdminUser.schoolId));
-        } else if (learnerSchoolFilterVal !== 'ALL') {
-          list = list.filter(u => String(u.schoolId) === String(learnerSchoolFilterVal));
+          const targetSchool = String(currentAdminUser.schoolId).trim();
+          list = list.filter(u => (resolveStudentSchoolId(u) || String(u.schoolId || '').trim()) === targetSchool);
+        } else {
+          const activeSchool = (learnerSchoolFilterVal && learnerSchoolFilterVal !== 'ALL')
+            ? learnerSchoolFilterVal
+            : (selectedJurisdiction !== 'ALL' ? selectedJurisdiction : 'ALL');
+          if (activeSchool !== 'ALL') {
+            const targetSchool = String(activeSchool).trim();
+            list = list.filter(u => (resolveStudentSchoolId(u) || String(u.schoolId || '').trim()) === targetSchool);
+          }
         }
 
         // Dedicated Grade Filter
@@ -9443,6 +9493,26 @@
       window.showToast("Institutional Safeguard: Administrative accounts cannot delete student records. Student accounts and data are preserved.", "warning");
     };
 
+    // Helper: Safely resolve student's schoolId with class-section fallback
+    window.resolveStudentSchoolId = function(student) {
+      if (!student) return '';
+      const direct = student.schoolId || student.school_id;
+      if (direct && String(direct).trim() !== '' && String(direct).trim() !== 'null' && String(direct).trim() !== 'undefined') {
+        return String(direct).trim();
+      }
+      const sec = String(student.section || '').trim().toLowerCase();
+      if (sec && Array.isArray(cachedClasses) && cachedClasses.length > 0) {
+        const matched = cachedClasses.find(c => {
+          const cSec = String(c.section || c.className || c.name || '').trim().toLowerCase();
+          return cSec === sec;
+        });
+        if (matched && matched.schoolId) {
+          return String(matched.schoolId).trim();
+        }
+      }
+      return '';
+    };
+
     // Helper: Build unified student credential roster (claimed in users + unclaimed slips)
     function getUnifiedStudentCredentials() {
       // 1. Gather all active / claimed students from cachedUsers
@@ -9454,6 +9524,8 @@
           const lName = u.lastName || u.last_name || '';
           const fullName = `${fName} ${lName}`.trim() || u.fullName || u.displayName || 'Learner';
           const gender = (typeof getStudentGender === 'function' ? getStudentGender(u) : (u.gender || u.sex || 'unspecified'));
+          const studentSchool = resolveStudentSchoolId(u) || String(u.schoolId || u.school_id || '').trim();
+          const pass = u.tempPassword || u.password || u.initialPassword || u.temp_password || '';
 
           return {
             id: u.id,
@@ -9462,8 +9534,8 @@
             fullName: fullName,
             gender: gender,
             username: uName,
-            password: u.tempPassword || '',
-            schoolId: u.schoolId || '',
+            password: pass,
+            schoolId: studentSchool,
             section: u.section || '',
             grade: u.grade || '',
             lrn: u.lrn || '',
@@ -9478,14 +9550,14 @@
 
       // Claimed usernames index to avoid duplicates from pending slips
       const claimedUsernames = new Set(
-        claimed.map(s => String(s.username).toLowerCase().trim())
+        claimed.map(s => String(s.username || '').toLowerCase().trim()).filter(Boolean)
       );
 
       // 2. Gather unclaimed slips from cachedPendingStudents
       const pending = (cachedPendingStudents || [])
         .filter(p => {
           const uName = String(p.username || p.id || '').toLowerCase().trim();
-          return !claimedUsernames.has(uName);
+          return uName ? !claimedUsernames.has(uName) : true;
         })
         .map(p => {
           const fName = p.firstName || p.first_name || '';
@@ -9493,6 +9565,8 @@
           const fullName = `${fName} ${lName}`.trim() || p.fullName || 'Learner';
           const username = p.username || p.id || '';
           const gender = (typeof getStudentGender === 'function' ? getStudentGender(p) : (p.gender || p.sex || 'unspecified'));
+          const studentSchool = resolveStudentSchoolId(p) || String(p.schoolId || p.school_id || '').trim();
+          const pass = p.password || p.tempPassword || p.initialPassword || '';
 
           return {
             id: p.id,
@@ -9501,8 +9575,8 @@
             fullName: fullName,
             gender: gender,
             username: username,
-            password: p.password || '',
-            schoolId: p.schoolId || '',
+            password: pass,
+            schoolId: studentSchool,
             section: p.section || '',
             grade: p.grade || '',
             lrn: p.lrn || '',
@@ -9526,15 +9600,18 @@
       try {
         let list = getUnifiedStudentCredentials();
 
-        if (selectedJurisdiction !== 'ALL') {
-          list = list.filter(s => String(s.schoolId) === String(selectedJurisdiction));
-        }
-
-        // Dedicated School Filter
+        // Robust School Scoping with class section fallback
         if (isSchoolAdmin && currentAdminUser?.schoolId) {
-          list = list.filter(s => String(s.schoolId) === String(currentAdminUser.schoolId));
-        } else if (credentialSchoolFilter !== 'ALL') {
-          list = list.filter(s => String(s.schoolId) === String(credentialSchoolFilter));
+          const targetSchool = String(currentAdminUser.schoolId).trim();
+          list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
+        } else {
+          const activeSchool = (credentialSchoolFilter && credentialSchoolFilter !== 'ALL')
+            ? credentialSchoolFilter
+            : (selectedJurisdiction !== 'ALL' ? selectedJurisdiction : 'ALL');
+          if (activeSchool !== 'ALL') {
+            const targetSchool = String(activeSchool).trim();
+            list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
+          }
         }
 
         // Dedicated Grade Filter
@@ -9619,12 +9696,12 @@
         }
 
         if (list.length === 0) {
-          const isFiltered = (selectedJurisdiction !== 'ALL' && !isSchoolAdmin) || selectedGradeFilter !== 'ALL' || selectedStatusFilter !== 'ALL' || searchQuery !== '';
+          const isFiltered = (selectedJurisdiction !== 'ALL' && !isSchoolAdmin) || credentialGradeFilter !== 'ALL' || credentialSectionFilter !== 'ALL' || credentialStatusFilter !== 'ALL' || credentialSchoolFilter !== 'ALL' || credentialSearchQuery !== '';
           tbody.innerHTML = `
             <tr>
               <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
                 ${isFiltered ? 'No student credentials match the active search/filters.' : 'No student accounts found.'}
-                ${isFiltered ? '<button onclick="resetAllFilters()" class="block mx-auto mt-2 text-indigo-600 hover:underline font-bold text-xs">Reset all filters</button>' : '<span class="block mt-1 text-slate-400 text-xs">Student accounts are generated by teachers or claimed by learners in the mobile application.</span>'}
+                ${isFiltered ? '<button onclick="resetCredentialFilters()" class="block mx-auto mt-2 text-indigo-600 hover:underline font-bold text-xs">Reset all filters</button>' : '<span class="block mt-1 text-slate-400 text-xs">Student accounts are generated by teachers or claimed by learners in the mobile application.</span>'}
               </td>
             </tr>`;
           return;
@@ -9634,7 +9711,12 @@
           const fName = s.firstName || s.first_name || '';
           const lName = s.lastName || s.last_name || '';
           const fullName = `${fName} ${lName}`.trim() || s.fullName || 'Learner';
-          const initials = ((fName[0] || '') + (lName[0] || '')).toUpperCase() || 'ST';
+          let initials = ((fName[0] || '') + (lName[0] || '')).toUpperCase();
+          if (!initials && fullName) {
+            const parts = fullName.split(/\s+/).filter(Boolean);
+            initials = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : (parts[0] ? parts[0].slice(0, 2).toUpperCase() : 'ST');
+          }
+          if (!initials) initials = 'ST';
           const isClaimed = s.isClaimed && s.is_onboarded === true;
           const genderIcon = s.gender === 'male' ? '<span class="text-blue-600 font-semibold text-[10px]">👦 Male</span>' : (s.gender === 'female' ? '<span class="text-pink-600 font-semibold text-[10px]">👧 Female</span>' : '');
 
@@ -9720,13 +9802,17 @@
     // =========================================================================
     window.openBatchPrintSlipsModal = function() {
       let list = getUnifiedStudentCredentials();
-      if (selectedJurisdiction !== 'ALL') {
-        list = list.filter(s => String(s.schoolId) === String(selectedJurisdiction));
-      }
       if (isSchoolAdmin && currentAdminUser?.schoolId) {
-        list = list.filter(s => String(s.schoolId) === String(currentAdminUser.schoolId));
-      } else if (credentialSchoolFilter !== 'ALL') {
-        list = list.filter(s => String(s.schoolId) === String(credentialSchoolFilter));
+        const targetSchool = String(currentAdminUser.schoolId).trim();
+        list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
+      } else {
+        const activeSchool = (credentialSchoolFilter && credentialSchoolFilter !== 'ALL')
+          ? credentialSchoolFilter
+          : (selectedJurisdiction !== 'ALL' ? selectedJurisdiction : 'ALL');
+        if (activeSchool !== 'ALL') {
+          const targetSchool = String(activeSchool).trim();
+          list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
+        }
       }
 
       const activeCredGrade = credentialGradeFilter || document.getElementById('selectCredentialGradeFilter')?.value || 'ALL';
@@ -12913,7 +12999,6 @@
       const SUPER_ADMIN_BLOCKED_TABS = [
         'tab-faculty-verification',
         'tab-classroom-sections',
-        'tab-batch-credentials',
         'tab-library-management',
         'tab-quiz-attempts'
       ];

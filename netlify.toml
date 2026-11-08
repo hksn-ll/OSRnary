@@ -1,0 +1,35 @@
+# Netlify Configuration for GabAI Admin Portal & App Download Hub
+
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin-portal/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin.html"
+  to = "/admin-portal/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin-portal/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/portal"
+  to = "/admin-portal/index.html"
+  status = 200
+
+# Prevent stale caching of HTML entry points so live updates apply instantly
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/admin-portal/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
