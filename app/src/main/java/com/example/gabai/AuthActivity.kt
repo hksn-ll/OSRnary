@@ -270,7 +270,10 @@ class AuthActivity : AppCompatActivity() {
 
         toggleLoading(true)
 
-        if (selectedRole == "teacher") {
+        val isLikelyTeacher = selectedRole == "teacher" || (inputId.contains("@") && !inputId.endsWith("@gabai.app"))
+
+        if (isLikelyTeacher) {
+            selectedRole = "teacher"
             // --- TEACHER LOGIN (Email & In-App Temporary Passkey Support) ---
             val cleanEmail = inputId.trim().lowercase()
 
@@ -306,6 +309,11 @@ class AuthActivity : AppCompatActivity() {
             val fakeEmail = "$cleanInputId@gabai.app"
 
             fun processPendingSlip(doc: com.google.firebase.firestore.DocumentSnapshot) {
+                if (doc.getString("role") == "teacher") {
+                    selectedRole = "teacher"
+                    handleTeacherPasskeyReset(cleanInputId, inputId, pass, doc)
+                    return
+                }
                 val expectedPass = doc.getString("password") ?: ""
                 val expectedTemp = doc.getString("tempPassword") ?: ""
                 if ((expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)) {
@@ -550,7 +558,7 @@ class AuthActivity : AppCompatActivity() {
                                 val mustChange = doc.getBoolean("mustChangePassword") ?: false
                                 if (mustChange) {
                                     toggleLoading(false)
-                                    showForcePasswordChangeDialog(user, user.uid) {
+                                    showForcePasswordChangeDialog(user, user.uid, "teacher") {
                                         navigateToMain("teacher")
                                     }
                                     return@addOnSuccessListener
@@ -669,7 +677,7 @@ class AuthActivity : AppCompatActivity() {
                         toggleLoading(false)
                         val teacherUser = auth.currentUser
                         if (teacherUser != null) {
-                            showForcePasswordChangeDialog(teacherUser, newUid) {
+                            showForcePasswordChangeDialog(teacherUser, newUid, "teacher") {
                                 navigateToMain("teacher")
                             }
                         } else {
@@ -1336,7 +1344,12 @@ class AuthActivity : AppCompatActivity() {
         )
     }
 
-    private fun showForcePasswordChangeDialog(user: FirebaseUser, uid: String, onComplete: () -> Unit) {
+    private fun showForcePasswordChangeDialog(
+        user: FirebaseUser,
+        uid: String,
+        targetRole: String? = null,
+        onComplete: () -> Unit
+    ) {
         val density = resources.displayMetrics.density
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -1374,7 +1387,8 @@ class AuthActivity : AppCompatActivity() {
         container.addView(etConfirmPass)
 
         val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
-        val isStudent = selectedRole == "student"
+        val effectiveRole = targetRole ?: selectedRole
+        val isStudent = effectiveRole == "student"
         var selectedGender = prefs.getString("cached_user_gender", "unspecified") ?: "unspecified"
 
         val tvGenderLabel = TextView(this).apply {
@@ -1590,12 +1604,16 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun navigateToMain(role: String?) {
+        val targetRole = role ?: selectedRole
+        getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+            .putString("cached_user_role", targetRole)
+            .apply()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val afm = getSystemService(AutofillManager::class.java)
             afm?.commit()
         }
         val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("USER_ROLE", role)
+        intent.putExtra("USER_ROLE", targetRole)
         startActivity(intent)
         finish()
     }

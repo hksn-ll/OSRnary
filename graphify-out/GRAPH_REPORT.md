@@ -1,7 +1,7 @@
 # Graph Report - OSRnary  (2026-11-11)
 
 ## Corpus Check
-- 82 files · ~838,912 words
+- 82 files · ~838,988 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 314 file(s) not represented in the graph (top: .xml 282, (none) 7, .ttf 7)
 
@@ -236,7 +236,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `.performHaptic` be split into smaller, more focused modules?**
   _Cohesion score 0.056679151061173536 - nodes in this community are weakly interconnected._
 - **Why does `DevEasterEggActivity` connect `DevEasterEggActivity` to `OnSeekBarChangeListener`, `color`, `GabAiLoadingView`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
 - **Should `motion-graphics/gabai-motion.js` be split into smaller, more focused modules?**
   _Cohesion score 0.12549603174603174 - nodes in this community are weakly interconnected._
 - **Why does `FloatingControlService` connect `FloatingControlService` to `3. The 6 Critical Loopholes: Status & Resolution`, `ScanResultActivity.kt`, `2. The 5 Core System Engines (How It Actually Works)`, `FloatingControlService.kt`?**

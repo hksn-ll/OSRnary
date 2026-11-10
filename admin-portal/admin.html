@@ -3611,7 +3611,7 @@
               <table class="w-full text-left text-xs min-w-[750px]">
                 <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
                   <tr>
-                    <th class="p-3.5">Learner &amp; LRN</th>
+                    <th class="p-3.5">Learner</th>
                     <th class="p-3.5">System Username</th>
                     <th class="p-3.5">Password Status</th>
                     <th class="p-3.5">Grade &amp; Section</th>
@@ -10983,9 +10983,10 @@
         }
       });
 
-      // 2. Gather unclaimed slips from cachedPendingStudents
+      // 2. Gather unclaimed slips from cachedPendingStudents (strictly students only!)
       const pending = (cachedPendingStudents || [])
         .filter(p => {
+          if (p.role && p.role !== 'student') return false;
           const uName = String(p.username || p.id || '').toLowerCase().replace(/^@/, '').trim();
           return uName ? !claimedIdentifiers.has(uName) && !claimedIdentifiers.has(`@${uName}`) && !claimedIdentifiers.has(String(p.id).toLowerCase()) : true;
         })
@@ -11177,6 +11178,12 @@
                 : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-mono text-xs font-bold" title="${isClaimed ? 'Protected: Password is encrypted and protected' : 'Protected'}">••••••••</span>`);
 
           const avatarHtml = renderStudentAvatarHtml(s.photoUrl, s.pendingPhotoUrl, s.photoStatus, initials, 'w-9 h-9', 'text-xs');
+          const hasValidLrn = s.lrn && String(s.lrn).trim().toLowerCase() !== 'pending';
+          const lrnHtml = hasValidLrn ? `<span>LRN: ${escapeHtml(s.lrn)}</span>` : '';
+          const metaParts = [lrnHtml, genderIcon].filter(Boolean);
+          const metaHtml = metaParts.length > 0 
+            ? `<div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">${metaParts.join(' <span>&bull;</span> ')}</div>` 
+            : '';
 
           return `
             <tr class="hover:bg-slate-50/80 transition-colors">
@@ -11185,10 +11192,7 @@
                   ${avatarHtml}
                   <div>
                     <div class="font-bold text-slate-900">${escapeHtml(fullName)}</div>
-                    <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                      <span>LRN: ${escapeHtml(s.lrn || 'Pending')}</span>
-                      ${genderIcon ? `<span>&bull;</span> ${genderIcon}` : ''}
-                    </div>
+                    ${metaHtml}
                   </div>
                 </div>
               </td>
