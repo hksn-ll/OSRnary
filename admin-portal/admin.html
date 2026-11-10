@@ -10987,6 +10987,9 @@
       const pending = (cachedPendingStudents || [])
         .filter(p => {
           if (p.role && p.role !== 'student') return false;
+          if (p.isClaimed === true || p.isReset === true) return false;
+          const pass = (p.password || p.tempPassword || p.initialPassword || '').trim();
+          if (!pass) return false;
           const uName = String(p.username || p.id || '').toLowerCase().replace(/^@/, '').trim();
           return uName ? !claimedIdentifiers.has(uName) && !claimedIdentifiers.has(`@${uName}`) && !claimedIdentifiers.has(String(p.id).toLowerCase()) : true;
         })

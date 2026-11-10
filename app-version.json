@@ -1,11 +1,11 @@
 {
-  "versionCode": 51,
-  "versionName": "0.4.37",
-  "minRequiredVersionCode": 51,
+  "versionCode": 52,
+  "versionName": "0.4.38",
+  "minRequiredVersionCode": 52,
   "forceUpdate": true,
-  "title": "Passkey Reset & Role Isolation Release (v0.4.37)",
-  "message": "Streamlined temporary passkey resets, complete credential vault isolation, and clean learner LRN displays.",
+  "title": "Roster Layout & Unclaimed Account Filtering (v0.4.38)",
+  "message": "Eliminated duplicate student accounts in Unclaimed Accounts, restructured roster cards to prevent badge squishing, and removed duplicate section headers.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.37/GabAI-v0.4.37.apk",
-  "changelog": "🔧 WHAT'S NEW IN v0.4.37:\n• Educator Temporary Passkey: Direct single-click passkey issuance without email verification requirements.\n• Vault Role Isolation: Completely separates educator passkey slips from student credential tables.\n• Refined Learner Display: Removed 'LRN: Pending' labels across all student credential rows.\n• Automatic Role Routing: Ensures teachers resetting credentials navigate straight to the Teacher Dashboard."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.38/GabAI-v0.4.38.apk",
+  "changelog": "🔧 WHAT'S NEW IN v0.4.38:\n• Unclaimed Accounts De-duplication: Active and claimed students are now completely excluded from Unclaimed Accounts.\n• Responsive Roster Badges: Student gender and Phil-IRI badges now reside on a dedicated row with single-line enforcement, preventing vertical character wrapping.\n• Clean Section Headers: Eliminated duplicate 'Active Students' stacked titles in class detail view."
 }

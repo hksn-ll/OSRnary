@@ -54,67 +54,87 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Student Full Name (Single Line, Never Overflows) -->
+            <TextView
+                android:id="@+id/tv_student_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Juan Cruz"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#0F172A"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Student Badges Row (Dedicated Horizontal Row, Never Wraps Letter-by-Letter) -->
             <LinearLayout
+                android:id="@+id/layout_student_badges"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tv_student_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:text="Juan Cruz"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:textColor="#0F172A" />
+                android:gravity="center_vertical"
+                android:layout_marginTop="3dp"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tv_student_status_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="1.5dp"
+                    android:layout_marginEnd="6dp"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="2dp"
                     android:text="Unclaimed"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textColor="#B45309"
                     android:background="@drawable/bg_pill_amber_subtle"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:lines="1"
+                    android:ellipsize="none"
                     android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/tv_student_gender_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="1.5dp"
+                    android:layout_marginEnd="6dp"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="2dp"
                     android:text="👦 Male"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textColor="#3730A3"
                     android:background="@drawable/bg_pill_gender_male"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:lines="1"
+                    android:ellipsize="none"
                     android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/tv_student_phil_iri_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="1.5dp"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="2dp"
                     android:text="Phil-IRI: Fru"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:textColor="#991B1B"
                     android:background="@drawable/bg_pill_translucent"
                     android:backgroundTint="#FEE2E2"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:lines="1"
+                    android:ellipsize="none"
                     android:visibility="gone" />
             </LinearLayout>
 
+            <!-- Student Subtitle / Details -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
@@ -122,11 +142,15 @@
 
                 <TextView
                     android:id="@+id/tv_student_details"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     tools:text="User: juancruz_102 | Pass: gab5634"
                     android:textSize="12sp"
-                    android:textColor="#64748B" />
+                    android:textColor="#64748B"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <ImageButton
                     android:id="@+id/btn_toggle_pass"
@@ -142,35 +166,46 @@
         </LinearLayout>
 
         <!-- Actions -->
-        <ImageButton
-            android:id="@+id/btn_copy_student"
-            android:contentDescription="Copy Credentials"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_copy"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#5341CD"
-            android:layout_marginEnd="2dp"
-            android:visibility="gone" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="6dp">
 
-        <ImageButton
-            android:id="@+id/btn_edit_student"
-            android:contentDescription="@string/cd_edit"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_edit"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#5341CD"
-            android:layout_marginEnd="2dp" />
+            <ImageButton
+                android:id="@+id/btn_copy_student"
+                android:contentDescription="Copy Credentials"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_copy"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#5341CD"
+                android:layout_marginEnd="2dp"
+                android:visibility="gone" />
 
-        <ImageButton
-            android:id="@+id/btn_delete_student"
-            android:contentDescription="@string/cd_delete"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_trash"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#EF4444" />
+            <ImageButton
+                android:id="@+id/btn_edit_student"
+                android:contentDescription="@string/cd_edit"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_edit"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#5341CD"
+                android:layout_marginEnd="2dp" />
+
+            <ImageButton
+                android:id="@+id/btn_delete_student"
+                android:contentDescription="@string/cd_delete"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_trash"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#EF4444" />
+        </LinearLayout>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

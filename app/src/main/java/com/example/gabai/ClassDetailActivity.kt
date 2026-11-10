@@ -61,6 +61,8 @@ class ClassDetailActivity : AppCompatActivity() {
     private val activeItemViews = mutableListOf<Pair<View, String>>()
     private var pendingHeaderView: View? = null
     private var activeHeaderView: View? = null
+    private val activeStudentIdentifiers = mutableSetOf<String>()
+    private var cachedPendingSnapshots: com.google.firebase.firestore.QuerySnapshot? = null
 
     // --- WEEKLY ASSESSMENT VARIABLES ---
     private var selectedGeminiFocus: String = "Standard Comprehensive (Balanced concepts & applications)"
@@ -207,6 +209,181 @@ class ClassDetailActivity : AppCompatActivity() {
         findViewById<View>(R.id.tv_label_active)?.visibility = if (studentSearchQuery.isEmpty() || visibleActive > 0) View.VISIBLE else View.GONE
     }
 
+    private fun updateBadgeRowVisibility(view: View) {
+        val badgeContainer = view.findViewById<View>(R.id.layout_student_badges) ?: return
+        val b1 = view.findViewById<View>(R.id.tv_student_status_badge)?.visibility == View.VISIBLE
+        val b2 = view.findViewById<View>(R.id.tv_student_gender_badge)?.visibility == View.VISIBLE
+        val b3 = view.findViewById<View>(R.id.tv_student_phil_iri_badge)?.visibility == View.VISIBLE
+        badgeContainer.visibility = if (b1 || b2 || b3) View.VISIBLE else View.GONE
+    }
+
+    private fun renderPendingStudents(snapshots: com.google.firebase.firestore.QuerySnapshot?) {
+        val pendingContainer = findViewById<LinearLayout>(R.id.pending_students_container) ?: return
+        pendingContainer.removeAllViews()
+        pendingItemViews.clear()
+
+        if (snapshots == null || snapshots.isEmpty) {
+            pendingHeaderView = null
+            pendingContainer.visibility = View.GONE
+            findViewById<View>(R.id.tv_label_unclaimed)?.visibility = View.GONE
+            return
+        }
+
+        val unclaimedDocs = snapshots.documents.filter { doc ->
+            val isClaimed = doc.getBoolean("isClaimed") == true
+            val isReset = doc.getBoolean("isReset") == true
+            val pass = doc.getString("password") ?: doc.getString("tempPassword") ?: ""
+            val rawUser = doc.getString("username") ?: doc.id
+            val uName = rawUser.removePrefix("@").trim().lowercase()
+
+            val alreadyActive = activeStudentIdentifiers.contains(uName) ||
+                                activeStudentIdentifiers.contains(doc.id.lowercase().trim())
+
+            !isClaimed && !isReset && pass.isNotBlank() && !alreadyActive
+        }
+
+        if (unclaimedDocs.isEmpty()) {
+            pendingHeaderView = null
+            pendingContainer.visibility = View.GONE
+            findViewById<View>(R.id.tv_label_unclaimed)?.visibility = View.GONE
+            return
+        }
+
+        pendingContainer.visibility = View.VISIBLE
+
+        val headerLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(0, 0, 0, 10)
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+        val headerTitle = TextView(this).apply {
+            text = "Unclaimed Accounts (${unclaimedDocs.size})"
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#B45309"))
+            textSize = 14f
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val btnShareAll = com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
+            text = "Share 📤"
+            textSize = 12f
+            isAllCaps = false
+            setOnClickListener {
+                val rosterBuilder = StringBuilder()
+                rosterBuilder.append("Section: $sectionName ($grade)\n")
+                rosterBuilder.append("Unclaimed Student Accounts (${unclaimedDocs.size}):\n\n")
+                for (d in unclaimedDocs) {
+                    val fn = "${d.getString("firstName") ?: ""} ${d.getString("lastName") ?: ""}".trim()
+                    val u = (d.getString("username") ?: d.id).removePrefix("@").trim()
+                    val p = d.getString("password") ?: d.getString("tempPassword") ?: ""
+                    rosterBuilder.append("• $fn\n  Username: @$u\n  Password: $p\n\n")
+                }
+                val sendIntent = android.content.Intent().apply {
+                    action = android.content.Intent.ACTION_SEND
+                    putExtra(android.content.Intent.EXTRA_TEXT, rosterBuilder.toString().trim())
+                    putExtra(android.content.Intent.EXTRA_SUBJECT, "$sectionName Unclaimed Student Accounts")
+                    type = "text/plain"
+                }
+                startActivity(android.content.Intent.createChooser(sendIntent, "Share Student Credentials"))
+                GabAIUtils.performHaptic(this, android.view.HapticFeedbackConstants.CLOCK_TICK)
+            }
+        }
+
+        val btnCopyAll = com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
+            text = "Copy All 📋"
+            textSize = 12f
+            isAllCaps = false
+            setOnClickListener {
+                val rosterBuilder = StringBuilder()
+                rosterBuilder.append("Section: $sectionName ($grade)\n")
+                rosterBuilder.append("Unclaimed Student Accounts (${unclaimedDocs.size}):\n\n")
+                for (d in unclaimedDocs) {
+                    val fn = "${d.getString("firstName") ?: ""} ${d.getString("lastName") ?: ""}".trim()
+                    val u = (d.getString("username") ?: d.id).removePrefix("@").trim()
+                    val p = d.getString("password") ?: d.getString("tempPassword") ?: ""
+                    rosterBuilder.append("• $fn\n  Username: @$u\n  Password: $p\n\n")
+                }
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Class Roster Credentials", rosterBuilder.toString().trim())
+                clipboard.setPrimaryClip(clip)
+                GabAIUtils.performHaptic(this, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                GabAIUtils.showSnackbar(this@ClassDetailActivity, "Copied all credentials to clipboard! 📋")
+            }
+        }
+
+        headerLayout.addView(headerTitle)
+        headerLayout.addView(btnShareAll)
+        headerLayout.addView(btnCopyAll)
+        pendingHeaderView = headerLayout
+        pendingContainer.addView(headerLayout)
+
+        for (doc in unclaimedDocs) {
+            val fName = doc.getString("firstName") ?: ""
+            val lName = doc.getString("lastName") ?: ""
+            val fullName = "$fName $lName".trim()
+            val rawUser = doc.getString("username") ?: doc.id
+            val username = rawUser.removePrefix("@").trim()
+            val password = doc.getString("password") ?: doc.getString("tempPassword") ?: ""
+
+            val view = layoutInflater.inflate(R.layout.item_student_manage, pendingContainer, false)
+            view.findViewById<TextView>(R.id.tv_student_name).text = fullName
+            val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
+            val initial = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
+            tvMonogram?.text = initial
+
+            val tvStatusBadge = view.findViewById<TextView>(R.id.tv_student_status_badge)
+            tvStatusBadge?.visibility = View.VISIBLE
+            tvStatusBadge?.text = "Unclaimed"
+
+            val detailsView = view.findViewById<TextView>(R.id.tv_student_details)
+            val btnTogglePass = view.findViewById<ImageButton>(R.id.btn_toggle_pass)
+            val btnCopyStudent = view.findViewById<ImageButton>(R.id.btn_copy_student)
+
+            var isPassVisible = true
+            fun updatePassDisplay() {
+                val passText = if (isPassVisible) password else "•".repeat(password.length.coerceIn(6, 10))
+                detailsView.text = "User: @$username | Pass: $passText"
+                btnTogglePass?.setImageResource(if (isPassVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility)
+            }
+            updatePassDisplay()
+
+            btnTogglePass?.visibility = View.VISIBLE
+            btnTogglePass?.setOnClickListener {
+                isPassVisible = !isPassVisible
+                updatePassDisplay()
+                GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
+            }
+
+            val copyCredentials = {
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Student Credentials", "Username: @$username\nPassword: $password")
+                clipboard.setPrimaryClip(clip)
+                GabAIUtils.performHaptic(view, android.view.HapticFeedbackConstants.CLOCK_TICK)
+                GabAIUtils.showSnackbar(this, "Copied credentials for $fullName! 📋")
+            }
+
+            btnCopyStudent?.visibility = View.VISIBLE
+            btnCopyStudent?.setOnClickListener { copyCredentials() }
+            detailsView.setOnClickListener { copyCredentials() }
+
+            val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
+            bindStudentGenderBadge(view, rawGender)
+            bindStudentPhilIriBadge(view, doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier"))
+            updateBadgeRowVisibility(view)
+
+            view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password, rawGender) }
+            view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }
+
+            pendingItemViews.add(view to fullName)
+            pendingContainer.addView(view)
+        }
+        applyStudentSearchFilter()
+    }
+
     private fun loadStudents() {
         val pendingContainer = findViewById<LinearLayout>(R.id.pending_students_container)
         val activeContainer = findViewById<LinearLayout>(R.id.active_students_container)
@@ -221,7 +398,6 @@ class ClassDetailActivity : AppCompatActivity() {
             // PATH A: ADVISER VIEW (FULL PRIVILEGE)
             // ==========================================
             if (isAdviser) {
-                pendingContainer.visibility = View.VISIBLE
                 val adviserUid = classDoc.getString("teacherId") ?: com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
                 ClassEnrollmentHelper.syncSectionRosterToClass(classId, schoolId, grade, sectionName, adviserUid)
 
@@ -232,143 +408,8 @@ class ClassDetailActivity : AppCompatActivity() {
                     .whereEqualTo("grade", grade)
                     .addSnapshotListener { snapshots, error ->
                         if (error != null || snapshots == null) return@addSnapshotListener
-                        pendingContainer.removeAllViews()
-                        pendingItemViews.clear()
-
-                        if (snapshots.isEmpty) {
-                            pendingHeaderView = null
-                            pendingContainer.addView(TextView(this).apply { text = "No pending accounts." })
-                        } else {
-                            val headerLayout = LinearLayout(this).apply {
-                                orientation = LinearLayout.HORIZONTAL
-                                layoutParams = LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.WRAP_CONTENT
-                                )
-                                setPadding(0, 0, 0, 10)
-                                gravity = android.view.Gravity.CENTER_VERTICAL
-                            }
-                            val headerTitle = TextView(this).apply {
-                                text = "Unclaimed Accounts (${snapshots.size()})"
-                                setTypeface(null, android.graphics.Typeface.BOLD)
-                                setTextColor(Color.parseColor("#B45309"))
-                                textSize = 14f
-                                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                            }
-
-                            val btnShareAll = com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
-                                text = "Share 📤"
-                                textSize = 12f
-                                isAllCaps = false
-                                setOnClickListener {
-                                    val rosterBuilder = StringBuilder()
-                                    rosterBuilder.append("Section: $sectionName ($grade)\n")
-                                    rosterBuilder.append("Unclaimed Student Accounts (${snapshots.size()}):\n\n")
-                                    for (d in snapshots) {
-                                        val fn = "${d.getString("firstName") ?: ""} ${d.getString("lastName") ?: ""}".trim()
-                                        val u = d.getString("username") ?: ""
-                                        val p = d.getString("password") ?: ""
-                                        rosterBuilder.append("• $fn\n  Username: @$u\n  Password: $p\n\n")
-                                    }
-                                    val sendIntent = android.content.Intent().apply {
-                                        action = android.content.Intent.ACTION_SEND
-                                        putExtra(android.content.Intent.EXTRA_TEXT, rosterBuilder.toString().trim())
-                                        putExtra(android.content.Intent.EXTRA_SUBJECT, "$sectionName Unclaimed Student Accounts")
-                                        type = "text/plain"
-                                    }
-                                    startActivity(android.content.Intent.createChooser(sendIntent, "Share Student Credentials"))
-                                    GabAIUtils.performHaptic(this, android.view.HapticFeedbackConstants.CLOCK_TICK)
-                                }
-                            }
-
-                            val btnCopyAll = com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
-                                text = "Copy All 📋"
-                                textSize = 12f
-                                isAllCaps = false
-                                setOnClickListener {
-                                    val rosterBuilder = StringBuilder()
-                                    rosterBuilder.append("Section: $sectionName ($grade)\n")
-                                    rosterBuilder.append("Unclaimed Student Accounts (${snapshots.size()}):\n\n")
-                                    for (d in snapshots) {
-                                        val fn = "${d.getString("firstName") ?: ""} ${d.getString("lastName") ?: ""}".trim()
-                                        val u = d.getString("username") ?: ""
-                                        val p = d.getString("password") ?: ""
-                                        rosterBuilder.append("• $fn\n  Username: @$u\n  Password: $p\n\n")
-                                    }
-                                    val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                    val clip = android.content.ClipData.newPlainText("Class Roster Credentials", rosterBuilder.toString().trim())
-                                    clipboard.setPrimaryClip(clip)
-                                    GabAIUtils.performHaptic(this, android.view.HapticFeedbackConstants.CLOCK_TICK)
-                                    GabAIUtils.showSnackbar(this@ClassDetailActivity, "Copied all credentials to clipboard! 📋")
-                                }
-                            }
-
-                            headerLayout.addView(headerTitle)
-                            headerLayout.addView(btnShareAll)
-                            headerLayout.addView(btnCopyAll)
-                            pendingHeaderView = headerLayout
-                            pendingContainer.addView(headerLayout)
-
-                            for (doc in snapshots) {
-                                val fName = doc.getString("firstName") ?: ""
-                                val lName = doc.getString("lastName") ?: ""
-                                val fullName = "$fName $lName".trim()
-                                val username = doc.getString("username") ?: ""
-                                val password = doc.getString("password") ?: ""
-
-                                val view = layoutInflater.inflate(R.layout.item_student_manage, pendingContainer, false)
-                                view.findViewById<TextView>(R.id.tv_student_name).text = fullName
-                                val tvMonogram = view.findViewById<TextView>(R.id.tv_student_avatar_monogram)
-                                val initial = fullName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "👤"
-                                tvMonogram?.text = initial
-
-                                val tvStatusBadge = view.findViewById<TextView>(R.id.tv_student_status_badge)
-                                tvStatusBadge?.visibility = View.VISIBLE
-                                tvStatusBadge?.text = "Unclaimed"
-
-                                val detailsView = view.findViewById<TextView>(R.id.tv_student_details)
-                                val btnTogglePass = view.findViewById<ImageButton>(R.id.btn_toggle_pass)
-                                val btnCopyStudent = view.findViewById<ImageButton>(R.id.btn_copy_student)
-
-                                var isPassVisible = true
-                                fun updatePassDisplay() {
-                                    val passText = if (isPassVisible) password else "•".repeat(password.length.coerceIn(6, 10))
-                                    detailsView.text = "User: @$username | Pass: $passText"
-                                    btnTogglePass?.setImageResource(if (isPassVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility)
-                                }
-                                updatePassDisplay()
-
-                                btnTogglePass?.visibility = View.VISIBLE
-                                btnTogglePass?.setOnClickListener {
-                                    isPassVisible = !isPassVisible
-                                    updatePassDisplay()
-                                    GabAIUtils.performHaptic(it, android.view.HapticFeedbackConstants.CLOCK_TICK)
-                                }
-
-                                val copyCredentials = {
-                                    val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                    val clip = android.content.ClipData.newPlainText("Student Credentials", "Username: @$username\nPassword: $password")
-                                    clipboard.setPrimaryClip(clip)
-                                    GabAIUtils.performHaptic(view, android.view.HapticFeedbackConstants.CLOCK_TICK)
-                                    GabAIUtils.showSnackbar(this, "Copied credentials for $fullName! 📋")
-                                }
-
-                                btnCopyStudent?.visibility = View.VISIBLE
-                                btnCopyStudent?.setOnClickListener { copyCredentials() }
-                                detailsView.setOnClickListener { copyCredentials() }
-
-                                val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
-                                bindStudentGenderBadge(view, rawGender)
-                                bindStudentPhilIriBadge(view, doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier"))
-
-                                view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, true, fullName, password, rawGender) }
-                                view.findViewById<ImageButton>(R.id.btn_delete_student).setOnClickListener { confirmDelete(doc.id, true, fullName) }
-
-                                pendingItemViews.add(view to fullName)
-                                pendingContainer.addView(view)
-                            }
-                            applyStudentSearchFilter()
-                        }
+                        cachedPendingSnapshots = snapshots
+                        renderPendingStudents(snapshots)
                     }
 
                 // Read Active Students
@@ -382,10 +423,34 @@ class ClassDetailActivity : AppCompatActivity() {
                         activeContainer.removeAllViews()
                         activeItemViews.clear()
 
+                        // Index active students so pending list immediately purges duplicates
+                        activeStudentIdentifiers.clear()
+                        for (doc in snapshots.documents) {
+                            activeStudentIdentifiers.add(doc.id.lowercase().trim())
+                            doc.getString("username")?.let {
+                                activeStudentIdentifiers.add(it.removePrefix("@").lowercase().trim())
+                            }
+                            doc.getString("authEmail")?.let {
+                                activeStudentIdentifiers.add(it.lowercase().removeSuffix("@gabai.app").removePrefix("student_").trim())
+                            }
+                        }
+
+                        // Re-filter pending students with the fresh active list
+                        if (cachedPendingSnapshots != null) {
+                            renderPendingStudents(cachedPendingSnapshots)
+                        }
+
+                        val tvActiveHeader = findViewById<TextView>(R.id.tv_label_active)
+                        activeHeaderView = tvActiveHeader
+
                         if (snapshots.isEmpty) {
-                            activeHeaderView = null
+                            tvActiveHeader?.visibility = View.VISIBLE
+                            tvActiveHeader?.text = "Active Students"
                             activeContainer.addView(TextView(this).apply { text = "No active students." })
                         } else {
+                            tvActiveHeader?.visibility = View.VISIBLE
+                            tvActiveHeader?.text = "Active Students (${snapshots.size()})"
+
                             val pendingPhotos = snapshots.documents.filter { it.getString("photoStatus") == "pending" }
                             if (pendingPhotos.isNotEmpty()) {
                                 activeContainer.addView(TextView(this).apply {
@@ -400,15 +465,6 @@ class ClassDetailActivity : AppCompatActivity() {
                                     activeContainer.addView(createPhotoModerationCard(pDoc.id, pName, pUrl))
                                 }
                             }
-
-                            val activeHeaderLabel = TextView(this).apply {
-                                text = "Active Students"
-                                setTypeface(null, android.graphics.Typeface.BOLD)
-                                setTextColor(Color.DKGRAY)
-                                setPadding(0, 20, 0, 10)
-                            }
-                            activeHeaderView = activeHeaderLabel
-                            activeContainer.addView(activeHeaderLabel)
 
                             for (doc in snapshots) {
                                 val fName = doc.getString("firstName") ?: ""
@@ -432,6 +488,7 @@ class ClassDetailActivity : AppCompatActivity() {
                                 val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
                                 bindStudentGenderBadge(view, rawGender)
                                 bindStudentPhilIriBadge(view, doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier"))
+                                updateBadgeRowVisibility(view)
 
                                 view.setOnClickListener { openStudentProfile(doc) }
                                 view.findViewById<ImageButton>(R.id.btn_edit_student).setOnClickListener { showEditStudentDialog(doc.id, false, fullName, "", rawGender) }
@@ -475,10 +532,17 @@ class ClassDetailActivity : AppCompatActivity() {
                             }
                         }
 
+                        val tvActiveHeader = findViewById<TextView>(R.id.tv_label_active)
+                        activeHeaderView = tvActiveHeader
+
                         if (activeDocs.isEmpty()) {
-                            activeHeaderView = null
+                            tvActiveHeader?.visibility = View.VISIBLE
+                            tvActiveHeader?.text = "Students Joined"
                             activeContainer.addView(TextView(this).apply { text = "No students have joined using your code yet." })
                         } else {
+                            tvActiveHeader?.visibility = View.VISIBLE
+                            tvActiveHeader?.text = "Students Joined (${activeDocs.size})"
+
                             val pendingPhotos = activeDocs.filter { it.getString("photoStatus") == "pending" }
                             if (pendingPhotos.isNotEmpty()) {
                                 activeContainer.addView(TextView(this).apply {
@@ -493,15 +557,6 @@ class ClassDetailActivity : AppCompatActivity() {
                                     activeContainer.addView(createPhotoModerationCard(pDoc.id, pName, pUrl))
                                 }
                             }
-
-                            val activeHeaderLabel = TextView(this).apply {
-                                text = "Students Joined"
-                                setTypeface(null, android.graphics.Typeface.BOLD)
-                                setTextColor(Color.DKGRAY)
-                                setPadding(0, 0, 0, 10)
-                            }
-                            activeHeaderView = activeHeaderLabel
-                            activeContainer.addView(activeHeaderLabel)
 
                             for (doc in activeDocs) {
                                 val fName = doc.getString("firstName") ?: ""
@@ -525,6 +580,7 @@ class ClassDetailActivity : AppCompatActivity() {
                                 val rawGender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
                                 bindStudentGenderBadge(view, rawGender)
                                 bindStudentPhilIriBadge(view, doc.getString("phil_iri_tier") ?: doc.getString("diagnostic_tier"))
+                                updateBadgeRowVisibility(view)
 
                                 view.setOnClickListener { openStudentProfile(doc) }
 

@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1794338420.2191055,
-    "seen": 1794338578.419374,
-    "ast_hash": "cdf5dbff77f7ace256ccd11b6c4fbd97",
+    "mtime": 1794340308.0429666,
+    "seen": 1794340545.1933348,
+    "ast_hash": "c90e598d2a32b6f6a993c0e8891c4562",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -36,9 +36,9 @@
     "semantic_hash": "ac2ef015b9c9778454e447c7c6107d63"
   },
   "app/src/main/java/com/example/gabai/ClassDetailActivity.kt": {
-    "mtime": 1794333963.556587,
-    "seen": 1794334308.155021,
-    "ast_hash": "caa46e4b490922dd080b3837529df4bc",
+    "mtime": 1794340278.0530913,
+    "seen": 1794340545.1933806,
+    "ast_hash": "aa166e534cb5b939092b79549601b5d0",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt": {
@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1794338432.4210155,
-    "seen": 1794338578.4193714,
-    "ast_hash": "04f30c9ba5c79a23153b442a49933fb4",
+    "mtime": 1794340313.512557,
+    "seen": 1794340545.193328,
+    "ast_hash": "2ebba6acfff68b1bf7e307896b395070",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
@@ -444,9 +444,9 @@
     "semantic_hash": "60c7feb23246d6ddda7bacff5908d66d"
   },
   "admin-portal/admin.html": {
-    "mtime": 1794337233.4279058,
-    "seen": 1794337611.9320433,
-    "ast_hash": "724f7ac963c88fcc1f9fa3a801e9774c",
+    "mtime": 1794340293.5887122,
+    "seen": 1794340545.1935942,
+    "ast_hash": "8b9da9fdd76b88311434d9f9e1cefd8d",
     "semantic_hash": ""
   },
   "admin-portal/bubble.png": {
