@@ -10678,7 +10678,7 @@
       "file_type": "code",
       "norm_label": ".checkactivestudentfallback()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L753"
+      "source_location": "L789"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_checktemppasswordreset",
@@ -10690,7 +10690,7 @@
       "file_type": "code",
       "norm_label": ".checktemppasswordreset()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L836"
+      "source_location": "L872"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_completestudentaccountclaim",
@@ -10702,7 +10702,7 @@
       "file_type": "code",
       "norm_label": ".completestudentaccountclaim()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L603"
+      "source_location": "L639"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_navigatetomain",
@@ -10714,7 +10714,7 @@
       "file_type": "code",
       "norm_label": ".navigatetomain()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1302"
+      "source_location": "L1353"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_oncreate",
@@ -10738,7 +10738,7 @@
       "file_type": "code",
       "norm_label": ".performactivestudentsignin()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L510"
+      "source_location": "L546"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_performlogin",
@@ -10762,7 +10762,7 @@
       "file_type": "code",
       "norm_label": ".performregistration()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L958"
+      "source_location": "L994"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_selectrole",
@@ -10786,7 +10786,7 @@
       "file_type": "code",
       "norm_label": ".sendpasswordreset()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1275"
+      "source_location": "L1326"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_setupautofill",
@@ -10846,7 +10846,7 @@
       "file_type": "code",
       "norm_label": ".showerrordialog()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1288"
+      "source_location": "L1339"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_showforcepasswordchangedialog",
@@ -10858,7 +10858,7 @@
       "file_type": "code",
       "norm_label": ".showforcepasswordchangedialog()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1078"
+      "source_location": "L1114"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_showforgotpassworddialog",
@@ -10870,7 +10870,7 @@
       "file_type": "code",
       "norm_label": ".showforgotpassworddialog()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1053"
+      "source_location": "L1089"
     },
     {
       "id": "app_src_main_java_com_example_gabai_authactivity_authactivity_showlogin",
@@ -10906,7 +10906,7 @@
       "file_type": "code",
       "norm_label": ".toggleloading()",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1316"
+      "source_location": "L1367"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classenrollmenthelper_classenrollmenthelper_autojoinstudenttoadvisoryclass",
@@ -19822,7 +19822,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L780",
+      "source_location": "L816",
       "weight": 1.0
     },
     {
@@ -19834,36 +19834,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L781",
+      "source_location": "L817",
       "weight": 1.0
     },
     {
       "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_checkactivestudentfallback",
       "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_navigatetomain",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L782",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_checkactivestudentfallback",
-      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_checktemppasswordreset",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L790",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_checkactivestudentfallback",
-      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showerrordialog",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19875,6 +19851,30 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_checkactivestudentfallback",
+      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_checktemppasswordreset",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L826",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_checkactivestudentfallback",
+      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showerrordialog",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L854",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_checkactivestudentfallback",
       "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showlogin",
       "relation": "calls",
       "_origin": "ast",
@@ -19882,7 +19882,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L819",
+      "source_location": "L855",
       "weight": 1.0
     },
     {
@@ -19894,7 +19894,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L919",
+      "source_location": "L955",
       "weight": 1.0
     },
     {
@@ -19906,7 +19906,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L931",
+      "source_location": "L967",
       "weight": 1.0
     },
     {
@@ -19918,7 +19918,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L934",
+      "source_location": "L970",
       "weight": 1.0
     },
     {
@@ -19930,7 +19930,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L935",
+      "source_location": "L971",
       "weight": 1.0
     },
     {
@@ -19942,7 +19942,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L942",
+      "source_location": "L978",
       "weight": 1.0
     },
     {
@@ -19954,7 +19954,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L943",
+      "source_location": "L979",
       "weight": 1.0
     },
     {
@@ -19966,7 +19966,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L615",
+      "source_location": "L651",
       "weight": 1.0
     },
     {
@@ -19978,7 +19978,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L616",
+      "source_location": "L652",
       "weight": 1.0
     },
     {
@@ -19990,7 +19990,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L617",
+      "source_location": "L653",
       "weight": 1.0
     },
     {
@@ -20002,7 +20002,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L637",
+      "source_location": "L673",
       "weight": 1.0
     },
     {
@@ -20014,7 +20014,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L641",
+      "source_location": "L677",
       "weight": 1.0
     },
     {
@@ -20026,7 +20026,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L642",
+      "source_location": "L678",
       "weight": 1.0
     },
     {
@@ -20110,7 +20110,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L525",
+      "source_location": "L561",
       "weight": 1.0
     },
     {
@@ -20122,7 +20122,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L526",
+      "source_location": "L562",
       "weight": 1.0
     },
     {
@@ -20134,7 +20134,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L527",
+      "source_location": "L563",
       "weight": 1.0
     },
     {
@@ -20146,7 +20146,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L534",
+      "source_location": "L570",
       "weight": 1.0
     },
     {
@@ -20158,7 +20158,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L535",
+      "source_location": "L571",
       "weight": 1.0
     },
     {
@@ -20170,7 +20170,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L598",
+      "source_location": "L634",
       "weight": 1.0
     },
     {
@@ -20211,6 +20211,18 @@
     },
     {
       "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_performlogin",
+      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showforcepasswordchangedialog",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L315",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_performlogin",
       "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_navigatetomain",
       "relation": "calls",
       "_origin": "ast",
@@ -20218,7 +20230,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L312",
+      "source_location": "L316",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_performlogin",
+      "target": "app_src_main_java_com_example_gabai_gabaidialogs_gabaidialogs_shownoticedialog",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -20230,7 +20254,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L495",
+      "source_location": "L531",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_performregistration",
+      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showerrordialog",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L1016",
+      "weight": 1.0
+    },
+    {
+      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_performregistration",
+      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_toggleloading",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
+      "source_location": "L1033",
       "weight": 1.0
     },
     {
@@ -20242,7 +20290,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1037",
+      "source_location": "L1073",
       "weight": 1.0
     },
     {
@@ -20254,31 +20302,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1048",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_performregistration",
-      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_showerrordialog",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L980",
-      "weight": 1.0
-    },
-    {
-      "source": "app_src_main_java_com_example_gabai_authactivity_authactivity_performregistration",
-      "target": "app_src_main_java_com_example_gabai_authactivity_authactivity_toggleloading",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L997",
+      "source_location": "L1084",
       "weight": 1.0
     },
     {
@@ -20290,7 +20314,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1276",
+      "source_location": "L1327",
       "weight": 1.0
     },
     {
@@ -20302,7 +20326,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1280",
+      "source_location": "L1331",
       "weight": 1.0
     },
     {
@@ -20314,7 +20338,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1281",
+      "source_location": "L1332",
       "weight": 1.0
     },
     {
@@ -20410,7 +20434,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1293",
+      "source_location": "L1344",
       "weight": 1.0
     },
     {
@@ -20422,7 +20446,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1191",
+      "source_location": "L1230",
       "weight": 1.0
     },
     {
@@ -20434,7 +20458,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1204",
+      "source_location": "L1243",
       "weight": 1.0
     },
     {
@@ -20446,7 +20470,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1216",
+      "source_location": "L1255",
       "weight": 1.0
     },
     {
@@ -20458,7 +20482,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1238",
+      "source_location": "L1280",
       "weight": 1.0
     },
     {
@@ -20470,7 +20494,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1241",
+      "source_location": "L1283",
       "weight": 1.0
     },
     {
@@ -20482,7 +20506,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1268",
+      "source_location": "L1319",
       "weight": 1.0
     },
     {
@@ -20494,7 +20518,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1055",
+      "source_location": "L1091",
       "weight": 1.0
     },
     {
@@ -20506,7 +20530,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1065",
+      "source_location": "L1101",
       "weight": 1.0
     },
     {
@@ -20518,7 +20542,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1073",
+      "source_location": "L1109",
       "weight": 1.0
     },
     {
@@ -20542,7 +20566,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1324",
+      "source_location": "L1375",
       "weight": 1.0
     },
     {
@@ -20554,7 +20578,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1327",
+      "source_location": "L1378",
       "weight": 1.0
     },
     {
@@ -20566,7 +20590,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1328",
+      "source_location": "L1379",
       "weight": 1.0
     },
     {
@@ -20578,7 +20602,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1329",
+      "source_location": "L1380",
       "weight": 1.0
     },
     {
@@ -42574,7 +42598,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L753",
+      "source_location": "L789",
       "weight": 1.0
     },
     {
@@ -59233,7 +59257,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L836",
+      "source_location": "L872",
       "weight": 1.0
     },
     {
@@ -59245,7 +59269,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L603",
+      "source_location": "L639",
       "weight": 1.0
     },
     {
@@ -59269,7 +59293,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1078",
+      "source_location": "L1114",
       "weight": 1.0
     },
     {
@@ -67719,7 +67743,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1053",
+      "source_location": "L1089",
       "weight": 1.0
     },
     {
@@ -67730,7 +67754,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1078",
+      "source_location": "L1114",
       "weight": 1.0
     },
     {
@@ -67741,7 +67765,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1275",
+      "source_location": "L1326",
       "weight": 1.0
     },
     {
@@ -67752,7 +67776,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1288",
+      "source_location": "L1339",
       "weight": 1.0
     },
     {
@@ -67763,7 +67787,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1302",
+      "source_location": "L1353",
       "weight": 1.0
     },
     {
@@ -67774,7 +67798,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L1316",
+      "source_location": "L1367",
       "weight": 1.0
     },
     {
@@ -67862,7 +67886,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L510",
+      "source_location": "L546",
       "weight": 1.0
     },
     {
@@ -67884,7 +67908,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L603",
+      "source_location": "L639",
       "weight": 1.0
     },
     {
@@ -67895,7 +67919,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L753",
+      "source_location": "L789",
       "weight": 1.0
     },
     {
@@ -67917,7 +67941,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L836",
+      "source_location": "L872",
       "weight": 1.0
     },
     {
@@ -67928,7 +67952,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/src/main/java/com/example/gabai/AuthActivity.kt",
-      "source_location": "L958",
+      "source_location": "L994",
       "weight": 1.0
     },
     {

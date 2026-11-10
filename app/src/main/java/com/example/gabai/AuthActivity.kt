@@ -309,6 +309,14 @@ class AuthActivity : AppCompatActivity() {
 
                                     // Account is approved! Proceed.
                                     db.collection("users").document(user.uid).update("emailVerified", true)
+                                    val mustChange = doc.getBoolean("mustChangePassword") ?: false
+                                    if (mustChange) {
+                                        toggleLoading(false)
+                                        showForcePasswordChangeDialog(user, user.uid) {
+                                            navigateToMain("teacher")
+                                        }
+                                        return@addOnSuccessListener
+                                    }
                                     navigateToMain("teacher")
                                 } else {
                                     // Account was deleted from database
@@ -327,9 +335,37 @@ class AuthActivity : AppCompatActivity() {
                             }
                     }
                 } else {
-                    toggleLoading(false)
-                    showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
-                    showLogin()
+                    val cleanEmail = inputId.trim().lowercase()
+                    db.collection("pending_students").document(cleanEmail).get()
+                        .addOnSuccessListener { pDoc ->
+                            if (pDoc.exists()) {
+                                val expectedPass = pDoc.getString("password") ?: ""
+                                val expectedTemp = pDoc.getString("tempPassword") ?: ""
+                                if ((expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)) {
+                                    auth.sendPasswordResetEmail(cleanEmail)
+                                    toggleLoading(false)
+                                    GabAIDialogs.showNoticeDialog(
+                                        context = this,
+                                        title = "Temporary Passkey Verified",
+                                        message = "Your temporary passkey has been verified! A secure password reset link has been dispatched to $cleanEmail.\n\nPlease follow the link in your email to choose your permanent password, then sign in.",
+                                        buttonText = "Check Email & Sign In",
+                                        badgeIcon = "🔑",
+                                        onAction = {
+                                            showLogin()
+                                        }
+                                    )
+                                    return@addOnSuccessListener
+                                }
+                            }
+                            toggleLoading(false)
+                            showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
+                            showLogin()
+                        }
+                        .addOnFailureListener {
+                            toggleLoading(false)
+                            showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
+                            showLogin()
+                        }
                 }
             }
         } else {
@@ -1113,6 +1149,7 @@ class AuthActivity : AppCompatActivity() {
         container.addView(etConfirmPass)
 
         val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        val isStudent = selectedRole == "student"
         var selectedGender = prefs.getString("cached_user_gender", "unspecified") ?: "unspecified"
 
         val tvGenderLabel = TextView(this).apply {
@@ -1184,14 +1221,16 @@ class AuthActivity : AppCompatActivity() {
         genderRow.addView(btnMale)
         genderRow.addView(btnFemale)
 
-        container.addView(tvGenderLabel)
-        container.addView(genderRow)
+        if (isStudent) {
+            container.addView(tvGenderLabel)
+            container.addView(genderRow)
+        }
 
         var forceDialog: android.app.Dialog? = null
         forceDialog = GabAIDialogs.showCustomDialog(
             context = this,
             title = "Create New Password",
-            subtitle = "For your account security, you must update your temporary password before accessing GabAI.",
+            subtitle = if (isStudent) "For your account security, you must update your temporary password before accessing GabAI." else "Please choose a permanent password for your educator account.",
             customView = container,
             confirmText = "Update & Continue",
             cancelText = "Sign Out",
@@ -1208,7 +1247,7 @@ class AuthActivity : AppCompatActivity() {
                     GabAIUtils.showSnackbar(this, "Passwords do not match")
                     return@showCustomDialog
                 }
-                if (selectedGender == "unspecified") {
+                if (isStudent && selectedGender == "unspecified") {
                     GabAIUtils.showSnackbar(this, "Please select whether you are Male (Boy) or Female (Girl)")
                     return@showCustomDialog
                 }
@@ -1219,38 +1258,50 @@ class AuthActivity : AppCompatActivity() {
                         val updates = mutableMapOf<String, Any>(
                             "mustChangePassword" to false,
                             "tempPassword" to FieldValue.delete(),
-                            "password" to FieldValue.delete(),
-                            "isClaimed" to true,
-                            "is_onboarded" to true,
-                            "gender" to selectedGender
+                            "password" to FieldValue.delete()
                         )
-                        prefs.edit().putString("cached_user_gender", selectedGender).apply()
+                        if (isStudent) {
+                            updates["isClaimed"] = true
+                            updates["is_onboarded"] = true
+                            updates["gender"] = selectedGender
+                            prefs.edit().putString("cached_user_gender", selectedGender).apply()
+                        }
                         db.collection("users").document(uid).update(updates).addOnCompleteListener {
-                            db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
-                                val uName = userDoc.getString("username")?.removePrefix("@")?.trim()?.lowercase() ?: ""
-                                if (uName.isNotBlank()) {
-                                    db.collection("pending_students").document(uName).delete().addOnFailureListener { /* ignore */ }
-                                    db.collection("pending_students").document("@$uName").delete().addOnFailureListener { /* ignore */ }
-                                }
-                                val schoolId = userDoc.getString("schoolId") ?: ""
-                                val grade = userDoc.getString("grade") ?: ""
-                                val section = userDoc.getString("section") ?: ""
-                                ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(uid, schoolId, grade, section) { adviserName, className ->
+                            if (isStudent) {
+                                db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
+                                    val uName = userDoc.getString("username")?.removePrefix("@")?.trim()?.lowercase() ?: ""
+                                    if (uName.isNotBlank()) {
+                                        db.collection("pending_students").document(uName).delete().addOnFailureListener { /* ignore */ }
+                                        db.collection("pending_students").document("@$uName").delete().addOnFailureListener { /* ignore */ }
+                                    }
+                                    val schoolId = userDoc.getString("schoolId") ?: ""
+                                    val grade = userDoc.getString("grade") ?: ""
+                                    val section = userDoc.getString("section") ?: ""
+                                    ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(uid, schoolId, grade, section) { adviserName, className ->
+                                        toggleLoading(false)
+                                        dialog.dismiss()
+                                        GabAIDialogs.showNoticeDialog(
+                                            context = this,
+                                            title = "Class Joined!",
+                                            message = "You have joined $adviserName's class for $className.",
+                                            buttonText = "Continue",
+                                            badgeIcon = "🎒",
+                                            cancelable = false,
+                                            onAction = {
+                                                onComplete()
+                                            }
+                                        )
+                                    }
+                                }.addOnFailureListener {
                                     toggleLoading(false)
                                     dialog.dismiss()
-                                    GabAIDialogs.showNoticeDialog(
-                                        context = this,
-                                        title = "Class Joined!",
-                                        message = "You have joined $adviserName's class for $className.",
-                                        buttonText = "Continue",
-                                        badgeIcon = "🎒",
-                                        cancelable = false,
-                                        onAction = {
-                                            onComplete()
-                                        }
-                                    )
+                                    onComplete()
                                 }
-                            }.addOnFailureListener {
+                            } else {
+                                val teacherEmail = user.email?.trim()?.lowercase() ?: ""
+                                if (teacherEmail.isNotBlank()) {
+                                    db.collection("pending_students").document(teacherEmail).delete().addOnFailureListener { /* ignore */ }
+                                }
                                 toggleLoading(false)
                                 dialog.dismiss()
                                 onComplete()

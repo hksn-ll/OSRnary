@@ -1,12 +1,12 @@
 # Graph Report - OSRnary  (2026-11-11)
 
 ## Corpus Check
-- 82 files · ~843,602 words
+- 82 files · ~837,826 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 314 file(s) not represented in the graph (top: .xml 282, (none) 7, .ttf 7)
 
 ## Summary
-- 1639 nodes · 4544 edges · 83 communities (27 shown, 56 thin omitted)
+- 1639 nodes · 4546 edges · 83 communities (27 shown, 56 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 

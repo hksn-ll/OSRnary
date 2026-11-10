@@ -1,11 +1,11 @@
 {
-  "versionCode": 47,
-  "versionName": "0.4.33",
-  "minRequiredVersionCode": 47,
+  "versionCode": 48,
+  "versionName": "0.4.34",
+  "minRequiredVersionCode": 48,
   "forceUpdate": true,
-  "title": "Student Account Claim & Password Reset Fix (v0.4.33)",
-  "message": "Resolves claimed student status display and temporary password reset flow in Web Admin Portal and Android app.",
+  "title": "Teacher & Student Password Reset Management (v0.4.34)",
+  "message": "Adds educator password reset capabilities in Web Admin Portal and Android app.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.33/GabAI-v0.4.33.apk",
-  "changelog": "🔧 WHAT'S NEW IN v0.4.33 (STUDENT ACCOUNT CLAIM & PASSWORD RESET FIX):\n• Fixed Claimed Student Status: Claimed student accounts in the Web Admin Portal now correctly display 'Claimed in App' with protected password masking (••••••••).\n• Restored Password Reset Flow: Teachers and School Admins can generate temporary passkeys with reliable activation in both Web Admin Portal and mobile app.\n• Direct Homeroom Class Enrollment: Automatically associates newly claimed and signed-in students with their homeroom adviser's section and subject list.\n• Security Rules Enhancement: Added granular permissions for student credential migration and class auto-enrollment."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.34/GabAI-v0.4.34.apk",
+  "changelog": "🔧 WHAT'S NEW IN v0.4.34 (EDUCATOR & STUDENT PASSWORD RESET):\n• Faculty Password Reset: School Administrators and Super Admins can now dispatch official password reset emails or issue temporary passkeys to teachers directly from the Faculty & Approvals roster.\n• Teacher Force Password Update: Supported forced password change dialog for educators on first login with temporary passkeys.\n• Authenticated-First Reset Security: Robust account claiming and reset flow ensuring zero permission failures across Android and Web Admin Portal."
 }
