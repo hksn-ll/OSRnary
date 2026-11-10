@@ -912,10 +912,36 @@ class ClassDetailActivity : AppCompatActivity() {
         )
         if (!isPending) {
             updates["tempPassword"] = tempPass
+            updates["isClaimed"] = true
+            updates["is_onboarded"] = true
         }
 
         db.collection(collection).document(docId).update(updates)
             .addOnSuccessListener {
+                if (!isPending) {
+                    db.collection("users").document(docId).get().addOnSuccessListener { uDoc ->
+                        val uName = uDoc.getString("username")?.removePrefix("@")?.trim()?.lowercase() ?: ""
+                        if (uName.isNotBlank()) {
+                            val slipData = hashMapOf(
+                                "username" to uName,
+                                "password" to tempPass,
+                                "tempPassword" to tempPass,
+                                "mustChangePassword" to true,
+                                "isReset" to true,
+                                "isClaimed" to true,
+                                "claimedUid" to docId,
+                                "schoolId" to (uDoc.getString("schoolId") ?: ""),
+                                "grade" to (uDoc.getString("grade") ?: ""),
+                                "section" to (uDoc.getString("section") ?: ""),
+                                "firstName" to (uDoc.getString("firstName") ?: ""),
+                                "lastName" to (uDoc.getString("lastName") ?: ""),
+                                "gender" to (uDoc.getString("gender") ?: "unspecified"),
+                                "updatedAt" to System.currentTimeMillis()
+                            )
+                            db.collection("pending_students").document(uName).set(slipData, com.google.firebase.firestore.SetOptions.merge())
+                        }
+                    }
+                }
                 GabAIDialogs.showNoticeDialog(
                     context = this,
                     title = "Temporary Password",

@@ -483,6 +483,9 @@ class MainActivity : AppCompatActivity() {
                             mapOf(
                                 "mustChangePassword" to false,
                                 "tempPassword" to FieldValue.delete(),
+                                "password" to FieldValue.delete(),
+                                "isClaimed" to true,
+                                "is_onboarded" to true,
                                 "gender" to selectedGender
                             )
                         ).addOnCompleteListener {

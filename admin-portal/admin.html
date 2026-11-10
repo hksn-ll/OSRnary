@@ -1772,7 +1772,7 @@
             </div>
             <div>
               <label class="block text-[11px] font-bold text-slate-700 mb-1">Question Items</label>
-              <select id="aiTimedQuestionCount" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-slate-700 focus:outline-none">
+              <select id="aiTimedQuestionCount" onchange="updateAITimedBlueprintPreview()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-slate-700 focus:outline-none">
                 <option value="3">3 Questions (Mini Test)</option>
                 <option value="5" selected>5 Questions (Standard Graded Passage)</option>
                 <option value="8">8 Questions</option>
@@ -1785,12 +1785,16 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-200/60">
             <div>
               <label class="block text-[11px] font-bold text-slate-700 mb-1">Cognitive Dimension Focus</label>
-              <select id="aiTimedCompetencyFocus" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-slate-700 focus:outline-none">
+              <select id="aiTimedCompetencyFocus" onchange="updateAITimedBlueprintPreview()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-slate-700 focus:outline-none">
                 <option value="BALANCED">Balanced Distribution (Literal 40%, Inferential 30%, Critical 30%)</option>
                 <option value="LITERAL">Literal Recall Focus (Explicit Facts, Numbers, Settings)</option>
                 <option value="INFERENTIAL">Inferential Focus (Cause-Effect, Underlying Motives, Context Clues)</option>
                 <option value="CRITICAL">Critical &amp; Evaluative Focus (Author Purpose, Judging Arguments, Main Idea)</option>
               </select>
+              <div id="aiTimedDistributionPreview" class="mt-1.5 flex items-center gap-1.5 text-[10.5px] font-semibold text-[#5341CD] bg-purple-50/80 border border-purple-200/60 rounded-lg px-2.5 py-1">
+                <svg class="w-3.5 h-3.5 text-[#5341CD] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+                <span id="aiTimedDistributionPreviewText">Target Blueprint: 2 Literal (40%) • 2 Inferential (40%) • 1 Critical (20%)</span>
+              </div>
             </div>
             <div>
               <label class="block text-[11px] font-bold text-slate-700 mb-1">Evaluation Due Date</label>
@@ -5280,6 +5284,7 @@
     window.setCachedSubmissionsForTesting = function(list) { cachedSubmissions = list; };
     window.setCachedUsersForTesting = function(list) { cachedUsers = list; if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers(); };
     window.setCachedClassesForTesting = function(list) { cachedClasses = list; if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers(); };
+    window.setCachedPendingStudentsForTesting = function(list) { cachedPendingStudents = list; };
     let cachedSchoolInvites = [];
     let cachedAnnouncements = [];
     let currentViewingAnnouncementId = null;
@@ -10473,8 +10478,93 @@
       try {
         let updated = false;
 
-        // 1. Check pending_students first if cleanUser provided
-        if (cleanUser) {
+        // 1. If docId provided, prioritize checking users collection (claimed account)
+        if (docId) {
+          try {
+            const uDoc = await getDoc(doc(db, "users", docId));
+            if (uDoc.exists()) {
+              await updateDoc(doc(db, "users", docId), {
+                tempPassword: tempPass,
+                password: tempPass,
+                mustChangePassword: true,
+                isClaimed: true,
+                is_onboarded: true
+              });
+              updated = true;
+            }
+          } catch (e) {
+            console.warn("Could not check users by docId:", e);
+          }
+        }
+
+        // 2. Query users collection by clean username or @username
+        if (!updated && cleanUser) {
+          try {
+            const q1 = query(collection(db, "users"), where("username", "==", cleanUser));
+            const snap1 = await getDocs(q1);
+            if (!snap1.empty) {
+              for (const d of snap1.docs) {
+                await updateDoc(doc(db, "users", d.id), {
+                  tempPassword: tempPass,
+                  password: tempPass,
+                  mustChangePassword: true,
+                  isClaimed: true,
+                  is_onboarded: true
+                });
+                updated = true;
+              }
+            } else {
+              const q2 = query(collection(db, "users"), where("username", "==", "@" + cleanUser));
+              const snap2 = await getDocs(q2);
+              if (!snap2.empty) {
+                for (const d of snap2.docs) {
+                  await updateDoc(doc(db, "users", d.id), {
+                    tempPassword: tempPass,
+                    password: tempPass,
+                    mustChangePassword: true,
+                    isClaimed: true,
+                    is_onboarded: true
+                  });
+                  updated = true;
+                }
+              }
+            }
+          } catch (e) {
+            console.warn("Could not query users by username:", e);
+          }
+        }
+
+        // If updated in users, sync temporary reset passkey to pending_students for instant unauthenticated mobile access
+        if (updated && cleanUser) {
+          try {
+            const matchedUser = (cachedUsers || []).find(u => {
+              const uClean = String(u.username || '').replace(/^@/, '').trim().toLowerCase();
+              return uClean === cleanUser || u.id === docId;
+            });
+            const slipData = {
+              username: cleanUser,
+              password: tempPass,
+              tempPassword: tempPass,
+              mustChangePassword: true,
+              isReset: true,
+              isClaimed: true,
+              claimedUid: docId || matchedUser?.id || '',
+              schoolId: matchedUser?.schoolId || '',
+              grade: matchedUser?.grade || '',
+              section: matchedUser?.section || '',
+              firstName: matchedUser?.firstName || '',
+              lastName: matchedUser?.lastName || '',
+              gender: matchedUser?.gender || 'unspecified',
+              updatedAt: Date.now()
+            };
+            await setDoc(doc(db, "pending_students", cleanUser), slipData, { merge: true });
+          } catch (e) {
+            console.warn("Could not sync pending_students reset slip:", e);
+          }
+        }
+
+        // 3. Fallback: Check pending_students (unclaimed student slip)
+        if (!updated && cleanUser) {
           const pDoc = await getDoc(doc(db, "pending_students", cleanUser));
           if (pDoc.exists()) {
             await updateDoc(doc(db, "pending_students", cleanUser), {
@@ -10483,33 +10573,12 @@
               mustChangePassword: true
             });
             updated = true;
-          }
-        }
-
-        // 2. If docId provided, safely check if exists in users
-        if (!updated && docId) {
-          try {
-            const uDoc = await getDoc(doc(db, "users", docId));
-            if (uDoc.exists()) {
-              await updateDoc(doc(db, "users", docId), {
-                tempPassword: tempPass,
+          } else {
+            const pDocAt = await getDoc(doc(db, "pending_students", "@" + cleanUser));
+            if (pDocAt.exists()) {
+              await updateDoc(doc(db, "pending_students", "@" + cleanUser), {
                 password: tempPass,
-                mustChangePassword: true
-              });
-              updated = true;
-            }
-          } catch (_) {}
-        }
-
-        // 3. Fallback: query users collection by clean username
-        if (!updated && cleanUser) {
-          const q = query(collection(db, "users"), where("username", "==", cleanUser));
-          const snap = await getDocs(q);
-          if (!snap.empty) {
-            for (const d of snap.docs) {
-              await updateDoc(doc(db, "users", d.id), {
                 tempPassword: tempPass,
-                password: tempPass,
                 mustChangePassword: true
               });
               updated = true;
@@ -10521,14 +10590,23 @@
           throw new Error(`Learner account @${cleanUser || docId} could not be located in directory.`);
         }
 
-        // Clean up any lingering pending slip for this active user
-        if (cleanUser) {
-          try {
-            const pCheck = await getDoc(doc(db, "pending_students", cleanUser));
-            if (pCheck.exists()) {
-              await deleteDoc(doc(db, "pending_students", cleanUser));
-            }
-          } catch (_) {}
+        // Synchronize in-memory caches and re-render table immediately
+        const matchingClaimed = (cachedUsers || []).find(u => u.id === docId || (cleanUser && String(u.username || '').toLowerCase().replace(/^@/, '') === cleanUser));
+        if (matchingClaimed) {
+          matchingClaimed.tempPassword = tempPass;
+          matchingClaimed.password = tempPass;
+          matchingClaimed.mustChangePassword = true;
+          matchingClaimed.isClaimed = true;
+          matchingClaimed.is_onboarded = true;
+        }
+        const matchingPending = (cachedPendingStudents || []).find(p => p.id === cleanUser || String(p.username || '').toLowerCase().replace(/^@/, '') === cleanUser);
+        if (matchingPending) {
+          matchingPending.password = tempPass;
+          matchingPending.tempPassword = tempPass;
+          matchingPending.mustChangePassword = true;
+        }
+        if (typeof renderPendingStudentsTable === 'function') {
+          renderPendingStudentsTable();
         }
 
         const displayTarget = cleanUser ? `@${cleanUser}` : (docId ? `@${docId.substring(0, 8)}` : 'Learner');
@@ -10723,7 +10801,8 @@
       const claimed = (cachedUsers || [])
         .filter(u => u.role === 'student')
         .map(u => {
-          const uName = u.username || (u.authEmail ? u.authEmail.replace(/@gabai\.app$/i, '') : '') || (u.email ? u.email.split('@')[0] : '') || u.id;
+          const rawName = u.username || (u.authEmail ? u.authEmail.replace(/@gabai\.app$/i, '') : '') || (u.email ? u.email.split('@')[0] : '') || u.id;
+          const uName = String(rawName).replace(/^@/, '').trim();
           const fName = u.firstName || u.first_name || '';
           const lName = u.lastName || u.last_name || '';
           const fullName = `${fName} ${lName}`.trim() || u.fullName || u.displayName || 'Learner';
@@ -10746,28 +10825,49 @@
             photoUrl: u.photoUrl || u.avatarUrl || u.profileImageUrl || '',
             pendingPhotoUrl: u.pendingPhotoUrl || '',
             photoStatus: u.photoStatus || (u.photoUrl ? 'approved' : 'none'),
-            is_onboarded: u.is_onboarded !== false,
+            is_onboarded: true,
             isClaimed: true,
+            mustChangePassword: u.mustChangePassword === true,
+            tempPassword: u.tempPassword || '',
             createdAt: u.createdAt || null
           };
         });
 
-      // Claimed usernames index to avoid duplicates from pending slips
-      const claimedUsernames = new Set(
-        claimed.map(s => String(s.username || '').toLowerCase().trim()).filter(Boolean)
-      );
+      // Claimed identifiers index to eliminate duplicate stale slips
+      const claimedIdentifiers = new Set();
+      claimed.forEach(s => {
+        const uLower = String(s.username || '').toLowerCase().trim();
+        if (uLower) {
+          claimedIdentifiers.add(uLower);
+          claimedIdentifiers.add(`@${uLower}`);
+        }
+        if (s.id) {
+          claimedIdentifiers.add(String(s.id).toLowerCase().trim());
+        }
+      });
+      (cachedUsers || []).filter(u => u.role === 'student').forEach(u => {
+        if (u.id) claimedIdentifiers.add(String(u.id).toLowerCase().trim());
+        if (u.username) {
+          const clean = String(u.username).toLowerCase().replace(/^@/, '').trim();
+          claimedIdentifiers.add(clean);
+          claimedIdentifiers.add(`@${clean}`);
+        }
+        if (u.authEmail) {
+          claimedIdentifiers.add(String(u.authEmail).toLowerCase().replace(/@gabai\.app$/i, '').trim());
+        }
+      });
 
       // 2. Gather unclaimed slips from cachedPendingStudents
       const pending = (cachedPendingStudents || [])
         .filter(p => {
-          const uName = String(p.username || p.id || '').toLowerCase().trim();
-          return uName ? !claimedUsernames.has(uName) : true;
+          const uName = String(p.username || p.id || '').toLowerCase().replace(/^@/, '').trim();
+          return uName ? !claimedIdentifiers.has(uName) && !claimedIdentifiers.has(`@${uName}`) && !claimedIdentifiers.has(String(p.id).toLowerCase()) : true;
         })
         .map(p => {
           const fName = p.firstName || p.first_name || '';
           const lName = p.lastName || p.last_name || '';
           const fullName = `${fName} ${lName}`.trim() || p.fullName || 'Learner';
-          const username = p.username || p.id || '';
+          const username = String(p.username || p.id || '').replace(/^@/, '').trim();
           const gender = (typeof getStudentGender === 'function' ? getStudentGender(p) : (p.gender || p.sex || 'unspecified'));
           const studentSchool = resolveStudentSchoolId(p) || String(p.schoolId || p.school_id || '').trim();
           const pass = p.password || p.tempPassword || p.initialPassword || '';
@@ -10787,8 +10887,10 @@
             photoUrl: p.photoUrl || p.avatarUrl || p.profileImageUrl || '',
             pendingPhotoUrl: p.pendingPhotoUrl || '',
             photoStatus: p.photoStatus || 'none',
-            is_onboarded: p.is_onboarded === true, // pending slip is unclaimed
+            is_onboarded: false,
             isClaimed: false,
+            mustChangePassword: true,
+            tempPassword: pass,
             createdAt: p.createdAt || null
           };
         });
@@ -10796,6 +10898,7 @@
       // Place pending unclaimed slips first so administrators can easily spot new accounts needing slips
       return [...pending, ...claimed];
     }
+    window.getUnifiedStudentCredentials = getUnifiedStudentCredentials;
 
     function renderPendingStudentsTable() {
       const tbody = document.getElementById('pendingStudentsTableBody');
@@ -10834,9 +10937,9 @@
         // Dedicated Status Filter
         const activeCredStatus = credentialStatusFilter || document.getElementById('selectCredentialStatusFilter')?.value || 'ALL';
         if (activeCredStatus === 'PENDING') {
-          list = list.filter(s => !s.isClaimed || s.is_onboarded !== true);
+          list = list.filter(s => !s.isClaimed);
         } else if (activeCredStatus === 'APPROVED') {
-          list = list.filter(s => s.isClaimed && s.is_onboarded === true);
+          list = list.filter(s => !!s.isClaimed);
         }
 
         // Dedicated Smart Tokenized Search
@@ -10856,8 +10959,8 @@
 
         // Real-time Bento KPI Overview Updates
         const totalCredCount = list.length;
-        const claimedCredCount = list.filter(s => s.isClaimed && s.is_onboarded === true).length;
-        const unclaimedCredCount = list.filter(s => !s.isClaimed || s.is_onboarded !== true).length;
+        const claimedCredCount = list.filter(s => !!s.isClaimed).length;
+        const unclaimedCredCount = list.filter(s => !s.isClaimed).length;
         const pendingPhotoUsers = (cachedUsers || []).filter(u => u.role === 'student' && u.pendingPhotoUrl && u.photoStatus === 'pending');
 
         const elKpiTot = document.getElementById('credKpiTotal');
@@ -10927,17 +11030,25 @@
             initials = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : (parts[0] ? parts[0].slice(0, 2).toUpperCase() : 'ST');
           }
           if (!initials) initials = 'ST';
-          const isClaimed = s.isClaimed && s.is_onboarded === true;
+          const isClaimed = Boolean(s.isClaimed);
+          const hasActiveResetPass = isClaimed && s.mustChangePassword && s.tempPassword;
           const genderIcon = s.gender === 'male' ? '<span class="text-blue-600 font-semibold text-[10px]">👦 Male</span>' : (s.gender === 'female' ? '<span class="text-pink-600 font-semibold text-[10px]">👧 Female</span>' : '');
 
-          const passDisplay = s.password && !isClaimed
+          const passDisplay = hasActiveResetPass
             ? `<div class="flex items-center gap-1.5">
-                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-mono text-xs font-bold" title="Temporary Initial Password">${escapeHtml(s.password)}</span>
-                 <button onclick="copyToClipboard('${escapeHtml(s.password)}', 'Temporary password copied!')" class="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Copy Temporary Password">
+                 <span class="inline-flex items-center px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 font-mono text-xs font-bold" title="Active Temporary Reset Password">${escapeHtml(s.tempPassword)}</span>
+                 <button onclick="copyToClipboard('${escapeHtml(s.tempPassword)}', 'Temporary reset password copied!')" class="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Copy Temporary Reset Password">
                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                  </button>
                </div>`
-            : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-mono text-xs font-bold" title="${isClaimed ? 'Protected: Password is encrypted and protected' : 'Protected'}">••••••••</span>`;
+            : (s.password && !isClaimed
+                ? `<div class="flex items-center gap-1.5">
+                     <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-mono text-xs font-bold" title="Temporary Initial Password">${escapeHtml(s.password)}</span>
+                     <button onclick="copyToClipboard('${escapeHtml(s.password)}', 'Temporary password copied!')" class="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Copy Temporary Password">
+                       <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                     </button>
+                   </div>`
+                : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 text-slate-600 font-mono text-xs font-bold" title="${isClaimed ? 'Protected: Password is encrypted and protected' : 'Protected'}">••••••••</span>`);
 
           const avatarHtml = renderStudentAvatarHtml(s.photoUrl, s.pendingPhotoUrl, s.photoStatus, initials, 'w-9 h-9', 'text-xs');
 
@@ -11006,6 +11117,7 @@
           </tr>`;
       }
     }
+    window.renderPendingStudentsTable = renderPendingStudentsTable;
 
     // =========================================================================
     // BATCH & SINGLE LOGIN SLIPS PRINTING ENGINE
@@ -11038,9 +11150,9 @@
 
       const activeCredStatus = credentialStatusFilter || document.getElementById('selectCredentialStatusFilter')?.value || 'ALL';
       if (activeCredStatus === 'PENDING') {
-        list = list.filter(s => !s.isClaimed || s.is_onboarded !== true);
+        list = list.filter(s => !s.isClaimed);
       } else if (activeCredStatus === 'APPROVED') {
-        list = list.filter(s => s.isClaimed && s.is_onboarded === true);
+        list = list.filter(s => !!s.isClaimed);
       }
 
       if (list.length === 0) {
@@ -11091,8 +11203,10 @@
     };
 
     function renderSlipCardHtml(s) {
-      const isClaimed = s.isClaimed && s.is_onboarded === true;
-      const passText = s.password && !isClaimed ? s.password : 'Protected (Already Claimed)';
+      const isClaimed = Boolean(s.isClaimed);
+      const passText = isClaimed
+        ? (s.mustChangePassword && s.tempPassword ? s.tempPassword : 'Protected (Already Claimed)')
+        : (s.password || 'Pending');
       const schoolName = getSchoolName(s.schoolId) || 'Junior High School';
 
       return `
@@ -14384,7 +14498,7 @@
       ];
 
       list.forEach(s => {
-        const isClaimed = s.isClaimed && s.is_onboarded === true;
+        const isClaimed = Boolean(s.isClaimed);
         const dateStr = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : 'Recorded';
         const passkeyText = (!isClaimed && s.password) ? s.password : '•••••••• (Protected)';
 
@@ -17201,6 +17315,7 @@
       }
 
       window.updateAITimedPassageStats();
+      window.updateAITimedBlueprintPreview();
       window.renderAITimedQuestions();
       modal.classList.remove('hidden');
     };
@@ -17245,6 +17360,120 @@
       }
     };
 
+    // Cognitive Blueprint Calculator for DepEd Phil-IRI Standard (DepEd Order No. 14, s. 2018)
+    window.getAITimedCognitiveBlueprint = function(qCount, compFocus) {
+      const n = parseInt(qCount, 10) || 5;
+      const focus = String(compFocus || 'BALANCED').toUpperCase();
+
+      let litCount = 0;
+      let infCount = 0;
+      let critCount = 0;
+
+      if (focus === 'LITERAL') {
+        litCount = n;
+      } else if (focus === 'INFERENTIAL') {
+        infCount = n;
+      } else if (focus === 'CRITICAL') {
+        critCount = n;
+      } else {
+        // BALANCED: 40% Literal, 30% Inferential, 30% Critical (DepEd Phil-IRI Standard)
+        if (n === 3) {
+          litCount = 1;
+          infCount = 1;
+          critCount = 1;
+        } else if (n === 5) {
+          litCount = 2;
+          infCount = 2;
+          critCount = 1;
+        } else if (n === 8) {
+          litCount = 3;
+          infCount = 3;
+          critCount = 2;
+        } else if (n === 10) {
+          litCount = 4;
+          infCount = 3;
+          critCount = 3;
+        } else if (n === 15) {
+          litCount = 6;
+          infCount = 5;
+          critCount = 4;
+        } else {
+          litCount = Math.max(1, Math.round(n * 0.40));
+          infCount = Math.max(1, Math.round(n * 0.30));
+          critCount = n - (litCount + infCount);
+          if (critCount < 1 && n >= 3) {
+            if (infCount > 1) {
+              infCount--;
+              critCount++;
+            } else if (litCount > 1) {
+              litCount--;
+              critCount++;
+            }
+          }
+        }
+      }
+
+      const itemSchedule = [];
+      for (let i = 0; i < litCount; i++) itemSchedule.push('LITERAL');
+      for (let i = 0; i < infCount; i++) itemSchedule.push('INFERENTIAL');
+      for (let i = 0; i < critCount; i++) itemSchedule.push('CRITICAL');
+
+      const litPct = Math.round((litCount / n) * 100);
+      const infPct = Math.round((infCount / n) * 100);
+      const critPct = Math.round((critCount / n) * 100);
+
+      let summaryText = "";
+      if (focus === 'BALANCED') {
+        summaryText = `Target Blueprint: ${litCount} Literal (${litPct}%) • ${infCount} Inferential (${infPct}%) • ${critCount} Critical (${critPct}%)`;
+      } else {
+        const readableFocus = focus === 'LITERAL' ? 'Literal Recall' : (focus === 'INFERENTIAL' ? 'Inferential Reasoning' : 'Critical Evaluation');
+        summaryText = `Target Blueprint: ${n} ${readableFocus} Items (100% Focused)`;
+      }
+
+      let orderGuide = "";
+      if (focus === 'BALANCED') {
+        orderGuide = `Item 1 to ${litCount}: LITERAL; Item ${litCount + 1} to ${litCount + infCount}: INFERENTIAL; Item ${litCount + infCount + 1} to ${n}: CRITICAL`;
+      } else {
+        orderGuide = `All items 1 to ${n}: ${focus}`;
+      }
+
+      let promptDirectives = "";
+      if (focus === 'BALANCED') {
+        promptDirectives = `MANDATORY COGNITIVE DIMENSION BREAKDOWN FOR ${n} QUESTIONS:
+- EXACTLY ${litCount} question(s) of cognitive dimension "LITERAL" (Directly stated facts, dates, quantities, names, or explicit details found in the passage).
+- EXACTLY ${infCount} question(s) of cognitive dimension "INFERENTIAL" (Logical deductions, character motives, cause-and-effect reasoning, context clues).
+- EXACTLY ${critCount} question(s) of cognitive dimension "CRITICAL" (Higher-Order Thinking Skills / HOTS: evaluating author's intent/tone, evaluating arguments, determining overarching themes).`;
+      } else {
+        promptDirectives = `MANDATORY COGNITIVE DIMENSION BREAKDOWN FOR ${n} QUESTIONS:
+- ALL ${n} question(s) must be strictly of cognitive dimension "${focus}".`;
+      }
+
+      return {
+        total: n,
+        focus: focus,
+        literal: litCount,
+        inferential: infCount,
+        critical: critCount,
+        literalPct: litPct,
+        inferentialPct: infPct,
+        criticalPct: critPct,
+        summaryText: summaryText,
+        orderGuide: orderGuide,
+        promptDirectives: promptDirectives,
+        itemSchedule: itemSchedule
+      };
+    };
+
+    window.updateAITimedBlueprintPreview = function() {
+      const qCount = parseInt(document.getElementById('aiTimedQuestionCount')?.value, 10) || 5;
+      const compFocus = document.getElementById('aiTimedCompetencyFocus')?.value || 'BALANCED';
+      const blueprint = window.getAITimedCognitiveBlueprint(qCount, compFocus);
+      const previewText = document.getElementById('aiTimedDistributionPreviewText');
+      if (previewText) {
+        previewText.textContent = blueprint.summaryText;
+      }
+    };
+
     // AI Question Generator: APPEND mode by default
     window.runAITimedAssessmentGeneration = async function() {
       const title = document.getElementById('aiTimedTitle')?.value.trim();
@@ -17283,10 +17512,12 @@
         return;
       }
 
+      const blueprint = window.getAITimedCognitiveBlueprint(qCount, compFocus);
+
       const btn = document.getElementById('btnRunAITimedGeneration');
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = `<span class="animate-spin mr-1.5">&#9203;</span> Gemini 3.5 Flash Lite is analyzing passage &amp; generating ${qCount} items...`;
+        btn.innerHTML = `<span class="animate-spin mr-1.5">&#9203;</span> Gemini 3.5 Flash Lite is formulating ${qCount} balanced items...`;
       }
 
       try {
@@ -17301,17 +17532,29 @@ Assessment Purpose: ${purpose}
 Target Grade: ${grade}
 Cognitive Dimension Focus: ${compFocus}
 
-Ensure items cover DepEd Phil-IRI cognitive dimensions:
-- "LITERAL": Recalling explicit facts, dates, names, or details directly stated in the passage.
-- "INFERENTIAL": Inferring implicit motives, logical cause-and-effect, or context clues supported by the text.
-- "CRITICAL": Higher-order evaluative comprehension, author's perspective, analyzing arguments, or main theme.
+${blueprint.promptDirectives}
 
-STRICT REQUIREMENTS:
-1. Every question must be uniquely grounded in the passage text above. Never use generic or placeholder phrases.
-2. Provide exactly 4 plausible choices per question (A, B, C, D) relevant to the passage.
+DETAILED DEPED PHIL-IRI COGNITIVE DIMENSION GUIDELINES (DO NOT GENERATE TRIVIAL OR GENERIC ITEMS):
+1. "LITERAL":
+   - Ask about explicitly stated facts, dates, names, locations, numerical quantities, or concrete actions directly observable in the text.
+   - The correct answer must be directly confirmable from the text.
+2. "INFERENTIAL":
+   - Require students to read between the lines and synthesize context clues.
+   - Ask about unspoken motives, implied cause-and-effect relationships, character perspectives, deductive reasoning, or the meaning of words/phrases as used in the passage's specific context.
+   - The correct answer cannot be found verbatim; it must be logically deduced from clues.
+3. "CRITICAL":
+   - Higher-Order Thinking Skills (HOTS) and evaluative comprehension.
+   - Ask students to assess the author's primary purpose, tone, underlying assumptions, evaluate arguments or actions described, judge effectiveness/credibility, or synthesize the central theme and broader implications.
+   - Distractors must represent plausible misinterpretations, not silly absurdities.
+
+STRICT MANDATORY REQUIREMENTS:
+1. Every question must be uniquely grounded in the passage text above. Never use generic, filler, or placeholder phrasing.
+2. Provide exactly 4 plausible choices per question (A, B, C, D) all grounded in the context of the passage. Distractors must represent plausible misinterpretations, not absurd or silly filler.
 3. Exactly 1 unambiguous correct answer, with "ans" as a 0-indexed integer (0, 1, 2, or 3).
-4. "competency" must be "LITERAL", "INFERENTIAL", or "CRITICAL".
-5. "explanation" must be a concise sentence citing the exact textual evidence from the passage.
+4. "competency" must be strictly one of: "LITERAL", "INFERENTIAL", or "CRITICAL".
+5. Item sequence must strictly follow the required blueprint order:
+   ${blueprint.orderGuide}
+6. "explanation" must be a concise sentence citing the exact textual evidence or deductive rationale from the passage.
 
 Return ONLY a valid JSON array matching this exact schema:
 [
@@ -17356,21 +17599,35 @@ Return ONLY a valid JSON array matching this exact schema:
           throw new Error("Gemini generated an empty question array.");
         }
 
-        const newItems = parsed.map(item => ({
-          q: item.q || "Reading Comprehension Item",
-          options: Array.isArray(item.options) && item.options.length === 4 
-            ? item.options 
-            : ["Option A", "Option B", "Option C", "Option D"],
-          ans: typeof item.ans === 'number' && item.ans >= 0 && item.ans <= 3 ? item.ans : 0,
-          competency: (item.competency || 'LITERAL').toUpperCase(),
-          explanation: item.explanation || "Text-based comprehension rationale."
-        }));
+        const expectedSchedule = blueprint.itemSchedule;
+
+        const normalizeCompetency = (rawComp, idx) => {
+          const s = String(rawComp || '').toUpperCase();
+          if (s.includes('CRIT') || s.includes('EVAL') || s.includes('HOTS')) return 'CRITICAL';
+          if (s.includes('INF') || s.includes('REASON') || s.includes('DEDUC') || s.includes('CAUSE')) return 'INFERENTIAL';
+          if (s.includes('LIT') || s.includes('FACT') || s.includes('RECALL') || s.includes('DETAIL')) return 'LITERAL';
+          // Fallback to scheduled blueprint dimension for this slot
+          return expectedSchedule[idx] || 'LITERAL';
+        };
+
+        const newItems = parsed.map((item, idx) => {
+          const comp = normalizeCompetency(item.competency, idx);
+          return {
+            q: item.q || `Reading Comprehension Question ${idx + 1}`,
+            options: Array.isArray(item.options) && item.options.length === 4 
+              ? item.options 
+              : ["Option A", "Option B", "Option C", "Option D"],
+            ans: typeof item.ans === 'number' && item.ans >= 0 && item.ans <= 3 ? item.ans : 0,
+            competency: comp,
+            explanation: item.explanation || "Text-based comprehension rationale."
+          };
+        });
 
         // Append new items to the pool (Append mode as selected by user)
         aiTimedGeneratedQuizPool = [...aiTimedGeneratedQuizPool, ...newItems];
 
         window.renderAITimedQuestions();
-        window.showToast(`Gemini 3.5 Flash Lite formulated & added ${newItems.length} questions to the pool!`, "success");
+        window.showToast(`Gemini 3.5 Flash Lite formulated & added ${newItems.length} balanced questions to the pool!`, "success");
       } catch (err) {
         console.error("Gemini generation error:", err);
         window.showToast("AI Generation Failed: " + err.message, "error");
@@ -17408,14 +17665,32 @@ Return ONLY a valid JSON array matching this exact schema:
         else if (c.includes('CRIT')) critCount++;
       });
 
+      const totalPool = aiTimedGeneratedQuizPool.length;
+      const litPct = totalPool > 0 ? Math.round((litCount / totalPool) * 100) : 0;
+      const infPct = totalPool > 0 ? Math.round((infCount / totalPool) * 100) : 0;
+      const critPct = totalPool > 0 ? Math.round((critCount / totalPool) * 100) : 0;
+
       if (meters) {
         meters.classList.remove('hidden');
         meters.innerHTML = `
-          <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">Literal: ${litCount}</span>
-          <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">Inferential: ${infCount}</span>
-          <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold">Critical: ${critCount}</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Literal: ${litCount} (${litPct}%)
+          </span>
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold border border-amber-200 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Inferential: ${infCount} (${infPct}%)
+          </span>
+          <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold border border-indigo-200 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>Critical: ${critCount} (${critPct}%)
+          </span>
         `;
       }
+
+      const getCompBadgeStyle = (comp) => {
+        const c = String(comp || '').toUpperCase();
+        if (c.includes('CRIT')) return 'border-indigo-300 bg-indigo-50/80 text-indigo-800';
+        if (c.includes('INF')) return 'border-amber-300 bg-amber-50/80 text-amber-800';
+        return 'border-emerald-300 bg-emerald-50/80 text-emerald-800';
+      };
 
       container.innerHTML = aiTimedGeneratedQuizPool.map((qObj, qIdx) => `
         <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2.5">
@@ -17423,7 +17698,7 @@ Return ONLY a valid JSON array matching this exact schema:
             <div class="flex items-center gap-2">
               <span class="w-6 h-6 rounded-full bg-[#5341CD] text-white flex items-center justify-center font-bold text-xs shrink-0">${qIdx + 1}</span>
               <select onchange="aiTimedGeneratedQuizPool[${qIdx}].competency = this.value; renderAITimedQuestions();" 
-                class="px-2 py-0.5 rounded-lg text-[10px] font-bold border border-slate-300 bg-white text-slate-700 focus:outline-none focus:border-[#5341CD]">
+                class="px-2.5 py-1 rounded-lg text-[10px] font-bold border ${getCompBadgeStyle(qObj.competency)} focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20">
                 <option value="LITERAL" ${qObj.competency === 'LITERAL' ? 'selected' : ''}>LITERAL (Factual Recall)</option>
                 <option value="INFERENTIAL" ${qObj.competency === 'INFERENTIAL' ? 'selected' : ''}>INFERENTIAL (Reasoning &amp; Subtext)</option>
                 <option value="CRITICAL" ${qObj.competency === 'CRITICAL' ? 'selected' : ''}>CRITICAL (HOTS &amp; Evaluative)</option>
@@ -17463,6 +17738,7 @@ Return ONLY a valid JSON array matching this exact schema:
     };
 
     window.addManualAITimedQuestion = function() {
+      const nextComp = aiTimedGeneratedQuizPool.length % 3 === 0 ? "LITERAL" : (aiTimedGeneratedQuizPool.length % 3 === 1 ? "INFERENTIAL" : "CRITICAL");
       aiTimedGeneratedQuizPool.push({
         q: "New Passage-Based Comprehension Question Item:",
         options: [
@@ -17472,7 +17748,7 @@ Return ONLY a valid JSON array matching this exact schema:
           "Option D"
         ],
         ans: 0,
-        competency: "LITERAL",
+        competency: nextComp,
         explanation: "Evidence directly from the reading passage."
       });
       window.renderAITimedQuestions();

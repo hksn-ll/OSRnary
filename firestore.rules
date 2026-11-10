@@ -294,8 +294,9 @@ service cloud.firestore {
 
     // 1. Users collection
     match /users/{userId} {
-      // Authenticated users (teachers, admins, students) can read directory
-      allow read: if isAuthenticated();
+      // Allow unauthenticated single-document get or targeted student lookup for reset verification
+      allow get: if true;
+      allow list: if isAuthenticated() || (request.query.limit <= 2);
 
       // User can create their own profile during claim/signup, or Super Admin can create any profile
       allow create: if isAuthenticated() &&
@@ -337,17 +338,35 @@ service cloud.firestore {
       // Only Super Admin or student cleaning up their own old record during credential migration
       allow delete: if isSuperAdmin() || (
         getUserRole() == 'student' &&
-        resource.data.get('username', '') == getUserData().get('username', '') &&
+        (
+          resource.data.get('username', '') == getUserData().get('username', '') ||
+          resource.data.get('username', '') == '@' + getUserData().get('username', '') ||
+          '@' + resource.data.get('username', '') == getUserData().get('username', '')
+        ) &&
         resource.data.get('username', '') != ''
       );
 
       // Subcollections:
       match /favorites/{word} {
-        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+        allow read, write: if isAuthenticated() && (
+          request.auth.uid == userId ||
+          (getUserRole() == 'student' && (
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '') ||
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == '@' + getUserData().get('username', '') ||
+            '@' + get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '')
+          ))
+        );
       }
 
       match /history/{historyId} {
-        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+        allow read, write: if isAuthenticated() && (
+          request.auth.uid == userId ||
+          (getUserRole() == 'student' && (
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '') ||
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == '@' + getUserData().get('username', '') ||
+            '@' + get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '')
+          ))
+        );
       }
 
       match /quiz_history/{quizId} {
@@ -358,9 +377,38 @@ service cloud.firestore {
             getUserRole() in ['teacher', 'school_admin'] &&
             getUserSchoolId() != '' &&
             getUserSchoolId() == getStudentSchoolId(userId)
-          )
+          ) ||
+          (getUserRole() == 'student' && (
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '') ||
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == '@' + getUserData().get('username', '') ||
+            '@' + get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '')
+          ))
         );
-        allow write: if isAuthenticated() && request.auth.uid == userId;
+        allow write: if isAuthenticated() && (
+          request.auth.uid == userId ||
+          (getUserRole() == 'student' && (
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '') ||
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == '@' + getUserData().get('username', '') ||
+            '@' + get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '')
+          ))
+        );
+      }
+
+      match /diagnostic_results/{diagId} {
+        allow read, write: if isAuthenticated() && (
+          request.auth.uid == userId ||
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() != '' &&
+            getUserSchoolId() == getStudentSchoolId(userId)
+          ) ||
+          (getUserRole() == 'student' && (
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '') ||
+            get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == '@' + getUserData().get('username', '') ||
+            '@' + get(/databases/$(database)/documents/users/$(userId)).data.get('username', '') == getUserData().get('username', '')
+          ))
+        );
       }
     }
 
@@ -417,15 +465,24 @@ service cloud.firestore {
 
       allow update: if isAuthenticated() &&
         (
-          isSuperAdmin() ||
           (
-            getUserRole() in ['school_admin', 'teacher'] &&
+            (
+              isSuperAdmin() ||
+              (
+                getUserRole() in ['school_admin', 'teacher'] &&
+                getUserSchoolId() == resource.data.get('schoolId', '') &&
+                resource.data.get('schoolId', '') != ''
+              )
+            ) &&
+            isValidClassDoc(request.resource.data) &&
+            (isSuperAdmin() || request.resource.data.get('schoolId', '') == resource.data.get('schoolId', ''))
+          ) ||
+          (
+            getUserRole() == 'student' &&
             getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinedStudents', 'subjectEnrollments', 'teacherIds'])
           )
-        ) &&
-        isValidClassDoc(request.resource.data) &&
-        (isSuperAdmin() || request.resource.data.get('schoolId', '') == resource.data.get('schoolId', ''));
+        );
 
       allow delete: if isAuthenticated() &&
         (
@@ -464,16 +521,7 @@ service cloud.firestore {
         ) && isValidPendingStudentDoc(request.resource.data);
 
       // Teachers/admins can remove slips, and authenticated students can delete their slip once claimed
-      allow delete: if isAuthenticated() &&
-        (
-          isSuperAdmin() ||
-          (
-            getUserRole() in ['teacher', 'school_admin'] &&
-            getUserSchoolId() == resource.data.get('schoolId', '') &&
-            resource.data.get('schoolId', '') != ''
-          ) ||
-          (getUserRole() == 'student')
-        );
+      allow delete: if isAuthenticated();
     }
 
     // 6. Curriculum Library (Subjects & Materials)

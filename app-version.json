@@ -1,11 +1,11 @@
 {
-  "versionCode": 45,
-  "versionName": "0.4.31",
-  "minRequiredVersionCode": 45,
+  "versionCode": 46,
+  "versionName": "0.4.32",
+  "minRequiredVersionCode": 46,
   "forceUpdate": true,
-  "title": "Phil-IRI Cognitive Dimensions & School Admin Assessments (v0.4.31)",
-  "message": "Authentic DepEd Phil-IRI cognitive dimensions (Literal, Inferential, Critical), School Admin standardized assessment monitoring, and automatic homeroom class enrollment.",
+  "title": "Student Account Claim & Password Reset Fix (v0.4.32)",
+  "message": "Resolves claimed student status display and temporary password reset flow in Web Admin Portal and Android app.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.31/GabAI-v0.4.31.apk",
-  "changelog": "📊 WHAT'S NEW IN v0.4.31 (PHIL-IRI COGNITIVE DIMENSIONS & SCHOOL ADMIN ASSESSMENTS):\n• Authentic Phil-IRI Cognitive Dimensions: Comprehensive reading metrics standardized to Literal, Inferential, and Critical Evaluation (DepEd Order No. 14, s. 2018) with a 3-point radar benchmarked against the 75% standard.\n• School Admin Standardized Test Governance: School administrators can now monitor division-deployed Phil-IRI reading tests with strict campus-level data isolation and customized school MPS analytics.\n• Automatic Homeroom Class Auto-Enrollment: Learners claiming accounts or signing in are immediately enrolled into their adviser's class section and homeroom subject list.\n• Enhanced AI Content Moderation: Tightened document validation to reject unsafe, illegal, or fraudulent submissions.\n• Firestore Security Fortification: Dedicated role-governed security rules for division timed assessments and student submissions."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.32/GabAI-v0.4.32.apk",
+  "changelog": "🔧 WHAT'S NEW IN v0.4.32 (STUDENT ACCOUNT CLAIM & PASSWORD RESET FIX):\n• Fixed Claimed Student Status: Claimed student accounts in the Web Admin Portal now correctly display 'Claimed in App' with protected password masking (••••••••).\n• Restored Password Reset Flow: Teachers and School Admins can generate temporary passkeys with reliable activation in both Web Admin Portal and mobile app.\n• Direct Homeroom Class Enrollment: Automatically associates newly claimed and signed-in students with their homeroom adviser's section and subject list.\n• Security Rules Enhancement: Added granular permissions for student credential migration and class auto-enrollment."
 }

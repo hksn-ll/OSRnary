@@ -37,8 +37,9 @@ $ErrorActionPreference = "Stop"
 # Auto-detect and configure ADB in PATH if missing
 if (-not (Get-Command adb -ErrorAction SilentlyContinue)) {
     $candidates = @(
-        "C:\Users\plaza\.gemini\antigravity\brain\8cb4c754-d4cc-4573-8bd4-ce602215f942\scratch\android-sdk\platform-tools",
-        "C:\Users\plaza\AppData\Local\Android\Sdk\platform-tools"
+        "C:\Users\plaza\Android\Sdk\platform-tools",
+        "C:\Users\plaza\AppData\Local\Android\Sdk\platform-tools",
+        "C:\Users\plaza\.gemini\antigravity\brain\8cb4c754-d4cc-4573-8bd4-ce602215f942\scratch\android-sdk\platform-tools"
     )
     foreach ($cand in $candidates) {
         if (Test-Path "$cand\adb.exe") {

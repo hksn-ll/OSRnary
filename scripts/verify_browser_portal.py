@@ -197,6 +197,76 @@ def run_cdp_tests():
         assert modal_data.get("hasSampleBtn"), "loadSampleAITimedPassage helper should be available"
         print("[PASS] Modal opens cleanly as an authentic empty blank slate (0 questions, empty title, empty passage)!")
 
+        # 4B. Test Gemini Balanced Cognitive Dimension Generator & Blueprint Engine
+        print("\n--- TEST 4B: Verifying Balanced Cognitive Blueprint & Live UI Sync ---")
+        blueprint_res = send("Runtime.evaluate", {
+            "expression": """
+            (() => {
+                // Verify mathematical blueprint calculations
+                const bp3 = window.getAITimedCognitiveBlueprint(3, 'BALANCED');
+                const bp5 = window.getAITimedCognitiveBlueprint(5, 'BALANCED');
+                const bp8 = window.getAITimedCognitiveBlueprint(8, 'BALANCED');
+                const bp10 = window.getAITimedCognitiveBlueprint(10, 'BALANCED');
+                const bp15 = window.getAITimedCognitiveBlueprint(15, 'BALANCED');
+                const bpLit = window.getAITimedCognitiveBlueprint(5, 'LITERAL');
+                const bpInf = window.getAITimedCognitiveBlueprint(5, 'INFERENTIAL');
+                const bpCrit = window.getAITimedCognitiveBlueprint(5, 'CRITICAL');
+
+                // Test live UI preview updates
+                const qSelect = document.getElementById('aiTimedQuestionCount');
+                const cSelect = document.getElementById('aiTimedCompetencyFocus');
+                const previewEl = document.getElementById('aiTimedDistributionPreviewText');
+
+                qSelect.value = "5";
+                cSelect.value = "BALANCED";
+                window.updateAITimedBlueprintPreview();
+                const preview5Balanced = previewEl ? previewEl.textContent : "";
+
+                qSelect.value = "10";
+                window.updateAITimedBlueprintPreview();
+                const preview10Balanced = previewEl ? previewEl.textContent : "";
+
+                cSelect.value = "CRITICAL";
+                window.updateAITimedBlueprintPreview();
+                const preview10Critical = previewEl ? previewEl.textContent : "";
+
+                // Reset back to 5 BALANCED
+                qSelect.value = "5";
+                cSelect.value = "BALANCED";
+                window.updateAITimedBlueprintPreview();
+
+                return {
+                    bp3: { l: bp3.literal, i: bp3.inferential, c: bp3.critical },
+                    bp5: { l: bp5.literal, i: bp5.inferential, c: bp5.critical },
+                    bp8: { l: bp8.literal, i: bp8.inferential, c: bp8.critical },
+                    bp10: { l: bp10.literal, i: bp10.inferential, c: bp10.critical },
+                    bp15: { l: bp15.literal, i: bp15.inferential, c: bp15.critical },
+                    bpLit: { l: bpLit.literal, i: bpLit.inferential, c: bpLit.critical },
+                    bpInf: { l: bpInf.literal, i: bpInf.inferential, c: bpInf.critical },
+                    bpCrit: { l: bpCrit.literal, i: bpCrit.inferential, c: bpCrit.critical },
+                    preview5Balanced,
+                    preview10Balanced,
+                    preview10Critical
+                };
+            })()
+            """,
+            "returnByValue": True
+        })
+        bp_data = blueprint_res.get("result", {}).get("value", {})
+        print("Cognitive Blueprint Data:", json.dumps(bp_data, indent=2))
+        assert bp_data.get("bp3") == {"l": 1, "i": 1, "c": 1}, f"Failed bp3: {bp_data.get('bp3')}"
+        assert bp_data.get("bp5") == {"l": 2, "i": 2, "c": 1}, f"Failed bp5: {bp_data.get('bp5')}"
+        assert bp_data.get("bp8") == {"l": 3, "i": 3, "c": 2}, f"Failed bp8: {bp_data.get('bp8')}"
+        assert bp_data.get("bp10") == {"l": 4, "i": 3, "c": 3}, f"Failed bp10: {bp_data.get('bp10')}"
+        assert bp_data.get("bp15") == {"l": 6, "i": 5, "c": 4}, f"Failed bp15: {bp_data.get('bp15')}"
+        assert bp_data.get("bpLit") == {"l": 5, "i": 0, "c": 0}, f"Failed bpLit: {bp_data.get('bpLit')}"
+        assert bp_data.get("bpInf") == {"l": 0, "i": 5, "c": 0}, f"Failed bpInf: {bp_data.get('bpInf')}"
+        assert bp_data.get("bpCrit") == {"l": 0, "i": 0, "c": 5}, f"Failed bpCrit: {bp_data.get('bpCrit')}"
+        assert "2 Literal" in bp_data.get("preview5Balanced", ""), "Preview for 5 items should show 2 Literal"
+        assert "4 Literal" in bp_data.get("preview10Balanced", ""), "Preview for 10 items should show 4 Literal"
+        assert "Critical" in bp_data.get("preview10Critical", ""), "Preview for Critical focus should show Critical"
+        print("[PASS] Gemini Balanced Cognitive Blueprint Engine verified across all test sizes with live UI synchronization!")
+
         # 5. Test Deploying a real assessment and testing optimistic rendering
         print("\n--- TEST 5: Deploying a new assessment and testing optimistic rendering ---")
         deploy_res = send("Runtime.evaluate", {
