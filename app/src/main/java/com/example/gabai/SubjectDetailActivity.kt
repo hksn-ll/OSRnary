@@ -601,7 +601,7 @@ class SubjectDetailActivity : AppCompatActivity() {
 
                                 if (matchedDocs.isEmpty()) continue
 
-                                val sectionHeaderTitle = if (isAdviser) "$className (Advisory Section)" else "$className (Subject Section)"
+                                val sectionHeaderTitle = "$className (Subject Section)"
                                 if (!studentsByClass.containsKey(sectionHeaderTitle)) {
                                     studentsByClass[sectionHeaderTitle] = mutableListOf()
                                 }

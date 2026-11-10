@@ -1037,7 +1037,7 @@ class ProfileFragment : Fragment() {
             GabAIDialogs.showSelectionDialog(
                 context = act,
                 title = "Select Gender",
-                subtitle = "Align your account with DepEd SF1 School Form",
+                subtitle = "Align your account with Standard School Profile",
                 items = listOf(
                     "👦 Male (Boy)",
                     "👧 Female (Girl)"

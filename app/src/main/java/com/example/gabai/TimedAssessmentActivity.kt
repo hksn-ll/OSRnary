@@ -32,6 +32,8 @@ class TimedAssessmentActivity : AppCompatActivity() {
     private var totalDurationMillis = 20 * 60 * 1000L
     private var remainingTimeMillis = 20 * 60 * 1000L
     private var studentFullName = "Student"
+    private var studentSchoolId = ""
+    private var studentSection = ""
 
     private val questions = mutableListOf<TimedQuestion>()
     private var currentIndex = 0
@@ -319,12 +321,23 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
     private fun loadStudentInfo() {
         val uid = auth.currentUser?.uid ?: return
+        val prefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        studentSchoolId = prefs.getString("cached_user_school_id", "") ?: ""
+        studentSection = prefs.getString("cached_user_section", "") ?: ""
+        val cachedFirst = prefs.getString("cached_user_first_name", "") ?: ""
+        val cachedLast = prefs.getString("cached_user_last_name", "") ?: ""
+        if (cachedFirst.isNotEmpty() || cachedLast.isNotEmpty()) {
+            studentFullName = "$cachedFirst $cachedLast".trim()
+        }
+
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
             val first = doc.getString("firstName") ?: ""
             val last = doc.getString("lastName") ?: ""
             if (first.isNotEmpty() || last.isNotEmpty()) {
                 studentFullName = "$first $last".trim()
             }
+            studentSchoolId = doc.getString("schoolId") ?: studentSchoolId
+            studentSection = doc.getString("section") ?: studentSection
         }
     }
 
@@ -604,7 +617,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
             GabAIDialogs.showConfirmDialog(
                 context = this,
                 title = "Finalize Assessment?",
-                message = "Ready to submit your standardized assessment? You will immediately see your official DepEd Phil-IRI reading profile.",
+                message = "Ready to submit your standardized assessment? You will immediately see your reading comprehension profile.",
                 confirmText = "Submit Now",
                 cancelText = "Review",
                 isDestructive = false,
@@ -682,9 +695,9 @@ class TimedAssessmentActivity : AppCompatActivity() {
         val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size.coerceAtLeast(1)
         val readingSpeedWpm = ((passageWords.toDouble() / elapsedSecs) * 60).toInt()
         val speedCategory = when {
-            readingSpeedWpm > 150 -> "Fast"
-            readingSpeedWpm >= 100 -> "Average"
-            else -> "Slow"
+            readingSpeedWpm > 120 -> "Fast Pace"
+            readingSpeedWpm >= 50 -> "Standard Pace"
+            else -> "Steady Pace"
         }
 
         // DepEd Phil-IRI Official Proficiency Classification
@@ -702,6 +715,8 @@ class TimedAssessmentActivity : AppCompatActivity() {
             "assessmentTitle" to assessmentTitle,
             "assessmentPurpose" to assessmentPurpose,
             "districtScope" to districtScope,
+            "schoolId" to studentSchoolId,
+            "className" to studentSection,
             "grade" to targetGrade,
             "studentUid" to uid,
             "studentName" to studentFullName,
@@ -753,6 +768,8 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 "quizType" to "division_timed_assessment",
                 "assessmentId" to assessmentId,
                 "title" to assessmentTitle,
+                "schoolId" to studentSchoolId,
+                "section" to studentSection,
                 "finalScore" to score,
                 "totalAttempts" to total,
                 "percentage" to percentage,
@@ -817,12 +834,12 @@ class TimedAssessmentActivity : AppCompatActivity() {
         val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size.coerceAtLeast(1)
         val wpm = if (safeSecs > 0) ((passageWords.toDouble() / safeSecs) * 60).toInt() else 0
         val speedCategory = when {
-            wpm > 150 -> "Fast"
-            wpm >= 100 -> "Average"
-            else -> "Slow"
+            wpm > 120 -> "Fast Pace"
+            wpm >= 50 -> "Standard Pace"
+            else -> "Steady Pace"
         }
         tvReadingSpeedWpm.text = "$wpm WPM"
-        tvReadingRateCategory.text = "$speedCategory Rate"
+        tvReadingRateCategory.text = speedCategory
 
         // Frustration level remedial support card
         if (percentage <= 58) {

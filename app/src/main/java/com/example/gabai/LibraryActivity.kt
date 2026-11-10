@@ -70,7 +70,7 @@ class LibraryActivity : AppCompatActivity() {
 
                     if (materials.isEmpty) {
                         GabAIUtils.hideGlobalLoading(this@LibraryActivity)
-                        showEmptyTeacherNotice(container, "Your teacher hasn't assigned additional classroom reading materials yet. Explore the DepEd Reading Treasury above!")
+                        showEmptyTeacherNotice(container, "Your teacher hasn't assigned additional classroom reading materials yet. Explore the Core Reading Treasury above!")
                         GabAIUtils.animateCascade(listOf(treasuryCard), 35L)
                         return@addOnSuccessListener
                     }
@@ -80,7 +80,7 @@ class LibraryActivity : AppCompatActivity() {
 
                     if (subjectIds.isEmpty()) {
                         GabAIUtils.hideGlobalLoading(this@LibraryActivity)
-                        showEmptyTeacherNotice(container, "No active classroom reading subjects available. Start with the DepEd Reading Treasury above!")
+                        showEmptyTeacherNotice(container, "No active classroom reading subjects available. Start with the Core Reading Treasury above!")
                         GabAIUtils.animateCascade(listOf(treasuryCard), 35L)
                         return@addOnSuccessListener
                     }
@@ -199,7 +199,7 @@ class LibraryActivity : AppCompatActivity() {
         }
 
         val badge = TextView(this).apply {
-            text = "🌟 READY TO READ • DEPED OFFICIAL"
+            text = "🌟 READY TO READ • CORE RESOURCE"
             textSize = 11f
             setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
             setTextColor(Color.parseColor("#5341CD"))
@@ -212,7 +212,7 @@ class LibraryActivity : AppCompatActivity() {
         }
 
         val title = TextView(this).apply {
-            text = "DepEd Reading Treasury 📖"
+            text = "Core Reading Treasury 📖"
             textSize = 17f
             setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
             setTextColor(Color.parseColor("#0F172A"))
@@ -220,7 +220,7 @@ class LibraryActivity : AppCompatActivity() {
         }
 
         val subtitle = TextView(this).apply {
-            text = "Official Philippine literary anthology and guided reading selections from the DepEd National Reading Program."
+            text = "Curated Philippine literary anthology and guided reading selections for reading mastery."
             textSize = 13f
             setTypeface(fontNunito ?: typeface, Typeface.NORMAL)
             setTextColor(Color.parseColor("#64748B"))
@@ -243,7 +243,7 @@ class LibraryActivity : AppCompatActivity() {
         val openAction = {
             val intent = Intent(this, PdfViewerActivity::class.java).apply {
                 putExtra("PDF_URL", "asset://deped_reading_treasury.pdf")
-                putExtra("PDF_TITLE", "DepEd Reading Treasury")
+                putExtra("PDF_TITLE", "Core Reading Treasury")
                 putExtra("HAS_QUIZ", false)
             }
             startActivity(intent)

@@ -450,10 +450,16 @@ class QuizEditorActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val prompt = """
-                    You are an expert DepEd curriculum designer.
+                    You are an expert educational reading and literacy assessment specialist.
                     Subject: $subjectName
                     Grade: $grade
                     Assessment Focus: ${findViewById<EditText>(R.id.et_assessment_title)?.text?.toString() ?: subjectName}
+
+                    CRITICAL CONTENT, SAFETY & NEUTRALITY DIRECTIVES:
+                    1. OBJECTIVE EDUCATIONAL FOCUS: Generate clear, age-appropriate questions focused strictly on reading comprehension, vocabulary in context, and literary analysis for students.
+                    2. NO GOVERNMENT IMPERSONATION OR POLICY CLAIMS: Do NOT roleplay, claim representation, or simulate official mandates or endorsement by the Department of Education (DepEd), the Republic of the Philippines, or any government body.
+                    3. NO DANGEROUS, CONTROVERSIAL, OR HARMFUL CONTENT: Do NOT generate questions involving dangerous activities, weapons, illicit substances, self-harm, violence, hate speech, or partisan political opinions.
+                    4. FACTUAL GROUNDING: Ensure questions and answers are clear, unambiguous, and factually accurate.
 
                     Generate exactly $count high-quality multiple choice assessment questions.
                     Each question must have:

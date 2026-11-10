@@ -294,6 +294,9 @@ class MainActivity : AppCompatActivity() {
                 showChooseGenderDialog(currentUser.uid)
                 return false
             }
+
+            // Silent self-healing enrollment sync
+            ClassEnrollmentHelper.syncStudentEnrollmentIfMissing(currentUser.uid, doc)
         }
 
         // All checks passed! Ensure correct dashboard is loaded
@@ -376,7 +379,7 @@ class MainActivity : AppCompatActivity() {
         var selectedGender = prefs.getString("cached_user_gender", "unspecified") ?: "unspecified"
 
         val tvGenderLabel = TextView(this).apply {
-            text = "Learner Gender (DepEd SF1 Standard)"
+            text = "Learner Gender (Student Profile)"
             textSize = 12f
             setTypeface(null, Typeface.BOLD)
             setTextColor(Color.parseColor("#475569"))
@@ -485,8 +488,26 @@ class MainActivity : AppCompatActivity() {
                         ).addOnCompleteListener {
                             GabAIUtils.hideGlobalLoading(this)
                             dialog.dismiss()
-                            GabAIUtils.showSnackbar(this, "Password updated successfully! Welcome! 🎉")
-                            loadDashboard("student")
+                            FirebaseFirestore.getInstance().collection("users").document(uid).get().addOnSuccessListener { userDoc ->
+                                val schoolId = userDoc.getString("schoolId") ?: ""
+                                val grade = userDoc.getString("grade") ?: ""
+                                val section = userDoc.getString("section") ?: ""
+                                ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(uid, schoolId, grade, section) { adviserName, className ->
+                                    GabAIDialogs.showNoticeDialog(
+                                        context = this,
+                                        title = "Class Joined!",
+                                        message = "You have joined $adviserName's class for $className.",
+                                        buttonText = "Continue",
+                                        badgeIcon = "🎒",
+                                        cancelable = false,
+                                        onAction = {
+                                            loadDashboard("student")
+                                        }
+                                    )
+                                }
+                            }.addOnFailureListener {
+                                loadDashboard("student")
+                            }
                         }
                     } else {
                         GabAIUtils.hideGlobalLoading(this)
@@ -514,7 +535,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val tvNote = TextView(this).apply {
-            text = "Welcome to GabAI! Please choose whether you are Male or Female for your learner profile (DepEd SF1 standard)."
+            text = "Welcome to GabAI! Please choose whether you are Male or Female for your learner profile."
             textSize = 13f
             setTextColor(Color.parseColor("#475569"))
             setPadding(0, 0, 0, (14 * density).toInt())

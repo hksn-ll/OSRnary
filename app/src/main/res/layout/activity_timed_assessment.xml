@@ -935,7 +935,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="READING SPEED"
+                                android:text="OVERALL PACE"
                                 android:textColor="#64748B"
                                 android:textSize="8.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
@@ -955,7 +955,7 @@
                                 android:id="@+id/tv_reading_rate_category"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Average Rate"
+                                android:text="Standard Pace"
                                 android:textColor="#64748B"
                                 android:textSize="10.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans" />
@@ -1051,7 +1051,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:text="DEPED REMEDIAL SUPPORT"
+                                android:text="READING MASTERY SUPPORT"
                                 android:textColor="#E11D48"
                                 android:textSize="10.5sp"
                                 android:textStyle="bold"
@@ -1072,7 +1072,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/font_nunito_sans"
-                        android:text="This reading passage was challenging. Under DepEd Phil-IRI, learners in the Frustration Level benefit greatly from guided reading drills and vocabulary reinforcement to build reading fluency."
+                        android:text="This reading passage was challenging. Learners in the Frustration Level benefit greatly from guided reading drills and vocabulary reinforcement to build reading fluency."
                         android:textColor="#475569"
                         android:textSize="12.5sp"
                         android:layout_marginBottom="14dp" />

@@ -51,7 +51,7 @@
                 android:id="@+id/tv_announcement_meta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DepEd Division Office • Oct 19, 2026"
+                android:text="Division Advisory • Oct 19, 2026"
                 android:textColor="#64748B"
                 android:textSize="11sp" />
         </LinearLayout>

@@ -268,7 +268,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     findViewById<TextView>(R.id.tv_stat_proficient)?.text = "$proficientCount ($proficientPct%)"
                     findViewById<TextView>(R.id.tv_stat_support)?.text = "$supportCount ($supportPct%)"
 
-                    // Gender Disaggregation Analytics (DepEd SF1)
+                    // Gender Disaggregation Analytics (Student Profile)
                     val boysList = compiledStats.filter { it.gender.startsWith("m") }
                     val girlsList = compiledStats.filter { it.gender.startsWith("f") }
                     val boysAvgScore = if (boysList.isNotEmpty()) boysList.map { it.averageScore }.average().toInt() else 0
@@ -774,7 +774,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                     paint.textSize = 9.5f
                     paint.color = Color.parseColor("#475569")
-                    c.drawText("REPUBLIC OF THE PHILIPPINES • DEPARTMENT OF EDUCATION", margin, 44f, paint)
+                    c.drawText("GABAI READING PLATFORM • ACADEMIC LITERACY REPORT", margin, 44f, paint)
 
                     paint.textSize = 8.5f
                     paint.color = Color.parseColor("#64748B")
@@ -911,7 +911,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                     paint.textSize = 7.5f
                     paint.color = Color.parseColor("#94A3B8")
                     paint.typeface = Typeface.DEFAULT
-                    canvas.drawText("GabAI Reading Assistant • Official DepEd Classroom Record", margin, pageHeight - 20f, paint)
+                    canvas.drawText("GabAI Reading Assistant • Classroom Literacy Record", margin, pageHeight - 20f, paint)
                     canvas.drawText("Page $pageNumber", pageWidth - margin - 35f, pageHeight - 20f, paint)
 
                     pdfDoc.finishPage(page)
@@ -981,7 +981,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                 paint.textSize = 7.5f
                 paint.color = Color.parseColor("#94A3B8")
                 paint.typeface = Typeface.DEFAULT
-                canvas.drawText("GabAI Reading Assistant • Official DepEd Classroom Record", margin, pageHeight - 20f, paint)
+                canvas.drawText("GabAI Reading Assistant • Classroom Literacy Record", margin, pageHeight - 20f, paint)
                 canvas.drawText("Page $pageNumber", pageWidth - margin - 35f, pageHeight - 20f, paint)
 
                 pdfDoc.finishPage(page)
@@ -1024,7 +1024,7 @@ class TeacherPerformanceActivity : AppCompatActivity() {
             paint.textSize = 7.5f
             paint.color = Color.parseColor("#94A3B8")
             paint.typeface = Typeface.DEFAULT
-            canvas.drawText("GabAI Reading Assistant • Official DepEd Classroom Record", margin, pageHeight - 20f, paint)
+            canvas.drawText("GabAI Reading Assistant • Classroom Literacy Record", margin, pageHeight - 20f, paint)
             canvas.drawText("Page $pageNumber", pageWidth - margin - 35f, pageHeight - 20f, paint)
 
             pdfDoc.finishPage(page)

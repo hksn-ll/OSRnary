@@ -587,7 +587,8 @@ class OverviewActivity : AppCompatActivity() {
                     ${langConfig.directive}
 
                     CRITICAL SAFETY & TRUTHFULNESS DIRECTIVES:
-                    1. FACTUAL ACCURACY (NO HALLUCINATIONS):
+                    1. STUDENT SAFETY & SENSITIVE TOPICS: Provide safe, age-appropriate educational explanations. Never generate, encourage, or detail dangerous, violent, illegal, self-harm, or harmful actions. Maintain neutral, objective educational language free from political propaganda or claims of official government authority.
+                    2. FACTUAL ACCURACY (NO HALLUCINATIONS):
                        State what the entity actually is with 100% truth. DO NOT hallucinate, assume, or invent that an unknown brand, commercial app, game, company, or website is an "educational platform" or "study hub" just because you are an educational tutor.
                     2. GAMBLING, CASINO, & ADULT PLATFORM SAFEGUARD:
                        If the target refers to an online casino, slot machine, betting app, or gambling service (such as ArionPlay, OKBet, e-bingo, slots, etc.), identify it truthfully as an online gambling/casino platform. Explicitly state that it is NOT an educational tool, and warn that gambling is strictly age-restricted (21+) and involves financial risk. NEVER describe gambling platforms as learning materials, modules, or study apps.
@@ -819,7 +820,8 @@ class OverviewActivity : AppCompatActivity() {
                                     $langDirective
 
                                     CRITICAL SAFETY & TRUTHFULNESS DIRECTIVES:
-                                    1. FACTUAL TRUTH (NO HALLUCINATIONS): Answer with strict factual accuracy. NEVER hallucinate or invent that commercial websites, games, casinos, or betting platforms are "educational platforms", "interactive modules", or "learning materials".
+                                    1. STUDENT SAFETY & SENSITIVE TOPICS: Provide safe, age-appropriate educational explanations. Never generate, encourage, or detail dangerous, violent, illegal, self-harm, or harmful actions. Maintain neutral, objective educational language free from political propaganda or claims of official government authority.
+                                    2. FACTUAL TRUTH (NO HALLUCINATIONS): Answer with strict factual accuracy. NEVER hallucinate or invent that commercial websites, games, casinos, or betting platforms are "educational platforms", "interactive modules", or "learning materials".
                                     2. GAMBLING & CASINO PLATFORMS: If the platform in question is an online casino, slot game, or gambling service (such as ArionPlay, OKBet, etc.), state clearly, honestly, and neutrally that it is an online gambling/casino platform for adults. Explicitly state that it is NOT an educational platform and that gambling is age-restricted (21+) involving financial risk.
                                     3. CONCISE RESPONSE: Provide a concise, direct 2-sentence answer directly addressing the question. Avoid introductory fluff.
                                 """.trimIndent()

@@ -1,11 +1,11 @@
 {
-  "versionCode": 44,
-  "versionName": "0.4.30",
-  "minRequiredVersionCode": 44,
+  "versionCode": 45,
+  "versionName": "0.4.31",
+  "minRequiredVersionCode": 45,
   "forceUpdate": true,
-  "title": "Student Gender Self-Onboarding & Printable Slips (v0.4.30)",
-  "message": "Student self-service gender selection, batch printable classroom login slips, and DepEd Division system manual.",
+  "title": "Phil-IRI Cognitive Dimensions & School Admin Assessments (v0.4.31)",
+  "message": "Authentic DepEd Phil-IRI cognitive dimensions (Literal, Inferential, Critical), School Admin standardized assessment monitoring, and automatic homeroom class enrollment.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.30/GabAI-v0.4.30.apk",
-  "changelog": "🚀 WHAT'S NEW IN v0.4.30 (GENDER ONBOARDING & PRINTABLE LOGIN SLIPS):\n• Student Gender Self-Selection: Learners can now select their gender directly during first-time password setup or initial login, streamlining class roster creation for teachers.\n• Batch Printable Login Slips: Admin Portal now generates cuttable wallet/desk credential slips with school branding for smooth classroom rollouts.\n• Admin Portal Terminology Refinements: Enhanced clarity for Division Authorization Keys and analytics telemetry methodology.\n• DepEd System & User Manual: Bundled comprehensive system documentation and stakeholder user guide."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.31/GabAI-v0.4.31.apk",
+  "changelog": "📊 WHAT'S NEW IN v0.4.31 (PHIL-IRI COGNITIVE DIMENSIONS & SCHOOL ADMIN ASSESSMENTS):\n• Authentic Phil-IRI Cognitive Dimensions: Comprehensive reading metrics standardized to Literal, Inferential, and Critical Evaluation (DepEd Order No. 14, s. 2018) with a 3-point radar benchmarked against the 75% standard.\n• School Admin Standardized Test Governance: School administrators can now monitor division-deployed Phil-IRI reading tests with strict campus-level data isolation and customized school MPS analytics.\n• Automatic Homeroom Class Auto-Enrollment: Learners claiming accounts or signing in are immediately enrolled into their adviser's class section and homeroom subject list.\n• Enhanced AI Content Moderation: Tightened document validation to reject unsafe, illegal, or fraudulent submissions.\n• Firestore Security Fortification: Dedicated role-governed security rules for division timed assessments and student submissions."
 }

@@ -186,27 +186,30 @@ Here is the exact audit of the 6 loopholes that were stressing you out:
 
 ---
 
-### Loophole 2: Adviser vs Subject Teacher Student Visibility
+### Loophole 2: Adviser vs Subject Teacher Student Visibility & Account Claim Auto-Join
 * **The Worry**: "Teacher 1 library assign should automatically show their own advisory class students without joining class code. Then Teacher 2 students join QR."
-* **The Reality in Code**:
-  - In [`SubjectDetailActivity.kt:508`](file:///c:/Users/plaza/Documents/GitHub/OSRnary/app/src/main/java/com/example/gabai/SubjectDetailActivity.kt#L508):
-    ```kotlin
-    if (isAdviser) {
-        // Automatically matches all students with matching section & grade!
-    } else {
-        // Subject teachers see only students who scanned their QR code!
-    }
-    ```
-  - **Verdict**: **100% MATCHED**. Teacher 1 gets all homeroom students automatically without anyone scanning codes. Teacher 2 gets students who scanned Teacher 2's QR code.
+* **The Solution Implemented**:
+  - In [`ClassEnrollmentHelper.kt`](file:///c:/Users/plaza/Documents/GitHub/OSRnary/app/src/main/java/com/example/gabai/ClassEnrollmentHelper.kt) & [`AuthActivity.kt`](file:///c:/Users/plaza/Documents/GitHub/OSRnary/app/src/main/java/com/example/gabai/AuthActivity.kt):
+    When a student claims their account, `ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass()` immediately links them to their adviser's class:
+    - Adds student UID to `classes.joinedStudents`
+    - Adds student UID to `classes.subjectEnrollments.{adviserId}`
+    - Updates student `users` profile with `enrolledClasses` and `enrolledTeacherIds`
+    - Shows small notice popup: *"Class Joined! You have joined Teacher [Name]'s class for [Grade - Section]."*
+  - In [`MainActivity.kt`](file:///c:/Users/plaza/Documents/GitHub/OSRnary/app/src/main/java/com/example/gabai/MainActivity.kt):
+    Silent background self-healing auto-joins already-claimed legacy accounts on startup.
+  - **Verdict**: **100% RESOLVED**. Students are automatically joined to their adviser upon claim.
 
 ---
 
-### Loophole 3: Subject Teacher Linking to an Advisory Section
-* **The Potential Gap**: What if Teacher 2 wants to assign materials to Grade 10 - Emerald *before* any student in Emerald scans their QR code?
-* **Current Behavior**:
-  - In [`ManageClassesActivity.kt:539`](file:///c:/Users/plaza/Documents/GitHub/OSRnary/app/src/main/java/com/example/gabai/ManageClassesActivity.kt#L539), if Teacher 2 tries to enter "Grade 10 - Emerald", it shows a dialog saying: *"The section has already been created by its adviser. Share your Join Code so they can join."*
-* **Optimization Opportunity**:
-  - We can provide a one-click button: **"Add as Subject Section"** right inside `ManageClassesActivity` so a subject teacher can immediately link themselves to an existing section without waiting for the first student to scan!
+### Loophole 3: Adviser Section Representation in Subject Classes
+* **The Worry**: "App like the adviser students section doesn't show in subject sections."
+* **The Solution Implemented**:
+  - In [`ManageClassesActivity.kt`](file:///c:/Users/plaza/Documents/GitHub/OSRnary/app/src/main/java/com/example/gabai/ManageClassesActivity.kt):
+    An adviser's class section is now represented both under **Advisory Class** (with administrative account controls) AND under **Subject Classes** (with subject section roster and learning materials access).
+    - Eliminates the false empty message *"No students have joined your subject classes yet."*
+  - In [`SubjectDetailActivity.kt`](file:///c:/Users/plaza/Documents/GitHub/OSRnary/app/src/main/java/com/example/gabai/SubjectDetailActivity.kt):
+    Adviser students are automatically populated under their section in the learning material assignment checklist.
+  - **Verdict**: **100% RESOLVED**. Adviser sections now cleanly appear in Subject Sections.
 
 ---
 

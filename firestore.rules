@@ -604,6 +604,26 @@ service cloud.firestore {
       }
     }
 
+    // 7.1 Division Standardized Timed Assessments (Phil-IRI SDO Super Admin)
+    match /division_timed_assessments/{assessmentId} {
+      allow read: if isAuthenticated();
+
+      allow create: if isAuthenticated() && isSuperAdmin();
+
+      allow update: if isAuthenticated() && (
+        isSuperAdmin() ||
+        (getUserRole() == 'school_admin' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']))
+      );
+
+      allow delete: if isAuthenticated() && isSuperAdmin();
+
+      // Pedagogical remarks attached to division timed assessments
+      match /remarks/{remarkId} {
+        allow read, create: if isAuthenticated() && (request.method != 'create' || isValidRemarkDoc(request.resource.data));
+        allow update, delete: if isSuperAdmin();
+      }
+    }
+
     // 8. Assessment Submissions
     match /assessment_submissions/{submissionId} {
       allow read: if isAuthenticated() &&
@@ -633,6 +653,44 @@ service cloud.firestore {
         ) &&
         isValidSubmissionDoc(request.resource.data) &&
         request.resource.data.get('studentId', '') == resource.data.get('studentId', '');
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // 8.1 Timed Assessment Submissions (Phil-IRI Submissions with reading speed & proficiency)
+    match /timed_assessment_submissions/{submissionId} {
+      allow read: if isAuthenticated() &&
+        (
+          resource.data.get('studentUid', '') == request.auth.uid ||
+          resource.data.get('studentId', '') == request.auth.uid ||
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            (
+              getUserSchoolId() == resource.data.get('schoolId', '') ||
+              resource.data.get('schoolId', '') == '' ||
+              getUserSchoolId() == ''
+            )
+          )
+        );
+
+      allow create: if isAuthenticated() &&
+        (
+          request.resource.data.get('studentUid', '') == request.auth.uid ||
+          request.resource.data.get('studentId', '') == request.auth.uid ||
+          isSuperAdmin()
+        );
+
+      allow update: if isAuthenticated() &&
+        (
+          resource.data.get('studentUid', '') == request.auth.uid ||
+          resource.data.get('studentId', '') == request.auth.uid ||
+          isSuperAdmin() ||
+          (
+            getUserRole() in ['teacher', 'school_admin'] &&
+            getUserSchoolId() == resource.data.get('schoolId', '')
+          )
+        );
 
       allow delete: if isSuperAdmin();
     }
@@ -686,6 +744,13 @@ service cloud.firestore {
     // ===============================================================
     // 12. System Configuration & Centralized Credentials
     // ===============================================================
+    match /system_config/admin_keys {
+      // The masterKeyHash is a cryptographic SHA-256 hash used during Division Super Admin provisioning.
+      // Read access allowed for provisioning verification; write access strictly restricted to Super Admins.
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
     match /system_config/{configId} {
       // Centralized platform credentials (e.g. Google Gemini API Key)
       // Strictly accessible ONLY by SDO Division Super Administrators.

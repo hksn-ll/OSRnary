@@ -259,7 +259,83 @@ class ManageClassesActivity : AppCompatActivity() {
                     GabAIUtils.addSpringPressEffect(card) { launchAction() }
 
                     // Sort into the correct list
-                    if (isAdviser) advisoryCards.add(card) else subjectCards.add(card)
+                    if (isAdviser) {
+                        advisoryCards.add(card)
+
+                        // Also represent this section under Subject Classes so the adviser can access their subject roster & materials
+                        val subjectCard = com.google.android.material.card.MaterialCardView(this).apply {
+                            radius = 22 * density
+                            cardElevation = 0f
+                            strokeWidth = (1.5 * density).toInt()
+                            setStrokeColor(Color.parseColor("#E2E8F0"))
+                            setCardBackgroundColor(Color.WHITE)
+                            isClickable = true
+                            isFocusable = true
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply { setMargins(0, 0, 0, (14 * density).toInt()) }
+                        }
+
+                        val subRowLayout = LinearLayout(this).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            setPadding((16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt(), (16 * density).toInt())
+                            gravity = android.view.Gravity.CENTER_VERTICAL
+                        }
+
+                        val subTextLayout = LinearLayout(this).apply {
+                            orientation = LinearLayout.VERTICAL
+                            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                        }
+
+                        val subTitleText = TextView(this).apply {
+                            text = displayTitle
+                            textSize = 15.5f
+                            setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                            setTextColor(Color.parseColor("#0F172A"))
+                        }
+
+                        val subPillRow = LinearLayout(this).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            setPadding(0, (4 * density).toInt(), 0, 0)
+                            gravity = android.view.Gravity.CENTER_VERTICAL
+                        }
+
+                        val subBadgeText = TextView(this).apply {
+                            text = "Subject Section"
+                            textSize = 10f
+                            setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                            setTextColor(Color.parseColor("#059669"))
+                            setBackgroundResource(R.drawable.bg_pill_translucent)
+                            backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
+                            setPadding((8 * density).toInt(), (2 * density).toInt(), (8 * density).toInt(), (2 * density).toInt())
+                        }
+                        subPillRow.addView(subBadgeText)
+
+                        subTextLayout.addView(subTitleText)
+                        subTextLayout.addView(subPillRow)
+
+                        subRowLayout.addView(subTextLayout)
+                        subjectCard.addView(subRowLayout)
+
+                        val subLaunchAction = {
+                            val intent = android.content.Intent(this, ClassDetailActivity::class.java).apply {
+                                putExtra("CLASS_ID", classId)
+                                putExtra("CLASS_NAME", className)
+                                putExtra("SECTION_NAME", sectionName)
+                                putExtra("SCHOOL_ID", schoolId)
+                                putExtra("IS_ADVISER", true)
+                                putExtra("GRADE", gradeName)
+                            }
+                            startActivity(intent)
+                        }
+                        subjectCard.setOnClickListener { subLaunchAction() }
+                        GabAIUtils.addSpringPressEffect(subjectCard) { subLaunchAction() }
+
+                        subjectCards.add(subjectCard)
+                    } else {
+                        subjectCards.add(card)
+                    }
                 }
 
                 // 2. BUILD THE UI: Advisory Section (Student Account Management)

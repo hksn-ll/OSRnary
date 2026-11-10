@@ -93,6 +93,8 @@ object AIContentValidator {
                 - English or Filipino language development texts, phonics passages, and contextual vocabulary readings.
 
                 CRITERIA FOR REJECTION (isValid: false):
+                - Dangerous, harmful, or illegal material: instructions, recipes, or glorification of weapons, explosives, self-harm, physical violence, illicit drugs/substances, hate speech, or sexually explicit content.
+                - Official government impersonation or fraudulent documents: fake government memorandums, unauthorized state certifications, exam leaks, or political campaign propaganda.
                 - Mathematics: arithmetic problem sets, algebra, geometry, calculus, trigonometry worksheets, equation sheets, number drills, math practice tests.
                 - Pure STEM calculation / laboratory materials devoid of reading passages: physics formula banks, chemistry reaction tables, electrical circuit schematics, numerical experiment logs.
                 - Computer programming source code, syntax cheat sheets, algorithm data.

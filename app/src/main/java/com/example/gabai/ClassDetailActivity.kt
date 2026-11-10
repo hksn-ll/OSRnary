@@ -222,6 +222,8 @@ class ClassDetailActivity : AppCompatActivity() {
             // ==========================================
             if (isAdviser) {
                 pendingContainer.visibility = View.VISIBLE
+                val adviserUid = classDoc.getString("teacherId") ?: com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                ClassEnrollmentHelper.syncSectionRosterToClass(classId, schoolId, grade, sectionName, adviserUid)
 
                 // Read Pending Students
                 db.collection("pending_students")
@@ -466,8 +468,8 @@ class ClassDetailActivity : AppCompatActivity() {
 
                         // GATEKEEPER: Scoped to students enrolled with this teacher, falling back to joinedStudents if legacy
                         val activeDocs = snapshots.documents.filter { doc ->
-                            if (teacherJoined != null) {
-                                teacherJoined.contains(doc.id)
+                            if (teacherJoined != null && teacherJoined.isNotEmpty()) {
+                                teacherJoined.contains(doc.id) || joinedStudents.contains(doc.id)
                             } else {
                                 joinedStudents.contains(doc.id)
                             }
@@ -756,7 +758,7 @@ class ClassDetailActivity : AppCompatActivity() {
 
         // Gender Selector Label
         val tvGenderLabel = TextView(this).apply {
-            text = "Gender (DepEd SF1 Classification)"
+            text = "Gender Classification"
             textSize = 12f
             setTypeface(null, Typeface.BOLD)
             setTextColor(Color.parseColor("#475569"))

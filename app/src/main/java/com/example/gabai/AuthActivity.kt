@@ -485,6 +485,10 @@ class AuthActivity : AppCompatActivity() {
                 db.collection("users").document(newUid).set(studentData)
                     .addOnSuccessListener {
                         pendingDocRef.delete()
+                        val schoolId = studentData["schoolId"] as? String ?: ""
+                        val grade = studentData["grade"] as? String ?: ""
+                        val section = studentData["section"] as? String ?: ""
+                        ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(newUid, schoolId, grade, section)
                         toggleLoading(false)
                         val claimedUser = auth.currentUser
                         if (claimedUser != null) {
@@ -958,7 +962,7 @@ class AuthActivity : AppCompatActivity() {
         var selectedGender = prefs.getString("cached_user_gender", "unspecified") ?: "unspecified"
 
         val tvGenderLabel = TextView(this).apply {
-            text = "Learner Gender (DepEd SF1 Standard)"
+            text = "Learner Gender"
             textSize = 12f
             setTypeface(null, Typeface.BOLD)
             setTextColor(Color.parseColor("#475569"))
@@ -1065,10 +1069,30 @@ class AuthActivity : AppCompatActivity() {
                         )
                         prefs.edit().putString("cached_user_gender", selectedGender).apply()
                         db.collection("users").document(uid).update(updates).addOnCompleteListener {
-                            toggleLoading(false)
-                            dialog.dismiss()
-                            GabAIUtils.showSnackbar(this, "Password updated successfully! Welcome! 🎉")
-                            onComplete()
+                            db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
+                                val schoolId = userDoc.getString("schoolId") ?: ""
+                                val grade = userDoc.getString("grade") ?: ""
+                                val section = userDoc.getString("section") ?: ""
+                                ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(uid, schoolId, grade, section) { adviserName, className ->
+                                    toggleLoading(false)
+                                    dialog.dismiss()
+                                    GabAIDialogs.showNoticeDialog(
+                                        context = this,
+                                        title = "Class Joined!",
+                                        message = "You have joined $adviserName's class for $className.",
+                                        buttonText = "Continue",
+                                        badgeIcon = "🎒",
+                                        cancelable = false,
+                                        onAction = {
+                                            onComplete()
+                                        }
+                                    )
+                                }
+                            }.addOnFailureListener {
+                                toggleLoading(false)
+                                dialog.dismiss()
+                                onComplete()
+                            }
                         }
                     } else {
                         toggleLoading(false)
