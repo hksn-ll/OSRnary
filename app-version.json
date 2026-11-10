@@ -1,11 +1,11 @@
 {
-  "versionCode": 50,
-  "versionName": "0.4.36",
-  "minRequiredVersionCode": 50,
+  "versionCode": 51,
+  "versionName": "0.4.37",
+  "minRequiredVersionCode": 51,
   "forceUpdate": true,
-  "title": "Role Isolation & LRN Display Refinement (v0.4.36)",
-  "message": "Eliminates teacher leaking into student credentials roster and refines LRN display.",
+  "title": "Passkey Reset & Role Isolation Release (v0.4.37)",
+  "message": "Streamlined temporary passkey resets, complete credential vault isolation, and clean learner LRN displays.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.36/GabAI-v0.4.36.apk",
-  "changelog": "🔧 WHAT'S NEW IN v0.4.36:\n• Student Vault Role Isolation: Strictly filters student account credential rosters so educators never appear in student password tables.\n• LRN Display Refinement: Removed 'LRN: Pending' label across learner credential rows, cleanly displaying only confirmed LRN identifiers.\n• Role-Aware In-App Routing: Ensures educators resetting passwords automatically navigate to Teacher Dashboard regardless of initial login role toggle."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.37/GabAI-v0.4.37.apk",
+  "changelog": "🔧 WHAT'S NEW IN v0.4.37:\n• Educator Temporary Passkey: Direct single-click passkey issuance without email verification requirements.\n• Vault Role Isolation: Completely separates educator passkey slips from student credential tables.\n• Refined Learner Display: Removed 'LRN: Pending' labels across all student credential rows.\n• Automatic Role Routing: Ensures teachers resetting credentials navigate straight to the Teacher Dashboard."
 }

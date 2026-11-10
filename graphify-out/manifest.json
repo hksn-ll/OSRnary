@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1794337429.41822,
-    "seen": 1794337611.9318986,
-    "ast_hash": "7dc6c44818490f5b6bd5b24451bb16d1",
+    "mtime": 1794338420.2191055,
+    "seen": 1794338578.419374,
+    "ast_hash": "cdf5dbff77f7ace256ccd11b6c4fbd97",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1794337437.2148452,
-    "seen": 1794337611.9318957,
-    "ast_hash": "5b4d532d548dc0e7528172982ff01b42",
+    "mtime": 1794338432.4210155,
+    "seen": 1794338578.4193714,
+    "ast_hash": "04f30c9ba5c79a23153b442a49933fb4",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
