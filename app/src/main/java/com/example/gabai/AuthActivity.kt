@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class AuthActivity : AppCompatActivity() {
 
@@ -270,104 +271,35 @@ class AuthActivity : AppCompatActivity() {
         toggleLoading(true)
 
         if (selectedRole == "teacher") {
-            // --- TEACHER LOGIN (Standard Email) ---
-            auth.signInWithEmailAndPassword(inputId, pass).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
+            // --- TEACHER LOGIN (Email & In-App Temporary Passkey Support) ---
+            val cleanEmail = inputId.trim().lowercase()
 
-                    if (user != null) {
-                        db.collection("users").document(user.uid).get()
-                            .addOnSuccessListener { doc ->
-                                if (doc.exists()) {
-                                    val role = doc.getString("role") ?: "teacher"
+            // 1. FAST PATH: Check pending_students first for unauthenticated temporary passkey lookup
+            db.collection("pending_students").document(cleanEmail).get()
+                .addOnSuccessListener { pDoc ->
+                    if (pDoc.exists()) {
+                        val expectedPass = pDoc.getString("password") ?: ""
+                        val expectedTemp = pDoc.getString("tempPassword") ?: ""
+                        val authEmail = pDoc.getString("authEmail") ?: ""
+                        val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) ||
+                                (expectedTemp.isNotBlank() && expectedTemp == pass)
 
-                                    // 🟢 RESTRICT ADMIN ROLES TO WEB PORTAL
-                                    if (role == "super_admin" || role == "school_admin" || role == "admin") {
-                                        auth.signOut()
-                                        toggleLoading(false)
-                                        showErrorDialog(
-                                            "Web Administrative Portal Only",
-                                            "Super Admin and School Admin accounts must access GabAI using the Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students."
-                                        )
-                                        showLogin()
-                                        return@addOnSuccessListener
-                                    }
-
-                                    // 🟢 CHECK ADMIN APPROVAL STATUS
-                                    val isApproved = doc.getBoolean("isApproved") ?: false
-
-                                    if (!isApproved) {
-                                        auth.signOut()
-                                        toggleLoading(false)
-                                        showErrorDialog(
-                                            "Account Pending Approval",
-                                            "Your educator account is awaiting verification by the Division/School Administrator.\n\nPlease contact your admin for activation."
-                                        )
-                                        showLogin()
-                                        return@addOnSuccessListener
-                                    }
-
-                                    // Account is approved! Proceed.
-                                    db.collection("users").document(user.uid).update("emailVerified", true)
-                                    val mustChange = doc.getBoolean("mustChangePassword") ?: false
-                                    if (mustChange) {
-                                        toggleLoading(false)
-                                        showForcePasswordChangeDialog(user, user.uid) {
-                                            navigateToMain("teacher")
-                                        }
-                                        return@addOnSuccessListener
-                                    }
-                                    navigateToMain("teacher")
-                                } else {
-                                    // Account was deleted from database
-                                    user.delete()
-                                    auth.signOut()
-                                    toggleLoading(false)
-                                    showErrorDialog("Access Denied", "Your teacher account has been removed from the system.")
-                                    showLogin()
-                                }
-                            }
-                            .addOnFailureListener {
-                                auth.signOut()
-                                toggleLoading(false)
-                                showErrorDialog("System Error", "Could not verify your account status.")
-                                showLogin()
-                            }
+                        if (matchesTemp) {
+                            // 🔑 Immediate Temporary Passkey Login for Educator (NO email verification!)
+                            handleTeacherPasskeyReset(cleanEmail, inputId, pass, pDoc)
+                            return@addOnSuccessListener
+                        } else if (authEmail.isNotBlank()) {
+                            // Teacher previously reset with salted authEmail; sign in with their permanent password
+                            performTeacherAuthSignIn(authEmail, inputId, pass)
+                            return@addOnSuccessListener
+                        }
                     }
-                } else {
-                    val cleanEmail = inputId.trim().lowercase()
-                    db.collection("pending_students").document(cleanEmail).get()
-                        .addOnSuccessListener { pDoc ->
-                            if (pDoc.exists()) {
-                                val expectedPass = pDoc.getString("password") ?: ""
-                                val expectedTemp = pDoc.getString("tempPassword") ?: ""
-                                if ((expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)) {
-                                    auth.sendPasswordResetEmail(cleanEmail)
-                                    toggleLoading(false)
-                                    GabAIDialogs.showNoticeDialog(
-                                        context = this,
-                                        title = "Temporary Passkey Verified",
-                                        message = "Your temporary passkey has been verified! A secure password reset link has been dispatched to $cleanEmail.\n\nPlease follow the link in your email to choose your permanent password, then sign in.",
-                                        buttonText = "Check Email & Sign In",
-                                        badgeIcon = "🔑",
-                                        onAction = {
-                                            showLogin()
-                                        }
-                                    )
-                                    return@addOnSuccessListener
-                                }
-                            }
-                            toggleLoading(false)
-                            showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
-                            showLogin()
-                        }
-                        .addOnFailureListener {
-                            toggleLoading(false)
-                            showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
-                            showLogin()
-                        }
+                    // 2. STANDARD PATH: Direct Firebase Auth sign in
+                    performTeacherAuthSignIn(inputId, inputId, pass)
                 }
-            }
+                .addOnFailureListener {
+                    performTeacherAuthSignIn(inputId, inputId, pass)
+                }
         } else {
             // --- STUDENT LOGIN (Account Claiming & Active Flow) ---
             val cleanInputId = inputId.removePrefix("@").trim().lowercase()
@@ -465,13 +397,24 @@ class AuthActivity : AppCompatActivity() {
                                         val section = studentData["section"] as? String ?: ""
                                         ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(newUid, schoolId, grade, section)
 
-                                        // 7. Clear caches & delete stale slip & old user
+                                        // 7. Clear caches & synchronize slip & old user
                                         getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).edit().clear().apply()
                                         if (claimedUid != newUid) {
                                             db.collection("users").document(claimedUid).delete().addOnFailureListener { /* ignore */ }
                                         }
-                                        db.collection("pending_students").document(cleanInputId).delete().addOnFailureListener { /* ignore */ }
-                                        db.collection("pending_students").document("@$cleanInputId").delete().addOnFailureListener { /* ignore */ }
+                                        val studentSlipUpdates = mapOf<String, Any>(
+                                            "authEmail" to saltedEmail,
+                                            "uid" to newUid,
+                                            "claimedUid" to newUid,
+                                            "isClaimed" to true,
+                                            "isReset" to false,
+                                            "mustChangePassword" to true,
+                                            "password" to FieldValue.delete(),
+                                            "tempPassword" to FieldValue.delete(),
+                                            "updatedAt" to System.currentTimeMillis()
+                                        )
+                                        db.collection("pending_students").document(cleanInputId).set(studentSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
+                                        db.collection("pending_students").document("@$cleanInputId").set(studentSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
 
                                         toggleLoading(false)
                                         val claimedUser = auth.currentUser
@@ -515,17 +458,39 @@ class AuthActivity : AppCompatActivity() {
                 }
             }
 
-            // 1. FAST PATH: Check pending_students first for instant account activation
+            // 1. FAST PATH: Check pending_students first for instant account activation or salted authEmail lookup
             db.collection("pending_students").document(cleanInputId).get()
                 .addOnSuccessListener { doc ->
                     if (doc.exists()) {
-                        processPendingSlip(doc)
+                        val authEmail = doc.getString("authEmail") ?: ""
+                        val expectedPass = doc.getString("password") ?: ""
+                        val expectedTemp = doc.getString("tempPassword") ?: ""
+                        val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)
+
+                        if (matchesTemp) {
+                            processPendingSlip(doc)
+                        } else if (authEmail.isNotBlank()) {
+                            performActiveStudentSignIn(cleanInputId, authEmail, pass)
+                        } else {
+                            processPendingSlip(doc)
+                        }
                     } else {
                         // Check with leading @ if saved that way
                         db.collection("pending_students").document("@$cleanInputId").get()
                             .addOnSuccessListener { atDoc ->
                                 if (atDoc.exists()) {
-                                    processPendingSlip(atDoc)
+                                    val authEmail = atDoc.getString("authEmail") ?: ""
+                                    val expectedPass = atDoc.getString("password") ?: ""
+                                    val expectedTemp = atDoc.getString("tempPassword") ?: ""
+                                    val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)
+
+                                    if (matchesTemp) {
+                                        processPendingSlip(atDoc)
+                                    } else if (authEmail.isNotBlank()) {
+                                        performActiveStudentSignIn(cleanInputId, authEmail, pass)
+                                    } else {
+                                        processPendingSlip(atDoc)
+                                    }
                                 } else {
                                     // 2. ACTIVE STUDENT PATH: Account was already claimed, sign in with Firebase Auth
                                     performActiveStudentSignIn(cleanInputId, fakeEmail, pass)
@@ -541,6 +506,266 @@ class AuthActivity : AppCompatActivity() {
                     performActiveStudentSignIn(cleanInputId, fakeEmail, pass)
                 }
         }
+    }
+
+    private fun performTeacherAuthSignIn(authEmailToUse: String, displayEmail: String, pass: String) {
+        auth.signInWithEmailAndPassword(authEmailToUse, pass).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val user = auth.currentUser
+
+                if (user != null) {
+                    db.collection("users").document(user.uid).get()
+                        .addOnSuccessListener { doc ->
+                            if (doc.exists()) {
+                                val role = doc.getString("role") ?: "teacher"
+
+                                // 🟢 RESTRICT ADMIN ROLES TO WEB PORTAL
+                                if (role == "super_admin" || role == "school_admin" || role == "admin") {
+                                    auth.signOut()
+                                    toggleLoading(false)
+                                    showErrorDialog(
+                                        "Web Administrative Portal Only",
+                                        "Super Admin and School Admin accounts must access GabAI using the Web Administrative Portal.\n\nThe mobile application is exclusively designed for Teachers and Students."
+                                    )
+                                    showLogin()
+                                    return@addOnSuccessListener
+                                }
+
+                                // 🟢 CHECK ADMIN APPROVAL STATUS
+                                val isApproved = doc.getBoolean("isApproved") ?: false
+
+                                if (!isApproved) {
+                                    auth.signOut()
+                                    toggleLoading(false)
+                                    showErrorDialog(
+                                        "Account Pending Approval",
+                                        "Your educator account is awaiting verification by the Division/School Administrator.\n\nPlease contact your admin for activation."
+                                    )
+                                    showLogin()
+                                    return@addOnSuccessListener
+                                }
+
+                                // Account is approved! Proceed.
+                                db.collection("users").document(user.uid).update("emailVerified", true)
+                                val mustChange = doc.getBoolean("mustChangePassword") ?: false
+                                if (mustChange) {
+                                    toggleLoading(false)
+                                    showForcePasswordChangeDialog(user, user.uid) {
+                                        navigateToMain("teacher")
+                                    }
+                                    return@addOnSuccessListener
+                                }
+                                navigateToMain("teacher")
+                            } else {
+                                // Account was deleted from database
+                                user.delete()
+                                auth.signOut()
+                                toggleLoading(false)
+                                showErrorDialog("Access Denied", "Your teacher account has been removed from the system.")
+                                showLogin()
+                            }
+                        }
+                        .addOnFailureListener {
+                            auth.signOut()
+                            toggleLoading(false)
+                            showErrorDialog("System Error", "Could not verify your account status.")
+                            showLogin()
+                        }
+                }
+            } else {
+                // Secondary fallback: check pending_students for temporary passkey
+                val cleanEmail = displayEmail.trim().lowercase()
+                db.collection("pending_students").document(cleanEmail).get()
+                    .addOnSuccessListener { pDoc ->
+                        if (pDoc.exists()) {
+                            val expectedPass = pDoc.getString("password") ?: ""
+                            val expectedTemp = pDoc.getString("tempPassword") ?: ""
+                            val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) ||
+                                    (expectedTemp.isNotBlank() && expectedTemp == pass)
+                            if (matchesTemp) {
+                                handleTeacherPasskeyReset(cleanEmail, displayEmail, pass, pDoc)
+                                return@addOnSuccessListener
+                            }
+                        }
+                        toggleLoading(false)
+                        showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
+                        showLogin()
+                    }
+                    .addOnFailureListener {
+                        toggleLoading(false)
+                        showErrorDialog("Login Failed", task.exception?.localizedMessage ?: "Invalid credentials")
+                        showLogin()
+                    }
+            }
+        }
+    }
+
+    private fun handleTeacherPasskeyReset(
+        cleanEmail: String,
+        inputId: String,
+        pass: String,
+        pDoc: com.google.firebase.firestore.DocumentSnapshot
+    ) {
+        val cleanAlpha = cleanEmail.replace(Regex("[^a-zA-Z0-9]"), "")
+        val saltedEmail = "teacher.${cleanAlpha}.${System.currentTimeMillis() % 100000}@gabai.app"
+        val claimedUid = pDoc.getString("claimedUid") ?: ""
+
+        auth.createUserWithEmailAndPassword(saltedEmail, pass).addOnCompleteListener { authTask ->
+            if (authTask.isSuccessful) {
+                val newUid = authTask.result?.user?.uid ?: auth.currentUser?.uid
+                if (newUid == null) {
+                    toggleLoading(false)
+                    showErrorDialog("Auth Error", "Could not verify educator identity.")
+                    showLogin()
+                    return@addOnCompleteListener
+                }
+
+                // Retrieve existing educator profile from users collection (now authenticated!)
+                val oldRef = if (claimedUid.isNotBlank()) db.collection("users").document(claimedUid) else null
+                val fetchTask = oldRef?.get() ?: com.google.android.gms.tasks.Tasks.forResult(null)
+
+                fetchTask.addOnCompleteListener { loadTask ->
+                    val oldDoc = if (loadTask.isSuccessful) loadTask.result else null
+                    val teacherData = if (oldDoc != null && oldDoc.exists()) {
+                        oldDoc.data?.toMutableMap() ?: mutableMapOf()
+                    } else {
+                        pDoc.data?.toMutableMap() ?: mutableMapOf()
+                    }
+
+                    teacherData["authEmail"] = saltedEmail
+                    teacherData["email"] = inputId
+                    teacherData["role"] = "teacher"
+                    teacherData["isApproved"] = true
+                    teacherData["emailVerified"] = true
+                    teacherData["mustChangePassword"] = true
+                    teacherData["migratedAt"] = System.currentTimeMillis()
+                    teacherData.remove("tempPassword")
+                    teacherData.remove("password")
+
+                    db.collection("users").document(newUid).set(teacherData).addOnSuccessListener {
+                        // 1. Update pending_students slip so subsequent logins locate authEmail and uid
+                        val slipUpdates = mapOf<String, Any>(
+                            "authEmail" to saltedEmail,
+                            "uid" to newUid,
+                            "claimedUid" to newUid,
+                            "isClaimed" to true,
+                            "isReset" to false,
+                            "mustChangePassword" to true,
+                            "password" to FieldValue.delete(),
+                            "tempPassword" to FieldValue.delete(),
+                            "updatedAt" to System.currentTimeMillis()
+                        )
+                        db.collection("pending_students").document(cleanEmail).set(slipUpdates, SetOptions.merge())
+
+                        // 2. Migrate teacher classes and subjects if claimedUid != newUid
+                        if (claimedUid.isNotBlank() && claimedUid != newUid) {
+                            migrateTeacherOwnership(claimedUid, newUid)
+                            db.collection("users").document(claimedUid).delete().addOnFailureListener { /* ignore */ }
+                        }
+
+                        // 3. Clear cached prefs
+                        getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).edit().clear().apply()
+
+                        toggleLoading(false)
+                        val teacherUser = auth.currentUser
+                        if (teacherUser != null) {
+                            showForcePasswordChangeDialog(teacherUser, newUid) {
+                                navigateToMain("teacher")
+                            }
+                        } else {
+                            navigateToMain("teacher")
+                        }
+                    }.addOnFailureListener { setErr ->
+                        toggleLoading(false)
+                        showErrorDialog("Reset Sync Error", setErr.localizedMessage ?: "Failed to initialize updated educator profile.")
+                        showLogin()
+                    }
+                }
+            } else {
+                toggleLoading(false)
+                showErrorDialog("Auth Error", authTask.exception?.localizedMessage ?: "Could not authenticate temporary passkey.")
+                showLogin()
+            }
+        }
+    }
+
+    private fun migrateTeacherOwnership(oldUid: String, newUid: String) {
+        // A. Advisory classes where teacherId == oldUid
+        db.collection("classes").whereEqualTo("teacherId", oldUid).get()
+            .addOnSuccessListener { snaps ->
+                for (doc in snaps) {
+                    val updates = mutableMapOf<String, Any>(
+                        "teacherId" to newUid,
+                        "teacherIds" to FieldValue.arrayUnion(newUid)
+                    )
+                    @Suppress("UNCHECKED_CAST")
+                    val subEnrollments = doc.get("subjectEnrollments") as? Map<String, List<*>>
+                    if (subEnrollments != null && subEnrollments.containsKey(oldUid)) {
+                        val enrolledList = subEnrollments[oldUid] ?: emptyList<Any>()
+                        if (enrolledList.isNotEmpty()) {
+                            updates["subjectEnrollments.$newUid"] = FieldValue.arrayUnion(*enrolledList.toTypedArray())
+                        }
+                        updates["subjectEnrollments.$oldUid"] = FieldValue.delete()
+                    }
+                    doc.reference.update(updates).addOnSuccessListener {
+                        doc.reference.update("teacherIds", FieldValue.arrayRemove(oldUid)).addOnFailureListener { /* ignore */ }
+                    }
+                }
+            }.addOnFailureListener { /* ignore */ }
+
+        // B. Classes where oldUid is in teacherIds
+        db.collection("classes").whereArrayContains("teacherIds", oldUid).get()
+            .addOnSuccessListener { snaps ->
+                for (doc in snaps) {
+                    val updates = mutableMapOf<String, Any>(
+                        "teacherIds" to FieldValue.arrayUnion(newUid)
+                    )
+                    @Suppress("UNCHECKED_CAST")
+                    val subEnrollments = doc.get("subjectEnrollments") as? Map<String, List<*>>
+                    if (subEnrollments != null && subEnrollments.containsKey(oldUid)) {
+                        val enrolledList = subEnrollments[oldUid] ?: emptyList<Any>()
+                        if (enrolledList.isNotEmpty()) {
+                            updates["subjectEnrollments.$newUid"] = FieldValue.arrayUnion(*enrolledList.toTypedArray())
+                        }
+                        updates["subjectEnrollments.$oldUid"] = FieldValue.delete()
+                    }
+                    doc.reference.update(updates).addOnSuccessListener {
+                        doc.reference.update("teacherIds", FieldValue.arrayRemove(oldUid)).addOnFailureListener { /* ignore */ }
+                    }
+                }
+            }.addOnFailureListener { /* ignore */ }
+
+        // C. Teacher library subjects
+        db.collection("library_subjects").whereEqualTo("teacherId", oldUid).get()
+            .addOnSuccessListener { snaps ->
+                for (doc in snaps) {
+                    doc.reference.update("teacherId", newUid).addOnFailureListener { /* ignore */ }
+                }
+            }.addOnFailureListener { /* ignore */ }
+
+        // D. Teacher weekly assessments
+        db.collection("weekly_assessments").whereEqualTo("teacherId", oldUid).get()
+            .addOnSuccessListener { snaps ->
+                for (doc in snaps) {
+                    doc.reference.update("teacherId", newUid).addOnFailureListener { /* ignore */ }
+                }
+            }.addOnFailureListener { /* ignore */ }
+
+        // E. Teacher quizzes
+        db.collection("quizzes").whereEqualTo("teacherId", oldUid).get()
+            .addOnSuccessListener { snaps ->
+                for (doc in snaps) {
+                    doc.reference.update("teacherId", newUid).addOnFailureListener { /* ignore */ }
+                }
+            }.addOnFailureListener { /* ignore */ }
+
+        // F. Teacher announcements
+        db.collection("announcements").whereEqualTo("authorUid", oldUid).get()
+            .addOnSuccessListener { snaps ->
+                for (doc in snaps) {
+                    doc.reference.update("authorUid", newUid).addOnFailureListener { /* ignore */ }
+                }
+            }.addOnFailureListener { /* ignore */ }
     }
 
     private fun performActiveStudentSignIn(cleanInputId: String, fakeEmail: String, pass: String) {
@@ -1271,8 +1496,13 @@ class AuthActivity : AppCompatActivity() {
                                 db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
                                     val uName = userDoc.getString("username")?.removePrefix("@")?.trim()?.lowercase() ?: ""
                                     if (uName.isNotBlank()) {
-                                        db.collection("pending_students").document(uName).delete().addOnFailureListener { /* ignore */ }
-                                        db.collection("pending_students").document("@$uName").delete().addOnFailureListener { /* ignore */ }
+                                        val studentDoneUpdates = mapOf<String, Any>(
+                                            "mustChangePassword" to false,
+                                            "password" to FieldValue.delete(),
+                                            "tempPassword" to FieldValue.delete()
+                                        )
+                                        db.collection("pending_students").document(uName).set(studentDoneUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
+                                        db.collection("pending_students").document("@$uName").set(studentDoneUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
                                     }
                                     val schoolId = userDoc.getString("schoolId") ?: ""
                                     val grade = userDoc.getString("grade") ?: ""
@@ -1299,8 +1529,17 @@ class AuthActivity : AppCompatActivity() {
                                 }
                             } else {
                                 val teacherEmail = user.email?.trim()?.lowercase() ?: ""
+                                val teacherSlipUpdates = mapOf<String, Any>(
+                                    "mustChangePassword" to false,
+                                    "password" to FieldValue.delete(),
+                                    "tempPassword" to FieldValue.delete()
+                                )
                                 if (teacherEmail.isNotBlank()) {
-                                    db.collection("pending_students").document(teacherEmail).delete().addOnFailureListener { /* ignore */ }
+                                    db.collection("pending_students").document(teacherEmail).set(teacherSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
+                                }
+                                val rawEmail = binding.etLoginEmail.text.toString().trim().lowercase()
+                                if (rawEmail.isNotBlank() && rawEmail != teacherEmail) {
+                                    db.collection("pending_students").document(rawEmail).set(teacherSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
                                 }
                                 toggleLoading(false)
                                 dialog.dismiss()

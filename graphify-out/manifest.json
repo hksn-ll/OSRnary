@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1794335484.3265874,
-    "seen": 1794335677.576907,
-    "ast_hash": "d8493aca221312132209a44909484c79",
+    "mtime": 1794336606.3771944,
+    "seen": 1794336789.1787093,
+    "ast_hash": "9fa4d71501e67749700961e0b1a9e84e",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -24,9 +24,9 @@
     "semantic_hash": "45662b930e1680df1b69215accf8450c"
   },
   "app/src/main/java/com/example/gabai/AuthActivity.kt": {
-    "mtime": 1794335432.178471,
-    "seen": 1794335677.5769274,
-    "ast_hash": "3198d5f04d2f78e53f25b3be8909e36b",
+    "mtime": 1794336587.2365184,
+    "seen": 1794336789.1787264,
+    "ast_hash": "220776b5e81b1aab2df1bda0b7955e34",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/CameraActivity.kt": {
@@ -78,10 +78,10 @@
     "semantic_hash": "0cfd63be29f73841eb6a3a18b235fabf"
   },
   "app/src/main/java/com/example/gabai/HomeFragment.kt": {
-    "mtime": 1794116876.479383,
-    "seen": 1794232175.8674774,
-    "ast_hash": "835132d19bb222be865e10ecf35fce5b",
-    "semantic_hash": "835132d19bb222be865e10ecf35fce5b"
+    "mtime": 1794335891.869395,
+    "seen": 1794335966.9004867,
+    "ast_hash": "faefe4c75d0517d15bd266a175bbf1e5",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/InitiationActivity.kt": {
     "mtime": 1792943826.3171113,
@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1794335495.3834918,
-    "seen": 1794335677.5769038,
-    "ast_hash": "0bb52935a8ba0dbd9e20a1e1c0a7640f",
+    "mtime": 1794336601.8099868,
+    "seen": 1794336789.1787062,
+    "ast_hash": "a492743a1bb47085a07bc7005cd5d284",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
@@ -444,9 +444,9 @@
     "semantic_hash": "60c7feb23246d6ddda7bacff5908d66d"
   },
   "admin-portal/admin.html": {
-    "mtime": 1794335365.7665358,
-    "seen": 1794335677.5770552,
-    "ast_hash": "76d6bb353052d2f36c04ffa143630fa8",
+    "mtime": 1794336332.7417004,
+    "seen": 1794336789.1788304,
+    "ast_hash": "2bb3632d6cfb44dca8c614108b50a74c",
     "semantic_hash": ""
   },
   "admin-portal/bubble.png": {

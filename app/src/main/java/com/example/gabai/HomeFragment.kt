@@ -546,18 +546,84 @@ class HomeFragment : Fragment() {
     }
 
     // =========================================================================
+    // 🏛️ COGNITIVE & DEMOGRAPHIC MATCHING HELPERS
+    // =========================================================================
+    private fun isGradeMatching(docGradeRaw: String?, studentGradeRaw: String?): Boolean {
+        val docGrade = docGradeRaw?.trim() ?: ""
+        val studentGrade = studentGradeRaw?.trim() ?: ""
+
+        // If assessment has no grade restriction, student has no grade set, or assessment is division-universal
+        if (docGrade.isEmpty() || studentGrade.isEmpty() ||
+            docGrade.equals("ALL", ignoreCase = true) || docGrade.contains("ALL", ignoreCase = true)) {
+            return true
+        }
+
+        // Extract student's numeric grade (e.g. "Grade 7" -> 7, "7 - Rizal" -> 7, "8" -> 8)
+        val studentNumMatch = Regex("\\b(7|8|9|10)\\b").find(studentGrade)
+        val studentGradeNum = studentNumMatch?.value?.toIntOrNull()
+
+        // Full Junior High School range check (Grades 7-10)
+        val isFullJhsRange = docGrade.contains("7-10") ||
+                docGrade.contains("Junior High", ignoreCase = true) ||
+                (docGrade.contains("7") && docGrade.contains("10"))
+        if (isFullJhsRange) {
+            return studentGradeNum == null || studentGradeNum in 7..10
+        }
+
+        // Targeted specific grade numbers (e.g., "Grade 7 Only" -> [7])
+        if (studentGradeNum != null) {
+            val docNumMatches = Regex("\\b(7|8|9|10)\\b").findAll(docGrade).mapNotNull { it.value.toIntOrNull() }.toList()
+            if (docNumMatches.isNotEmpty()) {
+                return studentGradeNum in docNumMatches
+            }
+        }
+
+        // Fallback fuzzy contains
+        return docGrade.contains(studentGrade, ignoreCase = true) || studentGrade.contains(docGrade, ignoreCase = true)
+    }
+
+    private fun isSchoolOrDistrictMatching(doc: com.google.firebase.firestore.DocumentSnapshot, studentSchoolId: String?): Boolean {
+        val docSchoolId = doc.getString("schoolId")?.trim() ?: ""
+        val docDistrict = doc.getString("districtScope")?.trim() ?: ""
+        val sSchoolId = studentSchoolId?.trim() ?: ""
+
+        val isDocUniversal = (docSchoolId.isEmpty() || docSchoolId.equals("ALL", ignoreCase = true)) &&
+                (docDistrict.isEmpty() || docDistrict.equals("ALL", ignoreCase = true) || docDistrict.contains("ALL", ignoreCase = true))
+        if (isDocUniversal) return true
+
+        if (sSchoolId.isEmpty()) return true
+
+        if (docSchoolId.isNotEmpty() && !docSchoolId.equals("ALL", ignoreCase = true)) {
+            if (docSchoolId.equals(sSchoolId, ignoreCase = true)) return true
+        }
+
+        if (docDistrict.isNotEmpty() && !docDistrict.equals("ALL", ignoreCase = true)) {
+            val studentSchool = SchoolRepository.defaultSchools.firstOrNull { it.schoolId == sSchoolId }
+            val studentDistrict = studentSchool?.district ?: ""
+            if (studentDistrict.isNotEmpty()) {
+                if (docDistrict.contains("District 1", ignoreCase = true) && studentDistrict.contains("District 1", ignoreCase = true)) return true
+                if (docDistrict.contains("District 2", ignoreCase = true) && studentDistrict.contains("District 2", ignoreCase = true)) return true
+            }
+        }
+
+        return (docSchoolId.isEmpty() || docSchoolId.equals("ALL", ignoreCase = true)) &&
+                (docDistrict.isEmpty() || docDistrict.equals("ALL", ignoreCase = true))
+    }
+
+    // =========================================================================
     // 🏛️ LOAD ACTIVE SDO DIVISION STANDARDIZED TIMED ASSESSMENT
     // =========================================================================
     private fun loadActiveDivisionTimedAssessment() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
+        val prefs = requireContext().getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
 
         db.collection("users").document(uid).get().addOnSuccessListener { userDoc ->
             if (!isAdded || _binding == null) return@addOnSuccessListener
-            val studentSchoolId = userDoc.getString("schoolId") ?: ""
-            val studentGrade = userDoc.getString("grade") ?: ""
+            val studentSchoolId = userDoc.getString("schoolId") ?: prefs.getString("cached_user_school_id", "") ?: ""
+            val studentGrade = userDoc.getString("grade") ?: userDoc.getString("gradeLevel") ?: prefs.getString("cached_user_grade", "") ?: ""
 
-            fun bindDoc(targetDoc: com.google.firebase.firestore.DocumentSnapshot, count: Int) {
+            fun bindDoc(targetDoc: com.google.firebase.firestore.DocumentSnapshot, count: Int, subDoc: com.google.firebase.firestore.DocumentSnapshot?) {
                 if (!isAdded || _binding == null) return
                 binding.tvDivisionTimedStatusBadge.text = if (count > 1) "$count Active Tests" else "SDO Official"
 
@@ -574,61 +640,86 @@ class HomeFragment : Fragment() {
                 binding.tvDivTimedMeta.text = "$district • Standardized Passage (~$wordCount words)${if (count > 1) " • 1 of $count Assigned" else ""}"
                 binding.sectionDivisionTimedAssessment.visibility = View.VISIBLE
 
-                val subDocId = "${assessmentId}_${uid}"
-                db.collection("timed_assessment_submissions").document(subDocId).get()
-                    .addOnSuccessListener { subDoc ->
+                if (subDoc != null && subDoc.exists()) {
+                    val score = subDoc.getLong("score")?.toInt() ?: 0
+                    val total = subDoc.getLong("totalQuestions")?.toInt() ?: 5
+                    val pct = subDoc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
+                    val wpm = subDoc.getLong("readingSpeedWpm")?.toInt() ?: 0
+                    val philIriLevel = subDoc.getString("philIriLevel") ?: (if (pct >= 80) "Independent" else if (pct >= 59) "Instructional" else "Frustration")
+
+                    val speedTag = if (wpm > 0) " • ${wpm} WPM" else ""
+                    val statusIcon = if (pct <= 58) "⚠️" else "✓"
+                    binding.tvDivTimedScorePill.visibility = View.VISIBLE
+                    binding.tvDivTimedScorePill.text = "Phil-IRI: $philIriLevel ($score/$total • $pct%$speedTag) $statusIcon"
+
+                    val (bgTint, textCol) = when {
+                        pct >= 80 -> Pair("#D1FAE5", "#065F46")
+                        pct >= 59 -> Pair("#E0E7FF", "#3730A3")
+                        else -> Pair("#FEE2E2", "#991B1B")
+                    }
+                    binding.tvDivTimedScorePill.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(bgTint))
+                    binding.tvDivTimedScorePill.setTextColor(android.graphics.Color.parseColor(textCol))
+
+                    if (pct <= 58) {
+                        binding.btnActionDivTimed.text = "View Diagnostic & Remedial ➔"
+                        binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#E11D48"))
+                    } else {
+                        binding.btnActionDivTimed.text = "View Diagnostic Report ➔"
+                        binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
+                    }
+                } else {
+                    binding.tvDivTimedScorePill.visibility = View.GONE
+                    binding.btnActionDivTimed.text = "Take Timed Assessment ➔"
+                    binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#5341CD"))
+                }
+
+                val launchTimedAssessment = {
+                    val ctx = context
+                    if (ctx != null) {
+                        val intent = Intent(ctx, TimedAssessmentActivity::class.java).apply {
+                            putExtra("ASSESSMENT_ID", assessmentId)
+                        }
+                        startActivity(intent)
+                    }
+                }
+
+                GabAIUtils.addSpringPressEffect(binding.cardDivisionTimedAssessment) {
+                    GabAIUtils.performHaptic(binding.cardDivisionTimedAssessment)
+                    launchTimedAssessment()
+                }
+
+                binding.btnActionDivTimed.setOnClickListener {
+                    launchTimedAssessment()
+                }
+            }
+
+            fun processMatchingAssessments(validDocs: List<com.google.firebase.firestore.DocumentSnapshot>) {
+                if (validDocs.isEmpty()) {
+                    binding.sectionDivisionTimedAssessment.visibility = View.GONE
+                    return
+                }
+
+                // Query submissions by this student to prioritize untaken assessments
+                db.collection("timed_assessment_submissions")
+                    .whereEqualTo("studentUid", uid)
+                    .get()
+                    .addOnSuccessListener { subSnaps ->
                         if (!isAdded || _binding == null) return@addOnSuccessListener
-                        if (subDoc.exists()) {
-                            val score = subDoc.getLong("score")?.toInt() ?: 0
-                            val total = subDoc.getLong("totalQuestions")?.toInt() ?: 5
-                            val pct = subDoc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
-                            val wpm = subDoc.getLong("readingSpeedWpm")?.toInt() ?: 0
-                            val philIriLevel = subDoc.getString("philIriLevel") ?: (if (pct >= 80) "Independent" else if (pct >= 59) "Instructional" else "Frustration")
+                        val submissionMap = subSnaps.documents.associateBy { it.getString("assessmentId") ?: "" }
 
-                            val speedTag = if (wpm > 0) " • ${wpm} WPM" else ""
-                            val statusIcon = if (pct <= 58) "⚠️" else "✓"
-                            binding.tvDivTimedScorePill.visibility = View.VISIBLE
-                            binding.tvDivTimedScorePill.text = "Phil-IRI: $philIriLevel ($score/$total • $pct%$speedTag) $statusIcon"
-
-                            val (bgTint, textCol) = when {
-                                pct >= 80 -> Pair("#D1FAE5", "#065F46")
-                                pct >= 59 -> Pair("#E0E7FF", "#3730A3")
-                                else -> Pair("#FEE2E2", "#991B1B")
-                            }
-                            binding.tvDivTimedScorePill.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(bgTint))
-                            binding.tvDivTimedScorePill.setTextColor(android.graphics.Color.parseColor(textCol))
-
-                            if (pct <= 58) {
-                                binding.btnActionDivTimed.text = "View Diagnostic & Remedial ➔"
-                                binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#E11D48"))
-                            } else {
-                                binding.btnActionDivTimed.text = "View Diagnostic Report ➔"
-                                binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
-                            }
+                        // Prioritize first UNTAKEN assessment
+                        val untakenDoc = validDocs.firstOrNull { !submissionMap.containsKey(it.id) }
+                        if (untakenDoc != null) {
+                            bindDoc(untakenDoc, validDocs.size, null)
                         } else {
-                            binding.tvDivTimedScorePill.visibility = View.GONE
-                            binding.btnActionDivTimed.text = "Take Timed Assessment ➔"
-                            binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#5341CD"))
+                            // All are taken, bind the first/most recent with its submission data
+                            val chosenDoc = validDocs.first()
+                            bindDoc(chosenDoc, validDocs.size, submissionMap[chosenDoc.id])
                         }
-
-                        val launchTimedAssessment = {
-                            val ctx = context
-                            if (ctx != null) {
-                                val intent = Intent(ctx, TimedAssessmentActivity::class.java).apply {
-                                    putExtra("ASSESSMENT_ID", assessmentId)
-                                }
-                                startActivity(intent)
-                            }
-                        }
-
-                        GabAIUtils.addSpringPressEffect(binding.cardDivisionTimedAssessment) {
-                            GabAIUtils.performHaptic(binding.cardDivisionTimedAssessment)
-                            launchTimedAssessment()
-                        }
-
-                        binding.btnActionDivTimed.setOnClickListener {
-                            launchTimedAssessment()
-                        }
+                    }
+                    .addOnFailureListener {
+                        // Fallback: Bind without submission check
+                        bindDoc(validDocs.first(), validDocs.size, null)
                     }
             }
 
@@ -640,17 +731,10 @@ class HomeFragment : Fragment() {
                     .addOnSuccessListener { weeklySnaps ->
                         if (!isAdded || _binding == null) return@addOnSuccessListener
                         val validWeekly = weeklySnaps.documents.filter { doc ->
-                            val docSchoolId = doc.getString("schoolId") ?: ""
                             val docGrade = doc.getString("grade") ?: ""
-                            val schoolMatches = docSchoolId.isEmpty() || docSchoolId == "ALL" || studentSchoolId.isEmpty() || docSchoolId == studentSchoolId
-                            val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains("ALL", ignoreCase = true) || docGrade.contains(studentGrade, ignoreCase = true) || studentGrade.contains(docGrade, ignoreCase = true)
-                            schoolMatches && gradeMatches
+                            isSchoolOrDistrictMatching(doc, studentSchoolId) && isGradeMatching(docGrade, studentGrade)
                         }
-                        if (validWeekly.isNotEmpty()) {
-                            bindDoc(validWeekly.first(), validWeekly.size)
-                        } else {
-                            binding.sectionDivisionTimedAssessment.visibility = View.GONE
-                        }
+                        processMatchingAssessments(validWeekly)
                     }
                     .addOnFailureListener {
                         if (isAdded && _binding != null) {
@@ -670,17 +754,14 @@ class HomeFragment : Fragment() {
                     }
 
                     val validDocs = snapshots.documents.filter { doc ->
-                        val docSchoolId = doc.getString("schoolId") ?: ""
                         val docGrade = doc.getString("grade") ?: ""
-                        val schoolMatches = docSchoolId.isEmpty() || docSchoolId == "ALL" || studentSchoolId.isEmpty() || docSchoolId == studentSchoolId
-                        val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains("ALL", ignoreCase = true) || docGrade.contains(studentGrade, ignoreCase = true) || studentGrade.contains(docGrade, ignoreCase = true)
-                        schoolMatches && gradeMatches
+                        isSchoolOrDistrictMatching(doc, studentSchoolId) && isGradeMatching(docGrade, studentGrade)
                     }
 
                     if (validDocs.isEmpty()) {
                         checkWeeklyFallback()
                     } else {
-                        bindDoc(validDocs.first(), validDocs.size)
+                        processMatchingAssessments(validDocs)
                     }
                 }
         }
@@ -716,7 +797,7 @@ class HomeFragment : Fragment() {
                         val docClassId = doc.getString("classId") ?: ""
 
                         val schoolMatches = docSchoolId.isEmpty() || studentSchoolId.isEmpty() || docSchoolId == studentSchoolId
-                        val gradeMatches = docGrade.isEmpty() || studentGrade.isEmpty() || docGrade.contains(studentGrade, ignoreCase = true) || studentGrade.contains(docGrade, ignoreCase = true)
+                        val gradeMatches = isGradeMatching(docGrade, studentGrade)
                         val sectionMatches = docClassName.isBlank() || docClassName.contains("All", ignoreCase = true) ||
                             (studentSection.isNotBlank() && (docClassName.contains(studentSection, ignoreCase = true) || studentSection.contains(docClassName, ignoreCase = true))) ||
                             (docClassId.isNotBlank() && studentEnrolledClasses.contains(docClassId))

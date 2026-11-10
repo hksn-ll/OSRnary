@@ -1,11 +1,11 @@
 {
-  "versionCode": 48,
-  "versionName": "0.4.34",
-  "minRequiredVersionCode": 48,
+  "versionCode": 49,
+  "versionName": "0.4.35",
+  "minRequiredVersionCode": 49,
   "forceUpdate": true,
-  "title": "Teacher & Student Password Reset Management (v0.4.34)",
-  "message": "Adds educator password reset capabilities in Web Admin Portal and Android app.",
+  "title": "Educator & Student Passkey In-App Reset (v0.4.35)",
+  "message": "Enables instant temporary passkey resets for teachers with direct in-app password creation.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.34/GabAI-v0.4.34.apk",
-  "changelog": "🔧 WHAT'S NEW IN v0.4.34 (EDUCATOR & STUDENT PASSWORD RESET):\n• Faculty Password Reset: School Administrators and Super Admins can now dispatch official password reset emails or issue temporary passkeys to teachers directly from the Faculty & Approvals roster.\n• Teacher Force Password Update: Supported forced password change dialog for educators on first login with temporary passkeys.\n• Authenticated-First Reset Security: Robust account claiming and reset flow ensuring zero permission failures across Android and Web Admin Portal."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.35/GabAI-v0.4.35.apk",
+  "changelog": "🔧 WHAT'S NEW IN v0.4.35 (EDUCATOR & STUDENT PASSKEY IN-APP RESET):\n• Instant Educator Passkey: Administrators can generate one-time temporary passkeys for teachers directly from the roster—no email verification needed.\n• In-App Password Creation: Teachers sign in with their passkey and set their permanent password in-app, retaining all class ownership and enrollments.\n• Persistent Passkey Sync: Preserves authenticated credentials preventing invalid credential errors on subsequent logins."
 }

@@ -1531,55 +1531,37 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
           </div>
           <div>
-            <h3 class="font-bold text-sm text-slate-900">Reset Educator Password</h3>
-            <p class="text-[11px] text-slate-500">Security &amp; credential management for faculty</p>
+            <h3 class="font-bold text-sm text-slate-900">Temporary Educator Passkey</h3>
+            <p class="text-[11px] text-slate-500">One-time faculty temporary login passkey</p>
           </div>
         </div>
         <button onclick="closeResetTeacherModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
       </div>
       <div class="space-y-3">
         <p class="text-xs text-slate-600 leading-relaxed">
-          Manage credentials for educator <strong id="resetTeacherTargetName" class="text-indigo-600">Teacher Name</strong> (<span id="resetTeacherTargetEmail" class="font-mono text-slate-700">email</span>).
+          A temporary single-use passkey has been generated for educator <strong id="resetTeacherTargetName" class="text-indigo-600">Educator</strong> (<span id="resetTeacherTargetEmail" class="font-mono text-slate-700">email</span>).
         </p>
 
-        <!-- Option 1: Send Password Reset Email -->
-        <div class="p-4 bg-purple-50/70 border border-purple-200/80 rounded-2xl space-y-2">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-[11px] text-purple-900 font-bold">Official DepEd Reset Link (Recommended)</div>
-              <div class="text-[10px] text-purple-600">Dispatches an official password reset link directly to the teacher's registered email inbox.</div>
-            </div>
+        <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl flex items-center justify-between">
+          <div>
+            <div class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Temporary Passkey</div>
+            <div id="teacherGeneratedPasskey" class="text-xl font-mono font-black text-indigo-900 tracking-wider">gab00000</div>
           </div>
-          <button id="btnSendTeacherResetEmail" onclick="executeSendTeacherResetEmail()" class="w-full mt-1 px-3 py-2 bg-[#5341CD] hover:bg-[#4332b8] text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-            <span>Send Reset Email</span>
+          <button onclick="copyTeacherGeneratedPasskey()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy</span>
           </button>
         </div>
 
-        <!-- Option 2: Issue Temporary Passkey -->
-        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
-          <div>
-            <div class="text-[11px] text-slate-800 font-bold">Issue Temporary Passkey</div>
-            <div class="text-[10px] text-slate-500">Generate a single-use passkey. When the educator signs in, they will be required to set their permanent password.</div>
-          </div>
-          <div id="teacherGeneratedPasskeyContainer" class="hidden p-3 bg-white border border-indigo-200 rounded-xl flex items-center justify-between">
-            <div>
-              <div class="text-[9px] text-indigo-500 font-bold uppercase">Temporary Passkey</div>
-              <div id="teacherGeneratedPasskey" class="text-lg font-mono font-black text-indigo-900 tracking-wider">gab00000</div>
-            </div>
-            <button onclick="copyTeacherGeneratedPasskey()" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow flex items-center gap-1">
-              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-              <span>Copy</span>
-            </button>
-          </div>
-          <button id="btnGenerateTeacherPasskey" onclick="executeGenerateTeacherPasskey()" class="w-full px-3 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors">
-            <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
-            <span>Generate Temporary Passkey</span>
-          </button>
+        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 leading-relaxed flex items-start gap-2">
+          <svg class="w-4 h-4 text-amber-700 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Share this temporary passkey with the educator in person. Upon logging into the GabAI mobile app, they will be required to set their permanent password. No email verification is required.</span>
         </div>
       </div>
-      <div class="pt-2 flex justify-end">
-        <button onclick="closeResetTeacherModal()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Close</button>
+      <div class="pt-3 border-t border-slate-100 flex justify-end">
+        <button onclick="closeResetTeacherModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold">
+          Done &amp; Dismiss
+        </button>
       </div>
     </div>
   </div>
@@ -9217,17 +9199,66 @@
 
     let activeTeacherResetData = null;
 
-    window.openResetTeacherPasswordModal = function(docId, email, fullName) {
-      if (!email) {
-        window.showToast("Educator record has no associated email address.", "error");
+    window.openResetTeacherPasswordModal = async function(docId, email, fullName) {
+      if (!email && !docId) {
+        window.showToast("Educator record has no associated email or identifier.", "error");
         return;
       }
-      activeTeacherResetData = { docId, email, fullName };
-      document.getElementById('resetTeacherTargetName').textContent = fullName || 'Educator';
-      document.getElementById('resetTeacherTargetEmail').textContent = email;
-      document.getElementById('teacherGeneratedPasskeyContainer').classList.add('hidden');
-      document.getElementById('btnGenerateTeacherPasskey').classList.remove('hidden');
-      document.getElementById('modalResetTeacherPassword').classList.remove('hidden');
+      const cleanEmail = (email || '').trim().toLowerCase();
+      const tempPass = 'gab' + Math.floor(10000 + Math.random() * 90000);
+      activeTeacherResetData = { docId, email: cleanEmail, fullName, passkey: tempPass };
+
+      try {
+        let updated = false;
+        if (docId) {
+          try {
+            await updateDoc(doc(db, "users", docId), {
+              tempPassword: tempPass,
+              password: tempPass,
+              mustChangePassword: true,
+              isApproved: true
+            });
+            updated = true;
+          } catch (e) {
+            console.warn("Could not update teacher in users collection:", e);
+          }
+        }
+
+        const matchedUser = (cachedUsers || []).find(u => u.id === docId || (cleanEmail && String(u.email || '').trim().toLowerCase() === cleanEmail));
+        if (cleanEmail) {
+          await setDoc(doc(db, "pending_students", cleanEmail), {
+            username: cleanEmail,
+            email: cleanEmail,
+            password: tempPass,
+            tempPassword: tempPass,
+            mustChangePassword: true,
+            isReset: true,
+            role: "teacher",
+            claimedUid: docId || matchedUser?.id || '',
+            schoolId: matchedUser?.schoolId || '',
+            fullName: fullName || matchedUser?.fullName || '',
+            updatedAt: Date.now()
+          }, { merge: true });
+          updated = true;
+        }
+
+        if (matchedUser) {
+          matchedUser.tempPassword = tempPass;
+          matchedUser.password = tempPass;
+          matchedUser.mustChangePassword = true;
+        }
+
+        document.getElementById('resetTeacherTargetName').textContent = fullName || 'Educator';
+        document.getElementById('resetTeacherTargetEmail').textContent = cleanEmail || docId;
+        document.getElementById('teacherGeneratedPasskey').textContent = tempPass;
+        document.getElementById('modalResetTeacherPassword').classList.remove('hidden');
+
+        copyToClipboard(tempPass, "Temporary educator passkey copied to clipboard!");
+        window.showToast(`Temporary passkey generated for ${fullName || cleanEmail}: ${tempPass}`, "success");
+      } catch (err) {
+        console.error("Teacher passkey generation error:", err);
+        window.showToast("Failed to generate temporary passkey: " + err.message, "error");
+      }
     };
 
     window.closeResetTeacherModal = function() {
@@ -9235,64 +9266,10 @@
       activeTeacherResetData = null;
     };
 
-    window.executeSendTeacherResetEmail = async function() {
-      if (!activeTeacherResetData?.email) return;
-      const email = activeTeacherResetData.email;
-      try {
-        await sendPasswordResetEmail(auth, email);
-        if (activeTeacherResetData.docId) {
-          await updateDoc(doc(db, "users", activeTeacherResetData.docId), {
-            mustChangePassword: true
-          });
-        }
-        window.showToast(`Official password reset link dispatched to ${email}!`, "success");
-      } catch (err) {
-        console.error("Teacher email reset error:", err);
-        window.showToast("Failed to send reset email: " + err.message, "error");
-      }
-    };
-
-    window.executeGenerateTeacherPasskey = async function() {
-      if (!activeTeacherResetData?.docId) return;
-      const docId = activeTeacherResetData.docId;
-      const email = activeTeacherResetData.email;
-      const tempPass = 'gab' + Math.floor(10000 + Math.random() * 90000);
-
-      try {
-        await updateDoc(doc(db, "users", docId), {
-          tempPassword: tempPass,
-          password: tempPass,
-          mustChangePassword: true
-        });
-
-        const cleanEmail = email.trim().toLowerCase();
-        await setDoc(doc(db, "pending_students", cleanEmail), {
-          username: cleanEmail,
-          password: tempPass,
-          tempPassword: tempPass,
-          mustChangePassword: true,
-          isReset: true,
-          role: "teacher",
-          claimedUid: docId,
-          email: cleanEmail,
-          updatedAt: Date.now()
-        }, { merge: true });
-
-        document.getElementById('teacherGeneratedPasskey').textContent = tempPass;
-        document.getElementById('teacherGeneratedPasskeyContainer').classList.remove('hidden');
-        document.getElementById('btnGenerateTeacherPasskey').classList.add('hidden');
-        copyToClipboard(tempPass, "Temporary educator passkey copied!");
-        window.showToast(`Temporary passkey generated for ${email}: ${tempPass}`, "success");
-      } catch (err) {
-        console.error("Generate teacher passkey error:", err);
-        window.showToast("Failed to generate temporary passkey: " + err.message, "error");
-      }
-    };
-
     window.copyTeacherGeneratedPasskey = function() {
       const pass = document.getElementById('teacherGeneratedPasskey')?.textContent;
       if (pass) {
-        copyToClipboard(pass, "Temporary passkey copied!");
+        copyToClipboard(pass, "Temporary educator passkey copied to clipboard!");
       }
     };
 
