@@ -108,8 +108,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ManageClassesActivity.kt": {
-    "mtime": 1794242831.2188728,
-    "seen": 1794243061.0221977,
+    "mtime": 1794325155.655721,
+    "seen": 1794329462.2807767,
     "ast_hash": "d32df467a3867ddacca727deefbfb274",
     "semantic_hash": ""
   },
@@ -192,14 +192,14 @@
     "semantic_hash": "f016943fbfe5d42f8270f579b1ab44f9"
   },
   "app/src/main/java/com/example/gabai/SubjectDetailActivity.kt": {
-    "mtime": 1794242831.2198746,
-    "seen": 1794243061.0222309,
+    "mtime": 1794325155.6105003,
+    "seen": 1794329462.280875,
     "ast_hash": "401b4797208e8366ffb5f1f89dd10500",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/TeacherHomeFragment.kt": {
-    "mtime": 1793214619.4528556,
-    "seen": 1793474269.3414068,
+    "mtime": 1794325155.6302738,
+    "seen": 1794329462.2808793,
     "ast_hash": "495aa4cb074ac5edd095cd4de70fbe20",
     "semantic_hash": "495aa4cb074ac5edd095cd4de70fbe20"
   },
@@ -444,9 +444,9 @@
     "semantic_hash": "60c7feb23246d6ddda7bacff5908d66d"
   },
   "admin-portal/admin.html": {
-    "mtime": 1794279670.4421656,
-    "seen": 1794279703.8874106,
-    "ast_hash": "e47472509de3caf0e94f51da2d85d92c",
+    "mtime": 1794329494.373888,
+    "seen": 1794329528.3420193,
+    "ast_hash": "47c9cef88f68826f9781a7806e7d66d2",
     "semantic_hash": ""
   },
   "admin-portal/bubble.png": {
@@ -1302,9 +1302,9 @@
     "semantic_hash": ""
   },
   "scripts/verify_browser_portal.py": {
-    "mtime": 1794264914.5439095,
-    "seen": 1794264977.3317578,
-    "ast_hash": "efc285df740916c415454900e0267b55",
+    "mtime": 1794329415.300997,
+    "seen": 1794329462.2809546,
+    "ast_hash": "f8c18f98836461ca5b23eab073b83d41",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ClassEnrollmentHelper.kt": {

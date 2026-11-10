@@ -400,6 +400,78 @@ def run_cdp_tests():
         assert school_data.get("filteredEmptyHasMatchingTitle"), "Filter empty state must display professional 'No Matching Standardized Tests' title"
         print("[PASS] School Admin scoped isolation & role-aware messaging verified with 100% precision: exactly 2 Malinta submissions counted, 0 Polo leaked, 0 cheap authoring prompts!")
 
+        # 8. Test Faculty & Approvals (tab-faculty-verification) & Browser Autofill Resilience
+        print("\n--- TEST 8: Verifying Faculty & Approvals (tab-faculty-verification) & Autofill Resilience ---")
+        faculty_res = send("Runtime.evaluate", {
+            "expression": """
+            (() => {
+                try {
+                    window.setCachedClassesForTesting([
+                        { id: 'cls_m1', section: 'Rizal', grade: 'Grade 7', schoolId: '305445', teacherId: 'tch_linked_m4', adviserName: 'Maria Clara' }
+                    ]);
+                    window.setCachedUsersForTesting([
+                        { id: 'tch_m1', firstName: 'Jose', lastName: 'Rizal', email: 'jose.rizal@deped.gov.ph', role: 'teacher', schoolId: '305445', isApproved: true },
+                        { id: 'tch_m2', firstName: 'Andres', lastName: 'Bonifacio', email: 'andres.b@deped.gov.ph', role: 'teacher', schoolId: 'Malinta National High School - 305445', isApproved: false },
+                        { id: 'tch_m3', firstName: 'Corazon', lastName: 'Aquino', email: 'principal@malinta.deped.gov.ph', role: 'school_admin', schoolId: '305445', isApproved: true },
+                        { id: 'tch_linked_m4', firstName: 'Maria', lastName: 'Clara', email: 'maria.clara@deped.gov.ph', role: 'teacher', schoolId: '', isApproved: true },
+                        { id: 'tch_polo_1', firstName: 'Marcelo', lastName: 'Del Pilar', email: 'marcelo@polo.deped.gov.ph', role: 'teacher', schoolId: '305446', isApproved: true }
+                    ]);
+
+                    // Simulate browser password manager autofilling the School Admin email into #inputFacultySearch while unfocused
+                    const facInput = document.getElementById('inputFacultySearch');
+                    if (facInput) {
+                        facInput.blur();
+                        facInput.value = 'principal@malinta.deped.gov.ph';
+                        window.handleFacultySearch(facInput.value);
+                    }
+
+                    window.switchTab('tab-faculty-verification');
+                    window.updateDashboardMetrics();
+
+                    const tbody = document.getElementById('teachersTableBody');
+                    const rows = tbody ? tbody.querySelectorAll('tr').length : 0;
+                    const tableText = tbody ? tbody.textContent : '';
+                    const countAll = document.getElementById('countAllTeachers')?.textContent?.trim();
+                    const countPending = document.getElementById('countPendingTeachers')?.textContent?.trim();
+                    const countApproved = document.getElementById('countApprovedTeachers')?.textContent?.trim();
+                    const quickPendingText = document.getElementById('quickPendingTableBody')?.textContent || '';
+
+                    return {
+                        rows,
+                        countAll,
+                        countPending,
+                        countApproved,
+                        facInputCleared: facInput ? facInput.value === '' : false,
+                        hasJose: tableText.includes('Jose Rizal'),
+                        hasAndres: tableText.includes('Andres Bonifacio'),
+                        hasPromotedAdmin: tableText.includes('Corazon Aquino') && tableText.includes('School Admin'),
+                        hasLinkedTeacher: tableText.includes('Maria Clara'),
+                        hasOtherSchoolTeacher: tableText.includes('Marcelo Del Pilar'),
+                        quickPendingHasAndres: quickPendingText.includes('Andres Bonifacio')
+                    };
+                } catch (err) {
+                    return { error: err.toString(), stack: err.stack };
+                }
+            })()
+            """,
+            "returnByValue": True
+        })
+        faculty_data = faculty_res.get("result", {}).get("value", {})
+        print("Faculty & Approvals State:", json.dumps(faculty_data, indent=2))
+        assert not faculty_data.get("error"), f"Faculty test error: {faculty_data.get('error')}"
+        assert faculty_data.get("facInputCleared"), "Autofilled admin email should be scrubbed from #inputFacultySearch"
+        assert faculty_data.get("rows") == 4, f"Expected 4 Malinta educators rendered, got {faculty_data.get('rows')}"
+        assert faculty_data.get("countAll") == "4", f"Expected countAll == 4, got {faculty_data.get('countAll')}"
+        assert faculty_data.get("countPending") == "1", f"Expected countPending == 1, got {faculty_data.get('countPending')}"
+        assert faculty_data.get("countApproved") == "3", f"Expected countApproved == 3, got {faculty_data.get('countApproved')}"
+        assert faculty_data.get("hasJose"), "Standard verified teacher should be rendered"
+        assert faculty_data.get("hasAndres"), "Pending teacher with compound schoolId should be rendered"
+        assert faculty_data.get("hasPromotedAdmin"), "Promoted school_admin educator should be rendered with badge"
+        assert faculty_data.get("hasLinkedTeacher"), "Educator linked via class adviser fallback should be rendered"
+        assert not faculty_data.get("hasOtherSchoolTeacher"), "Other school teacher must NOT leak into School Admin faculty table"
+        assert faculty_data.get("quickPendingHasAndres"), "Overview Pending Approvals table should list pending educator"
+        print("[PASS] Faculty & Approvals (tab-faculty-verification) verified with 100% precision!")
+
         print("\n" + "=" * 55)
         print("ALL BROWSER-LEVEL END-TO-END CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 55 + "\n")

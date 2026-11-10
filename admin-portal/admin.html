@@ -3114,7 +3114,7 @@
               <!-- Dedicated Faculty Search -->
               <div class="relative w-full sm:w-64">
                 <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="search" id="inputFacultySearch" name="search_faculty_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" oninput="handleFacultySearch(this.value)" placeholder="Search educator by name, PRN, DepEd ID..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
+                <input type="search" id="inputFacultySearch" name="search_faculty_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" oninput="handleFacultySearch(this.value)" placeholder="Search educator by name, PRN, DepEd ID..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
                 <button id="btnClearFacultySearch" onclick="clearFacultySearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
               </div>
 
@@ -3233,7 +3233,7 @@
             <div class="flex flex-wrap items-center gap-2.5 flex-1">
               <div class="relative w-full sm:w-64">
                 <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="inputSectionSearch" oninput="handleSectionSearch(this.value)" placeholder="Search section name, join code..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all">
+                <input type="search" id="inputSectionSearch" name="search_section_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" oninput="handleSectionSearch(this.value)" placeholder="Search section name, join code..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
                 <button id="btnClearSectionSearch" onclick="clearSectionSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
               </div>
 
@@ -3360,7 +3360,7 @@
               <!-- Dedicated Search Input -->
               <div class="relative w-full sm:w-60">
                 <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="search" id="inputLearnerSearch" name="search_learner_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" oninput="handleLearnerSearch(this.value)" placeholder="Search learner name, section, LRN..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
+                <input type="search" id="inputLearnerSearch" name="search_learner_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" oninput="handleLearnerSearch(this.value)" placeholder="Search learner name, section, LRN..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
                 <button id="btnClearLearnerSearch" onclick="clearLearnerSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
               </div>
 
@@ -3520,7 +3520,7 @@
               <!-- Dedicated Search Input -->
               <div class="relative w-full sm:w-60">
                 <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="search" id="inputCredentialSearch" name="search_student_credentials_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" oninput="handleCredentialSearch(this.value)" placeholder="Filter by learner name, LRN, section..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
+                <input type="search" id="inputCredentialSearch" name="search_student_credentials_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" oninput="handleCredentialSearch(this.value)" placeholder="Filter by learner name, LRN, section..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
                 <button id="btnClearCredentialSearch" onclick="clearCredentialSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
               </div>
 
@@ -5278,6 +5278,8 @@
     let cachedSubmissions = [];
     window.setCachedTimedSubmissionsForTesting = function(list) { cachedTimedSubmissions = list; };
     window.setCachedSubmissionsForTesting = function(list) { cachedSubmissions = list; };
+    window.setCachedUsersForTesting = function(list) { cachedUsers = list; if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers(); };
+    window.setCachedClassesForTesting = function(list) { cachedClasses = list; if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers(); };
     let cachedSchoolInvites = [];
     let cachedAnnouncements = [];
     let currentViewingAnnouncementId = null;
@@ -6394,13 +6396,14 @@
 
           if (userDoc.exists()) {
             const data = userDoc.data();
-            const superAdmin = data.role === 'super_admin' || data.role === 'admin' || data.isAdmin === true || data.schoolId === 'DIVISION_OFFICE';
             const schoolAdmin = data.role === 'school_admin';
+            const superAdmin = !schoolAdmin && (data.role === 'super_admin' || data.role === 'admin' || data.isAdmin === true || data.schoolId === 'DIVISION_OFFICE');
 
             if (superAdmin || schoolAdmin) {
               isSuperAdmin = superAdmin;
               isSchoolAdmin = schoolAdmin;
-              currentAdminUser = { uid: user.uid, ...data, email: user.email };
+              const resolvedAdminSchoolId = schoolAdmin ? (window.resolveTeacherSchoolId ? window.resolveTeacherSchoolId(data) : String(data.schoolId || '').trim()) : String(data.schoolId || '').trim();
+              currentAdminUser = { uid: user.uid, ...data, schoolId: resolvedAdminSchoolId || data.schoolId, email: user.email };
               
               const welcomeTitle = isSuperAdmin ? 'Division Super Admin' : `School Admin (${getSchoolName(data.schoolId)})`;
               updateAdminLoader(`Welcome, ${data.firstName || welcomeTitle}! Preparing dashboard...`, 90);
@@ -6648,6 +6651,33 @@
 
       renderSchoolsMatrix();
       checkFirstTimeTourPrompt();
+
+      // Guard against browser password manager autofilling admin email into search inputs on login transition
+      const clearDashboardAutofill = () => {
+        const searchInputs = [
+          { id: 'inputFacultySearch', btn: 'btnClearFacultySearch', reset: () => { facultySearchQuery = ''; } },
+          { id: 'inputSectionSearch', btn: 'btnClearSectionSearch', reset: () => { sectionSearchQuery = ''; } },
+          { id: 'inputLearnerSearch', btn: 'btnClearLearnerSearch', reset: () => { learnerSearchQuery = ''; } },
+          { id: 'inputCredentialSearch', btn: 'btnClearCredentialSearch', reset: () => { credentialSearchQuery = ''; } }
+        ];
+        let clearedAny = false;
+        searchInputs.forEach(({ id, btn, reset }) => {
+          const el = document.getElementById(id);
+          if (el && document.activeElement !== el && el.value) {
+            el.value = '';
+            reset();
+            const b = document.getElementById(btn);
+            if (b) b.classList.add('hidden');
+            clearedAny = true;
+          }
+        });
+        if (clearedAny) {
+          renderTeachersTable();
+        }
+      };
+      clearDashboardAutofill();
+      setTimeout(clearDashboardAutofill, 150);
+      setTimeout(clearDashboardAutofill, 600);
     }
     window.showAdminDashboard = showAdminDashboard;
 
@@ -6799,30 +6829,160 @@
     };
 
     // =========================================================================
-    // REAL-TIME LISTENERS
+    // REAL-TIME LISTENERS & EDUCATOR SCHOOL RESOLUTION
     // =========================================================================
+    function normalizeSchoolIdToken(rawVal) {
+      const raw = String(rawVal || '').trim();
+      if (!raw || raw.toUpperCase() === 'ALL' || raw.toUpperCase() === 'DIVISION_OFFICE') return raw;
+      const schools = (Array.isArray(VALENZUELA_SCHOOLS) && VALENZUELA_SCHOOLS.length > 0)
+        ? VALENZUELA_SCHOOLS
+        : (typeof DEFAULT_VALENZUELA_SCHOOLS !== 'undefined' ? DEFAULT_VALENZUELA_SCHOOLS : []);
+      if (schools.some(s => String(s.id) === raw)) return raw;
+      const sixDigit = raw.match(/\b(\d{6})\b/);
+      if (sixDigit && schools.some(s => String(s.id) === sixDigit[1])) return sixDigit[1];
+      const rawLower = raw.toLowerCase();
+      const byName = schools.find(s => {
+        const sName = String(s.name || '').toLowerCase().trim();
+        return sName && (sName === rawLower || rawLower.includes(sName) || sName.includes(rawLower));
+      });
+      if (byName) return String(byName.id);
+      if (sixDigit) return sixDigit[1];
+      return raw;
+    }
+
+    window.resolveTeacherSchoolId = function(teacher) {
+      if (!teacher) return '';
+      const directRaw = teacher.schoolId || teacher.school_id || teacher.approvedSchoolId || '';
+      const normalizedDirect = normalizeSchoolIdToken(directRaw);
+      if (normalizedDirect && normalizedDirect !== 'Unassigned' && normalizedDirect !== 'undefined' && normalizedDirect !== 'null') {
+        return normalizedDirect;
+      }
+      const nameCandidate = teacher.schoolName || teacher.school || '';
+      if (nameCandidate) {
+        const byName = normalizeSchoolIdToken(nameCandidate);
+        if (byName) return byName;
+      }
+      const uid = String(teacher.id || teacher.uid || '').trim();
+      if (uid) {
+        const cls = (cachedClasses || []).find(c =>
+          c.teacherId === uid ||
+          c.adviserId === uid ||
+          (Array.isArray(c.teacherIds) && c.teacherIds.includes(uid))
+        );
+        if (cls && cls.schoolId) {
+          return normalizeSchoolIdToken(cls.schoolId);
+        }
+        const subj = (cachedSubjects || []).find(s => s.teacherId === uid && s.schoolId);
+        if (subj && subj.schoolId) {
+          return normalizeSchoolIdToken(subj.schoolId);
+        }
+        const mat = (cachedRawMaterials || []).concat(cachedLegacyMaterials || []).find(m => m.teacherId === uid && m.schoolId);
+        if (mat && mat.schoolId) {
+          return normalizeSchoolIdToken(mat.schoolId);
+        }
+      }
+      return String(directRaw || '').trim();
+    };
+
+    window.syncCachedTeachers = function() {
+      const linkedTeacherUids = new Set();
+      (cachedClasses || []).forEach(c => {
+        if (c.teacherId) linkedTeacherUids.add(String(c.teacherId).trim());
+        if (c.adviserId) linkedTeacherUids.add(String(c.adviserId).trim());
+        if (Array.isArray(c.teacherIds)) {
+          c.teacherIds.forEach(tid => { if (tid) linkedTeacherUids.add(String(tid).trim()); });
+        }
+      });
+      (cachedSubjects || []).forEach(s => {
+        if (s.teacherId) linkedTeacherUids.add(String(s.teacherId).trim());
+      });
+      (cachedRawMaterials || []).concat(cachedLegacyMaterials || []).forEach(m => {
+        if (m.teacherId) linkedTeacherUids.add(String(m.teacherId).trim());
+      });
+
+      const seenUids = new Set();
+      const teachersList = [];
+
+      (cachedUsers || []).forEach(u => {
+        const uid = String(u.id || u.uid || '').trim();
+        if (!uid || seenUids.has(uid)) return;
+        const roleLower = String(u.role || '').toLowerCase().trim();
+        if (roleLower === 'student' || roleLower === 'super_admin' || roleLower === 'admin' || u.schoolId === 'DIVISION_OFFICE') {
+          return;
+        }
+        const isEducatorRole = roleLower === 'teacher' || roleLower === 'faculty' || roleLower === 'educator' || roleLower === 'school_admin';
+        const isLinkedEducator = linkedTeacherUids.has(uid);
+        if (isEducatorRole || isLinkedEducator) {
+          seenUids.add(uid);
+          const resolvedSchool = window.resolveTeacherSchoolId(u);
+          teachersList.push({
+            ...u,
+            id: uid,
+            schoolId: resolvedSchool || String(u.schoolId || '').trim(),
+            isApproved: roleLower === 'school_admin' ? (u.isApproved !== false) : (u.isApproved === true)
+          });
+        }
+      });
+
+      // Synthesize fallback records for any class advisers whose user profile doc is missing
+      (cachedClasses || []).forEach(c => {
+        const uid = String(c.teacherId || c.adviserId || '').trim();
+        if (!uid || seenUids.has(uid)) return;
+        const adviserLabel = String(c.adviserName || c.teacherName || '').trim();
+        if (!adviserLabel || adviserLabel.toLowerCase().includes('unassigned') || adviserLabel.toLowerCase().includes('vacant')) return;
+        seenUids.add(uid);
+        const nameParts = adviserLabel.split(/\s+/);
+        const firstName = nameParts[0] || 'Educator';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        teachersList.push({
+          id: uid,
+          firstName,
+          lastName,
+          email: c.teacherEmail || c.adviserEmail || 'Registered via Mobile App',
+          schoolId: normalizeSchoolIdToken(c.schoolId || ''),
+          role: 'teacher',
+          isApproved: true,
+          createdAt: c.createdAt || null
+        });
+      });
+
+      cachedTeachers = teachersList;
+    };
+
     function startRealtimeListeners() {
       stopRealtimeListeners();
 
-      // 1. users
+      // 1. users (Unified division listener with school-scoped fallback)
       const unsubUsers = onSnapshot(collection(db, "users"), (snapshot) => {
-        cachedUsers = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        cachedTeachers = cachedUsers.filter(u => u.role === 'teacher');
+        cachedUsers = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        syncCachedTeachers();
         scheduleDashboardRender();
         scheduleLibraryRender();
-      }, (err) => console.error("Users listener:", err));
+      }, (err) => {
+        console.warn("Users division listener warning:", err);
+        if (isSchoolAdmin && currentAdminUser?.schoolId) {
+          const fallbackRef = query(collection(db, "users"), where("schoolId", "==", String(currentAdminUser.schoolId)));
+          onSnapshot(fallbackRef, (snapshot) => {
+            cachedUsers = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+            syncCachedTeachers();
+            scheduleDashboardRender();
+            scheduleLibraryRender();
+          }, (err2) => console.error("Users school fallback error:", err2));
+        }
+      });
       unsubs.push(unsubUsers);
 
       // 2. classes
       const unsubClasses = onSnapshot(collection(db, "classes"), (snapshot) => {
-        cachedClasses = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        cachedClasses = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        syncCachedTeachers();
         scheduleDashboardRender();
       }, (err) => console.error("Classes listener:", err));
       unsubs.push(unsubClasses);
 
       // 3. pending_students (Unified division listener with school-scoped fallback)
       const unsubPending = onSnapshot(collection(db, "pending_students"), (snapshot) => {
-        cachedPendingStudents = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        cachedPendingStudents = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
         scheduleDashboardRender();
       }, (err) => {
         console.warn("Pending students division listener warning:", err);
@@ -6830,7 +6990,7 @@
         if (isSchoolAdmin && currentAdminUser?.schoolId) {
           const fallbackRef = query(collection(db, "pending_students"), where("schoolId", "==", String(currentAdminUser.schoolId)));
           onSnapshot(fallbackRef, (snapshot) => {
-            cachedPendingStudents = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            cachedPendingStudents = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
             scheduleDashboardRender();
           }, (err2) => console.error("Pending students fallback error:", err2));
         }
@@ -6840,6 +7000,8 @@
       // 4. library_subjects (TeacherLibraryActivity.kt)
       const unsubSubjects = onSnapshot(collection(db, "library_subjects"), (snapshot) => {
         cachedSubjects = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        syncCachedTeachers();
+        scheduleDashboardRender();
         scheduleLibraryRender();
       }, (err) => console.warn("Subjects listener:", err));
       unsubs.push(unsubSubjects);
@@ -6847,7 +7009,9 @@
       // 5. library_materials (SubjectDetailActivity.kt)
       const unsubMaterials = onSnapshot(collection(db, "library_materials"), (snapshot) => {
         cachedRawMaterials = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        syncCachedTeachers();
         syncMergedMaterials();
+        scheduleDashboardRender();
         scheduleLibraryRender();
       }, (err) => console.warn("Materials listener:", err));
       unsubs.push(unsubMaterials);
@@ -6855,7 +7019,9 @@
       // 6. library (TeacherHomeFragment.kt legacy/alternative collection)
       const unsubLegacyLibrary = onSnapshot(collection(db, "library"), (snapshot) => {
         cachedLegacyMaterials = snapshot.docs.map(d => ({ ...d.data(), id: d.id, isLegacy: true }));
+        syncCachedTeachers();
         syncMergedMaterials();
+        scheduleDashboardRender();
         scheduleLibraryRender();
       }, (err) => console.warn("Legacy library listener:", err));
       unsubs.push(unsubLegacyLibrary);
@@ -6970,6 +7136,7 @@
         }
 
         VALENZUELA_SCHOOLS = Array.from(schoolMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+        syncCachedTeachers();
         updateSchoolsCountUI();
         populateSchoolsDropdowns();
         scheduleDashboardRender();
@@ -7219,7 +7386,19 @@
     let facultySchoolFilter = 'ALL';
 
     window.handleFacultySearch = function(q) {
-      facultySearchQuery = (q || '').toLowerCase().trim();
+      const input = document.getElementById('inputFacultySearch');
+      const rawVal = (q || '').toLowerCase().trim();
+      const adminEmail = (currentAdminUser?.email || '').toLowerCase().trim();
+      // Ignore browser password manager autofilling admin email when input is not actively focused
+      if (rawVal && input && document.activeElement !== input && (rawVal === adminEmail || rawVal.includes('@'))) {
+        input.value = '';
+        facultySearchQuery = '';
+        const btn = document.getElementById('btnClearFacultySearch');
+        if (btn) btn.classList.add('hidden');
+        renderTeachersTable();
+        return;
+      }
+      facultySearchQuery = rawVal;
       const btn = document.getElementById('btnClearFacultySearch');
       if (btn) btn.classList.toggle('hidden', !facultySearchQuery);
       renderTeachersTable();
@@ -7232,6 +7411,18 @@
       const btn = document.getElementById('btnClearFacultySearch');
       if (btn) btn.classList.add('hidden');
       renderTeachersTable();
+    };
+
+    window.resetFacultyFilters = function() {
+      const input = document.getElementById('inputFacultySearch');
+      if (input) input.value = '';
+      facultySearchQuery = '';
+      const btn = document.getElementById('btnClearFacultySearch');
+      if (btn) btn.classList.add('hidden');
+      facultySchoolFilter = 'ALL';
+      const schSel = document.getElementById('selectFacultySchoolFilter');
+      if (schSel) schSel.value = 'ALL';
+      window.setTeacherFilter('ALL');
     };
 
     window.handleFacultySchoolFilter = function(sId) {
@@ -7566,6 +7757,9 @@
     // METRICS CALCULATOR
     // =========================================================================
     function updateDashboardMetrics() {
+      if (typeof window.syncCachedTeachers === 'function') {
+        window.syncCachedTeachers();
+      }
       let teachers = cachedTeachers;
       let classes = cachedClasses;
       let pendingStudents = cachedPendingStudents;
@@ -7574,7 +7768,7 @@
       let submissions = cachedSubmissions;
 
       if (selectedJurisdiction !== 'ALL') {
-        teachers = teachers.filter(t => String(t.schoolId) === selectedJurisdiction);
+        teachers = teachers.filter(t => String(resolveTeacherSchoolId(t)) === String(selectedJurisdiction));
         classes = classes.filter(c => String(c.schoolId) === selectedJurisdiction);
         pendingStudents = pendingStudents.filter(s => String(s.schoolId) === selectedJurisdiction);
         claimedStudents = claimedStudents.filter(s => String(s.schoolId) === selectedJurisdiction);
@@ -7710,6 +7904,7 @@
 
       renderQuickPendingTable(pendingTeachers);
     }
+    window.updateDashboardMetrics = updateDashboardMetrics;
 
     // =========================================================================
     // EXECUTIVE DASHBOARD VIEW MODES & PRINT EXPORT (NO EMOJIS)
@@ -8653,7 +8848,9 @@
 
     function renderQuickPendingTable(pendingTeachers) {
       const tbody = document.getElementById('quickPendingTableBody');
-      if (pendingTeachers.length === 0) {
+      if (!tbody) return;
+      const safePending = Array.isArray(pendingTeachers) ? pendingTeachers : [];
+      if (safePending.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="4" class="p-6 text-center text-slate-400">
@@ -8664,11 +8861,14 @@
         return;
       }
 
-      tbody.innerHTML = pendingTeachers.slice(0, 5).map(t => {
+      tbody.innerHTML = safePending.slice(0, 5).map(t => {
+        const resolvedSchoolId = resolveTeacherSchoolId(t) || t.schoolId || '';
+        const safeId = String(t.id || t.uid || '');
+        const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.fullName || t.displayName || t.email || 'Educator';
         let actionCol = '';
         if (isSchoolAdmin) {
           actionCol = `
-            <button onclick="approveTeacher('${t.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
+            <button onclick="approveTeacher('${safeId}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
               Approve
             </button>
           `;
@@ -8676,7 +8876,7 @@
           actionCol = `
             <div class="flex items-center justify-end gap-1.5">
               <span class="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[10px] font-semibold">School Admin Action</span>
-              <button onclick="inspectSchool('${t.schoolId}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-xs" title="Filter school in division roster">
+              <button onclick="inspectSchool('${resolvedSchoolId}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 rounded text-xs font-semibold text-slate-700 shadow-xs" title="Filter school in division roster">
                 Filter
               </button>
             </div>
@@ -8686,10 +8886,10 @@
         return `
           <tr class="hover:bg-slate-50 transition-colors">
             <td class="p-3 font-semibold text-slate-800">
-              ${t.firstName || ''} ${t.lastName || ''}
-              <div class="text-[10px] text-slate-400 font-normal">${t.email}</div>
+              ${fullName}
+              <div class="text-[10px] text-slate-400 font-normal">${t.email || 'N/A'}</div>
             </td>
-            <td class="p-3 text-slate-600">${getSchoolName(t.schoolId)}</td>
+            <td class="p-3 text-slate-600">${getSchoolName(resolvedSchoolId)}</td>
             <td class="p-3">
               <span class="badge-pending px-2 py-0.5 rounded-full text-[10px] font-bold">Pending Review</span>
             </td>
@@ -8708,6 +8908,7 @@
       teacherFilterMode = mode;
       ['ALL', 'PENDING', 'APPROVED'].forEach(m => {
         const btn = document.getElementById(`filterBtn-${m}`);
+        if (!btn) return;
         if (m === mode) {
           btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-[#6C5CE7] text-white shadow-sm";
         } else {
@@ -8717,110 +8918,181 @@
       renderTeachersTable();
     };
 
+    function formatEducatorDate(rawDate) {
+      if (!rawDate) return 'Recorded';
+      try {
+        if (typeof rawDate.toDate === 'function') {
+          return rawDate.toDate().toLocaleDateString();
+        }
+        if (typeof rawDate === 'object' && typeof rawDate.seconds === 'number') {
+          return new Date(rawDate.seconds * 1000).toLocaleDateString();
+        }
+        const parsed = new Date(rawDate);
+        return isNaN(parsed.getTime()) ? 'Recorded' : parsed.toLocaleDateString();
+      } catch (_) {
+        return 'Recorded';
+      }
+    }
+
     function renderTeachersTable() {
       const tbody = document.getElementById('teachersTableBody');
-      let list = cachedTeachers;
+      if (!tbody) return;
 
-      if (selectedJurisdiction !== 'ALL') {
-        list = list.filter(t => String(t.schoolId) === selectedJurisdiction);
-      }
+      try {
+        if (typeof window.syncCachedTeachers === 'function') {
+          window.syncCachedTeachers();
+        }
 
-      const totalAll = list.length;
-      const totalPending = list.filter(t => t.isApproved !== true).length;
-      const totalApproved = list.filter(t => t.isApproved === true).length;
+        let list = Array.isArray(cachedTeachers) ? [...cachedTeachers] : [];
 
-      document.getElementById('countAllTeachers').textContent = totalAll;
-      document.getElementById('countPendingTeachers').textContent = totalPending;
-      document.getElementById('countApprovedTeachers').textContent = totalApproved;
+        // 1. Scope by School Jurisdiction first so tab counters reflect the active school
+        const adminSchoolId = isSchoolAdmin && currentAdminUser?.schoolId
+          ? String(resolveTeacherSchoolId(currentAdminUser) || currentAdminUser.schoolId).trim()
+          : '';
 
-      if (teacherFilterMode === 'PENDING') list = list.filter(t => t.isApproved !== true);
-      else if (teacherFilterMode === 'APPROVED') list = list.filter(t => t.isApproved === true);
+        if (isSchoolAdmin && adminSchoolId) {
+          list = list.filter(t => String(resolveTeacherSchoolId(t)) === adminSchoolId);
+        } else if (facultySchoolFilter !== 'ALL') {
+          list = list.filter(t => String(resolveTeacherSchoolId(t)) === String(facultySchoolFilter));
+        } else if (selectedJurisdiction !== 'ALL') {
+          list = list.filter(t => String(resolveTeacherSchoolId(t)) === String(selectedJurisdiction));
+        }
 
-      // Dedicated School Filter for Super Admin (School Admin locked to own school)
-      if (isSchoolAdmin && currentAdminUser?.schoolId) {
-        list = list.filter(t => String(t.schoolId) === String(currentAdminUser.schoolId));
-      } else if (facultySchoolFilter !== 'ALL') {
-        list = list.filter(t => String(t.schoolId) === String(facultySchoolFilter));
-      }
+        const totalAll = list.length;
+        const totalPending = list.filter(t => t.isApproved !== true).length;
+        const totalApproved = list.filter(t => t.isApproved === true).length;
 
-      // Dedicated Smart Tokenized Search
-      const activeFacultySearch = facultySearchQuery || (document.getElementById('inputFacultySearch')?.value || '').toLowerCase().trim();
-      if (activeFacultySearch) {
-        list = list.filter(t => {
-          const textBlob = `${t.firstName || ''} ${t.lastName || ''} ${t.email || ''} ${t.prn || ''} ${getSchoolName(t.schoolId)} ${t.schoolId || ''}`;
-          return matchSmartSearch(textBlob, activeFacultySearch);
-        });
-      }
+        const elAll = document.getElementById('countAllTeachers');
+        const elPending = document.getElementById('countPendingTeachers');
+        const elApproved = document.getElementById('countApprovedTeachers');
+        if (elAll) elAll.textContent = totalAll;
+        if (elPending) elPending.textContent = totalPending;
+        if (elApproved) elApproved.textContent = totalApproved;
 
-      if (list.length === 0) {
+        // 2. Apply Status Filter (ALL / PENDING / APPROVED)
+        if (teacherFilterMode === 'PENDING') list = list.filter(t => t.isApproved !== true);
+        else if (teacherFilterMode === 'APPROVED') list = list.filter(t => t.isApproved === true);
+
+        // 3. Guard against browser autofill injecting admin email into #inputFacultySearch
+        const facSearchEl = document.getElementById('inputFacultySearch');
+        const adminEmail = (currentAdminUser?.email || '').toLowerCase().trim();
+        if (facSearchEl && document.activeElement !== facSearchEl) {
+          const domVal = (facSearchEl.value || '').toLowerCase().trim();
+          if (!facultySearchQuery || (adminEmail && domVal === adminEmail)) {
+            facSearchEl.value = '';
+            if (adminEmail && facultySearchQuery === adminEmail) {
+              facultySearchQuery = '';
+            }
+            const btnClear = document.getElementById('btnClearFacultySearch');
+            if (btnClear && !facultySearchQuery) btnClear.classList.add('hidden');
+          }
+        }
+
+        // 4. Dedicated Smart Tokenized Search
+        const activeFacultySearch = (facultySearchQuery || '').toLowerCase().trim();
+        if (activeFacultySearch) {
+          list = list.filter(t => {
+            const sId = resolveTeacherSchoolId(t) || t.schoolId || '';
+            const fullName = `${t.firstName || ''} ${t.lastName || ''} ${t.fullName || ''} ${t.displayName || ''}`;
+            const textBlob = `${fullName} ${t.email || ''} ${t.prn || ''} ${getSchoolName(sId)} ${sId}`;
+            return matchSmartSearch(textBlob, activeFacultySearch);
+          });
+        }
+
+        if (list.length === 0) {
+          const hasActiveFilters = Boolean(activeFacultySearch) || teacherFilterMode !== 'ALL' || (!isSchoolAdmin && facultySchoolFilter !== 'ALL');
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
+                <div>${hasActiveFilters ? 'No faculty records match the selected filter.' : 'No faculty accounts registered for this school yet.'}</div>
+                ${hasActiveFilters ? `
+                  <button onclick="resetFacultyFilters()" class="mt-2 px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold transition-colors">
+                    Reset Filters
+                  </button>
+                ` : ''}
+              </td>
+            </tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(t => {
+          const isApproved = t.isApproved === true;
+          const regDate = formatEducatorDate(t.createdAt);
+          const safeId = String(t.id || t.uid || '');
+          const shortUid = safeId ? safeId.substring(0, 8) : 'N/A';
+          const resolvedSchoolId = resolveTeacherSchoolId(t) || t.schoolId || '';
+          const fullName = `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.fullName || t.displayName || t.email || 'Educator';
+          const isPromotedSchoolAdmin = String(t.role || '').toLowerCase() === 'school_admin';
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="p-3.5">
+                <div class="font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                  <span>${fullName}</span>
+                  ${isPromotedSchoolAdmin ? '<span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded text-[9px] font-bold uppercase">School Admin</span>' : ''}
+                </div>
+                <div class="text-[10px] text-slate-400">UID: ${shortUid}...</div>
+              </td>
+              <td class="p-3.5 font-medium text-slate-700">${t.email || 'N/A'}</td>
+              <td class="p-3.5">
+                <div class="font-semibold text-slate-800">${getSchoolName(resolvedSchoolId)}</div>
+                <div class="text-[10px] text-slate-400">School ID: ${resolvedSchoolId || 'Unassigned'}</div>
+              </td>
+              <td class="p-3.5 text-slate-500">${regDate}</td>
+              <td class="p-3.5">
+                ${isApproved 
+                  ? '<span class="badge-verified px-2.5 py-1 rounded-full text-[11px] font-bold">Accredited / Active</span>' 
+                  : '<span class="badge-pending px-2.5 py-1 rounded-full text-[11px] font-bold">Pending Review</span>'}
+              </td>
+              <td class="p-3.5 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  ${isSchoolAdmin ? `
+                    ${!isApproved ? `
+                      <button onclick="approveTeacher('${safeId}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
+                        Approve
+                      </button>
+                    ` : `
+                      <button onclick="revokeTeacher('${safeId}')" class="px-2 py-1 bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 border border-slate-300 rounded text-xs font-semibold">
+                        Hold
+                      </button>
+                    `}
+                    <button onclick="openEditTeacherModal('${safeId}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold inline-flex items-center" title="Edit Educator Profile">
+                      ${uiIcon('edit', 'w-3.5 h-3.5')}
+                    </button>
+                  ` : `
+                    ${!isApproved ? `
+                      <span class="px-2 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[11px] font-semibold" title="Accreditation is granted by the assigned School Administrator">
+                        Awaiting School Principal
+                      </span>
+                    ` : `
+                      <span class="px-2 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold">
+                        Accredited
+                      </span>
+                    `}
+                    <button onclick="openEditTeacherModal('${safeId}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold inline-flex items-center" title="Edit Educator Profile">
+                      ${uiIcon('edit', 'w-3.5 h-3.5')}
+                    </button>
+                    <button onclick="deleteTeacher('${safeId}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold inline-flex items-center" title="Permanently Delete Record (SDO Exclusive)">
+                      ${uiIcon('trash', 'w-3.5 h-3.5')}
+                    </button>
+                  `}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error("renderTeachersTable error:", err);
         tbody.innerHTML = `
           <tr>
             <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
-              No faculty records match the selected filter.
+              Unable to display faculty records. Please refresh the page.
             </td>
           </tr>`;
-        return;
       }
-
-      tbody.innerHTML = list.map(t => {
-        const isApproved = t.isApproved === true;
-        const regDate = t.createdAt ? new Date(t.createdAt).toLocaleDateString() : 'Recorded';
-        
-        return `
-          <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="p-3.5">
-              <div class="font-bold text-slate-900">${t.firstName || ''} ${t.lastName || ''}</div>
-              <div class="text-[10px] text-slate-400">UID: ${t.id.substring(0, 8)}...</div>
-            </td>
-            <td class="p-3.5 font-medium text-slate-700">${t.email || 'N/A'}</td>
-            <td class="p-3.5">
-              <div class="font-semibold text-slate-800">${getSchoolName(t.schoolId)}</div>
-              <div class="text-[10px] text-slate-400">School ID: ${t.schoolId || 'Unassigned'}</div>
-            </td>
-            <td class="p-3.5 text-slate-500">${regDate}</td>
-            <td class="p-3.5">
-              ${isApproved 
-                ? '<span class="badge-verified px-2.5 py-1 rounded-full text-[11px] font-bold">Accredited / Active</span>' 
-                : '<span class="badge-pending px-2.5 py-1 rounded-full text-[11px] font-bold">Pending Review</span>'}
-            </td>
-            <td class="p-3.5 text-right">
-              <div class="flex items-center justify-end gap-1.5">
-                ${isSchoolAdmin ? `
-                  ${!isApproved ? `
-                    <button onclick="approveTeacher('${t.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm">
-                      Approve
-                    </button>
-                  ` : `
-                    <button onclick="revokeTeacher('${t.id}')" class="px-2 py-1 bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 border border-slate-300 rounded text-xs font-semibold">
-                      Hold
-                    </button>
-                  `}
-                  <button onclick="openEditTeacherModal('${t.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold inline-flex items-center" title="Edit Educator Profile">
-                    ${uiIcon('edit', 'w-3.5 h-3.5')}
-                  </button>
-                ` : `
-                  ${!isApproved ? `
-                    <span class="px-2 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[11px] font-semibold" title="Accreditation is granted by the assigned School Administrator">
-                      Awaiting School Principal
-                    </span>
-                  ` : `
-                    <span class="px-2 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold">
-                      Accredited
-                    </span>
-                  `}
-                  <button onclick="openEditTeacherModal('${t.id}')" class="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold inline-flex items-center" title="Edit Educator Profile">
-                    ${uiIcon('edit', 'w-3.5 h-3.5')}
-                  </button>
-                  <button onclick="deleteTeacher('${t.id}')" class="px-2 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 rounded text-xs font-semibold inline-flex items-center" title="Permanently Delete Record (SDO Exclusive)">
-                    ${uiIcon('trash', 'w-3.5 h-3.5')}
-                  </button>
-                `}
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
     }
+    window.renderTeachersTable = renderTeachersTable;
+    window.renderQuickPendingTable = renderQuickPendingTable;
 
     window.openCreateTeacherModal = function() {
       document.getElementById('modalTeacherTitle').textContent = "Provision Faculty Account";
@@ -9013,12 +9285,13 @@
         window.showToast("Teacher accreditation is performed by School Administrators or Division Super Admin.", "warning");
         return;
       }
-      const teacher = cachedTeachers.find(t => t.id === uid);
+      const teacher = cachedTeachers.find(t => t.id === uid) || cachedUsers.find(u => u.id === uid);
       if (!teacher) {
         window.showToast("Educator record not found.", "error");
         return;
       }
-      if (isSchoolAdmin && String(teacher.schoolId) !== String(currentAdminUser.schoolId)) {
+      const teacherSchoolId = resolveTeacherSchoolId(teacher);
+      if (isSchoolAdmin && teacherSchoolId && String(teacherSchoolId) !== String(currentAdminUser.schoolId)) {
         window.showToast("You can only accredit teachers belonging to your assigned school.", "error");
         return;
       }
@@ -9030,7 +9303,8 @@
           approvedBy: currentAdminUser.email,
           approvedByName: `${currentAdminUser.firstName || ''} ${currentAdminUser.lastName || ''}`.trim() || (isSuperAdmin ? 'Division Superintendent' : 'School Principal'),
           approvedByRole: isSuperAdmin ? 'super_admin' : 'school_admin',
-          approvedSchoolId: String(teacher.schoolId || currentAdminUser.schoolId || '')
+          schoolId: String(teacherSchoolId || currentAdminUser.schoolId || ''),
+          approvedSchoolId: String(teacherSchoolId || currentAdminUser.schoolId || '')
         });
         window.showToast(`Faculty accreditation granted for ${teacher.firstName || 'educator'}. Teacher can now log in.`, "success");
       } catch (err) {
@@ -9044,8 +9318,9 @@
         window.showToast("Unauthorized.", "error");
         return;
       }
-      const teacher = cachedTeachers.find(t => t.id === uid);
-      if (isSchoolAdmin && teacher && String(teacher.schoolId) !== String(currentAdminUser.schoolId)) {
+      const teacher = cachedTeachers.find(t => t.id === uid) || cachedUsers.find(u => u.id === uid);
+      const teacherSchoolId = resolveTeacherSchoolId(teacher);
+      if (isSchoolAdmin && teacher && teacherSchoolId && String(teacherSchoolId) !== String(currentAdminUser.schoolId)) {
         window.showToast("You can only manage teachers belonging to your assigned school.", "error");
         return;
       }
@@ -13746,9 +14021,12 @@
 
     // PDF 5: Faculty Registry
     window.exportFacultyRegistryPDF = function() {
+      if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers();
       let teachers = [...cachedTeachers];
-      if (selectedJurisdiction !== 'ALL') {
-        teachers = teachers.filter(t => String(t.schoolId) === selectedJurisdiction);
+      if (isSchoolAdmin && currentAdminUser?.schoolId) {
+        teachers = teachers.filter(t => String(resolveTeacherSchoolId(t)) === String(currentAdminUser.schoolId));
+      } else if (selectedJurisdiction !== 'ALL') {
+        teachers = teachers.filter(t => String(resolveTeacherSchoolId(t)) === String(selectedJurisdiction));
       }
 
       if (teachers.length === 0) {
@@ -14185,9 +14463,12 @@
 
     // 7. Faculty Accreditation Registry Export
     window.exportFacultyRegistryCSV = function() {
+      if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers();
       let list = cachedTeachers;
-      if (selectedJurisdiction !== 'ALL') {
-        list = list.filter(t => String(t.schoolId) === selectedJurisdiction);
+      if (isSchoolAdmin && currentAdminUser?.schoolId) {
+        list = list.filter(t => String(resolveTeacherSchoolId(t)) === String(currentAdminUser.schoolId));
+      } else if (selectedJurisdiction !== 'ALL') {
+        list = list.filter(t => String(resolveTeacherSchoolId(t)) === String(selectedJurisdiction));
       }
 
       const rows = [
@@ -14347,6 +14628,14 @@
       }
 
       if (tabId === 'tab-faculty-verification') {
+        const facSearchEl = document.getElementById('inputFacultySearch');
+        const adminEmail = (currentAdminUser?.email || '').toLowerCase().trim();
+        if (facSearchEl && (!facultySearchQuery || (adminEmail && facultySearchQuery === adminEmail))) {
+          facSearchEl.value = '';
+          facultySearchQuery = '';
+          const btnClear = document.getElementById('btnClearFacultySearch');
+          if (btnClear) btnClear.classList.add('hidden');
+        }
         renderTeachersTable();
       }
 
