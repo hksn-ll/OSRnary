@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1794333356.748338,
-    "seen": 1794334308.1549892,
-    "ast_hash": "cea37dbf11967eb036fbfb683e4c71e5",
+    "mtime": 1794334867.3836732,
+    "seen": 1794335028.8165677,
+    "ast_hash": "4b9bbfb6fef8b2f321a754277ef6e5f7",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -24,9 +24,9 @@
     "semantic_hash": "45662b930e1680df1b69215accf8450c"
   },
   "app/src/main/java/com/example/gabai/AuthActivity.kt": {
-    "mtime": 1794334028.3548067,
-    "seen": 1794334308.155018,
-    "ast_hash": "0ce97f000f76f623f5caabb2ecd3f40d",
+    "mtime": 1794334851.3297696,
+    "seen": 1794335028.8165843,
+    "ast_hash": "9ea21aa9dfb286d57294b5e8f356eb7a",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/CameraActivity.kt": {
@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1794333365.244423,
-    "seen": 1794334308.1549845,
-    "ast_hash": "1e8324fe8287bd090bcd97cbfa1a01e2",
+    "mtime": 1794334877.1203022,
+    "seen": 1794335028.8165648,
+    "ast_hash": "5f7c8d3bc08e35220cdd50a82bdf55e9",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {

@@ -1,7 +1,7 @@
 # Graph Report - OSRnary  (2026-11-11)
 
 ## Corpus Check
-- 82 files · ~843,234 words
+- 82 files · ~843,602 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 314 file(s) not represented in the graph (top: .xml 282, (none) 7, .ttf 7)
 
@@ -218,16 +218,16 @@ Nodes (6): GabAIUtils, TextSpanClassification, TextSpanType, PHRASE, SENTENCE, W
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `QuizActivity` connect `QuizActivity` to `ClassDetailActivity.kt`, `AuthActivity`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **What connects `WORD`, `PHRASE`, `SENTENCE` to the rest of the system?**
   _18 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `QuizActivity` be split into smaller, more focused modules?**
   _Cohesion score 0.06142728093947606 - nodes in this community are weakly interconnected._
-- **Why does `GabAI (OSRnary) — Complete System & Workflow Architecture Audit` connect `2. The 5 Core System Engines (How It Actually Works)` to `AuthActivity`?**
+- **Why does `FastBlurView` connect `FastBlurView` to `.onDetachedFromWindow`, `2. The 5 Core System Engines (How It Actually Works)`, `Project Rules: OSRnary (GabAI)`, `FastBlurTarget`, `.performHaptic`, `Project Rules: OSRnary (GabAI)`, `FastBlurView.kt`?**
   _High betweenness centrality (0.032) - this node is a cross-community bridge._
 - **Should `motion-graphics/gabai-motion.js` be split into smaller, more focused modules?**
   _Cohesion score 0.12549603174603174 - nodes in this community are weakly interconnected._
-- **Why does `FastBlurView` connect `FastBlurView` to `.onDetachedFromWindow`, `2. The 5 Core System Engines (How It Actually Works)`, `Project Rules: OSRnary (GabAI)`, `FastBlurTarget`, `.performHaptic`, `Project Rules: OSRnary (GabAI)`, `FastBlurView.kt`?**
+- **Why does `GabAI (OSRnary) — Complete System & Workflow Architecture Audit` connect `2. The 5 Core System Engines (How It Actually Works)` to `AuthActivity`?**
   _High betweenness centrality (0.032) - this node is a cross-community bridge._
 - **Should `motion-graphics-backup/gabai-motion.js` be split into smaller, more focused modules?**
   _Cohesion score 0.1396843950905903 - nodes in this community are weakly interconnected._

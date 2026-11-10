@@ -1,11 +1,11 @@
 {
-  "versionCode": 46,
-  "versionName": "0.4.32",
-  "minRequiredVersionCode": 46,
+  "versionCode": 47,
+  "versionName": "0.4.33",
+  "minRequiredVersionCode": 47,
   "forceUpdate": true,
-  "title": "Student Account Claim & Password Reset Fix (v0.4.32)",
+  "title": "Student Account Claim & Password Reset Fix (v0.4.33)",
   "message": "Resolves claimed student status display and temporary password reset flow in Web Admin Portal and Android app.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.32/GabAI-v0.4.32.apk",
-  "changelog": "🔧 WHAT'S NEW IN v0.4.32 (STUDENT ACCOUNT CLAIM & PASSWORD RESET FIX):\n• Fixed Claimed Student Status: Claimed student accounts in the Web Admin Portal now correctly display 'Claimed in App' with protected password masking (••••••••).\n• Restored Password Reset Flow: Teachers and School Admins can generate temporary passkeys with reliable activation in both Web Admin Portal and mobile app.\n• Direct Homeroom Class Enrollment: Automatically associates newly claimed and signed-in students with their homeroom adviser's section and subject list.\n• Security Rules Enhancement: Added granular permissions for student credential migration and class auto-enrollment."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.33/GabAI-v0.4.33.apk",
+  "changelog": "🔧 WHAT'S NEW IN v0.4.33 (STUDENT ACCOUNT CLAIM & PASSWORD RESET FIX):\n• Fixed Claimed Student Status: Claimed student accounts in the Web Admin Portal now correctly display 'Claimed in App' with protected password masking (••••••••).\n• Restored Password Reset Flow: Teachers and School Admins can generate temporary passkeys with reliable activation in both Web Admin Portal and mobile app.\n• Direct Homeroom Class Enrollment: Automatically associates newly claimed and signed-in students with their homeroom adviser's section and subject list.\n• Security Rules Enhancement: Added granular permissions for student credential migration and class auto-enrollment."
 }
