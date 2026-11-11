@@ -12,6 +12,8 @@ var getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut
 var getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, arrayUnion, arrayRemove;
 
 var currentAdminUser = null;
+var stopRealtimeListeners = function() {};
+var startRealtimeListeners = function() {};
 var isSuperAdmin = false;
 var isSchoolAdmin = false;
 var selectedJurisdiction = "ALL";

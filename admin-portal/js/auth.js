@@ -346,6 +346,16 @@
       startGabAiLoadingAnimation();
     }
 
+    // Fail-safe auto-dismiss: Ensure the loading overlay NEVER hangs indefinitely
+    setTimeout(() => {
+      const loader = document.getElementById('adminLoadingScreen');
+      if (loader && !loader.classList.contains('hidden') && !currentAdminUser) {
+        console.warn("[GabAI] Auth check timeout fallback — revealing login screen.");
+        if (typeof showAuthScreen === 'function') showAuthScreen();
+        if (typeof window.hideAdminLoader === 'function') window.hideAdminLoader(0);
+      }
+    }, 2500);
+
     window.showAdminLoader = function(statusMessage = "Authenticating administrative session...", initialProgress = 30) {
       const loader = document.getElementById('adminLoadingScreen');
       const statusText = document.getElementById('adminLoadingStatus');
@@ -438,7 +448,11 @@
               updateAdminLoader(`Welcome, ${data.firstName || welcomeTitle}! Preparing dashboard...`, 90);
               
               showAdminDashboard();
-              startRealtimeListeners();
+              if (typeof startRealtimeListeners === 'function') {
+                startRealtimeListeners();
+              } else if (typeof window.startRealtimeListeners === 'function') {
+                window.startRealtimeListeners();
+              }
               window.showToast(`Authenticated: Welcome, ${data.firstName || welcomeTitle}`, 'success');
               
               const readyText = isSuperAdmin ? "Super Admin Dashboard ready ✓" : "School Admin Dashboard ready ✓";
@@ -467,7 +481,11 @@
         currentAdminUser = null;
         isSuperAdmin = false;
         isSchoolAdmin = false;
-        stopRealtimeListeners();
+        if (typeof stopRealtimeListeners === 'function') {
+          stopRealtimeListeners();
+        } else if (typeof window.stopRealtimeListeners === 'function') {
+          window.stopRealtimeListeners();
+        }
         showAuthScreen();
         if (wasAuthenticated) {
           hideAdminLoader(250, "Signed out successfully ✓");
