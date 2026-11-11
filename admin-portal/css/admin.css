@@ -1,0 +1,287 @@
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .bg-aurora {
+      background-color: #F8FAFC;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(237, 233, 254, 0.75) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(220, 252, 231, 0.65) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(224, 242, 254, 0.65) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(250, 232, 255, 0.75) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+    .nav-active {
+      background: linear-gradient(135deg, #6C5CE7, #5341CD) !important;
+      color: #FFFFFF !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 14px rgba(108, 92, 231, 0.25) !important;
+    }
+    .nav-active span:not([id^="badge"]):not([class*="badge"]) {
+      color: #FFFFFF !important;
+    }
+    /* Sidebar Navigation Badges & Status Indicators */
+    aside nav button span[id^="badge"] {
+      font-weight: 800 !important;
+      letter-spacing: -0.01em;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    aside nav button #badgeRecycleVaultCount,
+    aside nav button.nav-active #badgeRecycleVaultCount,
+    aside nav button span[id^="badge"].bg-amber-100,
+    aside nav button.nav-active span[id^="badge"].bg-amber-100 {
+      background-color: #FEF3C7 !important;
+      color: #92400E !important;
+      border: 1px solid #FDE68A !important;
+    }
+    aside nav button span[id^="badge"].bg-emerald-100,
+    aside nav button.nav-active span[id^="badge"].bg-emerald-100 {
+      background-color: #D1FAE5 !important;
+      color: #065F46 !important;
+      border: 1px solid #A7F3D0 !important;
+    }
+    aside nav button span[id^="badge"].bg-slate-100,
+    aside nav button.nav-active span[id^="badge"].bg-slate-100 {
+      background-color: #F1F5F9 !important;
+      color: #334155 !important;
+      border: 1px solid #E2E8F0 !important;
+    }
+    aside nav button.nav-active #badgeUnreadAnnouncements {
+      background-color: #FFFFFF !important;
+      color: #5341CD !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+    }
+    aside nav button:focus-visible {
+      outline: 2px solid #6C5CE7 !important;
+      outline-offset: 2px !important;
+    }
+    .badge-pending {
+      background: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #FDE68A;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .badge-verified {
+      background: #D1FAE5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    /* ========================================================================= */
+    /* WEBSITE-WIDE FLUID ANIMATION SYSTEM */
+    /* ========================================================================= */
+
+    /* 1. Tab & View Transitions */
+    .tab-content:not(.hidden) {
+      animation: tabFadeSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes tabFadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 2. Interactive Card Elevations & Micro-Hover */
+    .kpi-card, .dashboard-card, .hover-lift {
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease !important;
+    }
+    .kpi-card:hover, .dashboard-card:hover, .hover-lift:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -4px rgba(108, 92, 231, 0.12), 0 6px 12px -4px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    /* 3. Table Row Micro-Transitions */
+    tbody tr {
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+    tbody tr:hover {
+      background-color: rgba(241, 245, 249, 0.75) !important;
+    }
+
+    /* 4. Modal Dialogue Pop-In & Smooth Backdrop */
+    #modalHelpHub:not(.hidden),
+    #modalPdfViewer:not(.hidden),
+    #modalCreateTeacher:not(.hidden),
+    #modalEditTeacher:not(.hidden),
+    #modalBatchStudents:not(.hidden),
+    #modalRemarksDrawer:not(.hidden),
+    #modalCreateSubject:not(.hidden),
+    #modalCreateMaterial:not(.hidden),
+    #modalCreateSection:not(.hidden),
+    #modalViewRoster:not(.hidden),
+    #modalGenerateInvite:not(.hidden),
+    #modalAdminSelfReg:not(.hidden) {
+      animation: modalBackdropFade 0.22s ease-out forwards;
+    }
+
+    #modalHelpHub:not(.hidden) > div,
+    #modalPdfViewer:not(.hidden) > div,
+    #modalCreateTeacher:not(.hidden) > div,
+    #modalEditTeacher:not(.hidden) > div,
+    #modalBatchStudents:not(.hidden) > div,
+    #modalRemarksDrawer:not(.hidden) > div,
+    #modalCreateSubject:not(.hidden) > div,
+    #modalCreateMaterial:not(.hidden) > div,
+    #modalCreateSection:not(.hidden) > div,
+    #modalViewRoster:not(.hidden) > div,
+    #modalGenerateInvite:not(.hidden) > div,
+    #modalAdminSelfReg:not(.hidden) > div {
+      animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalBackdropFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalPopIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* 5. Button Press Feedback */
+    button:not(:disabled):active {
+      transform: scale(0.97);
+    }
+
+    /* 6. Toast Slide-In Animation */
+    .animate-toast-in {
+      animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes toastSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(60px) scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    /* 7. Guided Tour Morphing Spotlight & Floating Card */
+    #tourSpotlight {
+      transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.25s ease;
+      box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.68), 0 0 25px rgba(108, 92, 231, 0.75);
+      outline: 3px solid #6C5CE7;
+      outline-offset: 4px;
+      animation: spotlightPulse 2.5s infinite;
+    }
+    @keyframes spotlightPulse {
+      0%, 100% { outline-color: #6C5CE7; outline-offset: 4px; }
+      50% { outline-color: #a29bfe; outline-offset: 7px; }
+    }
+
+    #tourCard {
+      transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.25s ease,
+                  opacity 0.25s ease;
+    }
+    #toastContainer {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+    @media print {
+      body.is-printing > *:not(#printReportContainer) {
+        display: none !important;
+      }
+      body * {
+        visibility: hidden !important;
+      }
+      #printReportContainer, #printReportContainer * {
+        visibility: visible !important;
+      }
+      #printReportContainer {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+        box-shadow: none !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 14mm 12mm 14mm 12mm;
+      }
+      .print-page-break {
+        page-break-after: always;
+        break-after: page;
+      }
+      .print-avoid-break {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+    /* Executive Overview Bento Charts Styling */
+    .executive-chart-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .executive-chart-card:hover {
+      box-shadow: 0 10px 25px -5px rgba(83, 65, 205, 0.08), 0 8px 10px -6px rgba(83, 65, 205, 0.04);
+      border-color: rgba(165, 180, 252, 0.6);
+      transform: translateY(-2px);
+    }
+    .executive-chart-container {
+      position: relative;
+      width: 100%;
+      height: 250px;
+    }
+    .executive-chart-container-sm {
+      position: relative;
+      width: 100%;
+      height: 210px;
+    }
+    .executive-chart-container-lg {
+      position: relative;
+      width: 100%;
+      height: 290px;
+    }
+    .mps-gauge-circle {
+      stroke-dashoffset: 0;
+      transition: stroke-dasharray 1s ease-in-out;
+    }
