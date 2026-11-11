@@ -446,7 +446,9 @@
     };
 
     window.loadSampleQuizJson = function() {
-      document.getElementById('matQuizJson').value = JSON.stringify([
+      const quizJsonEl = document.getElementById('matQuizJson');
+      if (quizJsonEl) {
+        quizJsonEl.value = JSON.stringify([
         {
           "q": "What was Dr. Pio Valenzuela's primary contribution to the Katipunan?",
           "options": ["Physician, co-founder and editor of Kalayaan", "Chief military strategist in Cavite", "Diplomat in Spain", "Treasurer in Hong Kong"],
@@ -458,6 +460,7 @@
           "ans": 1
         }
       ], null, 2);
+      }
     };
 
 
@@ -656,7 +659,7 @@
     };
 
     window.closeMaterialModal = function() {
-      document.getElementById('modalMaterial').classList.add('hidden');
+      document.getElementById('modalMaterial')?.classList.add('hidden');
     };
 
     window.handleMaterialSubmit = async function(e) {
