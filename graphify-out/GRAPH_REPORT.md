@@ -1,7 +1,7 @@
-# Graph Report - OSRnary  (2026-11-12)
+# Graph Report - OSRnary  (2026-11-13)
 
 ## Corpus Check
-- 102 files · ~972,244 words
+- 102 files · ~970,842 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 315 file(s) not represented in the graph (top: .xml 282, (none) 7, .ttf 7)
 

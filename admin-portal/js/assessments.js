@@ -2,7 +2,7 @@
     // 7. WEEKLY STUDENT ASSESSMENTS MANAGEMENT & ANALYTICS
     // =========================================================================
     window.updateAssessmentMetrics = function() {
-      let list = cachedWeeklyAssessments.filter(a => !a.isDivisionUniform && a.sourceType !== 'division_uniform');
+      let list = cachedWeeklyAssessments.filter(a => !a.isDivisionUniform && a.sourceType !== 'division_uniform' && !String(a.id).startsWith('timed_assessment_'));
       let subs = cachedSubmissions;
 
       if (selectedJurisdiction !== 'ALL') {
@@ -34,7 +34,7 @@
       const tbody = document.getElementById('assessmentsTableBody');
       if (!tbody) return;
 
-      let list = cachedWeeklyAssessments.filter(a => !a.isDivisionUniform && a.sourceType !== 'division_uniform');
+      let list = cachedWeeklyAssessments.filter(a => !a.isDivisionUniform && a.sourceType !== 'division_uniform' && !String(a.id).startsWith('timed_assessment_'));
 
       // School jurisdiction filter
       if (selectedJurisdiction !== 'ALL') {
@@ -331,7 +331,7 @@
         }
       } catch (_) {}
 
-      // 3. Weekly assessments collection (mobile app and teacher assessments)
+      // 3. Weekly assessments collection (strictly standardized division-uniform assessments only)
       const weeklyTests = [
         ...(window.cachedWeeklyAssessments || []),
         ...(cachedWeeklyAssessments || [])
@@ -340,12 +340,6 @@
         if (item && item.id) {
           if (item.isDivisionUniform === true || item.sourceType === 'division_uniform' || String(item.id).startsWith('timed_assessment_')) {
             map.set(item.id, { ...item, sourceType: 'division_uniform' });
-          } else if (item.title) {
-            map.set(item.id, {
-              ...item,
-              sourceType: 'weekly_assessment',
-              assessmentPurpose: item.assessmentPurpose || 'Classroom Reading Evaluation'
-            });
           }
         }
       });
@@ -3029,7 +3023,11 @@ Return ONLY a valid JSON array matching this exact schema:
         }
       }
 
-      let list = getUnifiedTimedTests();
+      let list = getUnifiedTimedTests().filter(a =>
+        a.isDivisionUniform === true ||
+        a.sourceType === 'division_uniform' ||
+        String(a.id).startsWith('timed_assessment_')
+      );
 
       // Scoping for School Admin: only show assessments targeting their school/district or division-wide
       if (isSchoolAdmin && currentAdminUser?.schoolId) {

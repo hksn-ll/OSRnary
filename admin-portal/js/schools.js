@@ -5,16 +5,22 @@
       const tbody = document.getElementById('schoolsTableBody');
       if (!tbody) return;
 
-      let list = VALENZUELA_SCHOOLS;
+      let list = [...(VALENZUELA_SCHOOLS || [])];
 
-      if (matrixDistrictFilter !== 'ALL') {
-        list = list.filter(s => s.district === matrixDistrictFilter);
+      const activeDist = window.matrixDistrictFilter || 'ALL';
+      if (activeDist !== 'ALL') {
+        list = list.filter(s => s.district === activeDist);
       }
 
-      if (matrixSchoolSearchQuery) {
+      const inSearch = document.getElementById('inputMatrixSchoolSearch');
+      const activeSearch = (window.matrixSchoolSearchQuery !== undefined && window.matrixSchoolSearchQuery !== ''
+        ? window.matrixSchoolSearchQuery
+        : (inSearch?.value || '')).toLowerCase().trim();
+
+      if (activeSearch) {
         list = list.filter(s => {
-          const blob = `${s.name || ''} ${s.id || ''} ${s.district || ''} ${s.address || ''}`.toLowerCase();
-          return blob.includes(matrixSchoolSearchQuery);
+          const blob = `${s.name || ''} ${s.id || ''} ${s.district || ''} ${s.address || ''}`;
+          return typeof matchSmartSearch === 'function' ? matchSmartSearch(blob, activeSearch) : blob.toLowerCase().includes(activeSearch);
         });
       }
 

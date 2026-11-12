@@ -11496,7 +11496,7 @@
       "file_type": "code",
       "norm_label": "getorcreatechart()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L785"
+      "source_location": "L770"
     },
     {
       "id": "admin_portal_js_analytics_getschooldistrict",
@@ -11508,7 +11508,7 @@
       "file_type": "code",
       "norm_label": "getschooldistrict()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1605"
+      "source_location": "L1590"
     },
     {
       "id": "admin_portal_js_analytics_getstudentgender",
@@ -11520,7 +11520,7 @@
       "file_type": "code",
       "norm_label": "getstudentgender()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1596"
+      "source_location": "L1581"
     },
     {
       "id": "admin_portal_js_analytics_renderaiexecutivebriefing",
@@ -11532,7 +11532,7 @@
       "file_type": "code",
       "norm_label": "renderaiexecutivebriefing()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1185"
+      "source_location": "L1170"
     },
     {
       "id": "admin_portal_js_analytics_renderdivisionspotlight",
@@ -11544,7 +11544,7 @@
       "file_type": "code",
       "norm_label": "renderdivisionspotlight()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1465"
+      "source_location": "L1450"
     },
     {
       "id": "admin_portal_js_analytics_renderexecutivedashboardcharts",
@@ -11556,7 +11556,7 @@
       "file_type": "code",
       "norm_label": "renderexecutivedashboardcharts()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L834"
+      "source_location": "L819"
     },
     {
       "id": "admin_portal_js_analytics_renderexecutivepodium",
@@ -11568,7 +11568,7 @@
       "file_type": "code",
       "norm_label": "renderexecutivepodium()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1302"
+      "source_location": "L1287"
     },
     {
       "id": "admin_portal_js_analytics_rendergradematrix",
@@ -11580,7 +11580,7 @@
       "file_type": "code",
       "norm_label": "rendergradematrix()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1381"
+      "source_location": "L1366"
     },
     {
       "id": "admin_portal_js_analytics_renderquickpendingtable",
@@ -11592,7 +11592,7 @@
       "file_type": "code",
       "norm_label": "renderquickpendingtable()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1519"
+      "source_location": "L1504"
     },
     {
       "id": "admin_portal_js_analytics_rendersuperadminassessmentpulse",
@@ -11604,7 +11604,7 @@
       "file_type": "code",
       "norm_label": "rendersuperadminassessmentpulse()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L365"
+      "source_location": "L350"
     },
     {
       "id": "admin_portal_js_analytics_updatedashboardmetrics",
@@ -11616,7 +11616,7 @@
       "file_type": "code",
       "norm_label": "updatedashboardmetrics()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L430"
+      "source_location": "L415"
     },
     {
       "id": "admin_portal_js_analytics_updatefilterresetbuttonstate",
@@ -11628,7 +11628,7 @@
       "file_type": "code",
       "norm_label": "updatefilterresetbuttonstate()",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L362"
+      "source_location": "L347"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_classdetailactivity_setupstudentsearch_object_textwatcher_l177_aftertextchanged",
@@ -11676,7 +11676,7 @@
       "file_type": "code",
       "norm_label": "getsubmissionschoolid()",
       "source_file": "admin-portal/js/assessments.js",
-      "source_location": "L392"
+      "source_location": "L386"
     },
     {
       "id": "admin_portal_js_assessments_getunifiedtimedtests",
@@ -12876,7 +12876,7 @@
       "file_type": "code",
       "norm_label": "renderslipcardhtml()",
       "source_file": "admin-portal/js/learners.js",
-      "source_location": "L2588"
+      "source_location": "L2610"
     },
     {
       "id": "admin_portal_js_learners_updatelearnersortindicators",
@@ -17388,7 +17388,7 @@
       "file_type": "code",
       "norm_label": "cachedcompetencystats",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1635"
+      "source_location": "L1620"
     },
     {
       "id": "admin_portal_js_analytics_chart_methodology_registry",
@@ -17399,7 +17399,7 @@
       "file_type": "code",
       "norm_label": "chart_methodology_registry",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L684"
+      "source_location": "L669"
     },
     {
       "id": "admin_portal_js_analytics_default_school_ranking_baselines",
@@ -17410,7 +17410,7 @@
       "file_type": "code",
       "norm_label": "default_school_ranking_baselines",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1897"
+      "source_location": "L1882"
     },
     {
       "id": "admin_portal_js_analytics_defaultchartoptions",
@@ -17421,7 +17421,7 @@
       "file_type": "code",
       "norm_label": "defaultchartoptions",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L808"
+      "source_location": "L793"
     },
     {
       "id": "admin_portal_js_analytics_deped_competencies",
@@ -17432,7 +17432,7 @@
       "file_type": "code",
       "norm_label": "deped_competencies",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1614"
+      "source_location": "L1599"
     },
     {
       "id": "admin_portal_js_analytics_executivechartinstances",
@@ -17443,7 +17443,7 @@
       "file_type": "code",
       "norm_label": "executivechartinstances",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L783"
+      "source_location": "L768"
     },
     {
       "id": "app_src_main_java_com_example_gabai_classdetailactivity_kt_android",
@@ -17487,7 +17487,7 @@
       "file_type": "code",
       "norm_label": "aitimedgeneratedquizpool",
       "source_file": "admin-portal/js/assessments.js",
-      "source_location": "L584"
+      "source_location": "L578"
     },
     {
       "id": "androidjunit4",
@@ -20955,7 +20955,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1073",
+      "source_location": "L1058",
       "weight": 1.0
     },
     {
@@ -20967,7 +20967,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L856",
+      "source_location": "L841",
       "weight": 1.0
     },
     {
@@ -20979,7 +20979,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L528",
+      "source_location": "L513",
       "weight": 1.0
     },
     {
@@ -20991,7 +20991,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L531",
+      "source_location": "L516",
       "weight": 1.0
     },
     {
@@ -21003,7 +21003,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L536",
+      "source_location": "L521",
       "weight": 1.0
     },
     {
@@ -21015,7 +21015,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L537",
+      "source_location": "L522",
       "weight": 1.0
     },
     {
@@ -21027,7 +21027,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L574",
+      "source_location": "L559",
       "weight": 1.0
     },
     {
@@ -43839,7 +43839,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-portal/js/assessments.js",
-      "source_location": "L392",
+      "source_location": "L386",
       "weight": 1.0
     },
     {
@@ -66781,7 +66781,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1185",
+      "source_location": "L1170",
       "weight": 1.0
     },
     {
@@ -66792,7 +66792,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1302",
+      "source_location": "L1287",
       "weight": 1.0
     },
     {
@@ -66803,7 +66803,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1381",
+      "source_location": "L1366",
       "weight": 1.0
     },
     {
@@ -66814,7 +66814,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1465",
+      "source_location": "L1450",
       "weight": 1.0
     },
     {
@@ -66825,7 +66825,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1519",
+      "source_location": "L1504",
       "weight": 1.0
     },
     {
@@ -66836,7 +66836,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1596",
+      "source_location": "L1581",
       "weight": 1.0
     },
     {
@@ -66847,7 +66847,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1605",
+      "source_location": "L1590",
       "weight": 1.0
     },
     {
@@ -66858,7 +66858,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1614",
+      "source_location": "L1599",
       "weight": 1.0
     },
     {
@@ -66869,7 +66869,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1635",
+      "source_location": "L1620",
       "weight": 1.0
     },
     {
@@ -66880,7 +66880,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L1897",
+      "source_location": "L1882",
       "weight": 1.0
     },
     {
@@ -66891,7 +66891,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L362",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -66902,7 +66902,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L365",
+      "source_location": "L350",
       "weight": 1.0
     },
     {
@@ -66913,7 +66913,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L430",
+      "source_location": "L415",
       "weight": 1.0
     },
     {
@@ -66924,7 +66924,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L684",
+      "source_location": "L669",
       "weight": 1.0
     },
     {
@@ -66935,7 +66935,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L783",
+      "source_location": "L768",
       "weight": 1.0
     },
     {
@@ -66946,7 +66946,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L785",
+      "source_location": "L770",
       "weight": 1.0
     },
     {
@@ -66957,7 +66957,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L808",
+      "source_location": "L793",
       "weight": 1.0
     },
     {
@@ -66968,7 +66968,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/analytics.js",
-      "source_location": "L834",
+      "source_location": "L819",
       "weight": 1.0
     },
     {
@@ -67012,7 +67012,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/assessments.js",
-      "source_location": "L584",
+      "source_location": "L578",
       "weight": 1.0
     },
     {
@@ -67166,7 +67166,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-portal/js/learners.js",
-      "source_location": "L2588",
+      "source_location": "L2610",
       "weight": 1.0
     },
     {

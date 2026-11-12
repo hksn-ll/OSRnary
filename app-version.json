@@ -1,11 +1,11 @@
 {
-  "versionCode": 55,
-  "versionName": "0.4.41",
-  "minRequiredVersionCode": 55,
+  "versionCode": 56,
+  "versionName": "0.4.42",
+  "minRequiredVersionCode": 56,
   "forceUpdate": true,
-  "title": "Division Timed Assessments & School Performance Rankings (v0.4.41)",
-  "message": "Unified timed assessments with local fallback and division-level school performance ranking matrix.",
+  "title": "Admin Portal Search, Filters & Timed Assessment Isolation (v0.4.42)",
+  "message": "Fixed School Directory and Student Account search/filter controls, and isolated classroom weekly quizzes from division timed tests.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.41/GabAI-v0.4.41.apk",
-  "changelog": "🚀 GABAI DIVISION ASSESSMENT & RANKING UPDATE v0.4.41:\n• Unified Timed Assessments: Unified SDO division timed tests and weekly assessments with resilient local storage persistence and baseline Phil-IRI diagnostic fallbacks.\n• Division School Performance Rankings: Standardized DepEd MPS performance benchmarks, dynamic cohort sorting, and comprehensive learner proficiency breakdowns.\n• Portal Responsive Layout: Enhanced viewport canvas scrolling and role-aware SDO Super Admin vs School Admin portal branding."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.42/GabAI-v0.4.42.apk",
+  "changelog": "🛠️ ADMIN PORTAL & ASSESSMENT ISOLATION UPDATE v0.4.42:\n• School Directory Search & District Filtering: Restored real-time campus search and District 1 / District 2 chip filtering across all 25 junior high schools.\n• Student Credential Vault Filters: Restored instant search by learner name, username, or LRN, alongside Grade, Class Section, Account State, and Campus scoping filters.\n• Division Timed Assessment Isolation: Strictly separated classroom weekly quizzes from standardized division timed tests in SDO Super Admin view."
 }

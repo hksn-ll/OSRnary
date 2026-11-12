@@ -3,27 +3,24 @@
     // =========================================================================
 
     // 1. School Directory (tab-school-matrix)
-    let matrixSchoolSearchQuery = '';
-    let matrixDistrictFilter = 'ALL';
-
     window.handleMatrixSchoolSearch = function(q) {
-      matrixSchoolSearchQuery = (q || '').toLowerCase().trim();
+      window.matrixSchoolSearchQuery = (q || '').toLowerCase().trim();
       const btn = document.getElementById('btnClearMatrixSearch');
-      if (btn) btn.classList.toggle('hidden', !matrixSchoolSearchQuery);
+      if (btn) btn.classList.toggle('hidden', !window.matrixSchoolSearchQuery);
       renderSchoolsMatrix();
     };
 
     window.clearMatrixSearch = function() {
       const input = document.getElementById('inputMatrixSchoolSearch');
       if (input) input.value = '';
-      matrixSchoolSearchQuery = '';
+      window.matrixSchoolSearchQuery = '';
       const btn = document.getElementById('btnClearMatrixSearch');
       if (btn) btn.classList.add('hidden');
       renderSchoolsMatrix();
     };
 
     window.setMatrixDistrictFilter = function(dist) {
-      matrixDistrictFilter = dist || 'ALL';
+      window.matrixDistrictFilter = dist || 'ALL';
       const chips = [
         { key: 'ALL', id: 'chipMatrixDist-ALL' },
         { key: 'District 1', id: 'chipMatrixDist-District1' },
@@ -32,7 +29,7 @@
       chips.forEach(c => {
         const btn = document.getElementById(c.id);
         if (!btn) return;
-        if (c.key === matrixDistrictFilter) {
+        if (c.key === window.matrixDistrictFilter) {
           btn.className = "px-2.5 py-1 rounded-lg bg-[#5341CD] text-white shadow-xs font-bold text-[11px] transition-all";
         } else {
           btn.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 font-bold text-[11px] transition-all";
@@ -42,9 +39,6 @@
     };
 
     // 2. Faculty Verification (tab-faculty-verification)
-    let facultySearchQuery = '';
-    let facultySchoolFilter = 'ALL';
-
     window.handleFacultySearch = function(q) {
       const input = document.getElementById('inputFacultySearch');
       const rawVal = (q || '').toLowerCase().trim();
@@ -52,22 +46,22 @@
       // Ignore browser password manager autofilling admin email when input is not actively focused
       if (rawVal && input && document.activeElement !== input && (rawVal === adminEmail || rawVal.includes('@'))) {
         input.value = '';
-        facultySearchQuery = '';
+        window.facultySearchQuery = '';
         const btn = document.getElementById('btnClearFacultySearch');
         if (btn) btn.classList.add('hidden');
         renderTeachersTable();
         return;
       }
-      facultySearchQuery = rawVal;
+      window.facultySearchQuery = rawVal;
       const btn = document.getElementById('btnClearFacultySearch');
-      if (btn) btn.classList.toggle('hidden', !facultySearchQuery);
+      if (btn) btn.classList.toggle('hidden', !window.facultySearchQuery);
       renderTeachersTable();
     };
 
     window.clearFacultySearch = function() {
       const input = document.getElementById('inputFacultySearch');
       if (input) input.value = '';
-      facultySearchQuery = '';
+      window.facultySearchQuery = '';
       const btn = document.getElementById('btnClearFacultySearch');
       if (btn) btn.classList.add('hidden');
       renderTeachersTable();
@@ -76,63 +70,52 @@
     window.resetFacultyFilters = function() {
       const input = document.getElementById('inputFacultySearch');
       if (input) input.value = '';
-      facultySearchQuery = '';
+      window.facultySearchQuery = '';
       const btn = document.getElementById('btnClearFacultySearch');
       if (btn) btn.classList.add('hidden');
-      facultySchoolFilter = 'ALL';
+      window.facultySchoolFilter = 'ALL';
       const schSel = document.getElementById('selectFacultySchoolFilter');
       if (schSel) schSel.value = 'ALL';
       window.setTeacherFilter('ALL');
     };
 
     window.handleFacultySchoolFilter = function(sId) {
-      facultySchoolFilter = sId || 'ALL';
+      window.facultySchoolFilter = sId || 'ALL';
       renderTeachersTable();
     };
 
     // 3. Classroom Sections (tab-classroom-sections)
-    let sectionSearchQuery = '';
-    let sectionGradeFilter = 'ALL';
-    let sectionSchoolFilter = 'ALL';
-
     window.handleSectionSearch = function(q) {
-      sectionSearchQuery = (q || '').toLowerCase().trim();
+      window.sectionSearchQuery = (q || '').toLowerCase().trim();
       const btn = document.getElementById('btnClearSectionSearch');
-      if (btn) btn.classList.toggle('hidden', !sectionSearchQuery);
+      if (btn) btn.classList.toggle('hidden', !window.sectionSearchQuery);
       renderSectionsTable();
     };
 
     window.clearSectionSearch = function() {
       const input = document.getElementById('inputSectionSearch');
       if (input) input.value = '';
-      sectionSearchQuery = '';
+      window.sectionSearchQuery = '';
       const btn = document.getElementById('btnClearSectionSearch');
       if (btn) btn.classList.add('hidden');
       renderSectionsTable();
     };
 
     window.handleSectionGradeFilter = function(val) {
-      sectionGradeFilter = val || 'ALL';
+      window.sectionGradeFilter = val || 'ALL';
       renderSectionsTable();
     };
 
     window.handleSectionSchoolFilter = function(sId) {
-      sectionSchoolFilter = sId || 'ALL';
+      window.sectionSchoolFilter = sId || 'ALL';
       renderSectionsTable();
     };
 
     // 4. Learner Academic Performance (tab-learner-performance)
-    let learnerSearchQuery = '';
-    let learnerGradeFilter = 'ALL';
-    let learnerTierFilter = 'ALL';
-    let learnerGenderFilter = 'ALL';
-    let learnerStatusFilter = 'ALL';
-    let learnerSchoolFilterVal = 'ALL';
-
     window.handleLearnerSearch = function(q) {
-      learnerSearchQuery = (q || '').toLowerCase().trim();
+      window.learnerSearchQuery = (q || '').toLowerCase().trim();
       const btn = document.getElementById('btnClearLearnerSearch');
-      if (btn) btn.classList.toggle('hidden', !learnerSearchQuery);
+      if (btn) btn.classList.toggle('hidden', !window.learnerSearchQuery);
       if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
@@ -140,7 +123,7 @@
     window.clearLearnerSearch = function() {
       const input = document.getElementById('inputLearnerSearch');
       if (input) input.value = '';
-      learnerSearchQuery = '';
+      window.learnerSearchQuery = '';
       const btn = document.getElementById('btnClearLearnerSearch');
       if (btn) btn.classList.add('hidden');
       if (typeof learnerPage !== 'undefined') learnerPage = 1;
@@ -148,76 +131,78 @@
     };
 
     window.handleLearnerGradeFilter = function(val) {
-      learnerGradeFilter = val || 'ALL';
+      window.learnerGradeFilter = val || 'ALL';
       if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerTierFilter = function(val) {
-      learnerTierFilter = val || 'ALL';
+      window.learnerTierFilter = val || 'ALL';
       if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerGenderFilter = function(val) {
-      learnerGenderFilter = val || 'ALL';
+      window.learnerGenderFilter = val || 'ALL';
       if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerStatusFilter = function(val) {
-      learnerStatusFilter = val || 'ALL';
+      window.learnerStatusFilter = val || 'ALL';
       if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerSchoolFilterChange = function(val) {
-      learnerSchoolFilterVal = val || 'ALL';
+      window.learnerSchoolFilterVal = val || 'ALL';
       if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     // 5. Student Credentials & Accounts (tab-batch-credentials)
-    let credentialSearchQuery = '';
-    let credentialGradeFilter = 'ALL';
-    let credentialSectionFilter = 'ALL';
-    let credentialStatusFilter = 'ALL';
-    let credentialSchoolFilter = 'ALL';
-
     window.handleCredentialSearch = function(q) {
-      credentialSearchQuery = (q || '').toLowerCase().trim();
+      window.credentialSearchQuery = (q || '').toLowerCase().trim();
       const btn = document.getElementById('btnClearCredentialSearch');
-      if (btn) btn.classList.toggle('hidden', !credentialSearchQuery);
+      if (btn) btn.classList.toggle('hidden', !window.credentialSearchQuery);
       renderPendingStudentsTable();
     };
 
     window.clearCredentialSearch = function() {
       const input = document.getElementById('inputCredentialSearch');
       if (input) input.value = '';
-      credentialSearchQuery = '';
+      window.credentialSearchQuery = '';
       const btn = document.getElementById('btnClearCredentialSearch');
       if (btn) btn.classList.add('hidden');
       renderPendingStudentsTable();
     };
 
     window.handleCredentialGradeFilter = function(val) {
-      credentialGradeFilter = val || 'ALL';
+      window.credentialGradeFilter = val || 'ALL';
+      const selGrade = document.getElementById('selectCredentialGradeFilter');
+      if (selGrade && selGrade.value !== window.credentialGradeFilter) selGrade.value = window.credentialGradeFilter;
       populateCredentialSectionDropdown();
       renderPendingStudentsTable();
     };
 
     window.handleCredentialSectionFilter = function(val) {
-      credentialSectionFilter = val || 'ALL';
+      window.credentialSectionFilter = val || 'ALL';
+      const selSec = document.getElementById('selectCredentialSectionFilter');
+      if (selSec && selSec.value !== window.credentialSectionFilter) selSec.value = window.credentialSectionFilter;
       renderPendingStudentsTable();
     };
 
     window.handleCredentialStatusFilter = function(val) {
-      credentialStatusFilter = val || 'ALL';
+      window.credentialStatusFilter = val || 'ALL';
+      const selStat = document.getElementById('selectCredentialStatusFilter');
+      if (selStat && selStat.value !== window.credentialStatusFilter) selStat.value = window.credentialStatusFilter;
       renderPendingStudentsTable();
     };
 
     window.handleCredentialSchoolFilter = function(val) {
-      credentialSchoolFilter = val || 'ALL';
+      window.credentialSchoolFilter = val || 'ALL';
+      const selSchool = document.getElementById('selectCredentialSchoolFilter');
+      if (selSchool && selSchool.value !== window.credentialSchoolFilter) selSchool.value = window.credentialSchoolFilter;
       populateCredentialSectionDropdown();
       renderPendingStudentsTable();
     };
@@ -228,17 +213,20 @@
       const currentVal = select.value;
 
       let classes = cachedClasses || [];
+      const credSchool = window.credentialSchoolFilter || 'ALL';
+      const credGrade = window.credentialGradeFilter || 'ALL';
+
       if (isSchoolAdmin && currentAdminUser?.schoolId) {
         classes = classes.filter(c => String(c.schoolId) === String(currentAdminUser.schoolId));
-      } else if (credentialSchoolFilter !== 'ALL') {
-        classes = classes.filter(c => String(c.schoolId) === String(credentialSchoolFilter));
+      } else if (credSchool !== 'ALL') {
+        classes = classes.filter(c => String(c.schoolId) === String(credSchool));
       } else if (selectedJurisdiction !== 'ALL') {
         classes = classes.filter(c => String(c.schoolId) === String(selectedJurisdiction));
       }
 
-      if (credentialGradeFilter !== 'ALL') {
-        const gNum = credentialGradeFilter.replace('Grade ', '').trim();
-        classes = classes.filter(c => String(c.grade || '').trim() === gNum || String(c.grade || '').trim() === credentialGradeFilter);
+      if (credGrade !== 'ALL') {
+        const gNum = credGrade.replace('Grade ', '').trim();
+        classes = classes.filter(c => String(c.grade || '').trim() === gNum || String(c.grade || '').trim() === credGrade);
       }
 
       const sections = Array.from(new Set(classes.map(c => (c.section || c.className || c.name || '').trim()).filter(Boolean))).sort();
@@ -250,32 +238,29 @@
         select.value = currentVal;
       } else {
         select.value = 'ALL';
-        credentialSectionFilter = 'ALL';
+        window.credentialSectionFilter = 'ALL';
       }
     };
 
     // 6. Library Management (tab-library-management)
-    let materialSearchQuery = '';
-    let materialGradeFilter = 'ALL';
-
     window.handleMaterialSearch = function(q) {
-      materialSearchQuery = (q || '').toLowerCase().trim();
+      window.materialSearchQuery = (q || '').toLowerCase().trim();
       const btn = document.getElementById('btnClearMaterialSearch');
-      if (btn) btn.classList.toggle('hidden', !materialSearchQuery);
+      if (btn) btn.classList.toggle('hidden', !window.materialSearchQuery);
       renderMaterialsTable();
     };
 
     window.clearMaterialSearch = function() {
       const input = document.getElementById('inputMaterialSearch');
       if (input) input.value = '';
-      materialSearchQuery = '';
+      window.materialSearchQuery = '';
       const btn = document.getElementById('btnClearMaterialSearch');
       if (btn) btn.classList.add('hidden');
       renderMaterialsTable();
     };
 
     window.handleMaterialGradeFilter = function(val) {
-      materialGradeFilter = val || 'ALL';
+      window.materialGradeFilter = val || 'ALL';
       renderMaterialsTable();
     };
 
@@ -332,11 +317,11 @@
     window.handleGlobalSearch = function(q) {};
     window.clearGlobalSearch = function() {};
     window.resetCredentialFilters = function() {
-      credentialSearchQuery = '';
-      credentialGradeFilter = 'ALL';
-      credentialSectionFilter = 'ALL';
-      credentialStatusFilter = 'ALL';
-      credentialSchoolFilter = 'ALL';
+      window.credentialSearchQuery = '';
+      window.credentialGradeFilter = 'ALL';
+      window.credentialSectionFilter = 'ALL';
+      window.credentialStatusFilter = 'ALL';
+      window.credentialSchoolFilter = 'ALL';
       const inSearch = document.getElementById('inputCredentialSearch');
       if (inSearch) inSearch.value = '';
       const selGrade = document.getElementById('selectCredentialGradeFilter');

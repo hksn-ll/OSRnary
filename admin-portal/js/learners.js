@@ -2291,9 +2291,10 @@
           const targetSchool = String(currentAdminUser.schoolId).trim();
           list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
         } else {
-          const activeSchool = (credentialSchoolFilter && credentialSchoolFilter !== 'ALL')
-            ? credentialSchoolFilter
-            : (selectedJurisdiction !== 'ALL' ? selectedJurisdiction : 'ALL');
+          const selSchool = document.getElementById('selectCredentialSchoolFilter');
+          const activeSchool = (window.credentialSchoolFilter && window.credentialSchoolFilter !== 'ALL')
+            ? window.credentialSchoolFilter
+            : (selSchool?.value && selSchool.value !== 'ALL' ? selSchool.value : (selectedJurisdiction !== 'ALL' ? selectedJurisdiction : 'ALL'));
           if (activeSchool !== 'ALL') {
             const targetSchool = String(activeSchool).trim();
             list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
@@ -2301,20 +2302,29 @@
         }
 
         // Dedicated Grade Filter
-        const activeCredGrade = credentialGradeFilter || document.getElementById('selectCredentialGradeFilter')?.value || 'ALL';
+        const selGrade = document.getElementById('selectCredentialGradeFilter');
+        const activeCredGrade = (window.credentialGradeFilter && window.credentialGradeFilter !== 'ALL')
+          ? window.credentialGradeFilter
+          : (selGrade?.value || 'ALL');
         if (activeCredGrade !== 'ALL') {
           const targetGradeNum = activeCredGrade.replace('Grade ', '').trim();
           list = list.filter(s => String(s.grade || '').trim() === targetGradeNum || (s.grade || '').trim() === activeCredGrade || `Grade ${s.grade}` === activeCredGrade);
         }
 
         // Dedicated Section Filter
-        const activeCredSection = credentialSectionFilter || document.getElementById('selectCredentialSectionFilter')?.value || 'ALL';
+        const selSec = document.getElementById('selectCredentialSectionFilter');
+        const activeCredSection = (window.credentialSectionFilter && window.credentialSectionFilter !== 'ALL')
+          ? window.credentialSectionFilter
+          : (selSec?.value || 'ALL');
         if (activeCredSection !== 'ALL') {
           list = list.filter(s => String(s.section || '').trim().toLowerCase() === activeCredSection.trim().toLowerCase());
         }
 
         // Dedicated Status Filter
-        const activeCredStatus = credentialStatusFilter || document.getElementById('selectCredentialStatusFilter')?.value || 'ALL';
+        const selStat = document.getElementById('selectCredentialStatusFilter');
+        const activeCredStatus = (window.credentialStatusFilter && window.credentialStatusFilter !== 'ALL')
+          ? window.credentialStatusFilter
+          : (selStat?.value || 'ALL');
         if (activeCredStatus === 'PENDING') {
           list = list.filter(s => !s.isClaimed);
         } else if (activeCredStatus === 'APPROVED') {
@@ -2323,12 +2333,14 @@
 
         // Dedicated Smart Tokenized Search
         const inCred = document.getElementById('inputCredentialSearch');
-        if (inCred && !credentialSearchQuery && inCred.value && (inCred.value.includes('@') || (currentAdminUser?.email && inCred.value.toLowerCase() === currentAdminUser.email.toLowerCase()))) {
+        if (inCred && !window.credentialSearchQuery && inCred.value && (inCred.value.includes('@') || (currentAdminUser?.email && inCred.value.toLowerCase() === currentAdminUser.email.toLowerCase()))) {
           inCred.value = '';
           const btnClear = document.getElementById('btnClearCredentialSearch');
           if (btnClear) btnClear.classList.add('hidden');
         }
-        const activeCredSearch = credentialSearchQuery || (inCred?.value || '').toLowerCase().trim();
+        const activeCredSearch = (window.credentialSearchQuery !== undefined && window.credentialSearchQuery !== ''
+          ? window.credentialSearchQuery
+          : (inCred?.value || '')).toLowerCase().trim();
         if (activeCredSearch) {
           list = list.filter(s => {
             const textBlob = `${s.firstName || ''} ${s.lastName || ''} ${s.username || ''} ${s.section || ''} ${s.lrn || ''} ${s.grade || ''} ${s.schoolId || ''} ${getSchoolName(s.schoolId)}`;
@@ -2388,7 +2400,7 @@
         }
 
         if (list.length === 0) {
-          const isFiltered = (selectedJurisdiction !== 'ALL' && !isSchoolAdmin) || credentialGradeFilter !== 'ALL' || credentialSectionFilter !== 'ALL' || credentialStatusFilter !== 'ALL' || credentialSchoolFilter !== 'ALL' || credentialSearchQuery !== '';
+          const isFiltered = (selectedJurisdiction !== 'ALL' && !isSchoolAdmin) || (window.credentialGradeFilter && window.credentialGradeFilter !== 'ALL') || (window.credentialSectionFilter && window.credentialSectionFilter !== 'ALL') || (window.credentialStatusFilter && window.credentialStatusFilter !== 'ALL') || (window.credentialSchoolFilter && window.credentialSchoolFilter !== 'ALL') || (window.credentialSearchQuery !== undefined && window.credentialSearchQuery !== '');
           tbody.innerHTML = `
             <tr>
               <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
@@ -2511,27 +2523,37 @@
         const targetSchool = String(currentAdminUser.schoolId).trim();
         list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
       } else {
-        const activeSchool = (credentialSchoolFilter && credentialSchoolFilter !== 'ALL')
-          ? credentialSchoolFilter
-          : (selectedJurisdiction !== 'ALL' ? selectedJurisdiction : 'ALL');
+        const selSchool = document.getElementById('selectCredentialSchoolFilter');
+        const activeSchool = (window.credentialSchoolFilter && window.credentialSchoolFilter !== 'ALL')
+          ? window.credentialSchoolFilter
+          : (selSchool?.value && selSchool.value !== 'ALL' ? selSchool.value : (selectedJurisdiction !== 'ALL' ? selectedJurisdiction : 'ALL'));
         if (activeSchool !== 'ALL') {
           const targetSchool = String(activeSchool).trim();
           list = list.filter(s => resolveStudentSchoolId(s) === targetSchool);
         }
       }
 
-      const activeCredGrade = credentialGradeFilter || document.getElementById('selectCredentialGradeFilter')?.value || 'ALL';
+      const selGrade = document.getElementById('selectCredentialGradeFilter');
+      const activeCredGrade = (window.credentialGradeFilter && window.credentialGradeFilter !== 'ALL')
+        ? window.credentialGradeFilter
+        : (selGrade?.value || 'ALL');
       if (activeCredGrade !== 'ALL') {
         const targetGradeNum = activeCredGrade.replace('Grade ', '').trim();
         list = list.filter(s => String(s.grade || '').trim() === targetGradeNum || (s.grade || '').trim() === activeCredGrade || `Grade ${s.grade}` === activeCredGrade);
       }
 
-      const activeCredSection = credentialSectionFilter || document.getElementById('selectCredentialSectionFilter')?.value || 'ALL';
+      const selSec = document.getElementById('selectCredentialSectionFilter');
+      const activeCredSection = (window.credentialSectionFilter && window.credentialSectionFilter !== 'ALL')
+        ? window.credentialSectionFilter
+        : (selSec?.value || 'ALL');
       if (activeCredSection !== 'ALL') {
         list = list.filter(s => String(s.section || '').trim().toLowerCase() === activeCredSection.trim().toLowerCase());
       }
 
-      const activeCredStatus = credentialStatusFilter || document.getElementById('selectCredentialStatusFilter')?.value || 'ALL';
+      const selStat = document.getElementById('selectCredentialStatusFilter');
+      const activeCredStatus = (window.credentialStatusFilter && window.credentialStatusFilter !== 'ALL')
+        ? window.credentialStatusFilter
+        : (selStat?.value || 'ALL');
       if (activeCredStatus === 'PENDING') {
         list = list.filter(s => !s.isClaimed);
       } else if (activeCredStatus === 'APPROVED') {
