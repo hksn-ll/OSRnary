@@ -7,15 +7,40 @@
       });
       cachedMaterials = combined;
     }
-    let cachedWeeklyAssessments = [];
-    let cachedDivisionTimedAssessments = [];
-    let cachedTimedSubmissions = [];
-    let cachedSubmissions = [];
-    window.setCachedTimedSubmissionsForTesting = function(list) { cachedTimedSubmissions = list; };
-    window.setCachedSubmissionsForTesting = function(list) { cachedSubmissions = list; };
-    window.setCachedUsersForTesting = function(list) { cachedUsers = list; if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers(); };
-    window.setCachedClassesForTesting = function(list) { cachedClasses = list; if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers(); };
-    window.setCachedPendingStudentsForTesting = function(list) { cachedPendingStudents = list; };
+    // Ensure global caches exist on window
+    window.cachedWeeklyAssessments = window.cachedWeeklyAssessments || [];
+    window.cachedDivisionTimedAssessments = window.cachedDivisionTimedAssessments || [];
+    window.cachedTimedSubmissions = window.cachedTimedSubmissions || [];
+    window.cachedSubmissions = window.cachedSubmissions || [];
+
+    // Local references bound directly to global window cache
+    var cachedWeeklyAssessments = window.cachedWeeklyAssessments;
+    var cachedDivisionTimedAssessments = window.cachedDivisionTimedAssessments;
+    var cachedTimedSubmissions = window.cachedTimedSubmissions;
+    var cachedSubmissions = window.cachedSubmissions;
+
+    window.setCachedTimedSubmissionsForTesting = function(list) {
+      cachedTimedSubmissions = list;
+      window.cachedTimedSubmissions = list;
+    };
+    window.setCachedSubmissionsForTesting = function(list) {
+      cachedSubmissions = list;
+      window.cachedSubmissions = list;
+    };
+    window.setCachedUsersForTesting = function(list) {
+      cachedUsers = list;
+      window.cachedUsers = list;
+      if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers();
+    };
+    window.setCachedClassesForTesting = function(list) {
+      cachedClasses = list;
+      window.cachedClasses = list;
+      if (typeof window.syncCachedTeachers === 'function') window.syncCachedTeachers();
+    };
+    window.setCachedPendingStudentsForTesting = function(list) {
+      cachedPendingStudents = list;
+      window.cachedPendingStudents = list;
+    };
 
     // =========================================================================
     // REAL-TIME LISTENERS & EDUCATOR SCHOOL RESOLUTION
@@ -217,7 +242,9 @@
 
       // 7. weekly_assessments (SubjectDetailActivity.kt & QuizEditorActivity.kt)
       const unsubAssessments = onSnapshot(collection(db, "weekly_assessments"), (snapshot) => {
-        cachedWeeklyAssessments = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        const list = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        cachedWeeklyAssessments = list;
+        window.cachedWeeklyAssessments = list;
         scheduleAssessmentsRender();
         scheduleDashboardRender();
       }, (err) => console.warn("Weekly assessments listener:", err));
@@ -225,11 +252,13 @@
 
       // 8. assessment_submissions (WeeklyAssessmentActivity.kt)
       const unsubSubmissions = onSnapshot(collection(db, "assessment_submissions"), (snapshot) => {
-        cachedSubmissions = snapshot.docs.map(d => {
+        const list = snapshot.docs.map(d => {
           const data = d.data();
           const studentId = String(data.studentUid || data.studentId || data.uid || data.userId || '').trim();
           return { ...data, id: d.id, studentId, studentUid: studentId };
         });
+        cachedSubmissions = list;
+        window.cachedSubmissions = list;
         scheduleAssessmentsRender();
         scheduleDashboardRender();
         if (typeof syncSubmissionsToQuizAttempts === 'function') {
@@ -240,7 +269,9 @@
 
       // 8.1 division_timed_assessments (SDO Super Admin standardized timed assessments)
       const unsubDivisionAssessments = onSnapshot(collection(db, "division_timed_assessments"), (snapshot) => {
-        cachedDivisionTimedAssessments = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        const list = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        cachedDivisionTimedAssessments = list;
+        window.cachedDivisionTimedAssessments = list;
         scheduleAssessmentsRender();
         scheduleDashboardRender();
       }, (err) => console.warn("Division timed assessments listener:", err));
@@ -248,7 +279,9 @@
 
       // 8.2 timed_assessment_submissions (Submissions with Phil-IRI proficiency & performance data)
       const unsubTimedSubmissions = onSnapshot(collection(db, "timed_assessment_submissions"), (snapshot) => {
-        cachedTimedSubmissions = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        const list = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+        cachedTimedSubmissions = list;
+        window.cachedTimedSubmissions = list;
         scheduleAssessmentsRender();
         scheduleDashboardRender();
       }, (err) => {
@@ -256,7 +289,9 @@
         if (isSchoolAdmin && currentAdminUser?.schoolId) {
           const fallbackRef = query(collection(db, "timed_assessment_submissions"), where("schoolId", "==", String(currentAdminUser.schoolId)));
           onSnapshot(fallbackRef, (snapshot) => {
-            cachedTimedSubmissions = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+            const list = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+            cachedTimedSubmissions = list;
+            window.cachedTimedSubmissions = list;
             scheduleAssessmentsRender();
             scheduleDashboardRender();
           }, (err2) => console.error("Timed submissions school fallback error:", err2));

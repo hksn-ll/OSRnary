@@ -184,8 +184,22 @@ window.setTestAdminSession = function(user, role = 'school_admin') {
   currentAdminUser = user;
   isSuperAdmin = (role === 'super_admin');
   isSchoolAdmin = (role === 'school_admin');
+  const brandingTitle = document.getElementById('portalBrandingTitle');
+  const brandingSubtitle = document.getElementById('portalBrandingSubtitle');
+  if (isSuperAdmin) {
+    document.title = "GabAI Super Admin Portal";
+    if (brandingTitle) brandingTitle.textContent = "GabAI Super Admin Portal";
+    if (brandingSubtitle) brandingSubtitle.textContent = "Schools Division Office (SDO) Valenzuela City";
+  } else {
+    document.title = "GabAI School Admin Portal";
+    if (brandingTitle) brandingTitle.textContent = "GabAI School Admin Portal";
+    if (brandingSubtitle) brandingSubtitle.textContent = "School Records & Reading Management";
+  }
   if (typeof showAdminDashboard === 'function') {
     showAdminDashboard();
+  }
+  if (typeof renderSchoolRankingTable === 'function') {
+    renderSchoolRankingTable();
   }
 };
 window.getTestAdminSession = function() {

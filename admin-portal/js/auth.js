@@ -512,6 +512,7 @@
     });
 
     function showAuthScreen() {
+      document.title = "GabAI School Admin Portal";
       document.getElementById('authScreen').classList.remove('hidden');
       document.getElementById('mainDashboard').classList.add('hidden');
       document.getElementById('navSectionSuperAdminSettings')?.classList.add('hidden');
@@ -522,6 +523,18 @@
     function showAdminDashboard() {
       document.getElementById('authScreen').classList.add('hidden');
       document.getElementById('mainDashboard').classList.remove('hidden');
+      
+      const brandingTitle = document.getElementById('portalBrandingTitle');
+      const brandingSubtitle = document.getElementById('portalBrandingSubtitle');
+      if (isSuperAdmin) {
+        document.title = "GabAI Super Admin Portal";
+        if (brandingTitle) brandingTitle.textContent = "GabAI Super Admin Portal";
+        if (brandingSubtitle) brandingSubtitle.textContent = "Schools Division Office (SDO) Valenzuela City";
+      } else {
+        document.title = "GabAI School Admin Portal";
+        if (brandingTitle) brandingTitle.textContent = "GabAI School Admin Portal";
+        if (brandingSubtitle) brandingSubtitle.textContent = "School Records & Reading Management";
+      }
       
       const nameElem = document.getElementById('adminUserDisplayName');
       const emailElem = document.getElementById('adminUserEmail');
@@ -597,7 +610,6 @@
 
         // Role-based Chart & Briefing Visibility: Hide Division-level macro bloat from School Admin
         document.getElementById('superAdminChartsRow')?.classList.add('hidden');
-        document.getElementById('executivePodiumSection')?.classList.add('hidden');
         document.getElementById('briefCardDistrictParity')?.classList.add('hidden');
         document.getElementById('briefCardSchoolSection')?.classList.remove('hidden');
 
@@ -674,7 +686,6 @@
 
         // Role-based Chart & Briefing Visibility: Show Division-level macro charts
         document.getElementById('superAdminChartsRow')?.classList.remove('hidden');
-        document.getElementById('executivePodiumSection')?.classList.remove('hidden');
         document.getElementById('briefCardDistrictParity')?.classList.remove('hidden');
         document.getElementById('briefCardSchoolSection')?.classList.add('hidden');
 
@@ -713,6 +724,12 @@
       }
 
       renderSchoolsMatrix();
+      if (typeof updateDashboardMetrics === 'function') {
+        try { updateDashboardMetrics(); } catch (e) { console.error("Error updating dashboard metrics on show:", e); }
+      }
+      if (typeof renderSchoolRankingTable === 'function') {
+        try { renderSchoolRankingTable(); } catch (e) { console.error("Error rendering school rankings on show:", e); }
+      }
       checkFirstTimeTourPrompt();
 
       // Guard against browser password manager autofilling admin email into search inputs on login transition
@@ -784,9 +801,10 @@
     };
 
     window.handleLogout = async function() {
+      const portalName = isSuperAdmin ? "GabAI Super Admin Portal" : "GabAI School Admin Portal";
       const confirmed = await showConfirmModal({
         title: "End Administrative Session?",
-        message: "Are you sure you want to sign out of the GabAI School Admin Portal?",
+        message: `Are you sure you want to sign out of the ${portalName}?`,
         badgeIcon: "🚪",
         badgeBg: "bg-indigo-50 text-[#5341CD] border-indigo-200",
         confirmText: "Sign Out",

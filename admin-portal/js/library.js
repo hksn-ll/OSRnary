@@ -179,7 +179,9 @@
     };
 
     window.openAssessmentInspectorModal = function(assessmentId) {
-      const a = cachedDivisionTimedAssessments.find(item => item.id === assessmentId) || cachedWeeklyAssessments.find(item => item.id === assessmentId);
+      const a = (typeof getUnifiedTimedTests === 'function' ? getUnifiedTimedTests().find(item => item.id === assessmentId) : null) 
+        || (window.cachedDivisionTimedAssessments || []).find(item => item.id === assessmentId) 
+        || (window.cachedWeeklyAssessments || []).find(item => item.id === assessmentId);
       if (!a) return;
 
       activeInspectorType = 'assessment';

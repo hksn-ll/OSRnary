@@ -2503,28 +2503,28 @@
   <!-- ========================================================================= -->
   <!-- 6. MAIN ADMINISTRATIVE DASHBOARD -->
   <!-- ========================================================================= -->
-  <div id="mainDashboard" class="hidden w-full min-h-screen flex flex-col bg-aurora">
+  <div id="mainDashboard" class="hidden fixed inset-0 flex flex-col bg-aurora overflow-hidden w-full h-full">
     
     <!-- Top Division Header Bar -->
-    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 shadow-xs">
-      <div class="flex items-center gap-3">
+    <header class="shrink-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 shadow-xs w-full">
+      <div class="flex items-center gap-3 min-w-0">
         <!-- Mobile Sidebar Toggle Button -->
-        <button id="btnToggleMobileSidebar" type="button" onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 focus:outline-none transition-colors" aria-label="Toggle navigation menu">
+        <button id="btnToggleMobileSidebar" type="button" onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 focus:outline-none transition-colors shrink-0" aria-label="Toggle navigation menu">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
 
         <a href="../index.html" title="Back to GabAI Main Website" class="transition-transform hover:scale-105 shrink-0"><img src="logo.png" alt="GabAI Logo" class="w-10 h-10 rounded-xl object-cover shadow-sm shrink-0 border border-slate-200"></a>
-        <div>
+        <div class="min-w-0">
           <div class="flex items-center gap-2">
-            <h1 class="font-bold text-sm text-slate-900 tracking-tight font-display">GabAI School Admin Portal</h1>
-            <span id="adminRoleBadge" class="hidden sm:inline-block bg-purple-50 text-[#6C5CE7] border border-purple-200 text-[10px] px-2 py-0.5 rounded-full font-bold">School Admin</span>
+            <h1 id="portalBrandingTitle" class="font-bold text-sm text-slate-900 tracking-tight font-display truncate">GabAI School Admin Portal</h1>
+            <span id="adminRoleBadge" class="hidden sm:inline-block bg-purple-50 text-[#6C5CE7] border border-purple-200 text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0">School Admin</span>
           </div>
-          <p class="text-[11px] text-slate-500 hidden md:block">School Records &amp; Reading Management</p>
+          <p id="portalBrandingSubtitle" class="text-[11px] text-slate-500 hidden md:block truncate">School Records &amp; Reading Management</p>
         </div>
       </div>
 
       <!-- Scope Switcher, User Status & Logout -->
-      <div class="flex items-center gap-2.5 sm:gap-4 text-xs">
+      <div class="flex items-center gap-2.5 sm:gap-4 text-xs shrink-0">
         <div id="tourTargetJurisdiction" class="hidden md:flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
           <span class="text-slate-400 font-medium">Jurisdiction:</span>
           <select id="jurisdictionSelect" onchange="handleJurisdictionChange(this.value)" class="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs">
@@ -2556,11 +2556,11 @@
     </header>
 
     <!-- Main Workspace -->
-    <div class="flex flex-1 overflow-hidden relative">
+    <div class="flex flex-1 min-h-0 w-full overflow-hidden relative">
       <!-- Mobile Backdrop -->
       <div id="mobileSidebarBackdrop" onclick="toggleMobileSidebar(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 hidden lg:hidden transition-opacity duration-300"></div>
       <!-- Navigation Sidebar (Responsive: Slide-over Drawer on Mobile, Rail on Desktop) -->
-      <aside id="mainSidebar" aria-label="Main Navigation" class="fixed inset-y-0 left-0 z-40 w-72 bg-white/95 backdrop-blur-xl border-r border-slate-200/80 p-4 flex flex-col justify-between overflow-y-auto shadow-2xl -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:w-64 xl:w-72 lg:shadow-none shrink-0">
+      <aside id="mainSidebar" aria-label="Main Navigation" class="fixed inset-y-0 left-0 z-40 w-72 bg-white/95 backdrop-blur-xl border-r border-slate-200/80 p-4 flex flex-col justify-between overflow-y-auto shadow-2xl -translate-x-full transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:w-64 xl:w-72 lg:shadow-none lg:h-full lg:overflow-y-auto shrink-0">
         <!-- Mobile Drawer Close Button -->
         <div class="flex items-center justify-between pb-2 border-b border-slate-100 lg:hidden mb-2">
           <div class="flex items-center gap-2">
@@ -2687,7 +2687,8 @@
       </aside>
 
       <!-- Main Operational Canvas -->
-      <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto w-full max-w-[1600px] mx-auto">
+      <main id="mainContentCanvas" class="flex-1 h-full min-w-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8">
+        <div class="w-full max-w-[1600px] mx-auto">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
           <div>
             <h2 id="currentTabTitle" class="text-xl sm:text-2xl font-bold text-slate-900 font-display">Division Executive Overview</h2>
@@ -3162,25 +3163,6 @@
             </div>
           </div>
 
-          <!-- ========================================================================= -->
-          <!-- TOP-3 CAMPUS HONORS PODIUM (EXECUTIVE BENTO CARDS - NO EMOJIS) -->
-          <!-- ========================================================================= -->
-          <div id="executivePodiumSection" class="space-y-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-bold text-sm text-slate-900 font-display flex items-center gap-2">
-                  <svg class="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
-                  <span>Top-3 Campus Honors Podium</span>
-                </h3>
-                <p class="text-xs text-slate-500">Premier junior high institutions recognized for exemplary reading literacy and assessment completion.</p>
-              </div>
-            </div>
-            <div id="executivePodiumGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-slate-400 text-xs">
-                Computing podium standings...
-              </div>
-            </div>
-          </div>
 
           <!-- ========================================================================= -->
           <!-- DETAILED TABULAR DATA RECORDS WRAPPER -->
@@ -3346,19 +3328,7 @@
               </div>
             </div>
 
-            <!-- Top Performing Schools -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-              <div class="flex items-center justify-between">
-                <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
-                  <svg class="w-4 h-4 text-amber-500 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
-                  <span>Top Performing Schools</span>
-                </h3>
-                <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">SDO Benchmark</span>
-              </div>
-              <div id="topCampusesList" class="space-y-2.5 text-xs">
-                <div class="p-4 text-center text-slate-400">Calculating school benchmarks...</div>
-              </div>
-            </div>
+
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -5490,6 +5460,7 @@
               </div>
             </div>
           </div>
+        </div>
         </div>
       </main>
     </div>

@@ -1,11 +1,11 @@
 {
-  "versionCode": 54,
-  "versionName": "0.4.40",
-  "minRequiredVersionCode": 54,
+  "versionCode": 55,
+  "versionName": "0.4.41",
+  "minRequiredVersionCode": 55,
   "forceUpdate": true,
-  "title": "Apprentice Quest Board & Rank Lock Fix (v0.4.40)",
-  "message": "Fixed premature rank unlocking on account claim. Restored the Apprentice Quest Board and re-locked rank progression until all 8 apprentice quests are completed.",
+  "title": "Division Timed Assessments & School Performance Rankings (v0.4.41)",
+  "message": "Unified timed assessments with local fallback and division-level school performance ranking matrix.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.40/GabAI-v0.4.40.apk",
-  "changelog": "🛡️ EMERGENCY APPRENTICE QUEST FIX v0.4.40:\n• Restored Apprentice Quest Board: Newly claimed student accounts are properly designated as Apprentices (is_onboarded = false) instead of prematurely unlocking the full ranking system.\n• Quest Integrity & Self-Healing: Accounts that had their quest board disappear upon claim are automatically detected and restored to Apprentice mode until all 8 quests are completed.\n• Rank & Feature Lock: Leaderboard, Daily Quests, and XP progression remain securely locked behind the 8 initiation trials as originally designed."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.41/GabAI-v0.4.41.apk",
+  "changelog": "🚀 GABAI DIVISION ASSESSMENT & RANKING UPDATE v0.4.41:\n• Unified Timed Assessments: Unified SDO division timed tests and weekly assessments with resilient local storage persistence and baseline Phil-IRI diagnostic fallbacks.\n• Division School Performance Rankings: Standardized DepEd MPS performance benchmarks, dynamic cohort sorting, and comprehensive learner proficiency breakdowns.\n• Portal Responsive Layout: Enhanced viewport canvas scrolling and role-aware SDO Super Admin vs School Admin portal branding."
 }

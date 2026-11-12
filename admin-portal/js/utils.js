@@ -105,6 +105,7 @@
         try { renderPendingStudentsTable(); } catch (e) { console.error("Error rendering pending students table:", e); }
         try { renderPerformanceTable(); } catch (e) { console.error("Error rendering performance table:", e); }
         try { renderSchoolsMatrix(); } catch (e) { console.error("Error rendering schools matrix:", e); }
+        try { if (typeof renderSchoolRankingTable === 'function') renderSchoolRankingTable(); } catch (e) { console.error("Error rendering school ranking table:", e); }
       });
     }
 
