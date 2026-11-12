@@ -683,6 +683,104 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Bento Card: School Admin & SDO Remarks Digest (shown when admin feedback exists) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_teacher_admin_remarks"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="#C7D2FE"
+                app:contentPadding="0dp"
+                app:cardBackgroundColor="#EEF2FF"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_btn_modern_primary">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="🏫"
+                                android:textSize="18sp" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="PEDAGOGICAL FEEDBACK"
+                                android:textColor="#4338CA"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.06"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                            <TextView
+                                android:id="@+id/tv_teacher_admin_remarks_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Admin Remarks"
+                                android:textColor="#1E1B4B"
+                                android:textSize="15sp"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/font_plus_jakarta_sans" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_teacher_admin_remarks_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:background="@drawable/bg_btn_pill_purple"
+                            android:gravity="center"
+                            android:paddingHorizontal="12dp"
+                            android:text="View ➔"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/font_plus_jakarta_sans" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_teacher_admin_remarks_preview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Tap to read comments from your School Admin or SDO."
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Card 1: Class Sections & Rosters -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnManageClasses"

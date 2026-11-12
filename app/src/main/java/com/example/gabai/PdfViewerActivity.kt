@@ -40,6 +40,7 @@ class PdfViewerActivity : AppCompatActivity() {
     private var totalPdfPages = 1
     private var currentPdfPage = 0
     private var hasAwardedReadingQuest = false
+    private var adminRemarksListener: com.google.firebase.firestore.ListenerRegistration? = null
     private val readingDwellHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val readingDwellRunnable = Runnable {
         awardReadingQuestIfEligible()
@@ -94,11 +95,39 @@ class PdfViewerActivity : AppCompatActivity() {
         // 🟢 BOTTOM QUIZ ACTION BUTTON 🟢
         // ==========================================
         val btnBottomQuiz = findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_bottom_quiz_action)
+        val btnBottomAdminRemarks = findViewById<TextView>(R.id.btn_bottom_admin_remarks)
         val hasQuiz = intent.getBooleanExtra("HAS_QUIZ", false)
         if (isTeacher) {
             btnBottomQuiz.visibility = View.VISIBLE
             btnBottomQuiz.text = "✏️ Manage Quiz"
             GabAIUtils.addSpringPressEffect(btnBottomQuiz) { checkExistingQuizAndProceed() }
+
+            if (!materialId.isNullOrBlank() && btnBottomAdminRemarks != null) {
+                adminRemarksListener = AdminRemarksRepository.observeRemarks(
+                    AdminRemarksRepository.TARGET_MATERIAL,
+                    materialId,
+                    titleView.text.toString()
+                ) { remarks ->
+                    if (isFinishing || isDestroyed) return@observeRemarks
+                    if (remarks.isNotEmpty()) {
+                        val adminCount = remarks.count { it.isAdminAuthor }
+                        val countToShow = if (adminCount > 0) adminCount else remarks.size
+                        btnBottomAdminRemarks.visibility = View.VISIBLE
+                        btnBottomAdminRemarks.text = if (countToShow == 1) "🏫 1 Remark" else "🏫 $countToShow Remarks"
+                        GabAIUtils.addSpringPressEffect(btnBottomAdminRemarks) {
+                            GabAIUtils.performHaptic(btnBottomAdminRemarks)
+                            GabAIDialogs.showAdminRemarksDialog(
+                                this,
+                                AdminRemarksRepository.TARGET_MATERIAL,
+                                materialId,
+                                titleView.text.toString()
+                            )
+                        }
+                    } else {
+                        btnBottomAdminRemarks.visibility = View.GONE
+                    }
+                }
+            }
         } else if (hasQuiz && materialId != null) {
             btnBottomQuiz.visibility = View.VISIBLE
             btnBottomQuiz.text = "📝 Take Quiz"
@@ -120,6 +149,9 @@ class PdfViewerActivity : AppCompatActivity() {
 
             if (isTeacher) {
                 popup.menu.add(0, 7, 0, "📊 View Quiz Overview")
+                if (!materialId.isNullOrBlank()) {
+                    popup.menu.add(0, 8, 0, "💬 Admin Remarks")
+                }
                 popup.menu.add(0, 1, 0, "Assign to Sections")
                 popup.menu.add(0, 2, 0, "Add/Edit AI Quiz")
                 popup.menu.add(0, 3, 0, "Rename Document")
@@ -145,6 +177,16 @@ class PdfViewerActivity : AppCompatActivity() {
                             putStringArrayListExtra("ASSIGNED_SECTIONS", intent.getStringArrayListExtra("ASSIGNED_SECTIONS"))
                         }
                         startActivity(qIntent)
+                    }
+                    8 -> {
+                        if (!materialId.isNullOrBlank()) {
+                            GabAIDialogs.showAdminRemarksDialog(
+                                this,
+                                AdminRemarksRepository.TARGET_MATERIAL,
+                                materialId,
+                                titleView.text.toString()
+                            )
+                        }
                     }
                     5 -> {
                         val quizIntent = Intent(this, MaterialQuizActivity::class.java)
@@ -589,6 +631,11 @@ class PdfViewerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         readingDwellHandler.removeCallbacks(readingDwellRunnable)
+        try {
+            adminRemarksListener?.remove()
+            adminRemarksListener = null
+        } catch (_: Exception) {
+        }
         try {
             findViewById<PDFView>(R.id.online_pdf_viewer)?.recycle()
         } catch (_: Exception) {

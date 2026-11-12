@@ -180,5 +180,69 @@
                 android:fontFamily="@font/font_plus_jakarta_sans"
                 android:textStyle="bold" />
         </LinearLayout>
+
+        <!-- Teacher-Only School Admin / SDO Remarks Preview Strip (hidden by default) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/layout_admin_remark_banner"
+            style="@style/Widget.Material3.CardView.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#EEF2FF"
+            app:strokeWidth="1dp"
+            app:strokeColor="#C7D2FE"
+            app:contentPadding="10dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_admin_remark_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🏫 Admin Remark"
+                        android:textColor="#4338CA"
+                        android:textSize="11sp"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_admin_remark_preview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Tap to read admin remark..."
+                        android:textColor="#334155"
+                        android:textSize="11.5sp"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Read ➔"
+                    android:textColor="#4338CA"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

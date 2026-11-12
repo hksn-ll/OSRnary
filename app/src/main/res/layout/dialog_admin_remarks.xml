@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_modern_dialog"
+    android:fontFamily="@font/font_plus_jakarta_sans"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Top Row: Icon, Target Metadata & Count Pill -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="10dp">
+
+        <FrameLayout
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_btn_modern_primary">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🏫"
+                android:textSize="18sp" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/tv_remarks_target_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ADMIN OVERSIGHT REMARKS"
+                android:textColor="#5341CD"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.06"
+                android:fontFamily="@font/font_plus_jakarta_sans" />
+
+            <TextView
+                android:id="@+id/tv_remarks_target_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Learning Material"
+                android:textColor="#1E1B4B"
+                android:textSize="15.5sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:fontFamily="@font/font_plus_jakarta_sans" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_remarks_count_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#EEF2FF"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="0 Notes"
+            android:textColor="#5341CD"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/font_plus_jakarta_sans" />
+    </LinearLayout>
+
+    <!-- Advisory Context Note -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_pill_translucent"
+        android:backgroundTint="#EEF2FF"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:layout_marginBottom="12dp"
+        android:text="📋 Curriculum feedback and supervision remarks from your School Admin or SDO. Your replies sync directly to the Admin Portal."
+        android:textColor="#3730A3"
+        android:textSize="11sp"
+        android:lineSpacingExtra="2dp"
+        android:fontFamily="@font/font_nunito_sans" />
+
+    <!-- Scrollable Remarks Feed -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_remarks_feed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintHeight_max="260dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:id="@+id/pb_remarks_loading"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginVertical="18dp"
+                    android:indeterminateTint="#5341CD" />
+
+                <LinearLayout
+                    android:id="@+id/layout_remarks_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="18dp"
+                    android:background="@drawable/bg_btn_modern_secondary"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💬"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="No administrative remarks yet"
+                        android:textColor="#334155"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/font_plus_jakarta_sans" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
+                        android:text="Feedback posted by your School Admin or Division Supervisor will appear here automatically."
+                        android:textColor="#64748B"
+                        android:textSize="11.5sp"
+                        android:fontFamily="@font/font_nunito_sans" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/container_remarks_feed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Educator Reply Composer -->
+    <LinearLayout
+        android:id="@+id/layout_remark_composer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="12dp">
+
+        <EditText
+            android:id="@+id/et_remark_reply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="2"
+            android:maxLines="4"
+            android:maxLength="2500"
+            android:background="@drawable/bg_btn_modern_secondary"
+            android:padding="12dp"
+            android:hint="Acknowledge feedback or leave a note for administration..."
+            android:textColor="#1E293B"
+            android:textColorHint="#94A3B8"
+            android:textSize="12.5sp"
+            android:fontFamily="@font/font_nunito_sans"
+            android:gravity="top|start"
+            android:inputType="textCapSentences|textMultiLine" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp">
+
+            <android.widget.Button
+                android:id="@+id/btn_send_remark_reply"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_btn_modern_primary"
+                android:paddingHorizontal="16dp"
+                android:text="Post Reply"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:stateListAnimator="@null" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Close Button -->
+    <android.widget.Button
+        android:id="@+id/btn_close_remarks"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_btn_modern_secondary"
+        android:text="Close"
+        android:textColor="#334155"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:fontFamily="@font/font_plus_jakarta_sans"
+        android:stateListAnimator="@null" />
+</LinearLayout>

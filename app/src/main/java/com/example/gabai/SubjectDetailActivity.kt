@@ -113,6 +113,13 @@ class SubjectDetailActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (allMaterials.isNotEmpty()) {
+            renderPdfList()
+        }
+    }
+
     private fun setupSearch() {
         val etSearch = findViewById<EditText>(R.id.et_search_materials) ?: return
         val btnClear = findViewById<ImageButton>(R.id.btn_clear_search_materials) ?: return
@@ -431,6 +438,39 @@ class SubjectDetailActivity : AppCompatActivity() {
                     putStringArrayListExtra("ASSIGNED_SECTIONS", ArrayList(assignedSections))
                 }
                 startActivity(intent)
+            }
+
+            // School Admin / SDO Remarks Badge & Preview
+            val remarkBanner = row.findViewById<View>(R.id.layout_admin_remark_banner)
+            val tvRemarkTitle = row.findViewById<TextView>(R.id.tv_admin_remark_title)
+            val tvRemarkPreview = row.findViewById<TextView>(R.id.tv_admin_remark_preview)
+            if (remarkBanner != null) {
+                AdminRemarksRepository.fetchRemarksOnce(
+                    AdminRemarksRepository.TARGET_MATERIAL,
+                    doc.id,
+                    title
+                ) { remarks ->
+                    if (isFinishing || isDestroyed || remarks.isEmpty()) return@fetchRemarksOnce
+                    val adminCount = remarks.count { it.isAdminAuthor }
+                    val latest = remarks.first()
+                    remarkBanner.visibility = View.VISIBLE
+                    tvRemarkTitle?.text = if (adminCount > 0) {
+                        val noun = if (adminCount == 1) "Admin Remark" else "Admin Remarks"
+                        "🏫 $adminCount $noun (${remarks.size} total)"
+                    } else {
+                        "💬 ${remarks.size} Oversight Note${if (remarks.size == 1) "" else "s"}"
+                    }
+                    tvRemarkPreview?.text = "${latest.authorName}: ${latest.text}"
+                    GabAIUtils.addSpringPressEffect(remarkBanner) {
+                        GabAIUtils.performHaptic(remarkBanner)
+                        GabAIDialogs.showAdminRemarksDialog(
+                            this@SubjectDetailActivity,
+                            AdminRemarksRepository.TARGET_MATERIAL,
+                            doc.id,
+                            title
+                        )
+                    }
+                }
             }
 
             container.addView(row)

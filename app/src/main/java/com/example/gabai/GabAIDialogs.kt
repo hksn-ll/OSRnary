@@ -882,9 +882,14 @@ object GabAIDialogs {
                     }
 
                     for (m in myThread) {
-                        val isStaff = m.isAuthorResponse || m.senderRole != "student"
+                        val isStaff = m.isAuthorResponse || (m.senderUid != currentUid)
+                        val senderLabel = when {
+                            !isStaff -> "You: "
+                            m.senderRole == "super_admin" || m.senderRole == "school_admin" || m.senderRole == "admin" -> "Admin Response: "
+                            else -> "Staff Response: "
+                        }
                         val tvBubble = TextView(context).apply {
-                            text = "${if (isStaff) "Staff Response: " else "You: "}${m.message}"
+                            text = "${senderLabel}${m.message}"
                             textSize = 11.5f
                             setTextColor(if (isStaff) Color.parseColor("#4338CA") else Color.parseColor("#1E293B"))
                             setBackgroundResource(if (isStaff) R.drawable.bg_btn_modern_secondary else R.drawable.bg_btn_modern_secondary)
@@ -1490,6 +1495,201 @@ object GabAIDialogs {
             dialog.dismiss()
         }
 
+        applyDialogDimensions(dialog)
+        dialog.show()
+        return dialog
+    }
+
+    /**
+     * Pedagogical Admin Remarks Dialog for Teachers: displays live School Admin & SDO oversight
+     * notes attached to Library Materials or Weekly Assessments, with teacher reply support.
+     */
+    fun showAdminRemarksDialog(
+        context: Context,
+        targetType: String,
+        targetId: String,
+        targetTitle: String,
+        allowReply: Boolean = true
+    ): Dialog? {
+        if (targetId.isBlank()) return null
+
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_admin_remarks, null)
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+        dialog.setContentView(view)
+
+        val tvBadge = view.findViewById<TextView>(R.id.tv_remarks_target_badge)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_remarks_target_title)
+        val tvCount = view.findViewById<TextView>(R.id.tv_remarks_count_badge)
+        val pbLoading = view.findViewById<ProgressBar>(R.id.pb_remarks_loading)
+        val layoutEmpty = view.findViewById<LinearLayout>(R.id.layout_remarks_empty)
+        val containerFeed = view.findViewById<LinearLayout>(R.id.container_remarks_feed)
+        val layoutComposer = view.findViewById<LinearLayout>(R.id.layout_remark_composer)
+        val etReply = view.findViewById<EditText>(R.id.et_remark_reply)
+        val btnSend = view.findViewById<android.widget.Button>(R.id.btn_send_remark_reply)
+        val btnClose = view.findViewById<android.widget.Button>(R.id.btn_close_remarks)
+
+        val isMaterial = (targetType == AdminRemarksRepository.TARGET_MATERIAL)
+        tvBadge.text = if (isMaterial) "PDF MATERIAL • ADMIN REMARKS" else "WEEKLY ASSESSMENT • ADMIN REMARKS"
+        tvTitle.text = targetTitle.ifBlank { if (isMaterial) "Library Material" else "Weekly Assessment" }
+        layoutComposer.visibility = if (allowReply) View.VISIBLE else View.GONE
+
+        val density = context.resources.displayMetrics.density
+        val fontJakarta = try {
+            androidx.core.content.res.ResourcesCompat.getFont(context, R.font.font_plus_jakarta_sans)
+        } catch (_: Exception) { null }
+        val fontNunito = try {
+            androidx.core.content.res.ResourcesCompat.getFont(context, R.font.font_nunito_sans)
+        } catch (_: Exception) { null }
+        val sdf = java.text.SimpleDateFormat("MMM d, h:mm a", java.util.Locale.US)
+        val currentUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        var remarksListener: com.google.firebase.firestore.ListenerRegistration? = null
+        remarksListener = AdminRemarksRepository.observeRemarks(targetType, targetId, targetTitle) { remarks ->
+            val hostActivity = findActivity(context)
+            if (hostActivity != null && (hostActivity.isFinishing || hostActivity.isDestroyed)) return@observeRemarks
+
+            pbLoading.visibility = View.GONE
+            containerFeed.removeAllViews()
+
+            val noteCount = remarks.size
+            tvCount.text = if (noteCount == 1) "1 Note" else "$noteCount Notes"
+
+            if (remarks.isEmpty()) {
+                layoutEmpty.visibility = View.VISIBLE
+                return@observeRemarks
+            }
+            layoutEmpty.visibility = View.GONE
+
+            for (r in remarks) {
+                val isSelfTeacher = r.authorRole == "teacher" || (currentUid.isNotEmpty() && r.authorUid == currentUid)
+                val (roleLabel, pillBg, pillTxt, cardBg) = when {
+                    r.isDivisionAdmin -> listOf("🏛️ Super Admin (SDO)", "#EDE9FE", "#5341CD", "#FAF5FF")
+                    isSelfTeacher -> listOf(
+                        if (r.authorUid == currentUid) "👩‍🏫 You (Teacher)" else "👩‍🏫 Educator",
+                        "#D1FAE5", "#065F46", "#F0FDF4"
+                    )
+                    else -> {
+                        val sName = SchoolRepository.getSchoolName(r.authorSchoolId)
+                        val lbl = if (sName.isNotBlank()) "🏫 School Admin • $sName" else "🏫 School Admin"
+                        listOf(lbl, "#E0E7FF", "#3730A3", "#F8FAFC")
+                    }
+                }
+
+                val card = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        cornerRadius = 14f * density
+                        setColor(Color.parseColor(cardBg))
+                        setStroke((1f * density).toInt(), Color.parseColor("#E2E8F0"))
+                    }
+                    val p = (12 * density).toInt()
+                    setPadding(p, p, p, p)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { bottomMargin = (8 * density).toInt() }
+                }
+
+                val topMeta = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                }
+
+                val tvAuthor = TextView(context).apply {
+                    text = r.authorName.ifBlank { "Administrator" }
+                    textSize = 12.5f
+                    setTextColor(Color.parseColor("#0F172A"))
+                    setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                        marginEnd = (6 * density).toInt()
+                    }
+                }
+
+                val tvTime = TextView(context).apply {
+                    text = if (r.createdAt > 0L) sdf.format(java.util.Date(r.createdAt)) else "Recorded"
+                    textSize = 10f
+                    setTextColor(Color.parseColor("#94A3B8"))
+                    setTypeface(fontNunito ?: typeface)
+                }
+
+                topMeta.addView(tvAuthor)
+                topMeta.addView(tvTime)
+
+                val tvRolePill = TextView(context).apply {
+                    text = roleLabel
+                    textSize = 10f
+                    setTypeface(fontJakarta ?: typeface, android.graphics.Typeface.BOLD)
+                    setTextColor(Color.parseColor(pillTxt))
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        cornerRadius = 8f * density
+                        setColor(Color.parseColor(pillBg))
+                    }
+                    val hp = (8 * density).toInt()
+                    val vp = (3 * density).toInt()
+                    setPadding(hp, vp, hp, vp)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = (4 * density).toInt() }
+                }
+
+                val tvBody = TextView(context).apply {
+                    text = r.text
+                    textSize = 12.5f
+                    setTextColor(Color.parseColor("#334155"))
+                    setTypeface(fontNunito ?: typeface)
+                    setLineSpacing(2f * density, 1f)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = (6 * density).toInt() }
+                }
+
+                card.addView(topMeta)
+                card.addView(tvRolePill)
+                card.addView(tvBody)
+                containerFeed.addView(card)
+            }
+        }
+
+        if (allowReply) {
+            GabAIUtils.addSpringPressEffect(btnSend) {
+                GabAIUtils.performHaptic(btnSend)
+                val replyText = etReply.text.toString().trim()
+                if (replyText.isEmpty()) {
+                    Toast.makeText(context, "Please type a reply first.", Toast.LENGTH_SHORT).show()
+                    return@addSpringPressEffect
+                }
+                btnSend.isEnabled = false
+                btnSend.text = "Sending..."
+                AdminRemarksRepository.postTeacherReply(context, targetType, targetId, replyText) { success, err ->
+                    btnSend.isEnabled = true
+                    btnSend.text = "Post Reply"
+                    if (success) {
+                        etReply.setText("")
+                        Toast.makeText(context, "Reply posted to oversight log.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, err ?: "Failed to post reply.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        GabAIUtils.addSpringPressEffect(btnClose) {
+            GabAIUtils.performHaptic(btnClose)
+            dialog.dismiss()
+        }
+
+        applyModernWindowStyles(dialog) {
+            try { remarksListener?.remove() } catch (_: Exception) {}
+        }
         applyDialogDimensions(dialog)
         dialog.show()
         return dialog

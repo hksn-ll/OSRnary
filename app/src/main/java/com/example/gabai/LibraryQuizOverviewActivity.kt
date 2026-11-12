@@ -62,6 +62,7 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
     private var allStudentSubmissions = mutableListOf<StudentSubmissionState>()
     private var currentFilter: String = "ALL" // "ALL", "COMPLETED", "PENDING"
     private var currentTab: String = "SUBMISSIONS" // "SUBMISSIONS", "QUESTIONS"
+    private var adminRemarksListener: com.google.firebase.firestore.ListenerRegistration? = null
 
     data class ClassModel(
         val id: String,
@@ -146,10 +147,64 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
         assignedSectionsFromIntent = intent.getStringArrayListExtra("ASSIGNED_SECTIONS") ?: arrayListOf()
 
         setupHeader()
+        setupAdminRemarksObserver()
         setupTabSwitcher()
         setupFilterChips()
         loadMaterialAndMetrics()
         hasInitializedOnce = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            adminRemarksListener?.remove()
+            adminRemarksListener = null
+        } catch (_: Exception) {}
+    }
+
+    private fun setupAdminRemarksObserver() {
+        val targetType = if (isWeeklyAssessment) {
+            AdminRemarksRepository.TARGET_ASSESSMENT
+        } else {
+            AdminRemarksRepository.TARGET_MATERIAL
+        }
+        val targetId = if (isWeeklyAssessment) assessmentId else materialId
+        if (targetId.isBlank()) return
+
+        val cardRemarks = findViewById<View>(R.id.card_overview_admin_remarks) ?: return
+        val tvTitle = findViewById<TextView>(R.id.tv_overview_admin_remarks_title)
+        val tvPreview = findViewById<TextView>(R.id.tv_overview_admin_remarks_preview)
+        val tvCta = findViewById<TextView>(R.id.tv_overview_admin_remarks_cta)
+
+        adminRemarksListener?.remove()
+        adminRemarksListener = AdminRemarksRepository.observeRemarks(targetType, targetId, materialTitle) { remarks ->
+            if (isFinishing || isDestroyed) return@observeRemarks
+            if (remarks.isEmpty()) {
+                cardRemarks.visibility = View.GONE
+                return@observeRemarks
+            }
+            cardRemarks.visibility = View.VISIBLE
+            val adminCount = remarks.count { it.isAdminAuthor }
+            val latest = remarks.first()
+            tvTitle?.text = if (adminCount > 0) {
+                val noun = if (adminCount == 1) "Admin Remark" else "Admin Remarks"
+                "School Admin Oversight • $adminCount $noun"
+            } else {
+                "Oversight Discussion • ${remarks.size} Note${if (remarks.size == 1) "" else "s"}"
+            }
+            tvPreview?.text = "${latest.authorName}: ${latest.text}"
+            tvCta?.text = "View (${remarks.size})"
+
+            GabAIUtils.addSpringPressEffect(cardRemarks) {
+                GabAIUtils.performHaptic(cardRemarks)
+                GabAIDialogs.showAdminRemarksDialog(
+                    this@LibraryQuizOverviewActivity,
+                    targetType,
+                    targetId,
+                    materialTitle
+                )
+            }
+        }
     }
 
     override fun onResume() {

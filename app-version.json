@@ -1,11 +1,11 @@
 {
-  "versionCode": 56,
-  "versionName": "0.4.42",
-  "minRequiredVersionCode": 56,
+  "versionCode": 57,
+  "versionName": "0.4.43",
+  "minRequiredVersionCode": 57,
   "forceUpdate": true,
-  "title": "Admin Portal Search, Filters & Timed Assessment Isolation (v0.4.42)",
-  "message": "Fixed School Directory and Student Account search/filter controls, and isolated classroom weekly quizzes from division timed tests.",
+  "title": "Educator Oversight Remarks & Intervention Visibility (v0.4.43)",
+  "message": "Teachers can now view & reply to School Admin and SDO remarks directly on materials, assessments, and student profiles.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.42/GabAI-v0.4.42.apk",
-  "changelog": "🛠️ ADMIN PORTAL & ASSESSMENT ISOLATION UPDATE v0.4.42:\n• School Directory Search & District Filtering: Restored real-time campus search and District 1 / District 2 chip filtering across all 25 junior high schools.\n• Student Credential Vault Filters: Restored instant search by learner name, username, or LRN, alongside Grade, Class Section, Account State, and Campus scoping filters.\n• Division Timed Assessment Isolation: Strictly separated classroom weekly quizzes from standardized division timed tests in SDO Super Admin view."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.43/GabAI-v0.4.43.apk",
+  "changelog": "🏫 EDUCATOR OVERSIGHT & INTERVENTION UPDATE v0.4.43:\n• School Admin & SDO Remarks on Mobile: Added live pedagogical remarks drawers and preview banners across Educator Home, Library PDF cards, PDF Reader, Weekly Assessments, and Quiz Overviews with direct teacher reply sync.\n• Learner Intervention & Guidance Plans: Surfaced School Admin intervention statuses and guidance notes inside Class Performance rosters and Educator Student Profile sheets.\n• Thread & Portal Role Attribution: Fixed announcement reply labels for teachers and added dedicated Educator Reply badges inside the Web Admin Portal remarks feed."
 }

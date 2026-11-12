@@ -55,7 +55,9 @@ class TeacherPerformanceActivity : AppCompatActivity() {
         val photoUrl: String? = null,
         var totalXp: Int = 0,
         var philIriTier: String? = null,
-        var gender: String = "unspecified"
+        var gender: String = "unspecified",
+        var interventionStatus: String = "none",
+        var interventionNotes: String = ""
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -210,6 +212,8 @@ class TeacherPerformanceActivity : AppCompatActivity() {
                         else -> "Needs Support"
                     }
                     stats.philIriTier = userDoc.getString("phil_iri_tier") ?: userDoc.getString("diagnostic_tier")
+                    stats.interventionStatus = userDoc.getString("interventionStatus")?.trim() ?: "none"
+                    stats.interventionNotes = userDoc.getString("interventionNotes")?.trim() ?: ""
                     stats.isAtRisk = (stats.totalQuizzes == 0 || stats.averageScore < 60 || stats.philIriTier?.lowercase() == "frustration")
 
                     classTotalScore += studentScore
@@ -533,6 +537,41 @@ class TeacherPerformanceActivity : AppCompatActivity() {
 
                         col.addView(nameText)
                         col.addView(badgesRow)
+
+                        val hasActiveIntervention = (student.interventionStatus.isNotEmpty() && student.interventionStatus != "none") ||
+                            student.interventionNotes.isNotEmpty()
+                        if (hasActiveIntervention) {
+                            val interventionLabel = when (student.interventionStatus) {
+                                "remedial_reading" -> "🚨 Remedial Session"
+                                "peer_tutoring" -> "👥 Peer Tutoring"
+                                "phonics_catchup" -> "📖 Phonics Catch-up"
+                                "parent_conference" -> "📞 Parent Conference"
+                                "elln_clinic" -> "🏥 ELLN Clinic"
+                                else -> "🏫 Admin Guidance"
+                            }
+                            val noteSuffix = if (student.interventionNotes.isNotEmpty()) " • ${student.interventionNotes}" else ""
+                            val tvInterventionRow = TextView(this@TeacherPerformanceActivity).apply {
+                                text = "$interventionLabel$noteSuffix"
+                                textSize = 10.5f
+                                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                                setTextColor(Color.parseColor("#4338CA"))
+                                maxLines = 1
+                                ellipsize = android.text.TextUtils.TruncateAt.END
+                                background = android.graphics.drawable.GradientDrawable().apply {
+                                    cornerRadius = resources.displayMetrics.density * 7
+                                    setColor(Color.parseColor("#EEF2FF"))
+                                }
+                                val hp = (resources.displayMetrics.density * 7).toInt()
+                                val vp = (resources.displayMetrics.density * 3).toInt()
+                                setPadding(hp, vp, hp, vp)
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                ).apply { bottomMargin = (resources.displayMetrics.density * 3).toInt() }
+                            }
+                            col.addView(tvInterventionRow)
+                        }
+
                         col.addView(statsText)
 
                         // Right Pill: Score Accuracy

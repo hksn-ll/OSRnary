@@ -118,6 +118,25 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
+        <!-- Teacher-Only Admin Remarks Quick Dock Pill (hidden by default) -->
+        <TextView
+            android:id="@+id/btn_bottom_admin_remarks"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#EEF2FF"
+            android:gravity="center"
+            android:paddingHorizontal="14dp"
+            android:text="🏫 1 Remark"
+            android:textColor="#4338CA"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/font_plus_jakarta_sans"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone" />
+
         <!-- Quick Quiz Launch Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_bottom_quiz_action"

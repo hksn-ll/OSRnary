@@ -13755,19 +13755,33 @@
         feed.innerHTML = remarks.map(r => {
           const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recorded';
           const isSdo = r.authorRole === 'super_admin' || r.authorRole === 'admin' || r.authorSchoolId === 'DIVISION_OFFICE';
-          const badgeColor = isSdo ? 'bg-purple-100 text-[#5341CD] border-purple-200' : 'bg-indigo-100 text-indigo-800 border-indigo-200';
-          const roleLabel = isSdo ? 'Super Admin (SDO)' : `School Admin • ${getSchoolName(r.authorSchoolId)}`;
+          const isTeacher = r.authorRole === 'teacher';
+          const esc = typeof escapeHtml === 'function' ? escapeHtml : (v => String(v || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+          const schoolLabel = r.authorSchoolId && typeof getSchoolName === 'function' ? getSchoolName(r.authorSchoolId) : '';
+
+          let badgeColor, roleLabel;
+          if (isSdo) {
+            badgeColor = 'bg-purple-100 text-[#5341CD] border-purple-200';
+            roleLabel = 'Super Admin (SDO)';
+          } else if (isTeacher) {
+            badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            roleLabel = schoolLabel ? `Educator Reply • ${schoolLabel}` : 'Educator Reply';
+          } else {
+            badgeColor = 'bg-indigo-100 text-indigo-800 border-indigo-200';
+            roleLabel = schoolLabel ? `School Admin • ${schoolLabel}` : 'School Admin';
+          }
+          const cardClass = isTeacher ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200';
 
           return `
-            <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5 shadow-xs">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <span class="font-bold text-xs text-slate-900">${r.authorName || 'Administrator'}</span>
-                  <span class="px-2 py-0.5 rounded-full border text-[10px] font-bold ${badgeColor}">${roleLabel}</span>
+            <div class="p-3 ${cardClass} border rounded-2xl space-y-1.5 shadow-xs">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-bold text-xs text-slate-900">${esc(r.authorName || (isTeacher ? 'Educator' : 'Administrator'))}</span>
+                  <span class="px-2 py-0.5 rounded-full border text-[10px] font-bold ${badgeColor}">${esc(roleLabel)}</span>
                 </div>
-                <span class="text-[10px] text-slate-400">${dateStr}</span>
+                <span class="text-[10px] text-slate-400 shrink-0">${dateStr}</span>
               </div>
-              <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed">${r.text || ''}</p>
+              <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed">${esc(r.text || '')}</p>
             </div>
           `;
         }).join('');

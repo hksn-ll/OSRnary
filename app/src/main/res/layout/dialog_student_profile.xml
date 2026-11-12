@@ -435,6 +435,70 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
+        <!-- Educator-Only School Admin Intervention & Guidance Card (hidden by default) -->
+        <LinearLayout
+            android:id="@+id/layout_intervention_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_pill_translucent"
+            android:backgroundTint="#EEF2FF"
+            android:orientation="vertical"
+            android:padding="14dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/font_plus_jakarta_sans"
+                    android:letterSpacing="0.04"
+                    android:text="ADMIN INTERVENTION PLAN"
+                    android:textColor="#4338CA"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_intervention_updated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_nunito_sans"
+                    android:textColor="#64748B"
+                    android:textSize="10.5sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_intervention_status_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_pill_white"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:text="🚨 Remedial Session Assigned"
+                android:textColor="#BE123C"
+                android:textSize="11.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_intervention_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/font_nunito_sans"
+                android:lineSpacingExtra="2dp"
+                android:textColor="#334155"
+                android:textSize="12.5sp" />
+        </LinearLayout>
+
         <!-- Student Quiz Journey & Recent Submissions Section -->
         <LinearLayout
             android:id="@+id/layout_student_quizzes_section"

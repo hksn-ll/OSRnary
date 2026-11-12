@@ -18,6 +18,7 @@ class TeacherHomeFragment : Fragment() {
     private var currentTeacherName: String = "Teacher"
     private var currentTeacherSchoolId: String = ""
     private var latestAnnouncements: List<Announcement> = emptyList()
+    private var latestAdminRemarks: List<AdminRemark> = emptyList()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTeacherHomeBinding.inflate(inflater, container, false)
@@ -131,6 +132,8 @@ class TeacherHomeFragment : Fragment() {
                             }
                         }
                     }
+
+                    loadAdminRemarksDigest(uid, teacherClassesList.map { it.first })
 
                     val shouldShow = !hasAdvisoryClass
                     if (binding.btnCreateClassQuick.visibility != (if (shouldShow) View.VISIBLE else View.GONE)) {
@@ -322,6 +325,43 @@ class TeacherHomeFragment : Fragment() {
                 }
             )
         }
+
+        // School Admin / SDO Remarks Digest Card Tap
+        GabAIUtils.addSpringPressEffect(binding.cardTeacherAdminRemarks) {
+            GabAIUtils.performHaptic(binding.cardTeacherAdminRemarks)
+            val ctx = context ?: return@addSpringPressEffect
+            if (latestAdminRemarks.isEmpty()) return@addSpringPressEffect
+
+            val groupedTargets = latestAdminRemarks
+                .groupBy { Triple(it.targetType, it.targetId, it.targetTitle) }
+                .entries
+                .toList()
+
+            if (groupedTargets.size == 1) {
+                val (meta, _) = groupedTargets[0]
+                GabAIDialogs.showAdminRemarksDialog(ctx, meta.first, meta.second, meta.third)
+            } else {
+                val items = groupedTargets.map { (meta, remarks) ->
+                    val typeEmoji = if (meta.first == AdminRemarksRepository.TARGET_MATERIAL) "📄" else "📝"
+                    val noun = if (remarks.size == 1) "1 remark" else "${remarks.size} remarks"
+                    val latest = remarks.first()
+                    "$typeEmoji ${meta.third} ($noun) — ${latest.authorName}"
+                }
+                GabAIDialogs.showSelectionDialog(
+                    context = ctx,
+                    title = "Admin Remarks (${latestAdminRemarks.size})",
+                    subtitle = "Select a material or assessment to view feedback & reply.",
+                    items = items,
+                    badgeIcon = "🏫",
+                    onSelected = { which, _ ->
+                        if (which in groupedTargets.indices) {
+                            val meta = groupedTargets[which].key
+                            GabAIDialogs.showAdminRemarksDialog(ctx, meta.first, meta.second, meta.third)
+                        }
+                    }
+                )
+            }
+        }
     }
 
     private fun openClassPerformance() {
@@ -420,6 +460,31 @@ class TeacherHomeFragment : Fragment() {
                 binding.tvTeacherLatestBulletinPreview.text = "No active notices. Tap '+ Broadcast' to send an announcement to your classes."
                 binding.tvTeacherAnnouncementStats.text = "0 notices • 0 learner inquiries"
             }
+        }
+    }
+
+    private fun loadAdminRemarksDigest(teacherUid: String, classIds: List<String>) {
+        AdminRemarksRepository.fetchAdminRemarksDigestForTeacher(teacherUid, classIds) { remarks ->
+            if (_binding == null || !isAdded) return@fetchAdminRemarksDigestForTeacher
+            latestAdminRemarks = remarks
+            if (remarks.isEmpty()) {
+                binding.cardTeacherAdminRemarks.visibility = View.GONE
+                return@fetchAdminRemarksDigestForTeacher
+            }
+            val wasGone = binding.cardTeacherAdminRemarks.visibility != View.VISIBLE
+            binding.cardTeacherAdminRemarks.visibility = View.VISIBLE
+            if (wasGone) {
+                GabAIUtils.animateCascade(listOf(binding.cardTeacherAdminRemarks), baseDelay = 0L, startDelayOffset = 0L)
+            }
+            val targetCount = remarks.map { "${it.targetType}:${it.targetId}" }.distinct().size
+            val latest = remarks.first()
+            binding.tvTeacherAdminRemarksTitle.text = if (remarks.size == 1) {
+                "1 Admin Remark"
+            } else {
+                "${remarks.size} Admin Remarks"
+            }
+            binding.tvTeacherAdminRemarksBadge.text = if (targetCount == 1) "Read ➔" else "$targetCount Items ➔"
+            binding.tvTeacherAdminRemarksPreview.text = "${latest.targetTitle} (${latest.authorName}): ${latest.text}"
         }
     }
 

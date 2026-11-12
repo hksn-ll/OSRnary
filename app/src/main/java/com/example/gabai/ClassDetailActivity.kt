@@ -1633,6 +1633,39 @@ class ClassDetailActivity : AppCompatActivity() {
                             card.setOnClickListener { openQuizEditor() }
                         }
 
+                    // School Admin / SDO Remarks Preview Strip
+                    val remarkBanner = card.findViewById<View>(R.id.layout_assessment_admin_remark_banner)
+                    val tvRemarkTitle = card.findViewById<TextView>(R.id.tv_assessment_remark_title)
+                    val tvRemarkPreview = card.findViewById<TextView>(R.id.tv_assessment_remark_preview)
+                    if (remarkBanner != null) {
+                        AdminRemarksRepository.fetchRemarksOnce(
+                            AdminRemarksRepository.TARGET_ASSESSMENT,
+                            assessmentId,
+                            title
+                        ) { remarks ->
+                            if (isFinishing || isDestroyed || remarks.isEmpty()) return@fetchRemarksOnce
+                            val adminCount = remarks.count { it.isAdminAuthor }
+                            val latest = remarks.first()
+                            remarkBanner.visibility = View.VISIBLE
+                            tvRemarkTitle?.text = if (adminCount > 0) {
+                                val noun = if (adminCount == 1) "Admin Remark" else "Admin Remarks"
+                                "🏫 $adminCount $noun (${remarks.size} total)"
+                            } else {
+                                "💬 ${remarks.size} Oversight Note${if (remarks.size == 1) "" else "s"}"
+                            }
+                            tvRemarkPreview?.text = "${latest.authorName}: ${latest.text}"
+                            GabAIUtils.addSpringPressEffect(remarkBanner) {
+                                GabAIUtils.performHaptic(remarkBanner)
+                                GabAIDialogs.showAdminRemarksDialog(
+                                    this@ClassDetailActivity,
+                                    AdminRemarksRepository.TARGET_ASSESSMENT,
+                                    assessmentId,
+                                    title
+                                )
+                            }
+                        }
+                    }
+
                     container.addView(card)
                 }
             }

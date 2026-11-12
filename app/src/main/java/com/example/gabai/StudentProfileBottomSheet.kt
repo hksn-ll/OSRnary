@@ -219,6 +219,53 @@ class StudentProfileBottomSheet : BottomSheetDialogFragment() {
             tvStatLevel.text = "Lvl $liveLevel"
             tvStatStreak.text = if (streak == 1) "🔥 1 Day" else "🔥 $streak Days"
             GabAIUtils.loadAvatarImage(photoUrl, ivPhoto, tvMonogram)
+
+            // School Admin Intervention Plan & Guidance Notes (Educators Only)
+            val layoutIntervention = view.findViewById<LinearLayout>(R.id.layout_intervention_card)
+            val tvInterventionStatus = view.findViewById<TextView>(R.id.tv_intervention_status_badge)
+            val tvInterventionNotes = view.findViewById<TextView>(R.id.tv_intervention_notes)
+            val tvInterventionUpdated = view.findViewById<TextView>(R.id.tv_intervention_updated)
+
+            val interventionStatus = doc.getString("interventionStatus")?.trim() ?: "none"
+            val interventionNotes = doc.getString("interventionNotes")?.trim() ?: ""
+            val hasIntervention = (interventionStatus.isNotEmpty() && interventionStatus != "none") || interventionNotes.isNotEmpty()
+
+            if (isTeacherView && hasIntervention && layoutIntervention != null) {
+                layoutIntervention.visibility = View.VISIBLE
+                val (statusLabel, badgeTint, textColor) = when (interventionStatus) {
+                    "remedial_reading" -> Triple("🚨 Remedial Reading Session", "#FFE4E6", "#BE123C")
+                    "peer_tutoring" -> Triple("👥 Peer Tutoring & Paired Reading", "#FEF3C7", "#B45309")
+                    "phonics_catchup" -> Triple("📖 Intensive Phonics Catch-up", "#E0E7FF", "#4338CA")
+                    "parent_conference" -> Triple("📞 Parent-Teacher Conference", "#FCE7F3", "#9D174D")
+                    "elln_clinic" -> Triple("🏥 Specialized ELLN Clinic", "#DCFCE7", "#047857")
+                    else -> Triple("📋 Standard Program (Admin Note)", "#FFFFFF", "#334155")
+                }
+                tvInterventionStatus?.text = statusLabel
+                tvInterventionStatus?.backgroundTintList = ColorStateList.valueOf(Color.parseColor(badgeTint))
+                tvInterventionStatus?.setTextColor(Color.parseColor(textColor))
+
+                if (interventionNotes.isNotEmpty()) {
+                    tvInterventionNotes?.visibility = View.VISIBLE
+                    tvInterventionNotes?.text = interventionNotes
+                } else {
+                    tvInterventionNotes?.visibility = View.GONE
+                }
+
+                val updatedAt = when (val raw = doc.get("interventionUpdatedAt")) {
+                    is Number -> raw.toLong()
+                    is com.google.firebase.Timestamp -> raw.toDate().time
+                    else -> 0L
+                }
+                if (updatedAt > 0L) {
+                    val fmt = java.text.SimpleDateFormat("MMM d, yyyy", java.util.Locale.US)
+                    tvInterventionUpdated?.text = "Updated ${fmt.format(java.util.Date(updatedAt))}"
+                    tvInterventionUpdated?.visibility = View.VISIBLE
+                } else {
+                    tvInterventionUpdated?.visibility = View.GONE
+                }
+            } else {
+                layoutIntervention?.visibility = View.GONE
+            }
         }
 
         // Fetch words mastered from OCR history (interval >= 4)
