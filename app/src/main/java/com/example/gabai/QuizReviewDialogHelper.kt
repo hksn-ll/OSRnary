@@ -23,7 +23,9 @@ object QuizReviewDialogHelper {
         totalQuestions: Int,
         xpEarned: Int = 0,
         items: List<Map<String, Any>>,
-        badgeIcon: String = "📝"
+        badgeIcon: String = "📝",
+        confirmText: String? = null,
+        onConfirm: (() -> Unit)? = null
     ) {
         val density = context.resources.displayMetrics.density
         val fontJakarta = try {
@@ -238,9 +240,13 @@ object QuizReviewDialogHelper {
             title = title,
             subtitle = subtitle,
             customView = scrollView,
-            confirmText = null,
+            confirmText = confirmText,
             cancelText = "Done",
-            badgeIcon = badgeIcon
+            badgeIcon = badgeIcon,
+            onConfirm = if (onConfirm != null) { dialog ->
+                dialog.dismiss()
+                onConfirm.invoke()
+            } else null
         )
     }
 

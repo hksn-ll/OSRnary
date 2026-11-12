@@ -3,10 +3,13 @@ import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 class DualStackHandler(SimpleHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def end_headers(self):
         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
         self.send_header('Pragma', 'no-cache')
         self.send_header('Expires', '0')
+        self.send_header('Connection', 'close')
         super().end_headers()
 
 def run(port=3000):
@@ -14,7 +17,9 @@ def run(port=3000):
     os.chdir(directory)
     
     server_address = ('127.0.0.1', port)
+    ThreadingHTTPServer.allow_reuse_address = True
     httpd = ThreadingHTTPServer(server_address, DualStackHandler)
+    httpd.daemon_threads = True
     print(f"========================================================", flush=True)
     print(f"  GabAI SDO Valenzuela City Admin Portal Server", flush=True)
     print(f"========================================================", flush=True)

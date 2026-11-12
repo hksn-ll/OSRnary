@@ -28,6 +28,8 @@ class QuizEditorActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
     private lateinit var container: LinearLayout
     private var materialId = ""
+    private var assessmentId = ""
+    private var pdfFilePath = ""
 
     private var isWeeklyAssessment = false
     private var subjectId = ""
@@ -63,17 +65,22 @@ class QuizEditorActivity : AppCompatActivity() {
         GabAIUtils.applyHeaderAndScrollInsets(headerInner ?: blurHeader, scrollContent, extraBufferDp = 16)
 
         isWeeklyAssessment = intent.getBooleanExtra("IS_WEEKLY_ASSESSMENT", false)
+        assessmentId = intent.getStringExtra("ASSESSMENT_ID") ?: ""
+        if (assessmentId.isNotEmpty()) isWeeklyAssessment = true
+
         subjectId = intent.getStringExtra("SUBJECT_ID") ?: ""
         subjectName = intent.getStringExtra("SUBJECT_NAME") ?: ""
         grade = intent.getStringExtra("GRADE") ?: ""
         sourceType = intent.getStringExtra("SOURCE_TYPE") ?: "custom"
         sourceRef = intent.getStringExtra("SOURCE_REF") ?: ""
+        pdfFilePath = intent.getStringExtra("PDF_FILE_PATH") ?: ""
 
         if (!isWeeklyAssessment) {
             materialId = intent.getStringExtra("MATERIAL_ID") ?: return finish()
         }
 
         val initialJson = intent.getStringExtra("QUIZ_JSON") ?: "[]"
+        val initialPassage = intent.getStringExtra("PASSAGE_TEXT") ?: ""
         val targetItems = intent.getIntExtra("TARGET_ITEMS", if (isWeeklyAssessment) 10 else 5)
         val defaultTitle = intent.getStringExtra("ASSESSMENT_TITLE") ?: if (subjectName.isNotEmpty()) "$subjectName Assessment" else "Weekly Assessment"
 
@@ -95,33 +102,184 @@ class QuizEditorActivity : AppCompatActivity() {
         val cardMeta = findViewById<View>(R.id.card_assessment_meta)
         val etTitle = findViewById<EditText>(R.id.et_assessment_title)
         val tvDueDate = findViewById<TextView>(R.id.tv_due_date)
+        val etPassage = findViewById<EditText>(R.id.et_assessment_passage)
+        val tvPassageWordCount = findViewById<TextView>(R.id.tv_editor_passage_word_count)
+        val btnTogglePassage = findViewById<TextView>(R.id.btn_toggle_editor_passage)
+        val headerPassage = findViewById<View>(R.id.header_editor_passage)
+        val btnDeleteAssessment = findViewById<ImageButton>(R.id.btn_delete_assessment)
+
+        targetClassId = intent.getStringExtra("TARGET_CLASS_ID") ?: intent.getStringExtra("CLASS_ID") ?: ""
+        targetClassName = intent.getStringExtra("TARGET_CLASS_NAME") ?: intent.getStringExtra("CLASS_NAME") ?: ""
+
+        etPassage?.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val words = s?.toString()?.trim()?.split(Regex("\\s+"))?.filter { it.isNotEmpty() }?.size ?: 0
+                tvPassageWordCount?.text = "$words words"
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        val togglePassageAction = View.OnClickListener {
+            if (etPassage != null) {
+                if (etPassage.visibility == View.VISIBLE) {
+                    etPassage.visibility = View.GONE
+                    btnTogglePassage?.text = "Show ▼"
+                } else {
+                    etPassage.visibility = View.VISIBLE
+                    btnTogglePassage?.text = "Hide ▲"
+                }
+            }
+        }
+        btnTogglePassage?.setOnClickListener(togglePassageAction)
+        headerPassage?.setOnClickListener(togglePassageAction)
 
         if (isWeeklyAssessment) {
             cardMeta.visibility = View.VISIBLE
             etTitle.setText(defaultTitle)
+            if (initialPassage.isNotEmpty()) {
+                etPassage?.setText(initialPassage)
+            }
             updateDueDateDisplay(tvDueDate)
 
             tvDueDate.setOnClickListener {
                 showDueDatePicker(tvDueDate)
             }
 
-            findViewById<TextView>(R.id.tv_editor_title)?.text = "Weekly Assessment Builder"
-            (btnSaveQuiz as? TextView)?.text = "Publish to Class ➔"
+            if (assessmentId.isNotEmpty()) {
+                findViewById<TextView>(R.id.tv_editor_subtitle)?.text = "WEEKLY ASSESSMENT EDITOR"
+                findViewById<TextView>(R.id.tv_editor_title)?.text = "Edit Weekly Assessment"
+                (btnSaveQuiz as? TextView)?.text = "Save Changes ➔"
+                btnDeleteAssessment?.visibility = View.VISIBLE
+                btnDeleteAssessment?.let { btn ->
+                    GabAIUtils.addSpringPressEffect(btn) { confirmDeleteAssessment() }
+                }
+            } else {
+                findViewById<TextView>(R.id.tv_editor_title)?.text = "Weekly Assessment Builder"
+                (btnSaveQuiz as? TextView)?.text = "Publish to Class ➔"
+                btnDeleteAssessment?.visibility = View.GONE
+            }
 
             loadTeacherClasses()
+            if (assessmentId.isNotEmpty()) {
+                loadExistingWeeklyAssessment(initialJson)
+            }
         } else {
             cardMeta.visibility = View.GONE
+            btnDeleteAssessment?.visibility = View.GONE
+            if (initialJson == "[]" && materialId.isNotEmpty()) {
+                loadExistingMaterialQuiz()
+            }
         }
 
-        targetClassId = intent.getStringExtra("TARGET_CLASS_ID") ?: ""
-        targetClassName = intent.getStringExtra("TARGET_CLASS_NAME") ?: ""
-
         loadTeacherInfo()
-        loadInitialQuestions(initialJson)
+        if (initialJson != "[]") {
+            loadInitialQuestions(initialJson)
+        }
     }
 
     private var targetClassId: String = ""
     private var targetClassName: String = ""
+
+    private fun loadExistingWeeklyAssessment(passedJson: String) {
+        GabAIUtils.showGlobalLoading(this, "Loading assessment details...")
+        db.collection("weekly_assessments").document(assessmentId).get()
+            .addOnSuccessListener { doc ->
+                GabAIUtils.hideGlobalLoading(this)
+                if (!doc.exists()) {
+                    GabAIUtils.showSnackbar(this, "Assessment not found.")
+                    finish()
+                    return@addOnSuccessListener
+                }
+
+                val title = doc.getString("title") ?: "Weekly Assessment"
+                val passage = doc.getString("passage") ?: ""
+                val qCount = doc.getLong("targetItems")?.toInt() ?: doc.getLong("questionCount")?.toInt() ?: 10
+                val due = doc.getLong("dueDate") ?: dueDateMillis
+                val cId = doc.getString("classId") ?: ""
+                val cName = doc.getString("className") ?: ""
+                val quizJson = doc.getString("quiz_pool_json") ?: "[]"
+
+                subjectId = doc.getString("subjectId") ?: subjectId
+                subjectName = doc.getString("subjectName") ?: subjectName
+                grade = doc.getString("grade") ?: grade
+                sourceType = doc.getString("sourceType") ?: sourceType
+                sourceRef = doc.getString("sourceRef") ?: sourceRef
+
+                findViewById<EditText>(R.id.et_assessment_title)?.setText(title)
+                findViewById<EditText>(R.id.et_assessment_passage)?.setText(passage)
+                findViewById<EditText>(R.id.et_target_items)?.setText(qCount.toString())
+
+                dueDateMillis = due
+                findViewById<TextView>(R.id.tv_due_date)?.let { updateDueDateDisplay(it) }
+
+                if (cId.isNotEmpty()) {
+                    targetClassId = cId
+                    targetClassName = cName
+                    val spinnerClass = findViewById<Spinner>(R.id.spinner_target_class)
+                    val idx = enrolledClasses.indexOfFirst { it.id == targetClassId }
+                    if (idx != -1) {
+                        spinnerClass?.setSelection(idx)
+                    } else if (enrolledClasses.isNotEmpty()) {
+                        loadTeacherClasses()
+                    }
+                }
+
+                if (passedJson == "[]" && container.childCount == 0) {
+                    loadInitialQuestions(quizJson)
+                }
+            }
+            .addOnFailureListener { e ->
+                GabAIUtils.hideGlobalLoading(this)
+                GabAIUtils.showSnackbar(this, "Error loading assessment: ${e.message}")
+            }
+    }
+
+    private fun loadExistingMaterialQuiz() {
+        GabAIUtils.showGlobalLoading(this, "Loading quiz questions...")
+        db.collection("library_materials").document(materialId).get()
+            .addOnSuccessListener { doc ->
+                GabAIUtils.hideGlobalLoading(this)
+                if (!doc.exists()) return@addOnSuccessListener
+                val quizJson = doc.getString("quiz_pool_json") ?: "[]"
+                val maxItems = doc.getLong("quiz_max_items")?.toInt() ?: 5
+                findViewById<EditText>(R.id.et_target_items)?.setText(maxItems.toString())
+                if (container.childCount == 0 && quizJson != "[]") {
+                    loadInitialQuestions(quizJson)
+                }
+            }
+            .addOnFailureListener {
+                GabAIUtils.hideGlobalLoading(this)
+            }
+    }
+
+    private fun confirmDeleteAssessment() {
+        if (assessmentId.isEmpty()) return
+        val title = findViewById<EditText>(R.id.et_assessment_title)?.text?.toString()?.trim()?.ifEmpty { "this assessment" } ?: "this assessment"
+        GabAIDialogs.showConfirmDialog(
+            context = this,
+            title = "Delete Weekly Assessment?",
+            message = "Are you sure you want to permanently delete \"$title\"? Students will no longer see it.",
+            confirmText = "Delete Assessment",
+            cancelText = "Cancel",
+            isDestructive = true,
+            badgeIcon = "🗑️",
+            iconRes = R.drawable.ic_trash,
+            onConfirm = {
+                GabAIUtils.showGlobalLoading(this, "Deleting assessment...")
+                db.collection("weekly_assessments").document(assessmentId).delete()
+                    .addOnSuccessListener {
+                        GabAIUtils.hideGlobalLoading(this)
+                        Toast.makeText(this, "Weekly Assessment deleted.", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        GabAIUtils.hideGlobalLoading(this)
+                        GabAIUtils.showSnackbar(this, "Failed to delete: ${e.message}")
+                    }
+            }
+        )
+    }
 
     private fun loadTeacherInfo() {
         val uid = auth.currentUser?.uid ?: return
@@ -446,14 +604,41 @@ class QuizEditorActivity : AppCompatActivity() {
 
     private fun generateMoreQuestions(count: Int) {
         GabAIUtils.showGlobalLoading(this, "AI is generating $count questions...")
+        val currentPassage = findViewById<EditText>(R.id.et_assessment_passage)?.text?.toString()?.trim() ?: ""
+        val currentTitle = findViewById<EditText>(R.id.et_assessment_title)?.text?.toString()?.trim() ?: subjectName
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                var sourceMaterialText = currentPassage
+                if (sourceMaterialText.isEmpty() && pdfFilePath.isNotEmpty()) {
+                    try {
+                        val file = File(pdfFilePath)
+                        if (file.exists()) {
+                            val doc = PDDocument.load(file)
+                            sourceMaterialText = PDFTextStripper().getText(doc)
+                            doc.close()
+                        }
+                    } catch (_: Exception) {}
+                }
+
+                val passageContextBlock = if (sourceMaterialText.isNotEmpty()) {
+                    """
+                    Base all questions strictly on the following reading passage:
+                    \"\"\"
+                    ${sourceMaterialText.take(10000)}
+                    \"\"\"
+                    """.trimIndent()
+                } else {
+                    "Generate reading comprehension questions appropriate for Grade $grade ($subjectName)."
+                }
+
                 val prompt = """
                     You are an expert educational reading and literacy assessment specialist.
                     Subject: $subjectName
                     Grade: $grade
-                    Assessment Focus: ${findViewById<EditText>(R.id.et_assessment_title)?.text?.toString() ?: subjectName}
+                    Assessment Focus: $currentTitle
+
+                    $passageContextBlock
 
                     CRITICAL CONTENT, SAFETY & NEUTRALITY DIRECTIVES:
                     1. OBJECTIVE EDUCATIONAL FOCUS: Generate clear, age-appropriate questions focused strictly on reading comprehension, vocabulary in context, and literary analysis for students.
@@ -543,6 +728,14 @@ class QuizEditorActivity : AppCompatActivity() {
                 return
             }
 
+            val passageText = findViewById<EditText>(R.id.et_assessment_passage)?.text?.toString()?.trim() ?: ""
+            if (passageText.isEmpty()) {
+                GabAIUtils.showSnackbar(this, "Please provide a Reading Passage so students can read the text before answering.")
+                findViewById<EditText>(R.id.et_assessment_passage)?.visibility = View.VISIBLE
+                findViewById<EditText>(R.id.et_assessment_passage)?.requestFocus()
+                return
+            }
+
             val spinnerClass = findViewById<Spinner>(R.id.spinner_target_class)
             val selectedClassPos = spinnerClass?.selectedItemPosition ?: -1
             if (enrolledClasses.isEmpty() || selectedClassPos < 0 || selectedClassPos >= enrolledClasses.size) {
@@ -553,38 +746,68 @@ class QuizEditorActivity : AppCompatActivity() {
             val targetClass = enrolledClasses[selectedClassPos]
             val uid = auth.currentUser?.uid ?: ""
 
-            GabAIUtils.showGlobalLoading(this, "Publishing Weekly Assessment...")
+            if (assessmentId.isNotEmpty()) {
+                GabAIUtils.showGlobalLoading(this, "Saving changes...")
+                val updateData = mapOf<String, Any>(
+                    "title" to title,
+                    "passage" to passageText,
+                    "subjectId" to subjectId,
+                    "subjectName" to subjectName.ifEmpty { targetClass.name },
+                    "grade" to if (grade.isNotEmpty()) grade else targetClass.grade,
+                    "classId" to targetClass.id,
+                    "className" to targetClass.name,
+                    "schoolId" to targetClass.schoolId,
+                    "dueDate" to dueDateMillis,
+                    "quiz_pool_json" to jsonArray.toString(),
+                    "questionCount" to container.childCount,
+                    "targetItems" to targetItems,
+                    "updatedAt" to System.currentTimeMillis()
+                )
+                db.collection("weekly_assessments").document(assessmentId).update(updateData)
+                    .addOnSuccessListener {
+                        GabAIUtils.hideGlobalLoading(this)
+                        Toast.makeText(this, "Weekly Assessment Updated!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        GabAIUtils.hideGlobalLoading(this)
+                        GabAIUtils.showSnackbar(this, "Failed to update: ${e.message}")
+                    }
+            } else {
+                GabAIUtils.showGlobalLoading(this, "Publishing Weekly Assessment...")
 
-            val assessmentData = hashMapOf(
-                "title" to title,
-                "subjectId" to subjectId,
-                "subjectName" to subjectName,
-                "grade" to if (grade.isNotEmpty()) grade else targetClass.grade,
-                "classId" to targetClass.id,
-                "className" to targetClass.name,
-                "schoolId" to targetClass.schoolId,
-                "teacherId" to uid,
-                "teacherName" to teacherFullName,
-                "dueDate" to dueDateMillis,
-                "sourceType" to sourceType,
-                "sourceRef" to sourceRef,
-                "quiz_pool_json" to jsonArray.toString(),
-                "questionCount" to container.childCount,
-                "targetItems" to targetItems,
-                "createdAt" to System.currentTimeMillis(),
-                "status" to "active"
-            )
+                val assessmentData = hashMapOf(
+                    "title" to title,
+                    "passage" to passageText,
+                    "subjectId" to subjectId,
+                    "subjectName" to subjectName.ifEmpty { targetClass.name },
+                    "grade" to if (grade.isNotEmpty()) grade else targetClass.grade,
+                    "classId" to targetClass.id,
+                    "className" to targetClass.name,
+                    "schoolId" to targetClass.schoolId,
+                    "teacherId" to uid,
+                    "teacherName" to teacherFullName,
+                    "dueDate" to dueDateMillis,
+                    "sourceType" to sourceType,
+                    "sourceRef" to sourceRef,
+                    "quiz_pool_json" to jsonArray.toString(),
+                    "questionCount" to container.childCount,
+                    "targetItems" to targetItems,
+                    "createdAt" to System.currentTimeMillis(),
+                    "status" to "active"
+                )
 
-            db.collection("weekly_assessments").add(assessmentData)
-                .addOnSuccessListener {
-                    GabAIUtils.hideGlobalLoading(this)
-                    Toast.makeText(this, "Weekly Assessment Published to ${targetClass.name}!", Toast.LENGTH_LONG).show()
-                    finish()
-                }
-                .addOnFailureListener { e ->
-                    GabAIUtils.hideGlobalLoading(this)
-                    GabAIUtils.showSnackbar(this, "Failed to publish: ${e.message}")
-                }
+                db.collection("weekly_assessments").add(assessmentData)
+                    .addOnSuccessListener {
+                        GabAIUtils.hideGlobalLoading(this)
+                        Toast.makeText(this, "Weekly Assessment Published to ${targetClass.name}!", Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        GabAIUtils.hideGlobalLoading(this)
+                        GabAIUtils.showSnackbar(this, "Failed to publish: ${e.message}")
+                    }
+            }
         } else {
             GabAIUtils.showGlobalLoading(this, "Publishing to material...")
 

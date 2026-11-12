@@ -630,12 +630,14 @@ class HomeFragment : Fragment() {
                 val assessmentId = targetDoc.id
                 val title = targetDoc.getString("title") ?: "Phil-IRI Standardized Reading Assessment"
                 val purpose = targetDoc.getString("assessmentPurpose") ?: "Phil-IRI Pre-Test (Diagnostic)"
+                val compactPurpose = purpose.replace(Regex("\\s*\\(.*?\\)"), "").trim().ifEmpty { purpose }
                 val timerMins = targetDoc.getLong("timerMinutes")?.toInt() ?: targetDoc.getLong("durationMinutes")?.toInt() ?: 20
                 val wordCount = targetDoc.getLong("passageWordCount")?.toInt() ?: 280
-                val district = targetDoc.getString("districtScope") ?: "All Valenzuela Schools"
+                val rawDistrict = targetDoc.getString("districtScope") ?: "All Valenzuela Schools"
+                val district = if (rawDistrict.equals("ALL", ignoreCase = true)) "All Valenzuela Schools" else rawDistrict
 
                 binding.tvDivTimedTitle.text = title
-                binding.tvDivTimedPurposePill.text = purpose
+                binding.tvDivTimedPurposePill.text = compactPurpose
                 binding.tvDivTimedTimerBadge.text = "⏱️ $timerMins min limit"
                 binding.tvDivTimedMeta.text = "$district • Standardized Passage (~$wordCount words)${if (count > 1) " • 1 of $count Assigned" else ""}"
                 binding.sectionDivisionTimedAssessment.visibility = View.VISIBLE
@@ -657,20 +659,23 @@ class HomeFragment : Fragment() {
                         pct >= 59 -> Pair("#E0E7FF", "#3730A3")
                         else -> Pair("#FEE2E2", "#991B1B")
                     }
+                    binding.tvDivTimedScorePill.setBackgroundResource(R.drawable.bg_level_pill)
                     binding.tvDivTimedScorePill.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(bgTint))
                     binding.tvDivTimedScorePill.setTextColor(android.graphics.Color.parseColor(textCol))
 
+                    binding.btnActionDivTimed.setBackgroundResource(R.drawable.btn_gradient_stitch)
                     if (pct <= 58) {
                         binding.btnActionDivTimed.text = "View Diagnostic & Remedial ➔"
-                        binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#E11D48"))
+                        binding.btnActionDivTimed.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E11D48"))
                     } else {
                         binding.btnActionDivTimed.text = "View Diagnostic Report ➔"
-                        binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
+                        binding.btnActionDivTimed.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#00B894"))
                     }
                 } else {
                     binding.tvDivTimedScorePill.visibility = View.GONE
                     binding.btnActionDivTimed.text = "Take Timed Assessment ➔"
-                    binding.btnActionDivTimed.setBackgroundColor(android.graphics.Color.parseColor("#5341CD"))
+                    binding.btnActionDivTimed.setBackgroundResource(R.drawable.btn_gradient_stitch)
+                    binding.btnActionDivTimed.backgroundTintList = null
                 }
 
                 val launchTimedAssessment = {
@@ -854,12 +859,18 @@ class HomeFragment : Fragment() {
                                     val pct = subDoc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
 
                                     pill.visibility = View.VISIBLE
-                                    pill.text = "Completed • Score: $score/$total ($pct%) ✓"
+                                    pill.text = "Completed • $score/$total ($pct%) ✓"
+                                    pill.setBackgroundResource(R.drawable.bg_level_pill)
+                                    pill.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#D1FAE5"))
+                                    pill.setTextColor(android.graphics.Color.parseColor("#065F46"))
                                     btn.text = "View Results ➔"
-                                    btn.setBackgroundColor(android.graphics.Color.parseColor("#00B894"))
+                                    btn.setBackgroundResource(R.drawable.btn_gradient_stitch)
+                                    btn.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#00B894"))
                                 } else {
                                     pill.visibility = View.GONE
                                     btn.text = "Start Assessment ➔"
+                                    btn.setBackgroundResource(R.drawable.btn_gradient_stitch)
+                                    btn.backgroundTintList = null
                                 }
 
                                 card.setOnClickListener {

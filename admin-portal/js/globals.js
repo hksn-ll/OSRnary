@@ -93,6 +93,29 @@ var learnerTierFilter = "ALL";
 var learnerGenderFilter = "ALL";
 var learnerStatusFilter = "ALL";
 var learnerSchoolFilterVal = "ALL";
+var learnerViewMode = "roster";
+var learnerQuickPill = "ALL";
+var learnerSortColumn = "mps";
+var learnerSortAsc = false;
+var learnerPage = 1;
+var learnerPageSize = 25;
+var superAdminLearnerView = "schools"; // 'schools' | 'drilldown'
+var schoolMatrixDistrictFilter = "ALL"; // 'ALL' | 'District 1' | 'District 2'
+var schoolMatrixSearchQuery = "";
+var schoolMatrixSort = "highest_mps"; // 'highest_mps' | 'highest_enrolled' | 'highest_wpm' | 'lowest_mps' | 'name_asc'
+var timedViewMode = "catalog"; // 'catalog' | 'schools_matrix'
+var superAdminTimedView = "overview"; // 'overview' | 'drilldown'
+var timedSelectedAssessmentId = null; // active assessment for school matrix
+var timedSchoolDistrictFilter = "ALL"; // 'ALL' | 'District 1' | 'District 2'
+var timedSchoolMatrixSearch = "";
+var timedSchoolMatrixSort = "highest_mps"; // 'highest_mps' | 'highest_completion' | 'highest_wpm' | 'lowest_mps' | 'name_asc'
+var timedSchoolViewMode = "sections"; // 'sections' | 'submissions'
+var timedSubmissionsPage = 1;
+var timedSubmissionsPageSize = 25;
+var timedSubmissionsSortCol = "mps";
+var timedSubmissionsSortAsc = false;
+var activeAnalyticsAssessmentId = null;
+var activeAnalyticsTab = "dimensions"; // 'passage' | 'dimensions' | 'items' | 'schools'
 var credentialSearchQuery = "";
 var credentialGradeFilter = "ALL";
 var credentialSectionFilter = "ALL";
@@ -173,10 +196,16 @@ window.getTestAdminSession = function() {
 if (typeof window !== 'undefined' && window.location && window.location.search) {
   const testRole = new URLSearchParams(window.location.search).get('test_session');
   if (testRole === 'super_admin' || testRole === 'school_admin') {
+    const mockSchoolId = testRole === 'school_admin' ? '305445' : 'DIVISION_OFFICE';
     window.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
         if (typeof window.setTestAdminSession === 'function') {
-          window.setTestAdminSession({ email: 'superadmin@gabai.edu', uid: 'test-super-admin' }, testRole);
+          window.setTestAdminSession({
+            email: testRole === 'super_admin' ? 'superadmin@gabai.edu' : 'caruhatan.admin@valenzuela.edu.ph',
+            uid: 'test-' + testRole,
+            schoolId: mockSchoolId,
+            firstName: testRole === 'super_admin' ? 'Super Admin' : 'School Admin'
+          }, testRole);
         }
       }, 200);
     });

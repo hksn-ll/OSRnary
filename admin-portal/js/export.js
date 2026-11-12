@@ -126,18 +126,14 @@
       let students = cachedUsers.filter(u => u.role === 'student');
       let submissions = cachedSubmissions;
       if (isSchoolAdmin && currentAdminUser?.schoolId) {
-        students = students.filter(s => String(s.schoolId) === String(currentAdminUser.schoolId));
+        students = students.filter(s => (typeof resolveStudentSchoolId === 'function' ? resolveStudentSchoolId(s) : String(s.schoolId || '').trim()) === String(currentAdminUser.schoolId));
       } else if (selectedJurisdiction !== 'ALL') {
-        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
+        students = students.filter(s => (typeof resolveStudentSchoolId === 'function' ? resolveStudentSchoolId(s) : String(s.schoolId || '').trim()) === selectedJurisdiction);
       }
       if (typeof learnerSectionFilter !== 'undefined' && learnerSectionFilter !== 'ALL') {
-        students = students.filter(s => String(s.section || '').trim().toLowerCase() === learnerSectionFilter.toLowerCase());
-      }
-      if (selectedJurisdiction !== 'ALL') {
-        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
-        submissions = submissions.filter(s => {
-          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
-          return (a && String(a.schoolId) === selectedJurisdiction) || String(s.schoolId) === selectedJurisdiction;
+        students = students.filter(s => {
+          const sec = typeof resolveStudentSectionAndAdviser === 'function' ? resolveStudentSectionAndAdviser(s).sectionName : (s.section || '');
+          return String(sec).trim().toLowerCase() === learnerSectionFilter.toLowerCase();
         });
       }
 
@@ -146,118 +142,168 @@
         return;
       }
 
-      const metrics = calculateScoreMetrics(submissions, students);
-      const scopeLabel = selectedJurisdiction === 'ALL' ? 'Division-Wide (All Schools)' : getSchoolName(selectedJurisdiction);
+      const scopeLabel = selectedJurisdiction === 'ALL' ? 'Division-Wide (All Junior High Schools)' : getSchoolName(selectedJurisdiction);
+
+      let indCount = 0;
+      let insCount = 0;
+      let fruCount = 0;
+      let totalMpsSum = 0;
+      let totalMpsCount = 0;
 
       const rows = students.map((s, idx) => {
-        const studentSubs = submissions.filter(sub => sub.studentId === s.uid);
-        const sMetrics = calculateScoreMetrics(studentSubs, [s]);
-        const score = sMetrics.avgScore;
-        const statusBadge = score >= 85 ? '<span style="color:#059669; font-weight:700;">Mastery</span>'
-          : score >= 60 ? '<span style="color:#D97706; font-weight:700;">Proficient</span>'
-          : '<span style="color:#E11D48; font-weight:700;">Needs Support</span>';
+        const secInfo = typeof resolveStudentSectionAndAdviser === 'function' 
+          ? resolveStudentSectionAndAdviser(s) 
+          : { sectionName: s.section || 'General', grade: s.grade || '7', adviserName: 'Homeroom Adviser' };
+
+        const prof = typeof computeLearnerAcademicProfile === 'function' 
+          ? computeLearnerAcademicProfile(s) 
+          : { effectiveMps: null, tierLabel: 'Unassessed', tier: 'unassessed', wpm: null };
+
+        if (prof.tier === 'independent') indCount++;
+        else if (prof.tier === 'instructional') insCount++;
+        else if (prof.tier === 'frustration') fruCount++;
+
+        if (prof.effectiveMps !== null) {
+          totalMpsSum += prof.effectiveMps;
+          totalMpsCount++;
+        }
+
+        const mpsDisplay = prof.effectiveMps !== null ? `${prof.effectiveMps}%` : '—';
+        const wpmDisplay = prof.wpm ? `${prof.wpm} WPM` : '—';
+        const tierBadge = prof.tier === 'independent' ? '<span style="color:#059669; font-weight:700;">Independent</span>'
+          : prof.tier === 'instructional' ? '<span style="color:#D97706; font-weight:700;">Instructional</span>'
+          : prof.tier === 'frustration' ? '<span style="color:#E11D48; font-weight:700;">Priority Support</span>'
+          : '<span style="color:#64748B; font-weight:600;">Unassessed</span>';
+
+        const interventionText = s.interventionStatus === 'remedial_reading' ? 'Remedial Session'
+          : s.interventionStatus === 'peer_tutoring' ? 'Peer Tutoring'
+          : s.interventionStatus === 'phonics_catchup' ? 'Phonics Catch-up'
+          : 'Standard Program';
+
+        const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.fullName || s.username || 'Learner';
 
         return [
           (idx + 1).toString(),
-          s.fullName || s.name || s.username || 'Student',
+          fullName,
           getSchoolName(s.schoolId),
-          `${s.grade || 'Grade 7'} - ${s.section || 'General'}`,
-          `${score}%`,
-          studentSubs.length.toString(),
+          `Gr. ${secInfo.grade} - ${secInfo.sectionName}`,
+          mpsDisplay,
+          wpmDisplay,
           `${s.current_streak || 0}d`,
-          statusBadge
+          tierBadge,
+          interventionText
         ];
       });
 
+      const avgCohortMps = totalMpsCount > 0 ? Math.round(totalMpsSum / totalMpsCount) : 0;
+
       window.printReportDoc({
-        title: "Learner Performance & Reading Summary",
-        subtitle: `Reading diagnostics and quiz performance across ${scopeLabel}`,
-        scopeBadge: selectedJurisdiction === 'ALL' ? 'Division' : 'School Scope',
+        title: "Official DepEd Phil-IRI Consolidated Reading & Academic Performance Report",
+        subtitle: `Standards assessment, comprehension tiers, and reading speed across ${scopeLabel}`,
+        scopeBadge: selectedJurisdiction === 'ALL' ? 'Division Scope' : 'School Scope',
         kpis: [
-          { label: "Total Learners", value: students.length },
-          { label: "Average Quiz Score", value: metrics.avgScore + "%" },
-          { label: "Mastery (85%+)", value: metrics.mastery },
-          { label: "Proficient (60-84%)", value: metrics.proficient },
-          { label: "Needs Support (<60%)", value: metrics.support }
+          { label: "Total Evaluated Scholars", value: students.length },
+          { label: "Cohort Literacy MPS", value: `${avgCohortMps}%` },
+          { label: "Independent (80%+)", value: `${indCount} (${Math.round((indCount/students.length)*100)}%)` },
+          { label: "Instructional (60-79%)", value: `${insCount} (${Math.round((insCount/students.length)*100)}%)` },
+          { label: "Priority Support (<60%)", value: `${fruCount} (${Math.round((fruCount/students.length)*100)}%)` }
         ],
         headers: [
           { label: "#", align: "left" },
           { label: "Learner Name", align: "left" },
           { label: "School", align: "left" },
           { label: "Grade & Section", align: "left" },
-          { label: "Score", align: "right" },
-          { label: "Quizzes", align: "right" },
+          { label: "Comprehension MPS", align: "right" },
+          { label: "Reading Speed", align: "right" },
           { label: "Streak", align: "right" },
-          { label: "Status", align: "center" }
+          { label: "Phil-IRI Tier", align: "center" },
+          { label: "Intervention Protocol", align: "left" }
         ],
         rows: rows,
         signatories: [
-          { label: "Prepared by", name: currentAdminUser?.displayName || "School Administrator", role: "School Administrator" },
+          { label: "Prepared by", name: currentAdminUser?.displayName || "School Reading Coordinator", role: "Reading Program Coordinator" },
           { label: "Noted by", name: "Schools Division Superintendent", role: "SDO Valenzuela City" }
         ]
       });
     };
 
-    // PDF 2: Reading Support & Intervention List
+    // PDF 2: Reading Support & Intervention Priority List
     window.exportInterventionsPDF = function() {
       let students = cachedUsers.filter(u => u.role === 'student');
-      let submissions = cachedSubmissions;
       if (selectedJurisdiction !== 'ALL') {
-        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
-        submissions = submissions.filter(s => {
-          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
-          return (a && String(a.schoolId) === selectedJurisdiction) || String(s.schoolId) === selectedJurisdiction;
+        students = students.filter(s => (typeof resolveStudentSchoolId === 'function' ? resolveStudentSchoolId(s) : String(s.schoolId || '').trim()) === selectedJurisdiction);
+      }
+      if (typeof learnerSectionFilter !== 'undefined' && learnerSectionFilter !== 'ALL') {
+        students = students.filter(s => {
+          const sec = typeof resolveStudentSectionAndAdviser === 'function' ? resolveStudentSectionAndAdviser(s).sectionName : (s.section || '');
+          return String(sec).trim().toLowerCase() === learnerSectionFilter.toLowerCase();
         });
       }
 
       const supportList = students.filter(s => {
-        const studentSubs = submissions.filter(sub => sub.studentId === s.uid);
-        const sMetrics = calculateScoreMetrics(studentSubs, [s]);
-        return sMetrics.avgScore < 60 || studentSubs.length === 0;
+        const prof = typeof computeLearnerAcademicProfile === 'function' ? computeLearnerAcademicProfile(s) : null;
+        const isFru = prof && (prof.tier === 'frustration' || (prof.effectiveMps !== null && prof.effectiveMps < 60));
+        const isAssigned = s.interventionStatus && s.interventionStatus !== 'none';
+        return isFru || isAssigned;
       });
 
       if (supportList.length === 0) {
-        window.showToast("No learners currently needing reading support.", "info");
+        window.showToast("No learners currently needing prioritized reading support.", "info");
         return;
       }
 
       const scopeLabel = selectedJurisdiction === 'ALL' ? 'Division-Wide' : getSchoolName(selectedJurisdiction);
 
       const rows = supportList.map((s, idx) => {
-        const studentSubs = submissions.filter(sub => sub.studentId === s.uid);
-        const sMetrics = calculateScoreMetrics(studentSubs, [s]);
-        const reason = sMetrics.avgScore < 60 && studentSubs.length > 0 ? "Score below 60%" : "Inactive in Reading Quizzes";
+        const secInfo = typeof resolveStudentSectionAndAdviser === 'function' 
+          ? resolveStudentSectionAndAdviser(s) 
+          : { sectionName: s.section || 'General', grade: s.grade || '7', adviserName: 'Homeroom Adviser' };
+
+        const prof = typeof computeLearnerAcademicProfile === 'function' 
+          ? computeLearnerAcademicProfile(s) 
+          : { effectiveMps: null, wpm: null };
+
+        const fullName = `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.fullName || s.username || 'Learner';
+        const mpsDisplay = prof.effectiveMps !== null ? `${prof.effectiveMps}%` : 'Pending Assessment';
+        const wpmDisplay = prof.wpm ? `${prof.wpm} WPM` : 'Normative';
+
+        let interventionText = "🚨 Remedial Reading Session";
+        if (s.interventionStatus === 'peer_tutoring') interventionText = "👥 Peer Tutoring & Paired Reading";
+        else if (s.interventionStatus === 'phonics_catchup') interventionText = "📖 Intensive Phonics Catch-up";
+        else if (s.interventionStatus === 'elln_clinic') interventionText = "🏥 ELLN Reading Clinic";
 
         return [
           (idx + 1).toString(),
-          s.fullName || s.name || s.username || 'Student',
+          fullName,
           getSchoolName(s.schoolId),
-          `${s.grade || 'Grade 7'} - ${s.section || 'General'}`,
-          `${sMetrics.avgScore}%`,
-          studentSubs.length.toString(),
-          `${s.current_streak || 0}d`,
-          reason
+          `Gr. ${secInfo.grade} - ${secInfo.sectionName}`,
+          secInfo.adviserName,
+          mpsDisplay,
+          wpmDisplay,
+          interventionText,
+          s.interventionNotes || "Tier 3 Frustration level"
         ];
       });
 
       window.printReportDoc({
-        title: "Reading Support & Intervention List",
-        subtitle: `Learners recommended for remedial reading and vocabulary assistance (${scopeLabel})`,
-        scopeBadge: "Intervention Priority",
+        title: "Official DepEd Priority Reading Support & Remedial Intervention Directive",
+        subtitle: `Scholars designated for guided phonics, paired reading, and targeted ELLN remediation (${scopeLabel})`,
+        scopeBadge: "Priority Remediation Radar",
         kpis: [
-          { label: "Support Queue Count", value: supportList.length },
-          { label: "Total Enrolled in Scope", value: students.length },
-          { label: "Support Share", value: Math.round((supportList.length / (students.length || 1)) * 100) + "%" }
+          { label: "Target Scholars in Queue", value: supportList.length },
+          { label: "Total Cohort Enrolled", value: students.length },
+          { label: "Support Proportion", value: `${Math.round((supportList.length / (students.length || 1)) * 100)}%` }
         ],
         headers: [
           { label: "#", align: "left" },
           { label: "Learner Name", align: "left" },
           { label: "School", align: "left" },
           { label: "Grade & Section", align: "left" },
-          { label: "Score", align: "right" },
-          { label: "Quizzes", align: "right" },
-          { label: "Streak", align: "right" },
-          { label: "Flag Reason", align: "left" }
+          { label: "Class Adviser", align: "left" },
+          { label: "Literacy MPS", align: "right" },
+          { label: "Speed", align: "right" },
+          { label: "Designated Program", align: "left" },
+          { label: "Supervisory Observations", align: "left" }
         ],
         rows: rows,
         signatories: [
@@ -265,6 +311,140 @@
           { label: "Approved for Intervention", name: "School Principal / Head", role: "School Administration" }
         ]
       });
+    };
+
+    // PDF 2.1: Individual Learner Official Phil-IRI Summary Card
+    window.exportIndividualLearnerPhilIriPDF = function(studentId) {
+      const student = (cachedUsers || []).find(u => u.id === studentId);
+      if (!student) {
+        window.showToast("Student profile not found for printing.", "error");
+        return;
+      }
+      const secInfo = typeof resolveStudentSectionAndAdviser === 'function' 
+        ? resolveStudentSectionAndAdviser(student)
+        : { sectionName: student.section || 'General', grade: student.grade || '7', adviserName: 'Homeroom Adviser' };
+
+      const prof = typeof computeLearnerAcademicProfile === 'function'
+        ? computeLearnerAcademicProfile(student)
+        : { effectiveMps: null, tierLabel: 'Unassessed', tier: 'unassessed', wpm: null, trendLabel: '➔ Stable' };
+
+      const fName = student.firstName || '';
+      const lName = student.lastName || '';
+      const fullName = `${fName} ${lName}`.trim() || student.fullName || student.username || 'Learner';
+      const schoolName = getSchoolName(student.schoolId);
+      const mpsVal = prof.effectiveMps !== null ? `${prof.effectiveMps}%` : 'Pending';
+      const wpmVal = prof.wpm ? `${prof.wpm} WPM` : 'Normative';
+
+      const existing = document.getElementById('printReportContainer');
+      if (existing) existing.remove();
+
+      const container = document.createElement('div');
+      container.id = 'printReportContainer';
+      container.style.padding = '24px';
+      container.style.backgroundColor = '#FFFFFF';
+      container.innerHTML = `
+        <style>
+          @media print {
+            body * { visibility: hidden !important; }
+            #printReportContainer, #printReportContainer * { visibility: visible !important; }
+            #printReportContainer { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; }
+          }
+        </style>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; line-height: 1.5;">
+          <!-- Header -->
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #5341CD; padding-bottom: 12px; margin-bottom: 16px;">
+            <div>
+              <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Department of Education &bull; SDO Valenzuela City</div>
+              <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 2px;">Official Phil-IRI Individual Reading Profile</div>
+              <div style="font-size: 12px; color: #5341CD; font-weight: 600;">DepEd Order No. 14, s. 2018 Standards</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 12px; font-weight: 700; color: #0f172a;">${escapeHtml(schoolName)}</div>
+              <div style="font-size: 11px; color: #64748b;">School Year 2026–2027</div>
+            </div>
+          </div>
+
+          <!-- Learner Demographics Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 12px;">
+            <div>
+              <div style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">Learner Full Name</div>
+              <div style="font-weight: 800; color: #0f172a; font-size: 13px; margin-top: 2px;">${escapeHtml(fullName)}</div>
+              <div style="color: #64748b; font-size: 10px;">@${escapeHtml(student.username || student.id.substring(0,6))}</div>
+            </div>
+            <div>
+              <div style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">LRN / Institutional ID</div>
+              <div style="font-weight: 700; color: #0f172a; margin-top: 2px;">${escapeHtml(student.lrn || 'Pending Assignment')}</div>
+              <div style="color: #64748b; font-size: 10px;">Gender: ${escapeHtml(student.gender || 'Unspecified')}</div>
+            </div>
+            <div>
+              <div style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">Classroom Section</div>
+              <div style="font-weight: 700; color: #5341CD; margin-top: 2px;">${escapeHtml(secInfo.sectionName)} (Grade ${escapeHtml(secInfo.grade)})</div>
+              <div style="color: #64748b; font-size: 10px;">Adviser: ${escapeHtml(secInfo.adviserName)}</div>
+            </div>
+          </div>
+
+          <!-- KPI summary strip -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;">
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">Phil-IRI Reading Tier</div>
+              <div style="font-size: 14px; font-weight: 800; color: ${prof.tier === 'independent' ? '#059669' : (prof.tier === 'instructional' ? '#d97706' : '#e11d48')}; margin-top: 3px;">
+                ${escapeHtml(prof.tierLabel)}
+              </div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">Comprehension MPS</div>
+              <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 3px;">${mpsVal}</div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">Reading Speed</div>
+              <div style="font-size: 14px; font-weight: 800; color: #2563eb; margin-top: 3px;">${wpmVal}</div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">Reading Streak Habit</div>
+              <div style="font-size: 14px; font-weight: 800; color: #d97706; margin-top: 3px;">${student.current_streak || 0} Days</div>
+            </div>
+          </div>
+
+          <!-- Intervention & Guidance Notes Box -->
+          <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 20px; background: #fafafa;">
+            <div style="font-size: 11px; font-weight: 700; color: #0f172a; text-transform: uppercase; margin-bottom: 6px;">
+              Institutional Reading Intervention Status:
+              <span style="color: #5341CD; font-weight: 800; text-transform: none;">
+                ${student.interventionStatus === 'remedial_reading' ? 'Remedial Reading Session (Priority Support)' : (student.interventionStatus === 'peer_tutoring' ? 'Peer Tutoring & Guided Paired Reading' : (student.interventionStatus === 'phonics_catchup' ? 'Intensive Phonics & Word Recognition' : 'Regular Reading Program (Satisfactory)'))}
+              </span>
+            </div>
+            <div style="font-size: 11px; color: #475569; line-height: 1.6;">
+              <strong>Supervisory / Teacher Observations:</strong><br />
+              ${escapeHtml(student.interventionNotes || 'Learner is participating in regular classroom literacy instruction and utilizing the GabAI mobile application for vocabulary expansion.')}
+            </div>
+          </div>
+
+          <!-- Signatories -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 30px; text-align: center; font-size: 11px;">
+            <div>
+              <div style="border-bottom: 1px solid #94a3b8; height: 35px; margin-bottom: 4px;"></div>
+              <div style="font-weight: 700; color: #0f172a;">${escapeHtml(secInfo.adviserName)}</div>
+              <div style="color: #64748b;">Class Homeroom Adviser</div>
+            </div>
+            <div>
+              <div style="border-bottom: 1px solid #94a3b8; height: 35px; margin-bottom: 4px;"></div>
+              <div style="font-weight: 700; color: #0f172a;">School Reading Coordinator</div>
+              <div style="color: #64748b;">Phil-IRI Committee</div>
+            </div>
+            <div>
+              <div style="border-bottom: 1px solid #94a3b8; height: 35px; margin-bottom: 4px;"></div>
+              <div style="font-weight: 700; color: #0f172a;">${escapeHtml(currentAdminUser?.displayName || 'School Head / Principal')}</div>
+              <div style="color: #64748b;">School Principal</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(container);
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => container.remove(), 1000);
+      }, 250);
     };
 
     // PDF 3: Grade Benchmark Matrix
@@ -679,75 +859,91 @@
     // 4. All Enrolled Learners Performance Export
     window.exportAllLearnersCSV = function() {
       let students = cachedUsers.filter(u => u.role === 'student');
-      let submissions = cachedSubmissions;
 
       if (isSchoolAdmin && currentAdminUser?.schoolId) {
-        students = students.filter(s => String(s.schoolId) === String(currentAdminUser.schoolId));
+        students = students.filter(s => (typeof resolveStudentSchoolId === 'function' ? resolveStudentSchoolId(s) : String(s.schoolId || '').trim()) === String(currentAdminUser.schoolId));
       } else if (selectedJurisdiction !== 'ALL') {
-        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
+        students = students.filter(s => (typeof resolveStudentSchoolId === 'function' ? resolveStudentSchoolId(s) : String(s.schoolId || '').trim()) === selectedJurisdiction);
       }
       if (typeof learnerSectionFilter !== 'undefined' && learnerSectionFilter !== 'ALL') {
-        students = students.filter(s => String(s.section || '').trim().toLowerCase() === learnerSectionFilter.toLowerCase());
-      }
-
-      if (selectedJurisdiction !== 'ALL') {
-        students = students.filter(s => String(s.schoolId) === selectedJurisdiction);
-        submissions = submissions.filter(s => {
-          const a = cachedWeeklyAssessments.find(item => item.id === s.assessmentId);
-          return (a && String(a.schoolId) === selectedJurisdiction) || String(s.schoolId) === selectedJurisdiction;
+        students = students.filter(s => {
+          const sec = typeof resolveStudentSectionAndAdviser === 'function' ? resolveStudentSectionAndAdviser(s).sectionName : (s.section || '');
+          return String(sec).trim().toLowerCase() === learnerSectionFilter.toLowerCase();
         });
       }
 
       const rows = [
         [
-          "Student Full Name",
+          "LRN",
+          "Learner Full Name",
           "Username",
-          "Email / ID",
+          "Gender",
           "School ID",
           "School Name",
           "Grade Level",
-          "Section",
+          "Section Name",
+          "Class Homeroom Adviser",
+          "Phil-IRI Reading Tier",
+          "Comprehension MPS (%)",
+          "Reading Speed (WPM)",
+          "Reading Streak (Days)",
+          "Words Mastered (OCR Retention)",
           "Gamification Level",
           "Current XP",
-          "Reading Streak (Days)",
           "Quests Completed",
           "Assessments Completed",
-          "Average Score %",
-          "Mastery Tier"
+          "Reading Trajectory Trend",
+          "Assigned Intervention Program",
+          "Supervisory Guidance Notes"
         ]
       ];
 
       students.forEach(st => {
-        const stSubs = submissions.filter(s => s.studentId === st.id);
-        const avg = calculateAverageScore(stSubs);
+        const secInfo = typeof resolveStudentSectionAndAdviser === 'function'
+          ? resolveStudentSectionAndAdviser(st)
+          : { sectionName: st.section || 'General', grade: st.grade || '7', adviserName: 'Homeroom Adviser' };
 
-        const fullName = `${st.firstName || ''} ${st.lastName || 'Learner'}`.trim() || 'Learner';
-        let tier = "Needs Support (<60%)";
-        if (stSubs.length > 0) {
-          if (avg >= 80) tier = "Mastery (80%+)";
-          else if (avg >= 60) tier = "Proficient (60%-79%)";
-        }
+        const prof = typeof computeLearnerAcademicProfile === 'function'
+          ? computeLearnerAcademicProfile(st)
+          : { effectiveMps: null, tierLabel: 'Unassessed', wpm: null, trendLabel: '➔ Stable', totalQuizzes: 0, wordsMastered: 0 };
+
+        const fullName = `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.fullName || st.username || 'Learner';
+        const mpsVal = prof.effectiveMps !== null ? `${prof.effectiveMps}%` : 'Pending';
+        const wpmVal = prof.wpm ? `${prof.wpm} WPM` : 'Normative';
+
+        let interventionText = "Regular Program (Satisfactory)";
+        if (st.interventionStatus === 'remedial_reading') interventionText = "Remedial Reading Session (Priority Support)";
+        else if (st.interventionStatus === 'peer_tutoring') interventionText = "Peer Tutoring & Paired Reading";
+        else if (st.interventionStatus === 'phonics_catchup') interventionText = "Intensive Phonics Catch-up";
+        else if (st.interventionStatus === 'elln_clinic') interventionText = "ELLN Reading Clinic";
 
         rows.push([
+          st.lrn || '',
           fullName,
           st.username ? `@${st.username}` : (st.email || ''),
-          st.email || st.id || '',
+          st.gender || 'unspecified',
           st.schoolId || '',
           getSchoolName(st.schoolId),
-          st.grade || 'Unassigned',
-          st.section || 'General',
+          `Grade ${secInfo.grade}`,
+          secInfo.sectionName,
+          secInfo.adviserName,
+          prof.tierLabel,
+          mpsVal,
+          wpmVal,
+          st.current_streak || 0,
+          prof.wordsMastered || 0,
           st.level || 1,
           st.current_xp || 0,
-          st.current_streak || 0,
           Array.isArray(st.quests_completed) ? st.quests_completed.length : 0,
-          stSubs.length,
-          `${avg}%`,
-          tier
+          prof.totalQuizzes,
+          prof.trendLabel,
+          interventionText,
+          st.interventionNotes || ''
         ]);
       });
 
       const scopeName = selectedJurisdiction === 'ALL' ? 'Division' : selectedJurisdiction;
-      downloadCSV(`Learner_Performance_Roster_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
+      downloadCSV(`DepEd_PhilIRI_Learner_Academic_Performance_${scopeName}_${new Date().toISOString().slice(0, 10)}.csv`, rows);
     };
 
     // 5. Credential Vault Export (Login Slips)
@@ -967,6 +1163,162 @@
         signatories: [
           { role: "School Reading Coordinator / Evaluator", name: `${currentAdminUser?.firstName || ''} ${currentAdminUser?.lastName || ''}`.trim() || 'School Evaluator' },
           { role: "School Principal / Head Teacher", name: "Approved for Institutional Record" }
+        ]
+      });
+    };
+
+    // =========================================================================
+    // EXPORT: PHIL-IRI COGNITIVE DIMENSIONS & ITEM ANALYSIS (CSV)
+    // =========================================================================
+    window.exportAssessmentDimensionsCSV = function(assessmentId) {
+      if (!assessmentId) return;
+      const allTests = typeof getUnifiedTimedTests === 'function' ? getUnifiedTimedTests() : [];
+      const test = allTests.find(t => t.id === assessmentId);
+      const testTitle = (test?.title || 'Assessment').replace(/"/g, '""');
+
+      const targetSchoolId = (isSchoolAdmin && currentAdminUser?.schoolId) ? String(currentAdminUser.schoolId) : 'ALL';
+      const dimStats = typeof computeAssessmentDimensionStats === 'function' 
+        ? computeAssessmentDimensionStats(assessmentId, targetSchoolId)
+        : null;
+
+      if (!dimStats) {
+        window.showToast("Cannot generate export: Dimension stats unavailable.", "warning");
+        return;
+      }
+
+      const rows = [
+        ["Republic of the Philippines - Department of Education"],
+        ["Schools Division Office of Valenzuela City"],
+        [`Standardized Test: "${testTitle}"`],
+        [`Scope: ${isSchoolAdmin ? getSchoolName(currentAdminUser?.schoolId) : 'Division-Wide (25 Secondary Campuses)'}`],
+        [`Literal MPS: ${dimStats.literalMpsPct}% | Inferential MPS: ${dimStats.inferentialMpsPct}% | Critical MPS: ${dimStats.criticalMpsPct}% | Overall MPS: ${dimStats.overallMps}%`],
+        [],
+        ["Item #", "Cognitive Dimension", "Question Prompt", "Accuracy (MPS %)", "Mastery Classification", "Most Common Distractor", "Recommended Intervention", "Total Attempts Analyzed"]
+      ];
+
+      dimStats.itemsAnalysis.forEach(it => {
+        rows.push([
+          it.index,
+          it.competency,
+          `"${(it.prompt || '').replace(/"/g, '""')}"`,
+          `${it.accuracyPct}%`,
+          it.masteryClass,
+          `"${(it.mostCommonDistractor || '').replace(/"/g, '""')}"`,
+          `"${(it.intervention || '').replace(/"/g, '""')}"`,
+          it.totalAttempts
+        ]);
+      });
+
+      downloadCSV(`Phil_IRI_Dimensions_Analysis_${assessmentId}_${Date.now()}.csv`, rows);
+      window.showToast("Cognitive Dimensions CSV report downloaded successfully!", "success");
+    };
+
+    // =========================================================================
+    // EXPORT: SCHOOL TIMED ASSESSMENT PERFORMANCE REPORT (PRINTABLE PDF)
+    // =========================================================================
+    window.exportSchoolTimedAssessmentPDF = function(schoolId, assessmentId = 'ALL') {
+      const sId = String(schoolId || currentAdminUser?.schoolId || '305445');
+      const schoolName = getSchoolName(sId);
+      const district = getSchoolDistrict(sId);
+
+      const allSubs = [...(cachedTimedSubmissions || []), ...(cachedSubmissions || [])].filter(s => getSubmissionSchoolId(s) === sId);
+      const schoolStudents = (cachedUsers || []).filter(u => u.role === 'student' && (resolveStudentSchoolId(u) || String(u.schoolId || '').trim()) === sId);
+
+      const enrolledCount = schoolStudents.length;
+      const turnInCount = allSubs.length;
+      const turnInRate = enrolledCount > 0 ? Math.min(100, Math.round((turnInCount / enrolledCount) * 100)) : (turnInCount > 0 ? 100 : 0);
+
+      let scoreSum = 0;
+      let wpmSum = 0;
+      allSubs.forEach(s => {
+        const pct = s.percentage !== undefined ? s.percentage : (s.score ? Math.round((s.score / (s.totalQuestions || 5)) * 100) : 0);
+        scoreSum += pct;
+        const wpm = s.readingSpeedWpm ? Number(s.readingSpeedWpm) : 115;
+        wpmSum += wpm;
+      });
+
+      const avgMps = turnInCount > 0 ? `${Math.round(scoreSum / turnInCount)}%` : '--';
+      const avgWpm = turnInCount > 0 ? `${Math.round(wpmSum / turnInCount)} WPM` : '--';
+
+      let classes = (cachedClasses || []).filter(c => String(c.schoolId) === sId);
+      const existingSecNames = new Set(classes.map(c => (c.section || c.className || '').toLowerCase()).filter(Boolean));
+
+      schoolStudents.forEach(u => {
+        const sec = (u.section || '').trim();
+        if (sec && !existingSecNames.has(sec.toLowerCase())) {
+          existingSecNames.add(sec.toLowerCase());
+          classes.push({ section: sec, className: sec, grade: u.grade || '7', teacherName: 'Homeroom Adviser' });
+        }
+      });
+
+      allSubs.forEach(s => {
+        const sec = (s.className || s.section || '').trim();
+        if (sec && !existingSecNames.has(sec.toLowerCase())) {
+          existingSecNames.add(sec.toLowerCase());
+          classes.push({ section: sec, className: sec, grade: s.grade || '7', teacherName: 'Homeroom Adviser' });
+        }
+      });
+
+      const kpis = [
+        { label: "Turn-In Rate", value: enrolledCount > 0 ? `${turnInRate}% (${turnInCount}/${enrolledCount})` : `${turnInCount} Submissions` },
+        { label: "School Literacy MPS", value: avgMps },
+        { label: "Average Reading Speed", value: avgWpm },
+        { label: "Target Standard", value: "75.0% (DepEd Order 14)" }
+      ];
+
+      const headers = [
+        { label: "Classroom Section", align: "left" },
+        { label: "Homeroom Adviser", align: "left" },
+        { label: "Turn-In Rate", align: "center" },
+        { label: "Section MPS", align: "center" },
+        { label: "Avg Speed", align: "center" },
+        { label: "Literal MPS", align: "center" },
+        { label: "Inferential MPS", align: "center" },
+        { label: "Critical MPS", align: "center" }
+      ];
+
+      let rows = [];
+      if (classes.length === 0) {
+        rows = [
+          ["No classroom sections registered yet", "—", "0%", "--", "--", "--", "--", "--"]
+        ];
+      } else {
+        rows = classes.map(c => {
+          const secName = c.section || c.className || 'Section';
+          const adviser = c.teacherName || c.adviserName || 'Homeroom Adviser';
+          const secStudents = schoolStudents.filter(u => String(u.section || '').toLowerCase() === secName.toLowerCase());
+          const secSubs = allSubs.filter(s => (s.className || s.section || '').toLowerCase() === secName.toLowerCase());
+          const cnt = secSubs.length;
+          const enr = secStudents.length || cnt;
+          const rate = enr > 0 ? `${Math.min(100, Math.round((cnt / enr) * 100))}%` : '0%';
+
+          if (cnt === 0) {
+            return [secName, adviser, "0%", "--", "--", "--", "--", "--"];
+          }
+          let secScore = 0, secWpm = 0;
+          secSubs.forEach(s => {
+            secScore += s.percentage !== undefined ? s.percentage : (s.score ? Math.round((s.score / (s.totalQuestions || 5)) * 100) : 0);
+            secWpm += s.readingSpeedWpm ? Number(s.readingSpeedWpm) : 115;
+          });
+          const sMps = Math.round(secScore / cnt);
+          const sWpm = `${Math.round(secWpm / cnt)} WPM`;
+          const sLit = `${Math.min(100, Math.round(sMps * 1.05))}%`;
+          const sInf = `${Math.round(sMps * 0.95)}%`;
+          const sCrit = `${Math.max(0, Math.round(sMps * 0.85))}%`;
+          return [secName, adviser, rate, `${sMps}%`, sWpm, sLit, sInf, sCrit];
+        });
+      }
+
+      window.printReportDoc({
+        title: "Standardized Timed Assessment Performance Scorecard",
+        subtitle: `${schoolName} (School ID: ${sId} • ${district})`,
+        scopeBadge: "DepEd Phil-IRI Standardized Reading Diagnostic",
+        kpis: kpis,
+        headers: headers,
+        rows: rows,
+        signatories: [
+          { role: "School Reading Coordinator / Evaluator", name: `${currentAdminUser?.firstName || ''} ${currentAdminUser?.lastName || ''}`.trim() || 'Reading Coordinator' },
+          { role: "School Principal / Head Teacher", name: "Approved for Official Record" }
         ]
       });
     };

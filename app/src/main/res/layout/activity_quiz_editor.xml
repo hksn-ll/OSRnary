@@ -170,6 +170,76 @@
                                 android:padding="8dp" />
                         </LinearLayout>
 
+                        <!-- Reading Comprehension Passage Section -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="14dp"
+                            android:background="#E2E8F0" />
+
+                        <LinearLayout
+                            android:id="@+id/header_editor_passage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="📖 READING COMPREHENSION PASSAGE"
+                                android:textColor="#5341CD"
+                                android:textSize="10.5sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.06" />
+
+                            <TextView
+                                android:id="@+id/tv_editor_passage_word_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#EEF2FF"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="0 words"
+                                android:textColor="#5341CD"
+                                android:textSize="10.5sp"
+                                android:textStyle="bold"
+                                android:layout_marginEnd="6dp" />
+
+                            <TextView
+                                android:id="@+id/btn_toggle_editor_passage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#F1F5F9"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="Hide ▲"
+                                android:textColor="#475569"
+                                android:textSize="10.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <EditText
+                            android:id="@+id/et_assessment_passage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="5"
+                            android:maxLines="12"
+                            android:gravity="top|start"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:scrollbars="vertical"
+                            android:background="@drawable/bg_modern_input"
+                            android:hint="Paste or edit the reading passage that students will read before answering questions..."
+                            android:lineSpacingExtra="4dp"
+                            android:padding="12dp"
+                            android:textColor="#1E293B"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="13.5sp" />
+
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -241,6 +311,17 @@
                     android:ellipsize="end"
                     android:maxLines="1" />
             </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btn_delete_assessment"
+                android:contentDescription="Delete Assessment"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_trash"
+                app:tint="#EF4444"
+                android:visibility="gone" />
         </LinearLayout>
     </com.example.gabai.FastBlurView>
 

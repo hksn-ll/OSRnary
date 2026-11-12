@@ -37,11 +37,21 @@ import java.util.Locale
 
 class LibraryQuizOverviewActivity : AppCompatActivity() {
 
-    private lateinit var materialId: String
+    private var isWeeklyAssessment: Boolean = false
+    private var assessmentId: String = ""
+    private var materialId: String = ""
     private var materialTitle: String = "Reading Quiz"
     private var subjectId: String = ""
     private var subjectName: String = "Reading Material"
+    private var weeklyClassId: String = ""
+    private var weeklyClassName: String = ""
+    private var weeklySectionName: String = ""
+    private var weeklyGrade: String = ""
+    private var weeklySchoolId: String = ""
+    private var weeklyPassage: String = ""
+    private var weeklyTargetItems: Int = 10
     private var assignedSectionsFromIntent: ArrayList<String> = arrayListOf()
+    private var hasInitializedOnce: Boolean = false
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -65,7 +75,8 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
         val index: Int,
         val question: String,
         val options: List<String>,
-        val correctIndex: Int
+        val correctIndex: Int,
+        val explanation: String = ""
     )
 
     data class StudentSubmissionState(
@@ -81,7 +92,9 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
         val attempts: Int = 0,
         val timestamp: Long = 0L,
         val xpEarned: Int = 0,
-        val items: List<Map<String, Any>> = emptyList()
+        val items: List<Map<String, Any>> = emptyList(),
+        val submissionDocId: String = "",
+        val teacherRemark: String = ""
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,20 +114,49 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_library_quiz_overview)
 
-        materialId = intent.getStringExtra("MATERIAL_ID") ?: run {
-            GabAIUtils.showSnackbar(this, "Missing material reference")
-            finish()
-            return
+        isWeeklyAssessment = intent.getBooleanExtra("IS_WEEKLY_ASSESSMENT", false)
+        assessmentId = intent.getStringExtra("ASSESSMENT_ID") ?: ""
+        if (assessmentId.isNotEmpty()) isWeeklyAssessment = true
+
+        if (isWeeklyAssessment) {
+            if (assessmentId.isEmpty()) {
+                GabAIUtils.showSnackbar(this, "Missing assessment reference")
+                finish()
+                return
+            }
+            weeklyClassId = intent.getStringExtra("CLASS_ID") ?: ""
+            weeklyClassName = intent.getStringExtra("CLASS_NAME") ?: ""
+            weeklySectionName = intent.getStringExtra("SECTION_NAME") ?: ""
+            weeklyGrade = intent.getStringExtra("GRADE") ?: ""
+            weeklySchoolId = intent.getStringExtra("SCHOOL_ID") ?: ""
+            if (weeklyClassId.isNotEmpty()) {
+                selectedClassId = weeklyClassId
+            }
+        } else {
+            materialId = intent.getStringExtra("MATERIAL_ID") ?: run {
+                GabAIUtils.showSnackbar(this, "Missing material reference")
+                finish()
+                return
+            }
         }
-        materialTitle = intent.getStringExtra("MATERIAL_TITLE") ?: "Reading Quiz"
+
+        materialTitle = intent.getStringExtra("MATERIAL_TITLE") ?: if (isWeeklyAssessment) "Weekly Assessment" else "Reading Quiz"
         subjectId = intent.getStringExtra("SUBJECT_ID") ?: ""
-        subjectName = intent.getStringExtra("SUBJECT_NAME") ?: "Reading Material"
+        subjectName = intent.getStringExtra("SUBJECT_NAME") ?: if (isWeeklyAssessment) weeklyClassName.ifEmpty { "Subject" } else "Reading Material"
         assignedSectionsFromIntent = intent.getStringArrayListExtra("ASSIGNED_SECTIONS") ?: arrayListOf()
 
         setupHeader()
         setupTabSwitcher()
         setupFilterChips()
         loadMaterialAndMetrics()
+        hasInitializedOnce = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (hasInitializedOnce) {
+            loadMaterialAndMetrics()
+        }
     }
 
     private fun setupHeader() {
@@ -129,16 +171,48 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
         GabAIUtils.applyHeaderAndScrollInsets(headerInner ?: blurHeader, scrollContent, extraBufferDp = 16)
 
         findViewById<TextView>(R.id.tv_header_quiz_title).text = materialTitle
-        findViewById<TextView>(R.id.tv_header_subject_tag).text = "$subjectName • QUIZ OVERVIEW".uppercase()
+        val headerTag = if (isWeeklyAssessment) "$subjectName • WEEKLY ASSESSMENT" else "$subjectName • QUIZ OVERVIEW"
+        findViewById<TextView>(R.id.tv_header_subject_tag).text = headerTag.uppercase()
 
         val btnBack = findViewById<ImageButton>(R.id.btn_back)
         GabAIUtils.addSpringPressEffect(btnBack) { finish() }
+
+        val btnEditQuiz = findViewById<View>(R.id.btn_edit_quiz)
+        btnEditQuiz?.let { btn ->
+            GabAIUtils.addSpringPressEffect(btn) {
+                openQuizEditor()
+            }
+        }
 
         val btnExport = findViewById<ImageButton>(R.id.btn_export_csv)
         btnExport?.let { btn ->
             GabAIUtils.addSpringPressEffect(btn) {
                 exportSubmissionsCsv()
             }
+        }
+    }
+
+    private fun openQuizEditor() {
+        if (isWeeklyAssessment) {
+            val intent = Intent(this, QuizEditorActivity::class.java).apply {
+                putExtra("IS_WEEKLY_ASSESSMENT", true)
+                putExtra("ASSESSMENT_ID", assessmentId)
+                putExtra("TARGET_CLASS_ID", weeklyClassId)
+                putExtra("TARGET_CLASS_NAME", weeklyClassName)
+                putExtra("SECTION_NAME", weeklySectionName)
+                putExtra("GRADE", weeklyGrade)
+                putExtra("SCHOOL_ID", weeklySchoolId)
+                putExtra("SUBJECT_NAME", subjectName)
+                putExtra("ASSESSMENT_TITLE", materialTitle)
+                putExtra("TARGET_ITEMS", weeklyTargetItems)
+            }
+            startActivity(intent)
+        } else {
+            val intent = Intent(this, QuizEditorActivity::class.java).apply {
+                putExtra("MATERIAL_ID", materialId)
+                putExtra("TARGET_ITEMS", parsedQuestions.size.coerceAtLeast(5))
+            }
+            startActivity(intent)
         }
     }
 
@@ -234,21 +308,53 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                     }
                     return@launch
                 }
-                // 1. Fetch Material Document & Quiz Pool JSON
-                val matDoc = db.collection("library_materials").document(materialId).get().await()
-                if (!matDoc.exists()) {
-                    withContext(Dispatchers.Main) {
-                        GabAIUtils.hideGlobalLoading(this@LibraryQuizOverviewActivity)
-                        GabAIUtils.showSnackbar(this@LibraryQuizOverviewActivity, "Material not found.")
-                        finish()
-                    }
-                    return@launch
-                }
 
-                val title = matDoc.getString("title") ?: materialTitle
-                materialTitle = title
-                val quizJsonStr = matDoc.getString("quiz_pool_json") ?: "[]"
-                val assignedSections = matDoc.get("assignedSections") as? List<String> ?: assignedSectionsFromIntent
+                var quizJsonStr = "[]"
+                var assignedSections: List<String> = assignedSectionsFromIntent
+
+                if (isWeeklyAssessment) {
+                    val assessDoc = db.collection("weekly_assessments").document(assessmentId).get().await()
+                    if (!assessDoc.exists()) {
+                        withContext(Dispatchers.Main) {
+                            GabAIUtils.hideGlobalLoading(this@LibraryQuizOverviewActivity)
+                            GabAIUtils.showSnackbar(this@LibraryQuizOverviewActivity, "Weekly Assessment not found.")
+                            finish()
+                        }
+                        return@launch
+                    }
+                    materialTitle = assessDoc.getString("title") ?: materialTitle
+                    subjectName = assessDoc.getString("subjectName") ?: subjectName
+                    weeklyPassage = assessDoc.getString("passage") ?: ""
+                    weeklyTargetItems = assessDoc.getLong("targetItems")?.toInt() ?: assessDoc.getLong("questionCount")?.toInt() ?: 10
+                    val docClassId = assessDoc.getString("classId") ?: ""
+                    if (docClassId.isNotEmpty() && weeklyClassId.isEmpty()) {
+                        weeklyClassId = docClassId
+                    }
+                    if (weeklyClassId.isNotEmpty() && selectedClassId == "ALL") {
+                        selectedClassId = weeklyClassId
+                    }
+                    weeklyClassName = assessDoc.getString("className") ?: weeklyClassName
+                    weeklyGrade = assessDoc.getString("grade") ?: weeklyGrade
+                    weeklySchoolId = assessDoc.getString("schoolId") ?: weeklySchoolId
+                    quizJsonStr = assessDoc.getString("quiz_pool_json") ?: "[]"
+                    assignedSections = if (weeklyClassId.isNotEmpty()) listOf(weeklyClassId) else emptyList()
+                } else {
+                    // 1. Fetch Material Document & Quiz Pool JSON
+                    val matDoc = db.collection("library_materials").document(materialId).get().await()
+                    if (!matDoc.exists()) {
+                        withContext(Dispatchers.Main) {
+                            GabAIUtils.hideGlobalLoading(this@LibraryQuizOverviewActivity)
+                            GabAIUtils.showSnackbar(this@LibraryQuizOverviewActivity, "Material not found.")
+                            finish()
+                        }
+                        return@launch
+                    }
+
+                    val title = matDoc.getString("title") ?: materialTitle
+                    materialTitle = title
+                    quizJsonStr = matDoc.getString("quiz_pool_json") ?: "[]"
+                    assignedSections = matDoc.get("assignedSections") as? List<String> ?: assignedSectionsFromIntent
+                }
 
                 // Parse Questions
                 parsedQuestions.clear()
@@ -263,8 +369,9 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                             for (j in 0 until optArr.length()) opts.add(optArr.getString(j))
                         }
                         val correctIdx = qObj.optInt("ans", 0)
+                        val exp = qObj.optString("explanation", "")
                         if (qText.isNotBlank()) {
-                            parsedQuestions.add(QuestionModel(i, qText, opts, correctIdx))
+                            parsedQuestions.add(QuestionModel(i, qText, opts, correctIdx, exp))
                         }
                     }
                 } catch (_: Exception) {}
@@ -299,8 +406,22 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                     }
                 }
 
+                // Ensure weeklyClassId is present in allTeacherClasses
+                if (isWeeklyAssessment && weeklyClassId.isNotEmpty() && allTeacherClasses.none { it.id == weeklyClassId }) {
+                    val classDoc = db.collection("classes").document(weeklyClassId).get().await()
+                    if (classDoc.exists()) {
+                        val cName = classDoc.getString("className") ?: weeklyClassName.ifEmpty { "Class" }
+                        val sec = classDoc.getString("section") ?: classDoc.getString("sectionName") ?: weeklySectionName
+                        val grd = classDoc.getString("grade") ?: weeklyGrade
+                        val joined = classDoc.get("joinedStudents") as? List<String> ?: listOf()
+                        allTeacherClasses.add(0, ClassModel(classDoc.id, cName, sec, grd, joined))
+                    }
+                }
+
                 withContext(Dispatchers.Main) {
                     findViewById<TextView>(R.id.tv_header_quiz_title).text = materialTitle
+                    val headerTag = if (isWeeklyAssessment) "$subjectName • WEEKLY ASSESSMENT" else "$subjectName • QUIZ OVERVIEW"
+                    findViewById<TextView>(R.id.tv_header_subject_tag).text = headerTag.uppercase()
                     renderSectionPills(assignedSections)
                     loadSubmissionsForCurrentCohort()
                 }
@@ -412,7 +533,7 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                 // If advisory sections exist, also include user docs matching section
                 val currentUid = auth.currentUser?.uid ?: ""
                 val schoolDoc = db.collection("users").document(currentUid).get().await()
-                val schoolId = schoolDoc.getString("schoolId") ?: ""
+                val schoolId = (schoolDoc.getString("schoolId") ?: weeklySchoolId).trim()
 
                 if (schoolId.isNotBlank() && targetClasses.isNotEmpty()) {
                     for (c in targetClasses) {
@@ -430,11 +551,32 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                     }
                 }
 
+                // Pre-fetch weekly assessment submissions if in weekly assessment mode
+                val weeklySubmissionsMap = mutableMapOf<String, DocumentSnapshot>()
+                if (isWeeklyAssessment && assessmentId.isNotEmpty()) {
+                    val subSnaps = db.collection("assessment_submissions")
+                        .whereEqualTo("assessmentId", assessmentId)
+                        .get()
+                        .await()
+                    for (sDoc in subSnaps.documents) {
+                        val sUid = sDoc.getString("studentUid") ?: ""
+                        if (sUid.isNotEmpty() && sUid != currentUid) {
+                            weeklySubmissionsMap[sUid] = sDoc
+                            if (selectedClassId == "ALL" || sDoc.getString("classId") == selectedClassId) {
+                                targetStudentIds.add(sUid)
+                            }
+                        }
+                    }
+                }
+
+                // Never include the current teacher UID in student cohort
+                targetStudentIds.remove(currentUid)
+
                 if (targetStudentIds.isEmpty()) {
                     withContext(Dispatchers.Main) {
                         GabAIUtils.hideGlobalLoading(this@LibraryQuizOverviewActivity)
                         allStudentSubmissions.clear()
-                        updateBenchmarks(0, 0, 0, 0)
+                        updateBenchmarks(0, 0, parsedQuestions.size, 0, 0)
                         renderSubmissionsList()
                         renderQuestionsAnalysis()
                     }
@@ -449,6 +591,7 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                             .get()
                             .await()
                             .documents
+                            .filter { (it.getString("role") ?: "student") == "student" }
 
                         userDocs.map { uDoc ->
                             val sId = uDoc.id
@@ -459,49 +602,90 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                             val photoUrl = uDoc.getString("photoUrl")
                             val sSection = uDoc.getString("section") ?: ""
 
-                            // Query material quiz history for this student
-                            val quizSnaps = db.collection("users").document(sId)
-                                .collection("quiz_history")
-                                .whereEqualTo("materialId", materialId)
-                                .get()
-                                .await()
+                            if (isWeeklyAssessment) {
+                                val directSubDoc = weeklySubmissionsMap[sId]
+                                if (directSubDoc != null) {
+                                    val score = directSubDoc.getLong("score")?.toInt() ?: 0
+                                    val totalQ = directSubDoc.getLong("totalQuestions")?.toInt() ?: parsedQuestions.size.coerceAtLeast(1)
+                                    val pct = directSubDoc.getLong("percentage")?.toInt() ?: if (totalQ > 0) ((score.toDouble() / totalQ) * 100).toInt() else 0
+                                    val isPassed = pct >= 50
+                                    val time = directSubDoc.getLong("submittedAt") ?: 0L
+                                    val xp = if (isPassed) 50 else 0
+                                    val remark = directSubDoc.getString("teacherRemark") ?: ""
+                                    @Suppress("UNCHECKED_CAST")
+                                    val items = directSubDoc.get("answers") as? List<Map<String, Any>> ?: emptyList()
 
-                            val passedDoc = quizSnaps.documents.maxByOrNull { it.getLong("timestamp") ?: 0L }
-
-                            if (passedDoc != null) {
-                                val score = passedDoc.getLong("finalScore")?.toInt() ?: 0
-                                val totalQ = passedDoc.getLong("totalQuestions")?.toInt() ?: parsedQuestions.size.coerceAtLeast(1)
-                                val pct = if (totalQ > 0) ((score.toDouble() / totalQ) * 100).toInt() else 0
-                                val isPassed = passedDoc.getBoolean("isPassed") ?: (pct >= 70)
-                                val attempts = passedDoc.getLong("totalAttempts")?.toInt() ?: 1
-                                val time = passedDoc.getLong("timestamp") ?: 0L
-                                val xp = passedDoc.getLong("xpEarned")?.toInt() ?: 0
-                                @Suppress("UNCHECKED_CAST")
-                                val items = passedDoc.get("items") as? List<Map<String, Any>> ?: emptyList()
-
-                                StudentSubmissionState(
-                                    studentId = sId,
-                                    studentName = sName,
-                                    photoUrl = photoUrl,
-                                    section = sSection,
-                                    hasSubmitted = true,
-                                    score = score,
-                                    totalQuestions = totalQ,
-                                    percentage = pct,
-                                    isPassed = isPassed,
-                                    attempts = attempts,
-                                    timestamp = time,
-                                    xpEarned = xp,
-                                    items = items
-                                )
+                                    StudentSubmissionState(
+                                        studentId = sId,
+                                        studentName = sName,
+                                        photoUrl = photoUrl,
+                                        section = sSection,
+                                        hasSubmitted = true,
+                                        score = score,
+                                        totalQuestions = totalQ,
+                                        percentage = pct,
+                                        isPassed = isPassed,
+                                        attempts = 1,
+                                        timestamp = time,
+                                        xpEarned = xp,
+                                        items = items,
+                                        submissionDocId = directSubDoc.id,
+                                        teacherRemark = remark
+                                    )
+                                } else {
+                                    StudentSubmissionState(
+                                        studentId = sId,
+                                        studentName = sName,
+                                        photoUrl = photoUrl,
+                                        section = sSection,
+                                        hasSubmitted = false
+                                    )
+                                }
                             } else {
-                                StudentSubmissionState(
-                                    studentId = sId,
-                                    studentName = sName,
-                                    photoUrl = photoUrl,
-                                    section = sSection,
-                                    hasSubmitted = false
-                                )
+                                // Query material quiz history for this student
+                                val quizSnaps = db.collection("users").document(sId)
+                                    .collection("quiz_history")
+                                    .whereEqualTo("materialId", materialId)
+                                    .get()
+                                    .await()
+
+                                val passedDoc = quizSnaps.documents.maxByOrNull { it.getLong("timestamp") ?: 0L }
+
+                                if (passedDoc != null) {
+                                    val score = passedDoc.getLong("finalScore")?.toInt() ?: 0
+                                    val totalQ = passedDoc.getLong("totalQuestions")?.toInt() ?: parsedQuestions.size.coerceAtLeast(1)
+                                    val pct = if (totalQ > 0) ((score.toDouble() / totalQ) * 100).toInt() else 0
+                                    val isPassed = passedDoc.getBoolean("isPassed") ?: (pct >= 70)
+                                    val attempts = passedDoc.getLong("totalAttempts")?.toInt() ?: 1
+                                    val time = passedDoc.getLong("timestamp") ?: 0L
+                                    val xp = passedDoc.getLong("xpEarned")?.toInt() ?: 0
+                                    @Suppress("UNCHECKED_CAST")
+                                    val items = passedDoc.get("items") as? List<Map<String, Any>> ?: emptyList()
+
+                                    StudentSubmissionState(
+                                        studentId = sId,
+                                        studentName = sName,
+                                        photoUrl = photoUrl,
+                                        section = sSection,
+                                        hasSubmitted = true,
+                                        score = score,
+                                        totalQuestions = totalQ,
+                                        percentage = pct,
+                                        isPassed = isPassed,
+                                        attempts = attempts,
+                                        timestamp = time,
+                                        xpEarned = xp,
+                                        items = items
+                                    )
+                                } else {
+                                    StudentSubmissionState(
+                                        studentId = sId,
+                                        studentName = sName,
+                                        photoUrl = photoUrl,
+                                        section = sSection,
+                                        hasSubmitted = false
+                                    )
+                                }
                             }
                         }
                     }
@@ -647,9 +831,9 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
 
             val subtitleText = if (sub.hasSubmitted) {
                 val timeStr = if (sub.timestamp > 0) dateFormat.format(Date(sub.timestamp)) else "Submitted"
-                "$timeStr • Attempt #${sub.attempts} • +${sub.xpEarned} XP"
+                "$timeStr • +${sub.xpEarned} XP"
             } else {
-                if (sub.section.isNotBlank()) "Section: ${sub.section} • Pending Quiz" else "Pending Quiz Attempt"
+                if (sub.section.isNotBlank()) "Section: ${sub.section} • Pending Assessment" else "Pending Assessment Attempt"
             }
 
             val tvSub = TextView(this).apply {
@@ -661,6 +845,17 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
 
             textCol.addView(tvName)
             textCol.addView(tvSub)
+
+            if (sub.teacherRemark.isNotBlank()) {
+                val tvRemark = TextView(this).apply {
+                    text = "💬 Commendation: ${sub.teacherRemark}"
+                    textSize = 11.5f
+                    setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                    setTextColor(Color.parseColor("#4F46E5"))
+                    setPadding(0, (4 * density).toInt(), 0, 0)
+                }
+                textCol.addView(tvRemark)
+            }
 
             // Right Status Badge / Action
             val rightPill = TextView(this).apply {
@@ -697,15 +892,24 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                 GabAIUtils.addSpringPressEffect(card) {
                     GabAIUtils.performHaptic(card)
                     val dateFormatted = if (sub.timestamp > 0) dateFormat.format(Date(sub.timestamp)) else "Recent"
+                    val canCommend = isWeeklyAssessment && sub.submissionDocId.isNotEmpty()
+                    val commendBtnLabel = if (canCommend) {
+                        if (sub.teacherRemark.isNotBlank()) "💬 Edit Remark" else "💬 Add Remark"
+                    } else null
+
                     QuizReviewDialogHelper.showReviewDialog(
                         context = this@LibraryQuizOverviewActivity,
                         title = "${sub.studentName}'s Submission",
-                        subtitle = "$materialTitle • $dateFormatted",
+                        subtitle = "$materialTitle • $dateFormatted • ${sub.score}/${sub.totalQuestions} (${sub.percentage}%)",
                         score = sub.score,
                         totalQuestions = sub.totalQuestions,
                         xpEarned = sub.xpEarned,
                         items = sub.items,
-                        badgeIcon = if (sub.isPassed) "🟢" else "🔴"
+                        badgeIcon = if (sub.isPassed) "🟢" else "🔴",
+                        confirmText = commendBtnLabel,
+                        onConfirm = if (canCommend) {
+                            { showAddTeacherRemarkDialog(sub.submissionDocId, sub.studentName, sub.teacherRemark) }
+                        } else null
                     )
                 }
             } else {
@@ -731,17 +935,52 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
         GabAIUtils.animateCascade(rowViews, 25L)
     }
 
+    private fun showAddTeacherRemarkDialog(submissionDocId: String, studentName: String, existingRemark: String) {
+        val input = android.widget.EditText(this).apply {
+            setText(existingRemark)
+            hint = "e.g., Great mastery of reading comprehension! Keep it up."
+            setBackgroundResource(R.drawable.bg_modern_input)
+            setPadding(32, 24, 32, 24)
+            setTextColor(Color.parseColor("#1E293B"))
+            textSize = 14f
+        }
+
+        GabAIDialogs.showCustomDialog(
+            context = this,
+            title = "Teacher Commendation",
+            subtitle = "Feedback for $studentName",
+            customView = input,
+            confirmText = "Save Remark",
+            cancelText = "Cancel",
+            badgeIcon = "💬",
+            onConfirm = { dialog ->
+                val newRemark = input.text.toString().trim()
+                db.collection("assessment_submissions").document(submissionDocId)
+                    .update("teacherRemark", newRemark)
+                    .addOnSuccessListener {
+                        dialog.dismiss()
+                        GabAIUtils.showSnackbar(this, "Commendation saved for $studentName! ⭐")
+                        loadSubmissionsForCurrentCohort()
+                    }
+                    .addOnFailureListener { e ->
+                        GabAIUtils.showSnackbar(this, "Failed to save remark: ${e.message}")
+                    }
+            }
+        )
+    }
+
     private fun renderQuestionsAnalysis() {
         val container = findViewById<LinearLayout>(R.id.container_questions_analysis) ?: return
         val emptyCard = findViewById<View>(R.id.card_empty_questions)
         container.removeAllViews()
 
-        val submittedList = allStudentSubmissions.filter { it.hasSubmitted }
-        if (submittedList.isEmpty() || parsedQuestions.isEmpty()) {
+        if (parsedQuestions.isEmpty()) {
             emptyCard?.visibility = View.VISIBLE
             return
         }
         emptyCard?.visibility = View.GONE
+
+        val submittedList = allStudentSubmissions.filter { it.hasSubmitted }
 
         val density = resources.displayMetrics.density
         val fontJakarta = try {
@@ -752,6 +991,82 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
 
         val rowViews = mutableListOf<View>()
 
+        // Show Reading Passage Card at top of Question Analysis when available
+        if (isWeeklyAssessment && weeklyPassage.isNotBlank()) {
+            val passageCard = MaterialCardView(this).apply {
+                radius = 18 * density
+                cardElevation = 0f
+                strokeWidth = (1.2 * density).toInt()
+                setStrokeColor(ColorStateList.valueOf(Color.parseColor("#C7D2FE")))
+                setCardBackgroundColor(Color.parseColor("#F8FAFC"))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { setMargins(0, 0, 0, (14 * density).toInt()) }
+            }
+
+            val pLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                val p = (16 * density).toInt()
+                setPadding(p, p, p, p)
+            }
+
+            val pHeader = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
+
+            val wordCount = weeklyPassage.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }.size
+            val tvPassageLabel = TextView(this).apply {
+                text = "📖 READING PASSAGE ($wordCount WORDS)"
+                textSize = 11f
+                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                setTextColor(Color.parseColor("#5341CD"))
+                letterSpacing = 0.06f
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+
+            val tvToggle = TextView(this).apply {
+                text = "Show Passage ▼"
+                textSize = 11f
+                setTypeface(fontJakarta ?: typeface, Typeface.BOLD)
+                setTextColor(Color.parseColor("#5341CD"))
+                setBackgroundResource(R.drawable.bg_pill_translucent)
+                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#EEF2FF"))
+                setPadding((10 * density).toInt(), (4 * density).toInt(), (10 * density).toInt(), (4 * density).toInt())
+            }
+
+            val tvBody = TextView(this).apply {
+                text = weeklyPassage
+                textSize = 13.5f
+                setTextColor(Color.parseColor("#1E293B"))
+                setLineSpacing(3f * density, 1f)
+                setPadding(0, (10 * density).toInt(), 0, 0)
+                visibility = View.GONE
+            }
+
+            val toggleAction = View.OnClickListener {
+                if (tvBody.visibility == View.VISIBLE) {
+                    tvBody.visibility = View.GONE
+                    tvToggle.text = "Show Passage ▼"
+                } else {
+                    tvBody.visibility = View.VISIBLE
+                    tvToggle.text = "Hide Passage ▲"
+                }
+            }
+            pHeader.setOnClickListener(toggleAction)
+            tvToggle.setOnClickListener(toggleAction)
+
+            pHeader.addView(tvPassageLabel)
+            pHeader.addView(tvToggle)
+            pLayout.addView(pHeader)
+            pLayout.addView(tvBody)
+            passageCard.addView(pLayout)
+            container.addView(passageCard)
+            rowViews.add(passageCard)
+        }
+
         for ((idx, q) in parsedQuestions.withIndex()) {
             // Count correct answers for this question across submissions
             var answeredCount = 0
@@ -759,7 +1074,8 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
             val wrongChoicesMap = mutableMapOf<String, Int>()
 
             for (sub in submittedList) {
-                val item = sub.items.getOrNull(idx) ?: sub.items.find { (it["question"] as? String)?.trim() == q.question.trim() }
+                val item = sub.items.find { (it["question"] as? String)?.trim() == q.question.trim() }
+                    ?: sub.items.getOrNull(idx)
                 if (item != null) {
                     answeredCount++
                     val isCorrect = item["isCorrect"] as? Boolean ?: false
@@ -777,6 +1093,7 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
 
             val accuracyPct = if (answeredCount > 0) ((correctCount.toDouble() / answeredCount) * 100).toInt() else 0
             val (statusText, statusBg, statusColor) = when {
+                answeredCount == 0 -> Triple("📋 Answer Key", "#EEF2FF", "#5341CD")
                 accuracyPct >= 80 -> Triple("🟢 Well Mastered ($accuracyPct%)", "#ECFDF5", "#059669")
                 accuracyPct >= 60 -> Triple("🟡 Review Needed ($accuracyPct%)", "#FEF3C7", "#D97706")
                 else -> Triple("🔴 Common Pitfall ($accuracyPct%)", "#FFF1F2", "#E11D48")
@@ -855,6 +1172,16 @@ class LibraryQuizOverviewActivity : AppCompatActivity() {
                     setTextColor(Color.parseColor("#059669"))
                 }
                 layout.addView(tvCorrect)
+            }
+
+            if (q.explanation.isNotBlank()) {
+                val tvExp = TextView(this).apply {
+                    text = "💡 ${q.explanation}"
+                    textSize = 11.5f
+                    setTextColor(Color.parseColor("#64748B"))
+                    setPadding(0, (4 * density).toInt(), 0, 0)
+                }
+                layout.addView(tvExp)
             }
 
             // Common Pitfall Alert

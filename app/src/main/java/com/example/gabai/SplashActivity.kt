@@ -73,7 +73,23 @@ class SplashActivity : AppCompatActivity() {
                 .get()
                 .addOnSuccessListener { doc ->
                     if (doc.exists()) {
-                        val role = doc.getString("role") ?: "student"
+                        val rawRole = doc.getString("role") ?: "student"
+                        val isStudentWithTeacherRole = rawRole == "teacher" &&
+                            (doc.contains("section") || doc.contains("grade") || doc.contains("username") || doc.contains("lrn")) &&
+                            !doc.contains("teachingSubjects")
+
+                        val role = if (isStudentWithTeacherRole) {
+                            doc.reference.update(
+                                mapOf(
+                                    "role" to "student",
+                                    "isApproved" to com.google.firebase.firestore.FieldValue.delete()
+                                )
+                            )
+                            "student"
+                        } else {
+                            rawRole
+                        }
+
                         val firstName = doc.getString("firstName") ?: doc.getString("first_name") ?: ""
                         val lastName = doc.getString("lastName") ?: doc.getString("last_name") ?: ""
                         val explicitName = doc.getString("name") ?: doc.getString("fullName") ?: ""

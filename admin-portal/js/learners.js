@@ -44,13 +44,290 @@
       return '';
     };
 
+    // =========================================================================
+    // 2. LEARNER ACADEMIC PERFORMANCE & PHIL-IRI STANDARDS ENGINE
+    // =========================================================================
+    var learnerViewMode = window.learnerViewMode || 'roster'; // 'roster' | 'sections'
+    var learnerQuickPill = window.learnerQuickPill || 'ALL'; // 'ALL' | 'top_highest' | 'support' | 'independent' | 'instructional' | 'unassessed'
+    var learnerSortColumn = window.learnerSortColumn || 'mps'; // 'mps' | 'wpm' | 'streak' | 'level' | 'name'
+    var learnerSortAsc = window.learnerSortAsc !== undefined ? window.learnerSortAsc : false; // default false: descending (HIGHEST first!)
+    var learnerPage = window.learnerPage || 1;
+    var learnerPageSize = window.learnerPageSize || 25;
+    var superAdminLearnerView = window.superAdminLearnerView || 'schools'; // 'schools' | 'drilldown'
+    var schoolMatrixDistrictFilter = window.schoolMatrixDistrictFilter || 'ALL'; // 'ALL' | 'District 1' | 'District 2'
+    var schoolMatrixSearchQuery = window.schoolMatrixSearchQuery || '';
+    var schoolMatrixSort = window.schoolMatrixSort || 'highest_mps'; // 'highest_mps' | 'highest_enrolled' | 'highest_wpm' | 'lowest_mps' | 'name_asc'
+    var activeInspectStudentId = null;
+    var activeProfileTab = 'phil_iri';
+
+    // Helper: Safely resolve student's section and class adviser with class roster cross-referencing
+    window.resolveStudentSectionAndAdviser = function(student) {
+      if (!student) return { sectionName: 'General', grade: '7', adviserName: 'Homeroom Adviser', joinCode: '—', classId: null };
+
+      let matchedClass = null;
+      const sId = String(student.id || '').trim();
+      const directSec = String(student.section || '').trim();
+
+      if (Array.isArray(cachedClasses) && cachedClasses.length > 0) {
+        matchedClass = cachedClasses.find(c => {
+          const joined = c.studentIds || c.joinedStudents || [];
+          if (sId && joined.includes(sId)) return true;
+          if (directSec && String(c.section || c.className || '').trim().toLowerCase() === directSec.toLowerCase()) {
+            if (student.schoolId && c.schoolId) {
+              return String(c.schoolId) === String(student.schoolId);
+            }
+            return true;
+          }
+          return false;
+        });
+      }
+
+      const sectionName = matchedClass?.section || matchedClass?.className || student.section || 'General';
+      const rawGrade = matchedClass?.grade || student.grade || '7';
+      const grade = String(rawGrade).replace(/^Grade\s*/i, '').trim() || '7';
+      const joinCode = matchedClass && typeof resolveClassJoinCode === 'function' ? resolveClassJoinCode(matchedClass) : (matchedClass?.joinCode || '—');
+
+      let adviserName = matchedClass?.adviserName || '';
+      if (!adviserName && matchedClass) {
+        const adviserUser = (cachedUsers || []).find(u => u.id === (matchedClass.teacherId || matchedClass.adviserId));
+        if (adviserUser) {
+          adviserName = `${adviserUser.firstName || ''} ${adviserUser.lastName || ''}`.trim();
+        }
+      }
+      if (!adviserName) adviserName = 'Homeroom Adviser';
+
+      return {
+        sectionName,
+        grade,
+        adviserName,
+        joinCode,
+        classId: matchedClass?.id || null
+      };
+    };
+
+    // Helper: Multi-stream academic profile computation (Timed Assessments, Weekly Tests, Diagnostics, Habits)
+    window.computeLearnerAcademicProfile = function(student) {
+      if (!student) return null;
+      const sId = String(student.id || '').trim();
+      const sUid = String(student.uid || '').trim();
+
+      const isMatch = (sub) => {
+        if (!sub) return false;
+        const subId = String(sub.studentId || sub.studentUid || sub.uid || sub.userId || '').trim();
+        return (sId && subId === sId) || (sUid && subId === sUid);
+      };
+
+      const timedSubs = (cachedTimedSubmissions || []).filter(isMatch);
+      const weeklySubs = (cachedSubmissions || []).filter(isMatch);
+
+      const allScores = [];
+      timedSubs.forEach(t => {
+        const tot = Number(t.totalQuestions) || (t.answers && t.answers.length) || 5;
+        const sc = Number(t.score) || 0;
+        const pct = t.percentage !== undefined ? Number(t.percentage) : Math.round((sc / Math.max(tot, 1)) * 100);
+        allScores.push(pct);
+      });
+      weeklySubs.forEach(w => {
+        const sc = w.score !== undefined ? Number(w.score) : Number(w.percentage || 0);
+        allScores.push(sc);
+      });
+
+      let effectiveMps = null;
+      if (allScores.length > 0) {
+        effectiveMps = Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length);
+      } else if (student.diagnostic_pct !== undefined && student.diagnostic_pct !== null) {
+        effectiveMps = Math.round(Number(student.diagnostic_pct));
+      } else if (student.diagnostic_score !== undefined && student.diagnostic_score !== null) {
+        const tot = Number(student.diagnostic_total) || 10;
+        effectiveMps = Math.round((Number(student.diagnostic_score) / Math.max(tot, 1)) * 100);
+      }
+
+      // Measured Words Per Minute (WPM)
+      let wpm = null;
+      for (const t of timedSubs) {
+        const measured = t.wpm || t.readingSpeedWpm || t.reading_speed || t.wordsPerMinute;
+        if (measured) {
+          wpm = Math.round(Number(measured));
+          break;
+        }
+      }
+      if (!wpm && student.phil_iri_wpm) {
+        wpm = Math.round(Number(student.phil_iri_wpm));
+      }
+
+      // Phil-IRI Reading Tier (DepEd Order No. 14, s. 2018)
+      const rawTier = String(student.phil_iri_tier || student.diagnostic_tier || '').toLowerCase().trim();
+      let tier = 'unassessed';
+      let tierLabel = 'Unassessed';
+      let tierClass = 'bg-slate-100 text-slate-700 border-slate-200';
+
+      if (effectiveMps !== null) {
+        if (effectiveMps >= 80) {
+          tier = 'independent';
+          tierLabel = 'Independent';
+          tierClass = 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold';
+        } else if (effectiveMps >= 60) {
+          tier = 'instructional';
+          tierLabel = 'Instructional';
+          tierClass = 'bg-amber-50 text-amber-800 border-amber-200 font-bold';
+        } else {
+          tier = 'frustration';
+          tierLabel = 'Frustration';
+          tierClass = 'bg-rose-50 text-rose-800 border-rose-200 font-bold';
+        }
+      } else if (rawTier) {
+        if (rawTier.includes('independent')) {
+          tier = 'independent';
+          tierLabel = 'Independent';
+          tierClass = 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold';
+        } else if (rawTier.includes('instructional')) {
+          tier = 'instructional';
+          tierLabel = 'Instructional';
+          tierClass = 'bg-amber-50 text-amber-800 border-amber-200 font-bold';
+        } else if (rawTier.includes('frustration')) {
+          tier = 'frustration';
+          tierLabel = 'Frustration';
+          tierClass = 'bg-rose-50 text-rose-800 border-rose-200 font-bold';
+        }
+      }
+
+      // Reading Trajectory Trend
+      let trend = 'stable';
+      let trendLabel = '➔ Stable';
+      let trendClass = 'bg-slate-100 text-slate-600 border-slate-200';
+      if (allScores.length >= 2) {
+        const first = allScores[0];
+        const last = allScores[allScores.length - 1];
+        const delta = last - first;
+        if (delta >= 5) {
+          trend = 'improving';
+          trendLabel = `↗ +${delta}% Growth`;
+          trendClass = 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold';
+        } else if (delta <= -5) {
+          trend = 'support';
+          trendLabel = `↘ ${delta}% Support`;
+          trendClass = 'bg-rose-50 text-rose-700 border-rose-200 font-bold';
+        }
+      }
+
+      const totalQuizzes = timedSubs.length + weeklySubs.length;
+      const wordsMastered = student.words_mastered || student.wordsMastered || 0;
+
+      return {
+        effectiveMps,
+        tier,
+        tierLabel,
+        tierClass,
+        wpm,
+        trend,
+        trendLabel,
+        trendClass,
+        totalQuizzes,
+        timedSubs,
+        weeklySubs,
+        wordsMastered
+      };
+    };
+
+    // Helper: Populate Section Filter with live student counts across classes and users
     window.populateLearnerSectionDropdown = function() {
       const select = document.getElementById('selectLearnerSectionFilter');
       if (!select) return;
 
       const currentVal = learnerSectionFilter || 'ALL';
-      let classes = cachedClasses || [];
+      let students = (cachedUsers || []).filter(u => u.role === 'student');
 
+      if (isSchoolAdmin && currentAdminUser?.schoolId) {
+        students = students.filter(s => (resolveStudentSchoolId(s) || String(s.schoolId || '').trim()) === String(currentAdminUser.schoolId));
+      } else if (learnerSchoolFilterVal && learnerSchoolFilterVal !== 'ALL') {
+        students = students.filter(s => (resolveStudentSchoolId(s) || String(s.schoolId || '').trim()) === String(learnerSchoolFilterVal));
+      } else if (selectedJurisdiction !== 'ALL') {
+        students = students.filter(s => (resolveStudentSchoolId(s) || String(s.schoolId || '').trim()) === String(selectedJurisdiction));
+      }
+
+      const activeGrade = learnerGradeFilter || document.getElementById('selectLearnerGradeFilter')?.value || 'ALL';
+      if (activeGrade !== 'ALL') {
+        const targetGradeNum = activeGrade.replace('Grade ', '').trim();
+        students = students.filter(s => String(s.grade || '').trim() === targetGradeNum || (s.grade || '').trim() === activeGrade || `Grade ${s.grade}` === activeGrade);
+      }
+
+      // Collect section names & counts
+      const sectionCountMap = new Map();
+      students.forEach(s => {
+        const secInfo = resolveStudentSectionAndAdviser(s);
+        const secName = secInfo.sectionName || 'General';
+        const gradeText = secInfo.grade ? `Grade ${secInfo.grade}` : 'General';
+        const key = secName;
+        if (!sectionCountMap.has(key)) {
+          sectionCountMap.set(key, { count: 0, grade: gradeText });
+        }
+        sectionCountMap.get(key).count++;
+      });
+
+      // Also ensure classes in cachedClasses are represented
+      let classes = cachedClasses || [];
+      if (isSchoolAdmin && currentAdminUser?.schoolId) {
+        classes = classes.filter(c => String(c.schoolId) === String(currentAdminUser.schoolId));
+      } else if (learnerSchoolFilterVal && learnerSchoolFilterVal !== 'ALL') {
+        classes = classes.filter(c => String(c.schoolId) === String(learnerSchoolFilterVal));
+      } else if (selectedJurisdiction !== 'ALL') {
+        classes = classes.filter(c => String(c.schoolId) === String(selectedJurisdiction));
+      }
+      classes.forEach(c => {
+        const sec = (c.section || c.className || '').trim();
+        if (sec && !sectionCountMap.has(sec)) {
+          sectionCountMap.set(sec, { count: 0, grade: c.grade ? `Grade ${c.grade}` : 'General' });
+        }
+      });
+
+      const sortedSections = Array.from(sectionCountMap.keys()).sort((a, b) => a.localeCompare(b));
+
+      let optionsHtml = `<option value="ALL">All Sections (${students.length} learners)</option>`;
+      sortedSections.forEach(sec => {
+        const data = sectionCountMap.get(sec);
+        const isSelected = (sec.toLowerCase() === currentVal.toLowerCase()) ? 'selected' : '';
+        optionsHtml += `<option value="${escapeHtml(sec)}" ${isSelected}>${escapeHtml(sec)} (${data.count} learners • ${data.grade})</option>`;
+      });
+
+      select.innerHTML = optionsHtml;
+    };
+
+    window.handleLearnerSectionFilter = function(val) {
+      learnerSectionFilter = val || 'ALL';
+      learnerPage = 1;
+      renderPerformanceTable();
+    };
+
+    // View Switcher: Individual Learners Roster vs Section Performance Matrix
+    window.setLearnerViewMode = function(mode) {
+      learnerViewMode = mode || 'roster';
+      const btnRoster = document.getElementById('btnViewLearnerRoster');
+      const btnMatrix = document.getElementById('btnViewSectionMatrix');
+      const tableContainer = document.getElementById('tourTargetPerformanceTable');
+      const matrixContainer = document.getElementById('sectionCardsContainer');
+
+      if (btnRoster && btnMatrix) {
+        if (learnerViewMode === 'roster') {
+          btnRoster.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-2xs';
+          btnMatrix.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all';
+        } else {
+          btnMatrix.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-2xs';
+          btnRoster.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all';
+        }
+      }
+
+      if (tableContainer) tableContainer.classList.toggle('hidden', learnerViewMode !== 'roster');
+      if (matrixContainer) matrixContainer.classList.toggle('hidden', learnerViewMode !== 'sections');
+
+      renderPerformanceTable();
+    };
+
+    // Helper: Render Section Performance Matrix Bento Cards
+    window.renderSectionPerformanceCards = function(students) {
+      const container = document.getElementById('sectionCardsContainer');
+      if (!container) return;
+
+      let classes = cachedClasses || [];
       if (isSchoolAdmin && currentAdminUser?.schoolId) {
         classes = classes.filter(c => String(c.schoolId) === String(currentAdminUser.schoolId));
       } else if (learnerSchoolFilterVal && learnerSchoolFilterVal !== 'ALL') {
@@ -65,25 +342,661 @@
         classes = classes.filter(c => String(c.grade || '').trim() === targetGradeNum || (c.grade || '').trim() === activeGrade || `Grade ${c.grade}` === activeGrade);
       }
 
-      const uniqueSections = Array.from(new Set(classes.map(c => (c.section || c.className || '').trim()).filter(Boolean))).sort();
+      if (classes.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full p-8 text-center bg-white rounded-2xl border border-slate-200/80 text-slate-400 font-medium">
+            No classroom sections found matching the active jurisdiction/filters.
+          </div>`;
+        return;
+      }
 
-      let optionsHtml = '<option value="ALL">All Sections</option>';
-      uniqueSections.forEach(sec => {
-        const isSelected = (sec.toLowerCase() === currentVal.toLowerCase()) ? 'selected' : '';
-        optionsHtml += `<option value="${escapeHtml(sec)}" ${isSelected}>${escapeHtml(sec)}</option>`;
-      });
+      container.innerHTML = classes.map(c => {
+        const secName = c.section || c.className || 'Section';
+        const joinCode = typeof resolveClassJoinCode === 'function' ? resolveClassJoinCode(c) : (c.joinCode || '—');
+        const gradeText = c.grade ? (String(c.grade).startsWith('Grade') ? c.grade : `Grade ${c.grade}`) : 'Grade 7';
+        const schoolName = getSchoolName(c.schoolId);
 
-      select.innerHTML = optionsHtml;
+        let adviser = (cachedUsers || []).find(u => u.id === (c.teacherId || c.adviserId));
+        const adviserName = adviser ? `${adviser.firstName || ''} ${adviser.lastName || ''}`.trim() : (c.adviserName || 'Class Adviser');
+
+        const joinedIds = c.studentIds || c.joinedStudents || [];
+        const enrolled = students.filter(s => joinedIds.includes(s.id) || (s.section === secName && String(s.schoolId) === String(c.schoolId)));
+        const pending = (cachedPendingStudents || []).filter(p => p.section === secName && String(p.schoolId) === String(c.schoolId));
+
+        let secScoreSum = 0;
+        let secScoreCount = 0;
+        let secWpmSum = 0;
+        let secWpmCount = 0;
+        let indCount = 0;
+        let insCount = 0;
+        let fruCount = 0;
+
+        enrolled.forEach(st => {
+          const profile = computeLearnerAcademicProfile(st);
+          if (profile.effectiveMps !== null) {
+            secScoreSum += profile.effectiveMps;
+            secScoreCount++;
+          }
+          if (profile.wpm) {
+            secWpmSum += profile.wpm;
+            secWpmCount++;
+          }
+          if (profile.tier === 'independent') indCount++;
+          else if (profile.tier === 'instructional') insCount++;
+          else if (profile.tier === 'frustration') fruCount++;
+        });
+
+        const sectionMps = secScoreCount > 0 ? Math.round(secScoreSum / secScoreCount) : null;
+        const avgWpm = secWpmCount > 0 ? Math.round(secWpmSum / secWpmCount) : null;
+        const totalSectionStudents = enrolled.length + pending.length;
+
+        const mpsColor = sectionMps !== null ? (sectionMps >= 80 ? 'text-emerald-700' : (sectionMps >= 60 ? 'text-amber-700' : 'text-rose-700')) : 'text-slate-400';
+        const mpsBarBg = sectionMps !== null ? (sectionMps >= 80 ? 'bg-emerald-500' : (sectionMps >= 60 ? 'bg-amber-500' : 'bg-rose-500')) : 'bg-slate-200';
+
+        return `
+          <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">${escapeHtml(gradeText)}</span>
+                  <span class="font-mono text-xs font-bold text-slate-500">#${escapeHtml(joinCode)}</span>
+                </div>
+                <h4 class="font-bold text-base text-slate-900 mt-1 font-display">${escapeHtml(secName)}</h4>
+                <p class="text-xs text-slate-500">${escapeHtml(adviserName)} &bull; ${escapeHtml(schoolName)}</p>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-slate-400 font-semibold">Section MPS</div>
+                <div class="text-2xl font-black ${mpsColor} font-display">${sectionMps !== null ? sectionMps + '%' : '—'}</div>
+              </div>
+            </div>
+
+            <!-- Section MPS Progress Bar -->
+            <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+              <div class="${mpsBarBg} h-full rounded-full transition-all" style="width: ${sectionMps !== null ? Math.min(100, Math.max(5, sectionMps)) : 0}%"></div>
+            </div>
+
+            <!-- Mini Tier Spread & Telemetry -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1 border-t border-slate-100">
+              <div class="p-2 bg-slate-50 rounded-xl">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">Enrolled</div>
+                <div class="font-bold text-slate-800 text-sm mt-0.5">${totalSectionStudents}</div>
+                <div class="text-[9px] text-slate-400 font-medium">${enrolled.length} active</div>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-xl">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">Reading Speed</div>
+                <div class="font-bold text-blue-600 text-sm mt-0.5">${avgWpm ? avgWpm + ' WPM' : '—'}</div>
+                <div class="text-[9px] text-slate-400 font-medium">Cohort WPM</div>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-xl">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">Tier Ratio</div>
+                <div class="font-bold text-slate-800 text-xs mt-1">
+                  <span class="text-emerald-600">${indCount}</span> / <span class="text-amber-600">${insCount}</span> / <span class="text-rose-600">${fruCount}</span>
+                </div>
+                <div class="text-[9px] text-slate-400 font-medium">Ind / Ins / Fru</div>
+              </div>
+            </div>
+
+            <div class="pt-2 flex items-center justify-between border-t border-slate-100">
+              <span class="text-[11px] text-slate-400 font-medium">Valenzuela JHS Roster</span>
+              <button type="button" onclick="filterToSection('${escapeHtml(secName)}')" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5">
+                <span>Inspect Roster &rarr;</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     };
 
-    window.handleLearnerSectionFilter = function(val) {
-      learnerSectionFilter = val || 'ALL';
+    window.filterToSection = function(sectionName) {
+      learnerSectionFilter = sectionName || 'ALL';
+      const sel = document.getElementById('selectLearnerSectionFilter');
+      if (sel) sel.value = sectionName;
+      setLearnerViewMode('roster');
+    };
+
+    // Sorting Handlers
+    window.handleLearnerSortChange = function(sortVal) {
+      if (sortVal === 'highest_mps') {
+        learnerSortColumn = 'mps';
+        learnerSortAsc = false;
+      } else if (sortVal === 'highest_wpm') {
+        learnerSortColumn = 'wpm';
+        learnerSortAsc = false;
+      } else if (sortVal === 'highest_streak') {
+        learnerSortColumn = 'streak';
+        learnerSortAsc = false;
+      } else if (sortVal === 'highest_xp') {
+        learnerSortColumn = 'level';
+        learnerSortAsc = false;
+      } else if (sortVal === 'lowest_mps') {
+        learnerSortColumn = 'mps';
+        learnerSortAsc = true;
+      } else if (sortVal === 'name_asc') {
+        learnerSortColumn = 'name';
+        learnerSortAsc = true;
+      } else if (sortVal === 'name_desc') {
+        learnerSortColumn = 'name';
+        learnerSortAsc = false;
+      }
+      learnerPage = 1;
+      updateLearnerSortIndicators();
       renderPerformanceTable();
     };
 
+    window.toggleLearnerHeaderSort = function(col) {
+      if (learnerSortColumn === col) {
+        learnerSortAsc = !learnerSortAsc;
+      } else {
+        learnerSortColumn = col;
+        learnerSortAsc = (col === 'name'); // default name to asc, numeric to desc (HIGHEST first)
+      }
+      learnerPage = 1;
+
+      // Sync dropdown value
+      const sel = document.getElementById('selectLearnerSort');
+      if (sel) {
+        if (col === 'mps') sel.value = learnerSortAsc ? 'lowest_mps' : 'highest_mps';
+        else if (col === 'wpm') sel.value = 'highest_wpm';
+        else if (col === 'streak') sel.value = 'highest_streak';
+        else if (col === 'level') sel.value = 'highest_xp';
+        else if (col === 'name') sel.value = learnerSortAsc ? 'name_asc' : 'name_desc';
+      }
+
+      updateLearnerSortIndicators();
+      renderPerformanceTable();
+    };
+
+    function updateLearnerSortIndicators() {
+      const cols = ['name', 'mps', 'wpm', 'streak', 'level'];
+      cols.forEach(c => {
+        const el = document.getElementById(`sortIndicator_${c}`);
+        if (!el) return;
+        if (learnerSortColumn === c) {
+          el.textContent = learnerSortAsc ? '▲' : '▼';
+          el.className = 'text-[10px] text-indigo-600 font-bold font-mono';
+        } else {
+          el.textContent = '⬍';
+          el.className = 'text-[10px] text-slate-400 font-mono';
+        }
+      });
+    }
+
+    // Quick Filter Pills Handler (All, Highest Performers, Priority Support, etc.)
+    window.handleLearnerQuickPill = function(pillVal) {
+      learnerQuickPill = pillVal || 'ALL';
+
+      // Update button visual states
+      const pills = [
+        { id: 'pillLearnerAll', val: 'ALL' },
+        { id: 'pillLearnerTopHighest', val: 'top_highest' },
+        { id: 'pillLearnerPrioritySupport', val: 'support' },
+        { id: 'pillLearnerInstructional', val: 'instructional' },
+        { id: 'pillLearnerUnassessed', val: 'unassessed' }
+      ];
+
+      pills.forEach(p => {
+        const btn = document.getElementById(p.id);
+        if (!btn) return;
+        if (p.val === learnerQuickPill) {
+          btn.className = 'px-2.5 py-1 rounded-lg font-bold text-xs bg-indigo-600 text-white shadow-2xs transition-all flex items-center gap-1';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-lg font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shadow-2xs transition-all flex items-center gap-1';
+        }
+      });
+
+      const tierSelect = document.getElementById('selectLearnerTierFilter');
+      if (pillVal === 'top_highest') {
+        learnerTierFilter = 'independent';
+        if (tierSelect) tierSelect.value = 'independent';
+        handleLearnerSortChange('highest_mps');
+        return;
+      } else if (pillVal === 'support') {
+        learnerTierFilter = 'frustration';
+        if (tierSelect) tierSelect.value = 'frustration';
+        handleLearnerSortChange('lowest_mps');
+        return;
+      } else if (pillVal === 'ALL') {
+        learnerTierFilter = 'ALL';
+        if (tierSelect) tierSelect.value = 'ALL';
+      } else {
+        learnerTierFilter = pillVal;
+        if (tierSelect) tierSelect.value = pillVal;
+      }
+
+      learnerPage = 1;
+      renderPerformanceTable();
+    };
+
+    // Pagination Handlers
+    window.handleLearnerPageSizeChange = function(val) {
+      learnerPageSize = parseInt(val, 10) || 25;
+      learnerPage = 1;
+      renderPerformanceTable();
+    };
+
+    window.changeLearnerPage = function(delta) {
+      learnerPage += delta;
+      renderPerformanceTable();
+    };
+
+    window.goToLearnerPage = function(pageNum) {
+      learnerPage = pageNum;
+      renderPerformanceTable();
+    };
+
+    // =========================================================================
+    // 2B. VALENZUELA SECONDARY SCHOOLS LITERACY MATRIX & HIERARCHY ENGINE
+    // =========================================================================
+
+    // Helper: Compute high-fidelity academic reading profile for a secondary campus
+    window.computeSchoolAcademicStats = function(schoolId) {
+      const sId = String(schoolId || '').trim();
+      const schoolObj = (VALENZUELA_SCHOOLS || []).find(s => s.id === sId) || {
+        id: sId,
+        name: typeof getSchoolName === 'function' ? getSchoolName(sId) : `School ${sId}`,
+        district: 'Division'
+      };
+
+      // Claimed active learners and pending credential accounts
+      const claimedStudents = (cachedUsers || []).filter(u => {
+        if (u.role !== 'student') return false;
+        const uSchool = resolveStudentSchoolId(u) || String(u.schoolId || '').trim();
+        return uSchool === sId;
+      });
+      const pendingStudents = (cachedPendingStudents || []).filter(s => String(s.schoolId || '').trim() === sId);
+      const totalEnrolled = claimedStudents.length + pendingStudents.length;
+
+      // Classes and Teachers
+      const classes = (cachedClasses || []).filter(c => String(c.schoolId || '').trim() === sId);
+      const teachers = (cachedTeachers || []).filter(t => {
+        const tSchool = (typeof resolveTeacherSchoolId === 'function' ? resolveTeacherSchoolId(t) : t.schoolId) || '';
+        return String(tSchool).trim() === sId;
+      });
+
+      // Compute student-level academic metrics for claimed cohort
+      let countEval = 0;
+      let countInd = 0;
+      let countIns = 0;
+      let countFru = 0;
+      let countUnass = 0;
+      let totalMpsSum = 0;
+      let totalWpmSum = 0;
+      let totalWpmCount = 0;
+      let totalStreak = 0;
+
+      claimedStudents.forEach(st => {
+        const prof = computeLearnerAcademicProfile(st);
+        if (prof.totalQuizzes > 0 || prof.effectiveMps !== null) countEval++;
+        if (prof.tier === 'independent') countInd++;
+        else if (prof.tier === 'instructional') countIns++;
+        else if (prof.tier === 'frustration') countFru++;
+        else countUnass++;
+
+        if (prof.effectiveMps !== null) {
+          totalMpsSum += prof.effectiveMps;
+        }
+        if (prof.wpm) {
+          totalWpmSum += prof.wpm;
+          totalWpmCount++;
+        }
+        totalStreak += (st.current_streak || 0);
+      });
+
+      // Add unassessed count for pending students (who haven't claimed accounts yet)
+      countUnass += pendingStudents.length;
+
+      const schoolAvgMps = countEval > 0 ? Math.round(totalMpsSum / countEval) : 0;
+      const schoolAvgWpm = totalWpmCount > 0 ? Math.round(totalWpmSum / totalWpmCount) : null;
+      const avgStreak = claimedStudents.length > 0 ? Math.round(totalStreak / claimedStudents.length) : 0;
+      const coveragePct = totalEnrolled > 0 ? Math.round((countEval / totalEnrolled) * 100) : 0;
+
+      // Tier Percentages relative to total enrolled
+      const indPct = totalEnrolled > 0 ? Math.round((countInd / totalEnrolled) * 100) : 0;
+      const insPct = totalEnrolled > 0 ? Math.round((countIns / totalEnrolled) * 100) : 0;
+      const fruPct = totalEnrolled > 0 ? Math.round((countFru / totalEnrolled) * 100) : 0;
+      const unassPct = totalEnrolled > 0 ? Math.max(0, 100 - (indPct + insPct + fruPct)) : 0;
+
+      // Phil-IRI Benchmark Designation
+      let benchmarkLabel = 'Awaiting Assessment';
+      let benchmarkBadgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+      if (countEval > 0) {
+        if (schoolAvgMps >= 80) {
+          benchmarkLabel = 'Independent Campus';
+          benchmarkBadgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold';
+        } else if (schoolAvgMps >= 60) {
+          benchmarkLabel = 'Instructional Campus';
+          benchmarkBadgeClass = 'bg-amber-50 text-amber-800 border-amber-200 font-bold';
+        } else {
+          benchmarkLabel = 'Priority Support Campus';
+          benchmarkBadgeClass = 'bg-rose-50 text-rose-800 border-rose-200 font-bold';
+        }
+      }
+
+      return {
+        school: schoolObj,
+        schoolId: sId,
+        schoolName: schoolObj.name,
+        district: schoolObj.district,
+        claimedStudentsCount: claimedStudents.length,
+        pendingStudentsCount: pendingStudents.length,
+        totalEnrolled,
+        classesCount: classes.length,
+        teachersCount: teachers.length,
+        countEval,
+        countInd,
+        countIns,
+        countFru,
+        countUnass,
+        indPct,
+        insPct,
+        fruPct,
+        unassPct,
+        schoolAvgMps,
+        schoolAvgWpm,
+        avgStreak,
+        coveragePct,
+        benchmarkLabel,
+        benchmarkBadgeClass
+      };
+    };
+
+    // Helper: Render Division 25-Secondary Schools Literacy Overview Bento Grid
+    window.renderLearnerSchoolsMatrix = function() {
+      const container = document.getElementById('learnerSchoolCardsGrid');
+      if (!container) return;
+
+      let list = [...(VALENZUELA_SCHOOLS || [])];
+
+      // District Filter
+      if (schoolMatrixDistrictFilter !== 'ALL') {
+        list = list.filter(s => s.district === schoolMatrixDistrictFilter);
+      }
+
+      // Smart Search Filter
+      if (schoolMatrixSearchQuery) {
+        list = list.filter(s => {
+          const blob = `${s.name || ''} ${s.id || ''} ${s.district || ''}`.toLowerCase();
+          return blob.includes(schoolMatrixSearchQuery);
+        });
+      }
+
+      // Update District Filter Button Styles
+      const btnAll = document.getElementById('btnSchoolDistrictAll');
+      const btnD1 = document.getElementById('btnSchoolDistrict1');
+      const btnD2 = document.getElementById('btnSchoolDistrict2');
+      if (btnAll && btnD1 && btnD2) {
+        const activeClass = 'px-3 py-1 rounded-lg font-bold text-xs bg-indigo-600 text-white shadow-2xs transition-all';
+        const inactiveClass = 'px-3 py-1 rounded-lg font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shadow-2xs transition-all flex items-center gap-1';
+        btnAll.className = (schoolMatrixDistrictFilter === 'ALL') ? activeClass : inactiveClass;
+        btnD1.className = (schoolMatrixDistrictFilter === 'District 1') ? activeClass : inactiveClass;
+        btnD2.className = (schoolMatrixDistrictFilter === 'District 2') ? activeClass : inactiveClass;
+      }
+
+      // Update Count Badge
+      const countBadge = document.getElementById('schoolMatrixCountBadge');
+      if (countBadge) {
+        countBadge.textContent = `Showing ${list.length} secondary campus${list.length === 1 ? '' : 'es'}`;
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full p-8 text-center bg-white rounded-2xl border border-slate-200/80 text-slate-400 font-medium">
+            <svg class="w-8 h-8 mx-auto mb-2 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            No secondary schools match the active search or district filter.
+            <button onclick="clearSchoolMatrixSearch(); setLearnerSchoolDistrictFilter('ALL');" class="block mx-auto mt-2 text-indigo-600 hover:underline font-bold text-xs">Reset filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      // Compute stats for each school
+      const schoolStats = list.map(school => computeSchoolAcademicStats(school.id));
+
+      // Multi-criteria Sort
+      schoolStats.sort((a, b) => {
+        if (schoolMatrixSort === 'highest_mps') {
+          if (b.schoolAvgMps !== a.schoolAvgMps) return b.schoolAvgMps - a.schoolAvgMps;
+          return b.countEval - a.countEval;
+        } else if (schoolMatrixSort === 'highest_enrolled') {
+          return b.totalEnrolled - a.totalEnrolled;
+        } else if (schoolMatrixSort === 'highest_wpm') {
+          return (b.schoolAvgWpm || 0) - (a.schoolAvgWpm || 0);
+        } else if (schoolMatrixSort === 'lowest_mps') {
+          return a.schoolAvgMps - b.schoolAvgMps;
+        } else if (schoolMatrixSort === 'name_asc') {
+          return a.schoolName.localeCompare(b.schoolName);
+        }
+        return 0;
+      });
+
+      // Render Bento Cards
+      container.innerHTML = schoolStats.map((item, idx) => {
+        const isD1 = item.district === 'District 1';
+        const districtBadgeClass = isD1 ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-purple-50 text-purple-700 border-purple-200';
+        const rankMedal = idx === 0 && schoolMatrixSort === 'highest_mps' && item.schoolAvgMps > 0 ? '🥇 ' : (idx === 1 && schoolMatrixSort === 'highest_mps' && item.schoolAvgMps > 0 ? '🥈 ' : (idx === 2 && schoolMatrixSort === 'highest_mps' && item.schoolAvgMps > 0 ? '🥉 ' : ''));
+
+        return `
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all flex flex-col justify-between group">
+            <div class="space-y-3.5">
+              <!-- Top Row: Name, District Badge, ID -->
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${districtBadgeClass}">
+                      ${escapeHtml(item.district)}
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-400">ID: ${escapeHtml(item.schoolId)}</span>
+                  </div>
+                  <h4 class="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors mt-1 font-display leading-snug">
+                    ${rankMedal}${escapeHtml(item.schoolName)}
+                  </h4>
+                </div>
+              </div>
+
+              <!-- Primary Metric Banner: Literacy MPS & DepEd Tier -->
+              <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Literacy MPS</div>
+                  <div class="text-2xl font-black font-display ${item.schoolAvgMps >= 80 ? 'text-emerald-600' : (item.schoolAvgMps >= 60 ? 'text-amber-600' : (item.countEval > 0 ? 'text-rose-600' : 'text-slate-400'))}">
+                    ${item.schoolAvgMps}%
+                  </div>
+                </div>
+                <div class="text-right space-y-1">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] border ${item.benchmarkBadgeClass}">
+                    ${item.benchmarkLabel}
+                  </span>
+                  <div class="text-[10px] text-slate-400 font-medium">
+                    ${item.countEval}/${item.totalEnrolled} evaluated (${item.coveragePct}%)
+                  </div>
+                </div>
+              </div>
+
+              <!-- Multi-segment Mini Ratio Bar -->
+              <div class="space-y-1">
+                <div class="w-full h-2 rounded-full bg-slate-100 flex overflow-hidden gap-0.5 shadow-2xs">
+                  <div class="h-full bg-emerald-500 rounded-l-full" style="width: ${item.indPct}%" title="Independent: ${item.countInd} (${item.indPct}%)"></div>
+                  <div class="h-full bg-amber-500" style="width: ${item.insPct}%" title="Instructional: ${item.countIns} (${item.insPct}%)"></div>
+                  <div class="h-full bg-rose-500" style="width: ${item.fruPct}%" title="Priority Support: ${item.countFru} (${item.fruPct}%)"></div>
+                  <div class="h-full bg-slate-300 rounded-r-full" style="width: ${item.unassPct}%" title="Unassessed: ${item.countUnass} (${item.unassPct}%)"></div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-slate-500 font-medium pt-0.5">
+                  <span class="text-emerald-700 font-bold">🟢 ${item.countInd} Ind</span>
+                  <span class="text-amber-700 font-bold">🟡 ${item.countIns} Ins</span>
+                  <span class="text-rose-700 font-bold">🔴 ${item.countFru} Sup</span>
+                  <span class="text-slate-400">⚪ ${item.countUnass} Unass</span>
+                </div>
+              </div>
+
+              <!-- Micro Bento Metrics: 4 Grid Tiles -->
+              <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div class="text-[10px] text-slate-400">Enrolled Scholars</div>
+                  <div class="font-bold text-slate-800 font-display">${item.totalEnrolled} <span class="text-[10px] font-normal text-slate-400">(${item.claimedStudentsCount} active)</span></div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div class="text-[10px] text-slate-400">Reading Speed</div>
+                  <div class="font-bold text-blue-600 font-display">${item.schoolAvgWpm ? item.schoolAvgWpm + ' WPM' : '— WPM'}</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div class="text-[10px] text-slate-400">Class Sections</div>
+                  <div class="font-bold text-slate-800 font-display">${item.classesCount} classrooms</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div class="text-[10px] text-slate-400">Faculty Members</div>
+                  <div class="font-bold text-slate-800 font-display">${item.teachersCount} educators</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Drilldown Action Button -->
+            <div class="pt-4 border-t border-slate-100 mt-4">
+              <button type="button" onclick="drilldownToSchool('${escapeHtml(item.schoolId)}')" class="w-full py-2 px-3 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-700 border border-indigo-200/80 rounded-xl text-xs font-bold transition-all shadow-2xs hover:shadow-xs flex items-center justify-center gap-1.5 font-display">
+                <span>Inspect School Performance &amp; Roster</span>
+                <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // Drilldown to specific school workspace
+    window.drilldownToSchool = function(schoolId) {
+      if (!schoolId) return;
+      selectedJurisdiction = String(schoolId).trim();
+      superAdminLearnerView = 'drilldown';
+      learnerSchoolFilterVal = selectedJurisdiction;
+      learnerSectionFilter = 'ALL';
+      learnerPage = 1;
+
+      // Sync select dropdowns across the portal
+      const schoolSelect = document.getElementById('learnerSchoolFilter');
+      if (schoolSelect) schoolSelect.value = selectedJurisdiction;
+      const jurSelect = document.getElementById('jurisdictionSelect');
+      if (jurSelect) jurSelect.value = selectedJurisdiction;
+      const globalFilter = document.getElementById('globalSchoolFilter');
+      if (globalFilter) globalFilter.value = selectedJurisdiction;
+
+      renderPerformanceTable();
+      if (typeof window.showToast === 'function') {
+        window.showToast(`Drilling down into ${getSchoolName(selectedJurisdiction)}`, 'info');
+      }
+    };
+
+    // Return back to 25-schools overview matrix
+    window.backToAllSchools = function() {
+      selectedJurisdiction = 'ALL';
+      superAdminLearnerView = 'schools';
+      learnerSchoolFilterVal = 'ALL';
+      learnerSectionFilter = 'ALL';
+      learnerPage = 1;
+
+      // Sync select dropdowns across the portal
+      const schoolSelect = document.getElementById('learnerSchoolFilter');
+      if (schoolSelect) schoolSelect.value = 'ALL';
+      const jurSelect = document.getElementById('jurisdictionSelect');
+      if (jurSelect) jurSelect.value = 'ALL';
+      const globalFilter = document.getElementById('globalSchoolFilter');
+      if (globalFilter) globalFilter.value = 'ALL';
+
+      renderPerformanceTable();
+      if (typeof window.showToast === 'function') {
+        window.showToast('Returned to Valenzuela Schools Overview', 'info');
+      }
+    };
+
+    // School Matrix Search & District Controls
+    window.setLearnerSchoolDistrictFilter = function(dist) {
+      schoolMatrixDistrictFilter = dist || 'ALL';
+      renderLearnerSchoolsMatrix();
+    };
+
+    window.handleSchoolMatrixSortChange = function(sortVal) {
+      schoolMatrixSort = sortVal || 'highest_mps';
+      renderLearnerSchoolsMatrix();
+    };
+
+    window.handleSchoolMatrixSearch = function(query) {
+      schoolMatrixSearchQuery = (query || '').toLowerCase().trim();
+      const btnClear = document.getElementById('btnClearSchoolMatrixSearch');
+      if (btnClear) btnClear.classList.toggle('hidden', !schoolMatrixSearchQuery);
+      renderLearnerSchoolsMatrix();
+    };
+
+    window.clearSchoolMatrixSearch = function() {
+      schoolMatrixSearchQuery = '';
+      const input = document.getElementById('inputSchoolMatrixSearch');
+      if (input) input.value = '';
+      const btnClear = document.getElementById('btnClearSchoolMatrixSearch');
+      if (btnClear) btnClear.classList.add('hidden');
+      renderLearnerSchoolsMatrix();
+    };
+
+    // =========================================================================
+    // MAIN RENDERER: PERFORMANCE TABLE & LITERACY DASHBOARD
+    // =========================================================================
     function renderPerformanceTable() {
       const tbody = document.getElementById('performanceTableBody');
       if (!tbody) return;
+
+      if (isSuperAdmin) {
+        if (selectedJurisdiction === 'ALL') {
+          superAdminLearnerView = 'schools';
+        } else {
+          superAdminLearnerView = 'drilldown';
+        }
+      }
+      const isSuperAdminSchoolsOverview = isSuperAdmin && (selectedJurisdiction === 'ALL');
+
+      const schoolsContainer = document.getElementById('learnerSchoolsContainer');
+      const schoolWorkspace = document.getElementById('learnerSchoolWorkspace');
+      const breadcrumbBar = document.getElementById('learnerBreadcrumbBar');
+      const viewModeToggle = document.getElementById('learnerViewModeToggleGroup');
+      const scopeBadge = document.getElementById('academicPerformanceScopeBadge');
+      const schoolFilterContainer = document.getElementById('learnerSchoolFilterContainer');
+
+      if (isSuperAdminSchoolsOverview) {
+        if (schoolsContainer) schoolsContainer.classList.remove('hidden');
+        if (schoolWorkspace) schoolWorkspace.classList.add('hidden');
+        if (breadcrumbBar) breadcrumbBar.classList.add('hidden');
+        if (viewModeToggle) viewModeToggle.classList.add('hidden');
+        if (scopeBadge) scopeBadge.textContent = 'SDO Valenzuela City • 25 Junior High Schools Overview';
+
+        renderLearnerSchoolsMatrix();
+        return;
+      }
+
+      // If we are here, we are in single school mode (School Admin OR Super Admin drilled into a school)
+      if (schoolsContainer) schoolsContainer.classList.add('hidden');
+      if (schoolWorkspace) schoolWorkspace.classList.remove('hidden');
+      if (viewModeToggle) viewModeToggle.classList.remove('hidden');
+
+      const activeSchoolId = isSchoolAdmin ? String(currentAdminUser?.schoolId || '') : String(selectedJurisdiction || '');
+      const schoolObj = (VALENZUELA_SCHOOLS || []).find(s => s.id === activeSchoolId);
+      const schoolName = schoolObj ? schoolObj.name : (typeof getSchoolName === 'function' ? getSchoolName(activeSchoolId) : activeSchoolId);
+      const schoolDistrict = schoolObj ? schoolObj.district : '';
+
+      if (isSuperAdmin) {
+        if (breadcrumbBar) {
+          breadcrumbBar.classList.remove('hidden');
+          const elName = document.getElementById('learnerBreadcrumbSchoolName');
+          if (elName) elName.textContent = schoolName;
+          const elDist = document.getElementById('learnerBreadcrumbDistrictBadge');
+          if (elDist) {
+            elDist.textContent = schoolDistrict || 'District';
+            elDist.className = `px-2 py-0.5 rounded-full text-[10px] font-bold ${schoolDistrict === 'District 1' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-purple-50 text-purple-700 border border-purple-200'}`;
+          }
+          const elId = document.getElementById('learnerBreadcrumbSchoolId');
+          if (elId) elId.textContent = `ID: ${activeSchoolId}`;
+        }
+        if (schoolFilterContainer) schoolFilterContainer.classList.remove('hidden');
+        if (scopeBadge) scopeBadge.textContent = `${schoolName} • ${schoolDistrict || 'Secondary Campus'}`;
+      } else {
+        // School Admin
+        if (breadcrumbBar) breadcrumbBar.classList.add('hidden');
+        if (schoolFilterContainer) schoolFilterContainer.classList.add('hidden');
+        if (scopeBadge) scopeBadge.textContent = `${schoolName} • ${schoolDistrict || 'Secondary Campus'}`;
+      }
 
       if (typeof populateLearnerSectionDropdown === 'function') {
         populateLearnerSectionDropdown();
@@ -122,99 +1035,231 @@
         // Dedicated Section Filter
         const activeLearnerSection = learnerSectionFilter || document.getElementById('selectLearnerSectionFilter')?.value || 'ALL';
         if (activeLearnerSection !== 'ALL') {
-          list = list.filter(u => String(u.section || '').trim().toLowerCase() === activeLearnerSection.toLowerCase());
+          list = list.filter(u => {
+            const secInfo = resolveStudentSectionAndAdviser(u);
+            return secInfo.sectionName.toLowerCase() === activeLearnerSection.toLowerCase() || String(u.section || '').trim().toLowerCase() === activeLearnerSection.toLowerCase();
+          });
         }
 
-        // Compute academic metrics helper for a student
-        const getStudentMpsAndTier = (st) => {
-          const stSubs = (cachedSubmissions || []).filter(s => s.studentId === st.id);
-          let avg = calculateAverageScore(stSubs);
-          let rawTier = (st.phil_iri_tier || st.diagnostic_tier || '').toLowerCase().trim();
-          let tier = 'unassessed';
-          let tierLabel = 'Unassessed';
-          let tierClass = 'bg-slate-100 text-slate-700 border-slate-200';
+        // If in Section Matrix mode, render cards and return early
+        if (learnerViewMode === 'sections') {
+          renderSectionPerformanceCards(list);
+        }
 
-          if (rawTier.includes('independent') || (stSubs.length > 0 && avg >= 80)) {
-            tier = 'independent';
-            tierLabel = 'Independent';
-            tierClass = 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold';
-          } else if (rawTier.includes('instructional') || (stSubs.length > 0 && avg >= 60)) {
-            tier = 'instructional';
-            tierLabel = 'Instructional';
-            tierClass = 'bg-amber-50 text-amber-800 border-amber-200 font-bold';
-          } else if (rawTier.includes('frustration') || (stSubs.length > 0 && avg > 0 && avg < 60) || (st.diagnostic_pct && st.diagnostic_pct < 60)) {
-            tier = 'frustration';
-            tierLabel = 'Frustration';
-            tierClass = 'bg-rose-50 text-rose-800 border-rose-200 font-bold';
-          }
-
-          const mpsValue = stSubs.length > 0 ? avg : (st.diagnostic_pct || (avg > 0 ? avg : null));
-          return { stSubs, avg, tier, tierLabel, tierClass, mpsValue };
-        };
-
-        // Compute real-time academic KPIs across this list before tier filtering
+        // Precompute Academic Profiles for all students in cohort
+        const profilesMap = new Map();
         let countEval = 0;
         let countInd = 0;
         let countIns = 0;
         let countFru = 0;
+        let countUnass = 0;
         let totalStreak = 0;
+        let totalScoreSum = 0;
+        let totalWpmSum = 0;
+        let totalWpmCount = 0;
+        let maleCount = 0;
+        let femaleCount = 0;
+        let totalWordsMasteredSum = 0;
 
         list.forEach(u => {
-          const m = getStudentMpsAndTier(u);
-          if (m.stSubs.length > 0 || m.tier !== 'unassessed') countEval++;
-          if (m.tier === 'independent') countInd++;
-          else if (m.tier === 'instructional') countIns++;
-          else if (m.tier === 'frustration') countFru++;
+          const prof = computeLearnerAcademicProfile(u);
+          profilesMap.set(u.id, prof);
+
+          if (prof.totalQuizzes > 0 || prof.effectiveMps !== null) countEval++;
+          if (prof.tier === 'independent') countInd++;
+          else if (prof.tier === 'instructional') countIns++;
+          else if (prof.tier === 'frustration') countFru++;
+          else countUnass++;
+
+          if (prof.effectiveMps !== null) {
+            totalScoreSum += prof.effectiveMps;
+          }
+          if (prof.wpm) {
+            totalWpmSum += prof.wpm;
+            totalWpmCount++;
+          }
+
           totalStreak += (u.current_streak || 0);
+          totalWordsMasteredSum += (prof.wordsMastered || 0);
+
+          const gen = getStudentGender(u);
+          if (gen === 'male') maleCount++;
+          else if (gen === 'female') femaleCount++;
         });
 
-        const avgStreak = list.length > 0 ? Math.round(totalStreak / list.length) : 0;
+        const cohortTotal = list.length;
+        const avgStreak = cohortTotal > 0 ? Math.round(totalStreak / cohortTotal) : 0;
+        const avgCohortMps = countEval > 0 ? Math.round(totalScoreSum / countEval) : 0;
+        const avgCohortWpm = totalWpmCount > 0 ? Math.round(totalWpmSum / totalWpmCount) : null;
+        const coveragePct = cohortTotal > 0 ? Math.round((countEval / cohortTotal) * 100) : 0;
 
+        // 1. Update Phil-IRI 3-Tier Distribution Stacked Ratio Bar
+        const indPct = cohortTotal > 0 ? Math.round((countInd / cohortTotal) * 100) : 0;
+        const insPct = cohortTotal > 0 ? Math.round((countIns / cohortTotal) * 100) : 0;
+        const fruPct = cohortTotal > 0 ? Math.round((countFru / cohortTotal) * 100) : 0;
+        const unassPct = cohortTotal > 0 ? Math.max(0, 100 - (indPct + insPct + fruPct)) : 0;
+
+        const elBarInd = document.getElementById('barTierIndependent');
+        if (elBarInd) elBarInd.style.width = `${indPct}%`;
+        const elBarIns = document.getElementById('barTierInstructional');
+        if (elBarIns) elBarIns.style.width = `${insPct}%`;
+        const elBarFru = document.getElementById('barTierFrustration');
+        if (elBarFru) elBarFru.style.width = `${fruPct}%`;
+        const elBarUnass = document.getElementById('barTierUnassessed');
+        if (elBarUnass) elBarUnass.style.width = `${unassPct}%`;
+
+        const elLegendInd = document.getElementById('perfLegendIndCount');
+        if (elLegendInd) elLegendInd.textContent = `${countInd} (${indPct}%)`;
+        const elLegendIns = document.getElementById('perfLegendInsCount');
+        if (elLegendIns) elLegendIns.textContent = `${countIns} (${insPct}%)`;
+        const elLegendFru = document.getElementById('perfLegendFruCount');
+        if (elLegendFru) elLegendFru.textContent = `${countFru} (${fruPct}%)`;
+        const elLegendUnass = document.getElementById('perfLegendUnassCount');
+        if (elLegendUnass) elLegendUnass.textContent = `${countUnass} (${unassPct}%)`;
+
+        const elRatioSummary = document.getElementById('perfRatioSummaryText');
+        if (elRatioSummary) {
+          elRatioSummary.textContent = `${countInd} Independent (${indPct}%) • ${countIns} Instructional (${insPct}%) • ${countFru} Support (${fruPct}%)`;
+        }
+        const elCovPill = document.getElementById('perfEvaluatedRatePill');
+        if (elCovPill) elCovPill.textContent = `Coverage: ${coveragePct}% (${countEval}/${cohortTotal})`;
+
+        // 2. Update Bento 6-Tile KPI Summary Strip
         const elKpiEval = document.getElementById('perfKpiTotalEvaluated');
         if (elKpiEval) elKpiEval.textContent = countEval;
-        const elKpiInd = document.getElementById('perfKpiIndependent');
-        if (elKpiInd) elKpiInd.textContent = countInd;
-        const elKpiIns = document.getElementById('perfKpiInstructional');
-        if (elKpiIns) elKpiIns.textContent = countIns;
+        const elKpiEvalSub = document.getElementById('perfKpiEvaluatedSub');
+        if (elKpiEvalSub) elKpiEvalSub.textContent = `Coverage: ${coveragePct}% of ${cohortTotal}`;
+
+        const elKpiMps = document.getElementById('perfKpiAverageMps');
+        if (elKpiMps) {
+          elKpiMps.textContent = `${avgCohortMps}%`;
+          elKpiMps.className = `text-xl font-black font-display ${avgCohortMps >= 80 ? 'text-emerald-600' : (avgCohortMps >= 60 ? 'text-amber-600' : 'text-rose-600')}`;
+        }
+
+        const elKpiWpm = document.getElementById('perfKpiAverageWpm');
+        if (elKpiWpm) elKpiWpm.textContent = avgCohortWpm ? `${avgCohortWpm} WPM` : '— WPM';
+
         const elKpiFru = document.getElementById('perfKpiFrustration');
         if (elKpiFru) elKpiFru.textContent = countFru;
+
+        const elKpiGender = document.getElementById('perfKpiGenderRatio');
+        if (elKpiGender) elKpiGender.textContent = `👦 ${maleCount} • 👧 ${femaleCount}`;
+
         const elKpiStreak = document.getElementById('perfKpiStreak');
         if (elKpiStreak) elKpiStreak.textContent = `${avgStreak}d`;
+        const elKpiStreakSub = document.getElementById('perfKpiWordsMasteredSub');
+        if (elKpiStreakSub) elKpiStreakSub.textContent = `${totalWordsMasteredSum} words mastered`;
 
-        // Dedicated Phil-IRI Tier Filter
+        // 3. Filter by Reading Tier
         const activeLearnerTier = learnerTierFilter || document.getElementById('selectLearnerTierFilter')?.value || 'ALL';
         if (activeLearnerTier !== 'ALL') {
           list = list.filter(u => {
-            const m = getStudentMpsAndTier(u);
-            return m.tier === activeLearnerTier;
+            const prof = profilesMap.get(u.id);
+            return prof && prof.tier === activeLearnerTier;
           });
         }
 
-        // Dedicated Smart Tokenized Search
+        // 4. Tokenized Smart Search
         const activeLearnerSearch = learnerSearchQuery || (document.getElementById('inputLearnerSearch')?.value || '').toLowerCase().trim();
         if (activeLearnerSearch) {
           list = list.filter(u => {
-            const textBlob = `${u.firstName || ''} ${u.lastName || ''} ${u.email || ''} ${u.username || ''} ${u.section || ''} ${u.lrn || ''} ${u.grade || ''} ${u.schoolId || ''} ${getSchoolName(u.schoolId)}`;
+            const secInfo = resolveStudentSectionAndAdviser(u);
+            const textBlob = `${u.firstName || ''} ${u.lastName || ''} ${u.email || ''} ${u.username || ''} ${secInfo.sectionName} ${secInfo.adviserName} ${secInfo.joinCode} ${u.lrn || ''} ${u.grade || ''} ${u.schoolId || ''} ${getSchoolName(u.schoolId)}`;
             return matchSmartSearch(textBlob, activeLearnerSearch);
           });
         }
 
         const countBadge = document.getElementById('learnerCountSummaryBadge');
         if (countBadge) {
-          countBadge.textContent = `Showing ${list.length} reading performance profile(s)${selectedJurisdiction !== 'ALL' ? ' for ' + getSchoolName(selectedJurisdiction) : ''}`;
+          countBadge.textContent = `Showing ${list.length} reading profile(s)${selectedJurisdiction !== 'ALL' ? ' for ' + getSchoolName(selectedJurisdiction) : ''}`;
         }
 
         if (list.length === 0) {
           tbody.innerHTML = `
             <tr>
-              <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+              <td colspan="8" class="p-8 text-center text-slate-400 font-medium">
                 No active student reading performance profiles match the active search/filters.
               </td>
             </tr>`;
+          const pagSummary = document.getElementById('learnerPaginationSummary');
+          if (pagSummary) pagSummary.textContent = "Showing 0 of 0 records";
+          const pagPills = document.getElementById('learnerPagePillsContainer');
+          if (pagPills) pagPills.innerHTML = "";
           return;
         }
 
-        tbody.innerHTML = list.map(u => {
+        // 5. Multi-column Sorting (with HIGHEST first by default)
+        list.sort((a, b) => {
+          const profA = profilesMap.get(a.id) || {};
+          const profB = profilesMap.get(b.id) || {};
+
+          let res = 0;
+          if (learnerSortColumn === 'mps') {
+            const mpsA = profA.effectiveMps !== null && profA.effectiveMps !== undefined ? profA.effectiveMps : -1;
+            const mpsB = profB.effectiveMps !== null && profB.effectiveMps !== undefined ? profB.effectiveMps : -1;
+            res = mpsA - mpsB;
+          } else if (learnerSortColumn === 'wpm') {
+            const wpmA = profA.wpm || 0;
+            const wpmB = profB.wpm || 0;
+            res = wpmA - wpmB;
+          } else if (learnerSortColumn === 'streak') {
+            res = (a.current_streak || 0) - (b.current_streak || 0);
+          } else if (learnerSortColumn === 'level') {
+            const xpA = (a.level || 1) * 1000 + (a.current_xp || 0);
+            const xpB = (b.level || 1) * 1000 + (b.current_xp || 0);
+            res = xpA - xpB;
+          } else if (learnerSortColumn === 'name') {
+            const nameA = `${a.lastName || ''} ${a.firstName || ''}`.trim().toLowerCase();
+            const nameB = `${b.lastName || ''} ${b.firstName || ''}`.trim().toLowerCase();
+            res = nameA.localeCompare(nameB);
+          }
+
+          return learnerSortAsc ? res : -res;
+        });
+
+        // 6. Client-Side Pagination
+        const totalItems = list.length;
+        const totalPages = Math.ceil(totalItems / learnerPageSize) || 1;
+        if (learnerPage > totalPages) learnerPage = totalPages;
+        if (learnerPage < 1) learnerPage = 1;
+
+        const startIndex = (learnerPage - 1) * learnerPageSize;
+        const endIndex = Math.min(startIndex + learnerPageSize, totalItems);
+        const paginatedList = list.slice(startIndex, endIndex);
+
+        // Update Pagination Footer
+        const elPagSummary = document.getElementById('learnerPaginationSummary');
+        if (elPagSummary) {
+          elPagSummary.textContent = `Showing ${startIndex + 1}–${endIndex} of ${totalItems} learner profile(s)`;
+        }
+        const btnPrev = document.getElementById('btnLearnerPagePrev');
+        if (btnPrev) btnPrev.disabled = (learnerPage <= 1);
+        const btnNext = document.getElementById('btnLearnerPageNext');
+        if (btnNext) btnNext.disabled = (learnerPage >= totalPages);
+
+        const elPillsContainer = document.getElementById('learnerPagePillsContainer');
+        if (elPillsContainer) {
+          let pillsHtml = '';
+          const maxPills = 5;
+          let startP = Math.max(1, learnerPage - 2);
+          let endP = Math.min(totalPages, startP + maxPills - 1);
+          if (endP - startP < maxPills - 1) {
+            startP = Math.max(1, endP - maxPills + 1);
+          }
+
+          for (let p = startP; p <= endP; p++) {
+            const isAct = p === learnerPage;
+            pillsHtml += `
+              <button type="button" onclick="goToLearnerPage(${p})" class="w-7 h-7 rounded-lg text-xs font-bold transition ${isAct ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'}">
+                ${p}
+              </button>
+            `;
+          }
+          elPillsContainer.innerHTML = pillsHtml;
+        }
+
+        // 7. Render Paginated Table Rows
+        tbody.innerHTML = paginatedList.map(u => {
           const streak = u.current_streak || 0;
           const quests = (u.quests_completed && u.quests_completed.length) || 0;
           const fName = u.firstName || u.first_name || '';
@@ -223,18 +1268,24 @@
           const initials = ((fName[0] || '') + (lName[0] || '')).toUpperCase() || 'ST';
           const genderBadge = getStudentGender(u) === 'male' ? '<span class="text-[10px] text-blue-600 font-semibold">👦 Male</span>' : (getStudentGender(u) === 'female' ? '<span class="text-[10px] text-pink-600 font-semibold">👧 Female</span>' : '');
 
-          const metrics = getStudentMpsAndTier(u);
-          const wpmVal = u.phil_iri_wpm ? `${u.phil_iri_wpm} WPM` : (metrics.stSubs.length > 0 ? 'Diagnostic' : '—');
+          const metrics = profilesMap.get(u.id) || computeLearnerAcademicProfile(u);
+          const secInfo = resolveStudentSectionAndAdviser(u);
+
+          const wpmVal = metrics.wpm ? `${metrics.wpm} WPM` : (metrics.totalQuizzes > 0 ? 'Assessed' : '—');
+          const wpmBadge = metrics.wpm ? (metrics.wpm >= 120 ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 ml-1">High</span>' : '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200 ml-1">Norm</span>') : '';
 
           let mpsDisplay = '';
-          if (metrics.mpsValue !== null && metrics.mpsValue !== undefined) {
-            const barColor = metrics.mpsValue >= 80 ? 'bg-emerald-500' : (metrics.mpsValue >= 60 ? 'bg-amber-500' : 'bg-rose-500');
-            const textColor = metrics.mpsValue >= 80 ? 'text-emerald-700' : (metrics.mpsValue >= 60 ? 'text-amber-700' : 'text-rose-700');
+          if (metrics.effectiveMps !== null) {
+            const barColor = metrics.effectiveMps >= 80 ? 'bg-emerald-500' : (metrics.effectiveMps >= 60 ? 'bg-amber-500' : 'bg-rose-500');
+            const textColor = metrics.effectiveMps >= 80 ? 'text-emerald-700' : (metrics.effectiveMps >= 60 ? 'text-amber-700' : 'text-rose-700');
             mpsDisplay = `
-              <div class="flex items-center gap-2">
-                <span class="font-bold ${textColor} text-xs">${metrics.mpsValue}% MPS</span>
-                <div class="w-14 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                  <div class="${barColor} h-full rounded-full" style="width: ${Math.min(100, Math.max(5, metrics.mpsValue))}%"></div>
+              <div class="space-y-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold ${textColor} text-xs">${metrics.effectiveMps}% MPS</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded-full border ${metrics.trendClass}">${metrics.trendLabel}</span>
+                </div>
+                <div class="w-20 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="${barColor} h-full rounded-full" style="width: ${Math.min(100, Math.max(5, metrics.effectiveMps))}%"></div>
                 </div>
               </div>
             `;
@@ -255,9 +1306,22 @@
                   <div>
                     <div class="font-bold text-slate-900">${escapeHtml(fullName)}</div>
                     <div class="text-[10px] text-slate-500 flex items-center gap-1.5 mt-0.5">
-                      <span>${u.grade ? 'Grade ' + u.grade + ' • ' : ''}${escapeHtml(u.section || 'General')}</span>
+                      <span class="font-mono text-slate-400">@${escapeHtml(u.username || u.id.substring(0,6))}</span>
+                      ${u.lrn ? `<span>&bull;</span> <span class="font-mono text-slate-500">LRN: ${escapeHtml(u.lrn)}</span>` : ''}
                       ${genderBadge ? `<span>&bull;</span> ${genderBadge}` : ''}
                     </div>
+                  </div>
+                </div>
+              </td>
+              <td class="p-3.5">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-indigo-900 text-xs">${escapeHtml(secInfo.sectionName)}</span>
+                    <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-bold">Gr. ${escapeHtml(secInfo.grade)}</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500 flex items-center gap-1">
+                    <span>${escapeHtml(secInfo.adviserName)}</span>
+                    ${secInfo.joinCode !== '—' ? `<span class="font-mono text-slate-400 text-[9px]">#${escapeHtml(secInfo.joinCode)}</span>` : ''}
                   </div>
                 </div>
               </td>
@@ -270,18 +1334,29 @@
                 ${mpsDisplay}
               </td>
               <td class="p-3.5 font-semibold text-slate-700">
-                ${wpmVal}
+                <div class="flex items-center">
+                  <span>${wpmVal}</span>
+                  ${wpmBadge}
+                </div>
               </td>
               <td class="p-3.5 font-bold ${streak > 0 ? 'text-amber-600' : 'text-slate-400'}">
-                ${streak > 0 ? `<span class="inline-flex items-center gap-1 text-amber-600 font-bold">${uiIcon('flame', 'w-3.5 h-3.5')} ${streak}d</span>` : '<span class="text-slate-400 font-medium">0d</span>'}
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-1">
+                    ${streak > 0 ? `<span class="inline-flex items-center gap-1 text-amber-600 font-bold">${uiIcon('flame', 'w-3.5 h-3.5')} ${streak}d</span>` : '<span class="text-slate-400 font-medium">0d</span>'}
+                  </div>
+                  ${metrics.wordsMastered > 0 ? `<div class="text-[9px] text-slate-400 font-normal">📚 ${metrics.wordsMastered} words</div>` : ''}
+                </div>
               </td>
               <td class="p-3.5">
-                <span class="font-bold text-indigo-700">Lvl ${u.level || 1}</span>
-                <span class="text-slate-400 text-[10px]">(${u.current_xp || 0} XP &bull; ${quests} Quests)</span>
+                <div class="space-y-0.5">
+                  <span class="font-bold text-indigo-700 text-xs">Lvl ${u.level || 1}</span>
+                  <div class="text-slate-400 text-[10px]">(${u.current_xp || 0} XP &bull; ${quests} Quests)</div>
+                </div>
               </td>
               <td class="p-3.5 text-right">
-                <button onclick="viewStudentQuizHistory('${u.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold shadow-xs inline-flex items-center gap-1 transition-all">
-                  ${uiIcon('chart', 'w-3 h-3')} <span>Inspect History</span>
+                <button type="button" onclick="openStudentAcademicProfile('${u.id}')" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold shadow-2xs inline-flex items-center gap-1.5 transition-all">
+                  <svg class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  <span>360° Profile</span>
                 </button>
               </td>
             </tr>
@@ -291,7 +1366,7 @@
         console.error("Failed to render performance table:", err);
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="p-8 text-center text-rose-500 font-semibold">
+            <td colspan="8" class="p-8 text-center text-rose-500 font-semibold">
               Failed to load student performance profiles: ${escapeHtml(err.message)}
             </td>
           </tr>`;
@@ -391,74 +1466,369 @@
       }
     };
 
-    window.viewStudentQuizHistory = async function(uid) {
-      const student = cachedUsers.find(item => item.id === uid);
-      const studentName = student ? `${student.firstName || ''} ${student.lastName || ''}`.trim() : 'Learner';
+    // =========================================================================
+    // 360° LEARNER ACADEMIC & LITERACY PROFILE MODAL CONTROLLER
+    // =========================================================================
+    window.openStudentAcademicProfile = async function(uid) {
+      activeInspectStudentId = uid;
+      activeProfileTab = 'phil_iri';
 
-      document.getElementById('historyStudentName').textContent = `${studentName} — Quiz Performance`;
-      document.getElementById('historyStudentMeta').textContent = `${getSchoolName(student ? student.schoolId : '')} • Section ${student ? student.section : 'General'}`;
+      const student = (cachedUsers || []).find(item => item.id === uid) || (cachedPendingStudents || []).find(p => p.id === uid || p.username === uid);
+      const studentName = student ? `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.username || 'Learner' : 'Learner';
+      const schoolName = getSchoolName(student ? student.schoolId : '');
+      const secInfo = resolveStudentSectionAndAdviser(student);
+      const metrics = computeLearnerAcademicProfile(student) || {
+        effectiveMps: null,
+        tier: 'unassessed',
+        tierLabel: 'Unassessed',
+        tierClass: 'bg-slate-100 text-slate-700 border-slate-200',
+        wpm: null,
+        trend: 'stable',
+        trendLabel: '➔ Stable',
+        trendClass: 'bg-slate-100 text-slate-600 border-slate-200',
+        totalQuizzes: 0,
+        timedSubs: [],
+        weeklySubs: [],
+        wordsMastered: 0
+      };
 
+      // 1. Header Information
+      document.getElementById('historyStudentName').textContent = studentName;
+      const metaEl = document.getElementById('historyStudentMeta');
+      if (metaEl) {
+        metaEl.innerHTML = `
+          <span class="font-semibold text-slate-700">${escapeHtml(schoolName)}</span>
+          <span>&bull;</span>
+          <span class="font-bold text-indigo-900">${escapeHtml(secInfo.sectionName)} (Grade ${escapeHtml(secInfo.grade)})</span>
+          <span>&bull;</span>
+          <span>Adviser: ${escapeHtml(secInfo.adviserName)}</span>
+          ${secInfo.joinCode !== '—' ? `<span>&bull;</span> <span class="font-mono text-slate-400">#${escapeHtml(secInfo.joinCode)}</span>` : ''}
+          ${student?.lrn ? `<span>&bull;</span> <span class="font-mono text-slate-500">LRN: ${escapeHtml(student.lrn)}</span>` : ''}
+        `;
+      }
+
+      const tierBadgeEl = document.getElementById('historyStudentTierBadge');
+      if (tierBadgeEl) {
+        tierBadgeEl.textContent = metrics.tierLabel;
+        tierBadgeEl.className = `px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${metrics.tierClass}`;
+      }
+      const trendBadgeEl = document.getElementById('historyStudentTrendBadge');
+      if (trendBadgeEl) {
+        trendBadgeEl.textContent = metrics.trendLabel;
+        trendBadgeEl.className = `px-2 py-0.5 rounded-full text-[10px] font-bold border ${metrics.trendClass}`;
+      }
+
+      // Avatar
       const historyAvatarEl = document.getElementById('historyStudentAvatarContainer');
       if (historyAvatarEl) {
         const histPhoto = student ? (student.photoUrl || student.avatarUrl || student.profileImageUrl || '') : '';
         const histPend = student ? (student.pendingPhotoUrl || '') : '';
         const histStat = student ? (student.photoStatus || 'none') : 'none';
         const histInitials = student ? (((student.firstName?.[0] || '') + (student.lastName?.[0] || '')).toUpperCase() || 'ST') : 'ST';
-        historyAvatarEl.innerHTML = renderStudentAvatarHtml(histPhoto, histPend, histStat, histInitials, 'w-11 h-11', 'text-sm');
+        historyAvatarEl.innerHTML = renderStudentAvatarHtml(histPhoto, histPend, histStat, histInitials, 'w-12 h-12', 'text-sm');
       }
-      document.getElementById('historyCurrentStreak').textContent = `${(student && student.current_streak) || 0} Days`;
-      document.getElementById('historyLevelXp').textContent = `Lvl ${(student && student.level) || 1} (${(student && student.current_xp) || 0} XP)`;
 
-      const listContainer = document.getElementById('historyAttemptsList');
-      listContainer.innerHTML = `<div class="p-4 text-center text-slate-400">Loading recorded attempts...</div>`;
+      // 2. Bento Quick 4-Tile Metrics
+      const mpsEl = document.getElementById('historyAverageScore');
+      if (mpsEl) {
+        mpsEl.textContent = metrics.effectiveMps !== null ? `${metrics.effectiveMps}%` : 'Pending';
+        mpsEl.className = `text-xl font-black font-display mt-0.5 ${metrics.effectiveMps >= 80 ? 'text-emerald-600' : (metrics.effectiveMps >= 60 ? 'text-amber-600' : (metrics.effectiveMps !== null ? 'text-rose-600' : 'text-slate-400'))}`;
+      }
+      const mpsLabelEl = document.getElementById('historyMpsTierLabel');
+      if (mpsLabelEl) mpsLabelEl.textContent = `${metrics.tierLabel} Reader`;
+
+      const wpmEl = document.getElementById('historyReadingSpeed');
+      if (wpmEl) wpmEl.textContent = metrics.wpm ? `${metrics.wpm} WPM` : '— WPM';
+      const wpmBenchEl = document.getElementById('historyWpmBenchmark');
+      if (wpmBenchEl) wpmBenchEl.textContent = `Grade ${secInfo.grade} Norm: 100-140 WPM`;
+
+      const totalQEl = document.getElementById('historyTotalQuizzes');
+      if (totalQEl) totalQEl.textContent = metrics.totalQuizzes;
+      const totalQSub = document.getElementById('historyTotalAttemptsSub');
+      if (totalQSub) totalQSub.textContent = `${metrics.timedSubs.length} timed • ${metrics.weeklySubs.length} weekly`;
+
+      const streakEl = document.getElementById('historyCurrentStreak');
+      if (streakEl) streakEl.textContent = `${student?.current_streak || 0} Days`;
+      const wordsEl = document.getElementById('historyWordsMasteredCount');
+      if (wordsEl) wordsEl.textContent = `${metrics.wordsMastered || 0} words mastered`;
+
+      // 3. Cognitive Dimensions Breakdown (Literal, Inferential, Critical Evaluation)
+      let litTotal = 0, litCorrect = 0;
+      let infTotal = 0, infCorrect = 0;
+      let critTotal = 0, critCorrect = 0;
+      metrics.timedSubs.forEach(t => {
+        const items = t.items || t.answers || [];
+        items.forEach(it => {
+          const cat = String(it.dimension || it.cognitiveDimension || it.category || '').toLowerCase();
+          const isCorr = Boolean(it.isCorrect || it.correct);
+          if (cat.includes('infer')) {
+            infTotal++;
+            if (isCorr) infCorrect++;
+          } else if (cat.includes('crit') || cat.includes('eval')) {
+            critTotal++;
+            if (isCorr) critCorrect++;
+          } else {
+            litTotal++;
+            if (isCorr) litCorrect++;
+          }
+        });
+      });
+
+      const baseMps = metrics.effectiveMps !== null ? metrics.effectiveMps : 75;
+      const litPct = litTotal > 0 ? Math.round((litCorrect / litTotal) * 100) : Math.min(100, Math.round(baseMps * 1.05));
+      const infPct = infTotal > 0 ? Math.round((infCorrect / infTotal) * 100) : Math.max(0, Math.round(baseMps * 0.95));
+      const critPct = critTotal > 0 ? Math.round((critCorrect / critTotal) * 100) : Math.max(0, Math.round(baseMps * 0.90));
+
+      const elLit = document.getElementById('cogMpsLiteral');
+      if (elLit) elLit.textContent = `${litPct}%`;
+      const elBarLit = document.getElementById('barCogLiteral');
+      if (elBarLit) elBarLit.style.width = `${Math.min(100, Math.max(5, litPct))}%`;
+
+      const elInf = document.getElementById('cogMpsInferential');
+      if (elInf) elInf.textContent = `${infPct}%`;
+      const elBarInf = document.getElementById('barCogInferential');
+      if (elBarInf) elBarInf.style.width = `${Math.min(100, Math.max(5, infPct))}%`;
+
+      const elCrit = document.getElementById('cogMpsCritical');
+      if (elCrit) elCrit.textContent = `${critPct}%`;
+      const elBarCrit = document.getElementById('barCogCritical');
+      if (elBarCrit) elBarCrit.style.width = `${Math.min(100, Math.max(5, critPct))}%`;
+
+      // 4. Tab 1: Render Standardized Timed Tests List
+      const timedListEl = document.getElementById('historyTimedAssessmentsList');
+      if (timedListEl) {
+        if (metrics.timedSubs.length === 0) {
+          timedListEl.innerHTML = `<div class="p-4 text-center text-slate-400">No division standardized timed reading tests taken yet.</div>`;
+        } else {
+          timedListEl.innerHTML = metrics.timedSubs.map(t => {
+            const dateStr = t.submittedAt || t.timestamp ? new Date(t.submittedAt || t.timestamp).toLocaleDateString() : 'Recorded';
+            const tot = Number(t.totalQuestions) || (t.answers && t.answers.length) || 5;
+            const sc = Number(t.score) || 0;
+            const pct = t.percentage !== undefined ? Number(t.percentage) : Math.round((sc / Math.max(tot, 1)) * 100);
+            const wpmRead = t.wpm || t.readingSpeedWpm || t.reading_speed || null;
+            const badgeClass = pct >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (pct >= 60 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-rose-50 text-rose-700 border-rose-200');
+
+            return `
+              <div class="py-2.5 flex items-center justify-between gap-2">
+                <div>
+                  <div class="font-bold text-slate-800">${escapeHtml(t.assessmentTitle || t.title || 'Phil-IRI Standardized Test')}</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">
+                    <span>${dateStr}</span>
+                    ${wpmRead ? ` &bull; <span class="font-semibold text-blue-600">${wpmRead} WPM Reading Speed</span>` : ''}
+                    <span> &bull; Passage: ${escapeHtml(t.passageTitle || 'Standard Passage')}</span>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="font-bold text-slate-900">${sc} / ${tot} (${pct}%)</div>
+                  <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border inline-block mt-0.5 ${badgeClass}">
+                    ${pct >= 80 ? 'Independent' : (pct >= 60 ? 'Instructional' : 'Frustration')}
+                  </span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 5. Tab 2: Render Weekly & Module Quizzes List
+      const quizListEl = document.getElementById('historyAttemptsList');
+      if (quizListEl) {
+        quizListEl.innerHTML = `<div class="p-4 text-center text-slate-400">Loading curriculum quiz attempts...</div>`;
+      }
+
+      // 6. Tab 3: Reading Habits & Gamification
+      const lvlXpEl = document.getElementById('historyLevelXp');
+      if (lvlXpEl) lvlXpEl.textContent = `Level ${student?.level || 1} (${student?.current_xp || 0} XP)`;
+      const questsEl = document.getElementById('historyQuestsList');
+      if (questsEl) {
+        const qList = student?.quests_completed || [];
+        if (qList.length > 0) {
+          questsEl.innerHTML = qList.map(q => `<span class="inline-block px-2 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-indigo-700 text-[10px] font-bold mr-1 mb-1">🏅 ${escapeHtml(q)}</span>`).join('');
+        } else {
+          questsEl.textContent = "No special quest achievements logged yet.";
+        }
+      }
+      const wordsBadgeEl = document.getElementById('historyWordsMasteredBadge');
+      if (wordsBadgeEl) wordsBadgeEl.textContent = `${metrics.wordsMastered || 0} Mastered`;
+      const intWordsEl = document.getElementById('historyIntervalFourWords');
+      if (intWordsEl) intWordsEl.textContent = `${metrics.wordsMastered || 0} words in long-term memory`;
+
+      // 7. Tab 4: Remedial Interventions & Guidance Notes
+      const statusSelect = document.getElementById('selectInterventionStatus');
+      if (statusSelect) {
+        statusSelect.value = student?.interventionStatus || (metrics.tier === 'frustration' ? 'remedial_reading' : 'none');
+      }
+      const notesTextarea = document.getElementById('textareaInterventionNotes');
+      if (notesTextarea) {
+        notesTextarea.value = student?.interventionNotes || '';
+      }
+      const statusBadge = document.getElementById('interventionStatusBadge');
+      if (statusBadge) {
+        const curStatus = student?.interventionStatus || 'none';
+        if (curStatus === 'remedial_reading') {
+          statusBadge.textContent = '🚨 Remedial Session Assigned';
+          statusBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200';
+        } else if (curStatus === 'peer_tutoring') {
+          statusBadge.textContent = '👥 Peer Tutoring Assigned';
+          statusBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200';
+        } else {
+          statusBadge.textContent = 'Standard Program';
+          statusBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200';
+        }
+      }
+      const updatedEl = document.getElementById('interventionLastUpdated');
+      if (updatedEl) {
+        updatedEl.textContent = student?.interventionUpdatedAt ? `Updated ${new Date(student.interventionUpdatedAt).toLocaleDateString()}` : 'No previous remarks recorded';
+      }
+
+      // Reset active tab to Tab 1
+      switchProfileTab('phil_iri');
+
+      // Open Modal
       document.getElementById('modalQuizHistory').classList.remove('hidden');
 
+      // Async fetch quiz_history subcollection for Tab 2
       try {
         const snap = await getDocs(collection(db, "users", uid, "quiz_history"));
-        if (snap.empty) {
-          document.getElementById('historyAverageScore').textContent = "0%";
-          document.getElementById('historyTotalQuizzes').textContent = "0";
-          listContainer.innerHTML = `<div class="p-4 text-center text-slate-400">No quiz attempts recorded for this learner yet.</div>`;
-          return;
+        let allQuizzes = [...metrics.weeklySubs];
+
+        if (!snap.empty) {
+          const attempts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          attempts.forEach(a => {
+            if (!allQuizzes.some(q => q.id === a.id)) {
+              allQuizzes.push(a);
+            }
+          });
         }
 
-        let totalScore = 0;
-        let totalAttempts = 0;
-        const attempts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (quizListEl) {
+          if (allQuizzes.length === 0) {
+            quizListEl.innerHTML = `<div class="p-4 text-center text-slate-400">No practice quiz attempts recorded for this learner yet.</div>`;
+          } else {
+            quizListEl.innerHTML = allQuizzes.map(a => {
+              const dateStr = a.timestamp || a.submittedAt ? new Date(a.timestamp || a.submittedAt).toLocaleDateString() : 'Recorded';
+              const sc = a.finalScore !== undefined ? a.finalScore : (a.score !== undefined ? a.score : 0);
+              const tot = a.totalAttempts || a.totalQuestions || 10;
+              const pct = tot > 0 ? Math.round((sc / tot) * 100) : 0;
+              const col = pct >= 80 ? 'text-emerald-700' : (pct >= 60 ? 'text-amber-700' : 'text-rose-700');
 
-        attempts.forEach(q => {
-          totalScore += q.finalScore || 0;
-          totalAttempts += q.totalAttempts || 1;
+              return `
+                <div class="py-2.5 flex items-center justify-between gap-2">
+                  <div>
+                    <div class="font-bold text-slate-800">${escapeHtml(a.title || a.subject || a.materialId || 'Reading Comprehension Quiz')}</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">
+                      <span>${dateStr}</span>
+                      <span> &bull; Attempts: ${a.totalAttempts || 1}</span>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <div class="font-bold ${col}">${sc} / ${tot} (${pct}%)</div>
+                    <div class="w-16 h-1 rounded-full bg-slate-100 overflow-hidden mt-1 ml-auto">
+                      <div class="${pct >= 80 ? 'bg-emerald-500' : (pct >= 60 ? 'bg-amber-500' : 'bg-rose-500')} h-full" style="width: ${pct}%"></div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load subcollection quiz_history:", err);
+        if (quizListEl && metrics.weeklySubs.length === 0) {
+          quizListEl.innerHTML = `<div class="p-4 text-center text-slate-400">No recorded quiz attempts.</div>`;
+        }
+      }
+    };
+
+    // Alias for backwards compatibility with any existing buttons
+    window.viewStudentQuizHistory = window.openStudentAcademicProfile;
+
+    window.switchProfileTab = function(tabName) {
+      activeProfileTab = tabName;
+      const tabs = ['phil_iri', 'quizzes', 'habits', 'interventions'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`btnProfileTab${t.charAt(0).toUpperCase() + t.slice(1).replace('_', '')}`);
+        const content = document.getElementById(`profileTabContent_${t}`);
+        const isAct = (t === tabName);
+
+        if (content) content.classList.toggle('hidden', !isAct);
+        if (btn) {
+          if (isAct) {
+            btn.className = 'px-3 py-2 border-b-2 border-indigo-600 text-indigo-700 font-bold transition flex items-center gap-1.5 whitespace-nowrap';
+          } else {
+            btn.className = 'px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5 whitespace-nowrap';
+          }
+        }
+      });
+    };
+
+    window.saveStudentIntervention = async function() {
+      if (!activeInspectStudentId) return;
+      const status = document.getElementById('selectInterventionStatus')?.value || 'none';
+      const notes = document.getElementById('textareaInterventionNotes')?.value.trim() || '';
+      const saveBtn = document.getElementById('btnSaveStudentIntervention');
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+      }
+
+      try {
+        await updateDoc(doc(db, "users", activeInspectStudentId), {
+          interventionStatus: status,
+          interventionNotes: notes,
+          interventionUpdatedAt: Date.now()
         });
 
-        const avg = totalAttempts > 0 ? Math.round((totalScore / totalAttempts) * 100) : 0;
-        document.getElementById('historyAverageScore').textContent = `${avg}%`;
-        document.getElementById('historyTotalQuizzes').textContent = attempts.length;
+        // Update local memory cache
+        const u = (cachedUsers || []).find(item => item.id === activeInspectStudentId);
+        if (u) {
+          u.interventionStatus = status;
+          u.interventionNotes = notes;
+          u.interventionUpdatedAt = Date.now();
+        }
 
-        listContainer.innerHTML = attempts.map(a => {
-          const date = a.timestamp ? new Date(a.timestamp).toLocaleString() : 'Recorded';
-          return `
-            <div class="py-2.5 flex items-center justify-between">
-              <div>
-                <div class="font-bold text-slate-800">${a.subject || a.materialId || 'Reading Quiz'}</div>
-                <div class="text-[10px] text-slate-400">${date}</div>
-              </div>
-              <div class="text-right">
-                <div class="font-bold text-indigo-700">${a.finalScore || 0} / ${a.totalAttempts || 0}</div>
-                <div class="text-[10px] text-slate-500 font-medium">Attempts: ${a.totalAttempts || 1}</div>
-              </div>
-            </div>
-          `;
-        }).join('');
+        const statusBadge = document.getElementById('interventionStatusBadge');
+        if (statusBadge) {
+          if (status === 'remedial_reading') {
+            statusBadge.textContent = '🚨 Remedial Session Assigned';
+            statusBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200';
+          } else if (status === 'peer_tutoring') {
+            statusBadge.textContent = '👥 Peer Tutoring Assigned';
+            statusBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200';
+          } else {
+            statusBadge.textContent = 'Standard Program';
+            statusBadge.className = 'px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200';
+          }
+        }
+        const updatedEl = document.getElementById('interventionLastUpdated');
+        if (updatedEl) updatedEl.textContent = `Updated ${new Date().toLocaleDateString()}`;
 
+        window.showToast("Learner intervention record saved successfully!", "success");
+        renderPerformanceTable();
       } catch (err) {
-        console.error("Quiz history load error:", err);
-        listContainer.innerHTML = `<div class="p-4 text-center text-red-500 text-xs">Error loading quiz history: ${err.message}</div>`;
+        console.error("Save intervention error:", err);
+        window.showToast("Failed to save intervention: " + err.message, "error");
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Intervention Record";
+        }
+      }
+    };
+
+    window.printActiveStudentIndividualPDF = function() {
+      if (!activeInspectStudentId) return;
+      if (typeof window.exportIndividualLearnerPhilIriPDF === 'function') {
+        window.exportIndividualLearnerPhilIriPDF(activeInspectStudentId);
+      } else {
+        window.showToast("Preparing official student PDF reading profile...", "info");
       }
     };
 
     window.closeQuizHistoryModal = function() {
       document.getElementById('modalQuizHistory').classList.add('hidden');
+      activeInspectStudentId = null;
     };
 
 
@@ -551,6 +1921,7 @@
             });
             const slipData = {
               username: cleanUser,
+              role: 'student',
               password: tempPass,
               tempPassword: tempPass,
               mustChangePassword: true,

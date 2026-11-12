@@ -128,6 +128,12 @@
         if (typeof renderTimedAssessmentsTable === 'function') renderTimedAssessmentsTable();
         updateAssessmentMetrics();
         renderAssessmentsTable();
+        if (typeof renderPerformanceTable === 'function') {
+          const perfTab = document.getElementById('tab-learner-performance');
+          if (perfTab && !perfTab.classList.contains('hidden')) {
+            renderPerformanceTable();
+          }
+        }
       });
     }
 

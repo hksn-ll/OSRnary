@@ -264,7 +264,26 @@ class MainActivity : AppCompatActivity() {
             return false
         }
 
-        val role = doc.getString("role") ?: "student"
+        val rawRole = doc.getString("role") ?: "student"
+        val isStudentWithTeacherRole = rawRole == "teacher" &&
+            (doc.contains("section") || doc.contains("grade") || doc.contains("username") || doc.contains("lrn")) &&
+            !doc.contains("teachingSubjects")
+
+        val role = if (isStudentWithTeacherRole) {
+            // Self-heal corrupted student account
+            doc.reference.update(
+                mapOf(
+                    "role" to "student",
+                    "isApproved" to FieldValue.delete()
+                )
+            )
+            getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                .putString("cached_user_role", "student")
+                .apply()
+            "student"
+        } else {
+            rawRole
+        }
 
         // 🟢 RESTRICT ADMIN ROLES TO WEB PORTAL
         if (role == "super_admin" || role == "school_admin" || role == "admin") {
@@ -478,9 +497,13 @@ class MainActivity : AppCompatActivity() {
                 GabAIUtils.showGlobalLoading(this, "Updating Password...")
                 user.updatePassword(newPass).addOnCompleteListener { updateTask ->
                     if (updateTask.isSuccessful) {
-                        prefs.edit().putString("cached_user_gender", selectedGender).apply()
+                        prefs.edit()
+                            .putString("cached_user_gender", selectedGender)
+                            .putString("cached_user_role", "student")
+                            .apply()
                         FirebaseFirestore.getInstance().collection("users").document(uid).update(
                             mapOf(
+                                "role" to "student",
                                 "mustChangePassword" to false,
                                 "tempPassword" to FieldValue.delete(),
                                 "password" to FieldValue.delete(),

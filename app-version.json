@@ -1,11 +1,11 @@
 {
-  "versionCode": 52,
-  "versionName": "0.4.38",
-  "minRequiredVersionCode": 52,
+  "versionCode": 53,
+  "versionName": "0.4.39",
+  "minRequiredVersionCode": 53,
   "forceUpdate": true,
-  "title": "Roster Layout & Unclaimed Account Filtering (v0.4.38)",
-  "message": "Eliminated duplicate student accounts in Unclaimed Accounts, restructured roster cards to prevent badge squishing, and removed duplicate section headers.",
+  "title": "Student Account Claim & Role Routing Emergency Fix (v0.4.39)",
+  "message": "Resolved critical issue where claimed students entered Educator Dashboard. Added automatic self-healing for affected learner accounts.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.38/GabAI-v0.4.38.apk",
-  "changelog": "🔧 WHAT'S NEW IN v0.4.38:\n• Unclaimed Accounts De-duplication: Active and claimed students are now completely excluded from Unclaimed Accounts.\n• Responsive Roster Badges: Student gender and Phil-IRI badges now reside on a dedicated row with single-line enforcement, preventing vertical character wrapping.\n• Clean Section Headers: Eliminated duplicate 'Active Students' stacked titles in class detail view."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.39/GabAI-v0.4.39.apk",
+  "changelog": "🚨 CRITICAL EMERGENCY UPDATE v0.4.39:\n• Student Role Isolation: Fixed handle detection so students with @usernames are never misidentified as teachers during account claiming or passkey resets.\n• Account Self-Healing: Corrupted student accounts mistakenly stamped with educator roles are now automatically detected and healed to student status upon app launch.\n• Strict Target Role Routing: Guaranteed 'student' target role propagation during credential claiming and initial force password dialogs.\n• Credential Vault Role Integrity: Embedded explicit role attributes in teacher reset slips and admin portal passkey generation."
 }

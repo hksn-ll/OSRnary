@@ -270,31 +270,42 @@ class AuthActivity : AppCompatActivity() {
 
         toggleLoading(true)
 
-        val isLikelyTeacher = selectedRole == "teacher" || (inputId.contains("@") && !inputId.endsWith("@gabai.app"))
+        val cleanInput = inputId.removePrefix("@").trim()
+        val isLikelyEmail = cleanInput.contains("@") && cleanInput.contains(".") && !cleanInput.endsWith("@gabai.app")
+        val isLikelyTeacher = (selectedRole == "teacher" && !inputId.startsWith("@")) || isLikelyEmail
 
         if (isLikelyTeacher) {
-            selectedRole = "teacher"
-            // --- TEACHER LOGIN (Email & In-App Temporary Passkey Support) ---
-            val cleanEmail = inputId.trim().lowercase()
+            val cleanEmail = cleanInput.lowercase()
 
             // 1. FAST PATH: Check pending_students first for unauthenticated temporary passkey lookup
             db.collection("pending_students").document(cleanEmail).get()
                 .addOnSuccessListener { pDoc ->
                     if (pDoc.exists()) {
-                        val expectedPass = pDoc.getString("password") ?: ""
-                        val expectedTemp = pDoc.getString("tempPassword") ?: ""
-                        val authEmail = pDoc.getString("authEmail") ?: ""
-                        val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) ||
-                                (expectedTemp.isNotBlank() && expectedTemp == pass)
+                        val docRole = pDoc.getString("role") ?: "student"
+                        if (docRole == "student") {
+                            // 🟢 CRITICAL SAFETY GUARD: This is a STUDENT account claim slip!
+                            // Redirect directly to student claim flow so students never become teachers!
+                            selectedRole = "student"
+                            selectRole("student", animate = false)
+                            processPendingSlip(pDoc, cleanEmail, pass)
+                            return@addOnSuccessListener
+                        }
+                        if (docRole == "teacher") {
+                            val expectedPass = pDoc.getString("password") ?: ""
+                            val expectedTemp = pDoc.getString("tempPassword") ?: ""
+                            val authEmail = pDoc.getString("authEmail") ?: ""
+                            val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) ||
+                                    (expectedTemp.isNotBlank() && expectedTemp == pass)
 
-                        if (matchesTemp) {
-                            // 🔑 Immediate Temporary Passkey Login for Educator (NO email verification!)
-                            handleTeacherPasskeyReset(cleanEmail, inputId, pass, pDoc)
-                            return@addOnSuccessListener
-                        } else if (authEmail.isNotBlank()) {
-                            // Teacher previously reset with salted authEmail; sign in with their permanent password
-                            performTeacherAuthSignIn(authEmail, inputId, pass)
-                            return@addOnSuccessListener
+                            if (matchesTemp) {
+                                // 🔑 Immediate Temporary Passkey Login for Educator (NO email verification!)
+                                handleTeacherPasskeyReset(cleanEmail, inputId, pass, pDoc)
+                                return@addOnSuccessListener
+                            } else if (authEmail.isNotBlank()) {
+                                // Teacher previously reset with salted authEmail; sign in with their permanent password
+                                performTeacherAuthSignIn(authEmail, inputId, pass)
+                                return@addOnSuccessListener
+                            }
                         }
                     }
                     // 2. STANDARD PATH: Direct Firebase Auth sign in
@@ -308,164 +319,6 @@ class AuthActivity : AppCompatActivity() {
             val cleanInputId = inputId.removePrefix("@").trim().lowercase()
             val fakeEmail = "$cleanInputId@gabai.app"
 
-            fun processPendingSlip(doc: com.google.firebase.firestore.DocumentSnapshot) {
-                if (doc.getString("role") == "teacher") {
-                    selectedRole = "teacher"
-                    handleTeacherPasskeyReset(cleanInputId, inputId, pass, doc)
-                    return
-                }
-                val expectedPass = doc.getString("password") ?: ""
-                val expectedTemp = doc.getString("tempPassword") ?: ""
-                if ((expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)) {
-                    val isReset = doc.getBoolean("isReset") == true
-                    val claimedUid = doc.getString("claimedUid") ?: ""
-
-                    if (isReset && claimedUid.isNotBlank()) {
-                        // Authenticate first with salted email and pass to satisfy Firestore security rules
-                        val saltedEmail = "${cleanInputId}.${System.currentTimeMillis() % 100000}@gabai.app"
-                        auth.createUserWithEmailAndPassword(saltedEmail, pass).addOnCompleteListener { authTask ->
-                            if (authTask.isSuccessful) {
-                                val newUid = authTask.result?.user?.uid ?: auth.currentUser?.uid
-                                if (newUid == null) {
-                                    toggleLoading(false)
-                                    showErrorDialog("Auth Error", "Could not verify identity.")
-                                    showLogin()
-                                    return@addOnCompleteListener
-                                }
-
-                                // NOW authenticated, safely retrieve existing student profile
-                                db.collection("users").document(claimedUid).get().addOnSuccessListener { oldDoc ->
-                                    val studentData = if (oldDoc.exists()) {
-                                        oldDoc.data?.toMutableMap() ?: mutableMapOf()
-                                    } else {
-                                        doc.data?.toMutableMap() ?: mutableMapOf()
-                                    }
-                                    studentData["authEmail"] = saltedEmail
-                                    studentData["mustChangePassword"] = true
-                                    studentData["isClaimed"] = true
-                                    studentData["is_onboarded"] = true
-                                    studentData["migratedAt"] = System.currentTimeMillis()
-                                    studentData.remove("tempPassword")
-                                    studentData.remove("password")
-
-                                    db.collection("users").document(newUid).set(studentData).addOnSuccessListener {
-                                        // 1. Migrate quiz history
-                                        db.collection("users").document(claimedUid).collection("quiz_history").get()
-                                            .addOnSuccessListener { qSnaps ->
-                                                for (q in qSnaps) {
-                                                    db.collection("users").document(newUid).collection("quiz_history").document(q.id).set(q.data)
-                                                    q.reference.delete().addOnFailureListener { /* ignore */ }
-                                                }
-                                            }.addOnFailureListener { /* ignore */ }
-
-                                        // 2. Migrate diagnostic results
-                                        db.collection("users").document(claimedUid).collection("diagnostic_results").get()
-                                            .addOnSuccessListener { dSnaps ->
-                                                for (d in dSnaps) {
-                                                    db.collection("users").document(newUid).collection("diagnostic_results").document(d.id).set(d.data)
-                                                    d.reference.delete().addOnFailureListener { /* ignore */ }
-                                                }
-                                            }.addOnFailureListener { /* ignore */ }
-
-                                        // 3. Migrate favorites
-                                        db.collection("users").document(claimedUid).collection("favorites").get()
-                                            .addOnSuccessListener { fSnaps ->
-                                                for (f in fSnaps) {
-                                                    db.collection("users").document(newUid).collection("favorites").document(f.id).set(f.data)
-                                                    f.reference.delete().addOnFailureListener { /* ignore */ }
-                                                }
-                                            }.addOnFailureListener { /* ignore */ }
-
-                                        // 4. Migrate history
-                                        db.collection("users").document(claimedUid).collection("history").get()
-                                            .addOnSuccessListener { hSnaps ->
-                                                for (h in hSnaps) {
-                                                    db.collection("users").document(newUid).collection("history").document(h.id).set(h.data)
-                                                    h.reference.delete().addOnFailureListener { /* ignore */ }
-                                                }
-                                            }.addOnFailureListener { /* ignore */ }
-
-                                        // 5. Migrate assessment submissions
-                                        db.collection("assessment_submissions").whereEqualTo("studentUid", claimedUid).get()
-                                            .addOnSuccessListener { subSnaps ->
-                                                for (sub in subSnaps) {
-                                                    val subData = sub.data.toMutableMap()
-                                                    subData["studentUid"] = newUid
-                                                    subData["studentId"] = newUid
-                                                    val assessmentId = sub.getString("assessmentId") ?: ""
-                                                    val newDocId = if (assessmentId.isNotBlank()) "${assessmentId}_${newUid}" else sub.id
-                                                    db.collection("assessment_submissions").document(newDocId).set(subData)
-                                                    sub.reference.delete().addOnFailureListener { /* ignore */ }
-                                                }
-                                            }.addOnFailureListener { /* ignore */ }
-
-                                        // 6. Auto-join classes
-                                        val schoolId = studentData["schoolId"] as? String ?: ""
-                                        val grade = studentData["grade"] as? String ?: ""
-                                        val section = studentData["section"] as? String ?: ""
-                                        ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(newUid, schoolId, grade, section)
-
-                                        // 7. Clear caches & synchronize slip & old user
-                                        getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).edit().clear().apply()
-                                        if (claimedUid != newUid) {
-                                            db.collection("users").document(claimedUid).delete().addOnFailureListener { /* ignore */ }
-                                        }
-                                        val studentSlipUpdates = mapOf<String, Any>(
-                                            "authEmail" to saltedEmail,
-                                            "uid" to newUid,
-                                            "claimedUid" to newUid,
-                                            "isClaimed" to true,
-                                            "isReset" to false,
-                                            "mustChangePassword" to true,
-                                            "password" to FieldValue.delete(),
-                                            "tempPassword" to FieldValue.delete(),
-                                            "updatedAt" to System.currentTimeMillis()
-                                        )
-                                        db.collection("pending_students").document(cleanInputId).set(studentSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
-                                        db.collection("pending_students").document("@$cleanInputId").set(studentSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
-
-                                        toggleLoading(false)
-                                        val claimedUser = auth.currentUser
-                                        if (claimedUser != null) {
-                                            showForcePasswordChangeDialog(claimedUser, newUid) {
-                                                navigateToMain("student")
-                                            }
-                                        } else {
-                                            navigateToMain("student")
-                                        }
-                                    }.addOnFailureListener { setErr ->
-                                        toggleLoading(false)
-                                        showErrorDialog("Reset Sync Error", setErr.localizedMessage ?: "Failed to initialize updated student profile.")
-                                        showLogin()
-                                    }
-                                }.addOnFailureListener {
-                                    toggleLoading(false)
-                                    showErrorDialog("Profile Load Error", "Could not load existing student record.")
-                                    showLogin()
-                                }
-                            } else {
-                                toggleLoading(false)
-                                showErrorDialog("Auth Error", authTask.exception?.localizedMessage ?: "Could not authenticate reset credentials.")
-                                showLogin()
-                            }
-                        }
-                    } else {
-                        val studentData = doc.data?.toMutableMap()
-                        if (studentData == null) {
-                            toggleLoading(false)
-                            showErrorDialog("Data Error", "Student record is missing details.")
-                            showLogin()
-                            return
-                        }
-                        studentData["mustChangePassword"] = true
-                        completeStudentAccountClaim(cleanInputId, fakeEmail, pass, studentData, doc.reference)
-                    }
-                } else {
-                    // Password did not match initial pending slip; check if student was already claimed or has active reset password
-                    checkActiveStudentFallback(cleanInputId, pass)
-                }
-            }
-
             // 1. FAST PATH: Check pending_students first for instant account activation or salted authEmail lookup
             db.collection("pending_students").document(cleanInputId).get()
                 .addOnSuccessListener { doc ->
@@ -476,11 +329,11 @@ class AuthActivity : AppCompatActivity() {
                         val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)
 
                         if (matchesTemp) {
-                            processPendingSlip(doc)
+                            processPendingSlip(doc, cleanInputId, pass)
                         } else if (authEmail.isNotBlank()) {
                             performActiveStudentSignIn(cleanInputId, authEmail, pass)
                         } else {
-                            processPendingSlip(doc)
+                            processPendingSlip(doc, cleanInputId, pass)
                         }
                     } else {
                         // Check with leading @ if saved that way
@@ -493,11 +346,11 @@ class AuthActivity : AppCompatActivity() {
                                     val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)
 
                                     if (matchesTemp) {
-                                        processPendingSlip(atDoc)
+                                        processPendingSlip(atDoc, cleanInputId, pass)
                                     } else if (authEmail.isNotBlank()) {
                                         performActiveStudentSignIn(cleanInputId, authEmail, pass)
                                     } else {
-                                        processPendingSlip(atDoc)
+                                        processPendingSlip(atDoc, cleanInputId, pass)
                                     }
                                 } else {
                                     // 2. ACTIVE STUDENT PATH: Account was already claimed, sign in with Firebase Auth
@@ -516,6 +369,173 @@ class AuthActivity : AppCompatActivity() {
         }
     }
 
+    private fun processPendingSlip(
+        doc: com.google.firebase.firestore.DocumentSnapshot,
+        inputId: String,
+        pass: String
+    ) {
+        val cleanInputId = inputId.removePrefix("@").trim().lowercase()
+        val fakeEmail = "$cleanInputId@gabai.app"
+
+        if (doc.getString("role") == "teacher") {
+            selectedRole = "teacher"
+            handleTeacherPasskeyReset(cleanInputId, inputId, pass, doc)
+            return
+        }
+        val expectedPass = doc.getString("password") ?: ""
+        val expectedTemp = doc.getString("tempPassword") ?: ""
+        if ((expectedPass.isNotBlank() && expectedPass == pass) || (expectedTemp.isNotBlank() && expectedTemp == pass)) {
+            val isReset = doc.getBoolean("isReset") == true
+            val claimedUid = doc.getString("claimedUid") ?: ""
+
+            if (isReset && claimedUid.isNotBlank()) {
+                // Authenticate first with salted email and pass to satisfy Firestore security rules
+                val saltedEmail = "${cleanInputId}.${System.currentTimeMillis() % 100000}@gabai.app"
+                auth.createUserWithEmailAndPassword(saltedEmail, pass).addOnCompleteListener { authTask ->
+                    if (authTask.isSuccessful) {
+                        val newUid = authTask.result?.user?.uid ?: auth.currentUser?.uid
+                        if (newUid == null) {
+                            toggleLoading(false)
+                            showErrorDialog("Auth Error", "Could not verify identity.")
+                            showLogin()
+                            return@addOnCompleteListener
+                        }
+
+                        // NOW authenticated, safely retrieve existing student profile
+                        db.collection("users").document(claimedUid).get().addOnSuccessListener { oldDoc ->
+                            val studentData = if (oldDoc.exists()) {
+                                oldDoc.data?.toMutableMap() ?: mutableMapOf()
+                            } else {
+                                doc.data?.toMutableMap() ?: mutableMapOf()
+                            }
+                            studentData["authEmail"] = saltedEmail
+                            studentData["mustChangePassword"] = true
+                            studentData["isClaimed"] = true
+                            studentData["is_onboarded"] = true
+                            studentData["role"] = "student"
+                            studentData["migratedAt"] = System.currentTimeMillis()
+                            studentData.remove("tempPassword")
+                            studentData.remove("password")
+
+                            db.collection("users").document(newUid).set(studentData).addOnSuccessListener {
+                                // 1. Migrate quiz history
+                                db.collection("users").document(claimedUid).collection("quiz_history").get()
+                                    .addOnSuccessListener { qSnaps ->
+                                        for (q in qSnaps) {
+                                            db.collection("users").document(newUid).collection("quiz_history").document(q.id).set(q.data)
+                                            q.reference.delete().addOnFailureListener { /* ignore */ }
+                                        }
+                                    }.addOnFailureListener { /* ignore */ }
+
+                                // 2. Migrate diagnostic results
+                                db.collection("users").document(claimedUid).collection("diagnostic_results").get()
+                                    .addOnSuccessListener { dSnaps ->
+                                        for (d in dSnaps) {
+                                            db.collection("users").document(newUid).collection("diagnostic_results").document(d.id).set(d.data)
+                                            d.reference.delete().addOnFailureListener { /* ignore */ }
+                                        }
+                                    }.addOnFailureListener { /* ignore */ }
+
+                                // 3. Migrate favorites
+                                db.collection("users").document(claimedUid).collection("favorites").get()
+                                    .addOnSuccessListener { fSnaps ->
+                                        for (f in fSnaps) {
+                                            db.collection("users").document(newUid).collection("favorites").document(f.id).set(f.data)
+                                            f.reference.delete().addOnFailureListener { /* ignore */ }
+                                        }
+                                    }.addOnFailureListener { /* ignore */ }
+
+                                // 4. Migrate history
+                                db.collection("users").document(claimedUid).collection("history").get()
+                                    .addOnSuccessListener { hSnaps ->
+                                        for (h in hSnaps) {
+                                            db.collection("users").document(newUid).collection("history").document(h.id).set(h.data)
+                                            h.reference.delete().addOnFailureListener { /* ignore */ }
+                                        }
+                                    }.addOnFailureListener { /* ignore */ }
+
+                                // 5. Migrate assessment submissions
+                                db.collection("assessment_submissions").whereEqualTo("studentUid", claimedUid).get()
+                                    .addOnSuccessListener { subSnaps ->
+                                        for (sub in subSnaps) {
+                                            val subData = sub.data.toMutableMap()
+                                            subData["studentUid"] = newUid
+                                            subData["studentId"] = newUid
+                                            val assessmentId = sub.getString("assessmentId") ?: ""
+                                            val newDocId = if (assessmentId.isNotBlank()) "${assessmentId}_${newUid}" else sub.id
+                                            db.collection("assessment_submissions").document(newDocId).set(subData)
+                                            sub.reference.delete().addOnFailureListener { /* ignore */ }
+                                        }
+                                    }.addOnFailureListener { /* ignore */ }
+
+                                // 6. Auto-join classes
+                                val schoolId = studentData["schoolId"] as? String ?: ""
+                                val grade = studentData["grade"] as? String ?: ""
+                                val section = studentData["section"] as? String ?: ""
+                                ClassEnrollmentHelper.autoJoinStudentToAdvisoryClass(newUid, schoolId, grade, section)
+
+                                // 7. Clear caches & synchronize slip & old user
+                                getSharedPreferences("GabAI_Prefs", MODE_PRIVATE).edit().clear().apply()
+                                if (claimedUid != newUid) {
+                                    db.collection("users").document(claimedUid).delete().addOnFailureListener { /* ignore */ }
+                                }
+                                val studentSlipUpdates = mapOf<String, Any>(
+                                    "authEmail" to saltedEmail,
+                                    "uid" to newUid,
+                                    "claimedUid" to newUid,
+                                    "isClaimed" to true,
+                                    "isReset" to false,
+                                    "mustChangePassword" to true,
+                                    "password" to FieldValue.delete(),
+                                    "tempPassword" to FieldValue.delete(),
+                                    "updatedAt" to System.currentTimeMillis()
+                                )
+                                db.collection("pending_students").document(cleanInputId).set(studentSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
+                                db.collection("pending_students").document("@$cleanInputId").set(studentSlipUpdates, SetOptions.merge()).addOnFailureListener { /* ignore */ }
+
+                                toggleLoading(false)
+                                val claimedUser = auth.currentUser
+                                if (claimedUser != null) {
+                                    showForcePasswordChangeDialog(claimedUser, newUid, "student") {
+                                        navigateToMain("student")
+                                    }
+                                } else {
+                                    navigateToMain("student")
+                                }
+                            }.addOnFailureListener { setErr ->
+                                toggleLoading(false)
+                                showErrorDialog("Reset Sync Error", setErr.localizedMessage ?: "Failed to initialize updated student profile.")
+                                showLogin()
+                            }
+                        }.addOnFailureListener {
+                            toggleLoading(false)
+                            showErrorDialog("Profile Load Error", "Could not load existing student record.")
+                            showLogin()
+                        }
+                    } else {
+                        toggleLoading(false)
+                        showErrorDialog("Auth Error", authTask.exception?.localizedMessage ?: "Could not authenticate reset credentials.")
+                        showLogin()
+                    }
+                }
+            } else {
+                val studentData = doc.data?.toMutableMap()
+                if (studentData == null) {
+                    toggleLoading(false)
+                    showErrorDialog("Data Error", "Student record is missing details.")
+                    showLogin()
+                    return
+                }
+                studentData["mustChangePassword"] = true
+                studentData["role"] = "student"
+                completeStudentAccountClaim(cleanInputId, fakeEmail, pass, studentData, doc.reference)
+            }
+        } else {
+            // Password did not match initial pending slip; check if student was already claimed or has active reset password
+            checkActiveStudentFallback(cleanInputId, pass)
+        }
+    }
+
     private fun performTeacherAuthSignIn(authEmailToUse: String, displayEmail: String, pass: String) {
         auth.signInWithEmailAndPassword(authEmailToUse, pass).addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -525,7 +545,17 @@ class AuthActivity : AppCompatActivity() {
                     db.collection("users").document(user.uid).get()
                         .addOnSuccessListener { doc ->
                             if (doc.exists()) {
-                                val role = doc.getString("role") ?: "teacher"
+                                var role = doc.getString("role") ?: "teacher"
+
+                                // 🟢 DEFENSIVE RECOVERY: Self-heal student accounts mistakenly stamped as teacher
+                                if (role == "student" || (role == "teacher" && doc.contains("section") && doc.contains("grade") && doc.contains("username") && !doc.contains("teachingSubjects"))) {
+                                    if (role != "student") {
+                                        doc.reference.update("role", "student")
+                                    }
+                                    toggleLoading(false)
+                                    navigateToMain("student")
+                                    return@addOnSuccessListener
+                                }
 
                                 // 🟢 RESTRICT ADMIN ROLES TO WEB PORTAL
                                 if (role == "super_admin" || role == "school_admin" || role == "admin") {
@@ -582,17 +612,26 @@ class AuthActivity : AppCompatActivity() {
                 }
             } else {
                 // Secondary fallback: check pending_students for temporary passkey
-                val cleanEmail = displayEmail.trim().lowercase()
+                val cleanEmail = displayEmail.removePrefix("@").trim().lowercase()
                 db.collection("pending_students").document(cleanEmail).get()
                     .addOnSuccessListener { pDoc ->
                         if (pDoc.exists()) {
-                            val expectedPass = pDoc.getString("password") ?: ""
-                            val expectedTemp = pDoc.getString("tempPassword") ?: ""
-                            val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) ||
-                                    (expectedTemp.isNotBlank() && expectedTemp == pass)
-                            if (matchesTemp) {
-                                handleTeacherPasskeyReset(cleanEmail, displayEmail, pass, pDoc)
+                            val docRole = pDoc.getString("role") ?: "student"
+                            if (docRole == "student") {
+                                selectedRole = "student"
+                                selectRole("student", animate = false)
+                                processPendingSlip(pDoc, cleanEmail, pass)
                                 return@addOnSuccessListener
+                            }
+                            if (docRole == "teacher") {
+                                val expectedPass = pDoc.getString("password") ?: ""
+                                val expectedTemp = pDoc.getString("tempPassword") ?: ""
+                                val matchesTemp = (expectedPass.isNotBlank() && expectedPass == pass) ||
+                                        (expectedTemp.isNotBlank() && expectedTemp == pass)
+                                if (matchesTemp) {
+                                    handleTeacherPasskeyReset(cleanEmail, displayEmail, pass, pDoc)
+                                    return@addOnSuccessListener
+                                }
                             }
                         }
                         toggleLoading(false)
@@ -614,6 +653,14 @@ class AuthActivity : AppCompatActivity() {
         pass: String,
         pDoc: com.google.firebase.firestore.DocumentSnapshot
     ) {
+        val docRole = pDoc.getString("role") ?: ""
+        if (docRole == "student") {
+            android.util.Log.e("AuthActivity", "Security violation: blocked attempt to execute teacher passkey reset on student slip!")
+            selectedRole = "student"
+            selectRole("student", animate = true)
+            processPendingSlip(pDoc, cleanEmail, pass)
+            return
+        }
         val cleanAlpha = cleanEmail.replace(Regex("[^a-zA-Z0-9]"), "")
         val saltedEmail = "teacher.${cleanAlpha}.${System.currentTimeMillis() % 100000}@gabai.app"
         val claimedUid = pDoc.getString("claimedUid") ?: ""
@@ -784,10 +831,27 @@ class AuthActivity : AppCompatActivity() {
                     db.collection("users").document(user.uid).get()
                         .addOnSuccessListener { doc ->
                             if (doc.exists()) {
-                                val role = doc.getString("role") ?: "student"
+                                val rawRole = doc.getString("role") ?: "student"
+                                val isStudentWithTeacherRole = rawRole == "teacher" &&
+                                    (doc.contains("section") || doc.contains("grade") || doc.contains("username") || doc.contains("lrn")) &&
+                                    !doc.contains("teachingSubjects")
+
+                                val role = if (isStudentWithTeacherRole) {
+                                    doc.reference.update(
+                                        mapOf(
+                                            "role" to "student",
+                                            "isApproved" to FieldValue.delete()
+                                        )
+                                    )
+                                    "student"
+                                } else {
+                                    rawRole
+                                }
+
                                 val gender = doc.getString("gender") ?: doc.getString("sex") ?: "unspecified"
                                 getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
                                     .putString("cached_user_gender", gender)
+                                    .putString("cached_user_role", role)
                                     .apply()
                                 if (role != "student") {
                                     auth.signOut()
@@ -800,7 +864,7 @@ class AuthActivity : AppCompatActivity() {
                                 val mustChange = doc.getBoolean("mustChangePassword") ?: false
                                 if (mustChange) {
                                     toggleLoading(false)
-                                    showForcePasswordChangeDialog(user, user.uid) {
+                                    showForcePasswordChangeDialog(user, user.uid, "student") {
                                         navigateToMain("student")
                                     }
                                 } else {
@@ -819,12 +883,13 @@ class AuthActivity : AppCompatActivity() {
                                             val matchedDoc = snaps.documents[0]
                                             val matchedData = matchedDoc.data?.toMutableMap() ?: mutableMapOf()
                                             matchedData["authEmail"] = fakeEmail
+                                            matchedData["role"] = "student"
                                             db.collection("users").document(user.uid).set(matchedData)
                                                 .addOnSuccessListener {
                                                     toggleLoading(false)
                                                     val mustChange = matchedDoc.getBoolean("mustChangePassword") ?: false
                                                     if (mustChange) {
-                                                        showForcePasswordChangeDialog(user, user.uid) {
+                                                        showForcePasswordChangeDialog(user, user.uid, "student") {
                                                             navigateToMain("student")
                                                         }
                                                     } else {
@@ -889,11 +954,13 @@ class AuthActivity : AppCompatActivity() {
                 studentData["authEmail"] = email
                 studentData["isClaimed"] = true
                 studentData["is_onboarded"] = true
+                studentData["role"] = "student"
                 studentData.remove("password")
                 studentData.remove("tempPassword")
                 val gender = (studentData["gender"] as? String) ?: "unspecified"
                 getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
                     .putString("cached_user_gender", gender)
+                    .putString("cached_user_role", "student")
                     .apply()
                 db.collection("users").document(newUid).set(studentData)
                     .addOnSuccessListener {
@@ -907,7 +974,7 @@ class AuthActivity : AppCompatActivity() {
                         toggleLoading(false)
                         val claimedUser = auth.currentUser
                         if (claimedUser != null) {
-                            showForcePasswordChangeDialog(claimedUser, newUid) {
+                            showForcePasswordChangeDialog(claimedUser, newUid, "student") {
                                 navigateToMain("student")
                             }
                         } else {
@@ -935,8 +1002,14 @@ class AuthActivity : AppCompatActivity() {
                             studentData["authEmail"] = email
                             studentData["isClaimed"] = true
                             studentData["is_onboarded"] = true
+                            studentData["role"] = "student"
                             studentData.remove("password")
                             studentData.remove("tempPassword")
+                            val gender = (studentData["gender"] as? String) ?: "unspecified"
+                            getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                                .putString("cached_user_gender", gender)
+                                .putString("cached_user_role", "student")
+                                .apply()
                             db.collection("users").document(recoveredUid).set(studentData)
                                 .addOnSuccessListener {
                                     pendingDocRef.delete().addOnFailureListener { /* ignore */ }
@@ -949,7 +1022,7 @@ class AuthActivity : AppCompatActivity() {
                                     toggleLoading(false)
                                     val claimedUser = auth.currentUser
                                     if (claimedUser != null) {
-                                        showForcePasswordChangeDialog(claimedUser, recoveredUid) {
+                                        showForcePasswordChangeDialog(claimedUser, recoveredUid, "student") {
                                             navigateToMain("student")
                                         }
                                     } else {
@@ -976,8 +1049,14 @@ class AuthActivity : AppCompatActivity() {
                                     studentData["authEmail"] = saltedEmail
                                     studentData["isClaimed"] = true
                                     studentData["is_onboarded"] = true
+                                    studentData["role"] = "student"
                                     studentData.remove("password")
                                     studentData.remove("tempPassword")
+                                    val gender = (studentData["gender"] as? String) ?: "unspecified"
+                                    getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
+                                        .putString("cached_user_gender", gender)
+                                        .putString("cached_user_role", "student")
+                                        .apply()
                                     db.collection("users").document(retryUid).set(studentData)
                                         .addOnSuccessListener {
                                             pendingDocRef.delete().addOnFailureListener { /* ignore */ }
@@ -990,7 +1069,7 @@ class AuthActivity : AppCompatActivity() {
                                             toggleLoading(false)
                                             val claimedUser = auth.currentUser
                                             if (claimedUser != null) {
-                                                showForcePasswordChangeDialog(claimedUser, retryUid) {
+                                                showForcePasswordChangeDialog(claimedUser, retryUid, "student") {
                                                     navigateToMain("student")
                                                 }
                                             } else {
@@ -1047,7 +1126,7 @@ class AuthActivity : AppCompatActivity() {
                             val mustChange = studentDoc.getBoolean("mustChangePassword") ?: false
                             if (mustChange) {
                                 toggleLoading(false)
-                                showForcePasswordChangeDialog(user, user.uid) {
+                                showForcePasswordChangeDialog(user, user.uid, "student") {
                                     navigateToMain("student")
                                 }
                             } else {
@@ -1124,6 +1203,7 @@ class AuthActivity : AppCompatActivity() {
                     studentData["mustChangePassword"] = true
                     studentData["isClaimed"] = true
                     studentData["is_onboarded"] = true
+                    studentData["role"] = "student"
                     studentData["migratedAt"] = System.currentTimeMillis()
                     studentData.remove("tempPassword")
                     studentData.remove("password")
@@ -1200,7 +1280,7 @@ class AuthActivity : AppCompatActivity() {
                         toggleLoading(false)
                         val claimedUser = auth.currentUser
                         if (claimedUser != null) {
-                            showForcePasswordChangeDialog(claimedUser, newUid) {
+                            showForcePasswordChangeDialog(claimedUser, newUid, "student") {
                                 navigateToMain("student")
                             }
                         } else {
@@ -1500,10 +1580,17 @@ class AuthActivity : AppCompatActivity() {
                             "password" to FieldValue.delete()
                         )
                         if (isStudent) {
+                            updates["role"] = "student"
                             updates["isClaimed"] = true
                             updates["is_onboarded"] = true
                             updates["gender"] = selectedGender
-                            prefs.edit().putString("cached_user_gender", selectedGender).apply()
+                            prefs.edit()
+                                .putString("cached_user_role", "student")
+                                .putString("cached_user_gender", selectedGender)
+                                .apply()
+                        } else {
+                            updates["role"] = "teacher"
+                            prefs.edit().putString("cached_user_role", "teacher").apply()
                         }
                         db.collection("users").document(uid).update(updates).addOnCompleteListener {
                             if (isStudent) {

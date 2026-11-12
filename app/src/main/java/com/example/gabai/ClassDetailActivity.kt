@@ -980,6 +980,7 @@ class ClassDetailActivity : AppCompatActivity() {
                         if (uName.isNotBlank()) {
                             val slipData = hashMapOf(
                                 "username" to uName,
+                                "role" to "student",
                                 "password" to tempPass,
                                 "tempPassword" to tempPass,
                                 "mustChangePassword" to true,
@@ -1362,7 +1363,7 @@ class ClassDetailActivity : AppCompatActivity() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    GabAIUtils.showGlobalLoading(this@ClassDetailActivity, "Gemini is generating 10 weekly assessment questions for $sectionName...")
+                    GabAIUtils.showGlobalLoading(this@ClassDetailActivity, "Gemini is preparing reading passage & 10 questions for $sectionName...")
                 }
 
                 val generativeModel = GenerativeModel(
@@ -1377,38 +1378,70 @@ class ClassDetailActivity : AppCompatActivity() {
                     Grade Level: $grade
                     Generation Style / Assessment Focus: $selectedGeminiFocus
 
-                    Analyze the following lesson material and generate exactly 10 high-quality multiple choice assessment questions following the specified focus style.
+                    Analyze the following lesson material and:
+                    1. Extract or curate a clean, complete, well-formatted reading comprehension passage ("passage") from the source text so students can read the full passage before answering the questions. Preserve paragraph breaks (\n\n).
+                    2. Generate exactly 10 high-quality multiple choice assessment questions ("questions") directly based on that passage and following the specified focus style.
 
                     Source Text:
                     ${extractedText.take(12000)}
 
                     Requirements:
-                    1. Generate exactly 10 questions.
-                    2. 4 plausible multiple-choice options per question.
-                    3. "ans" must be the 0-indexed integer of the correct option (0, 1, 2, or 3).
-                    4. "explanation" must be a clear educational explanation of why the correct choice is right.
-                    5. Return ONLY a valid JSON array. No markdown fences or commentary.
+                    1. Provide a comprehensive, readable "passage" (at least 150-600 words from the source material).
+                    2. Generate exactly 10 questions in "questions".
+                    3. 4 plausible multiple-choice options per question.
+                    4. "ans" must be the 0-indexed integer of the correct option (0, 1, 2, or 3).
+                    5. "explanation" must be a clear educational explanation of why the correct choice is right.
+                    6. Return ONLY a valid JSON object. No markdown fences or commentary.
 
-                    JSON Array format:
-                    [
-                      {
-                        "q": "Question text here?",
-                        "options": ["Choice A", "Choice B", "Choice C", "Choice D"],
-                        "ans": 0,
-                        "explanation": "Clear educational explanation."
-                      }
-                    ]
+                    JSON Object format:
+                    {
+                      "passage": "Full reading comprehension passage text here...",
+                      "questions": [
+                        {
+                          "q": "Question text here?",
+                          "options": ["Choice A", "Choice B", "Choice C", "Choice D"],
+                          "ans": 0,
+                          "explanation": "Clear educational explanation."
+                        }
+                      ]
+                    }
                 """.trimIndent()
 
                 val response = generativeModel.generateContent(prompt)
-                var jsonStr = response.text ?: "[]"
-                val startIndex = jsonStr.indexOf("[")
-                val endIndex = jsonStr.lastIndexOf("]")
-                if (startIndex != -1 && endIndex != -1) {
-                    jsonStr = jsonStr.substring(startIndex, endIndex + 1)
+                val rawResponse = (response.text ?: "").trim()
+
+                var passageText = ""
+                var questionsJsonStr = "[]"
+
+                val objStart = rawResponse.indexOf("{")
+                val objEnd = rawResponse.lastIndexOf("}")
+                val arrStart = rawResponse.indexOf("[")
+                val arrEnd = rawResponse.lastIndexOf("]")
+
+                if (objStart != -1 && objEnd != -1 && (arrStart == -1 || objStart < arrStart)) {
+                    try {
+                        val jsonObj = JSONObject(rawResponse.substring(objStart, objEnd + 1))
+                        passageText = jsonObj.optString("passage", "").trim()
+                        val qArr = jsonObj.optJSONArray("questions")
+                        if (qArr != null && qArr.length() > 0) {
+                            questionsJsonStr = qArr.toString()
+                        }
+                    } catch (_: Exception) {}
                 }
 
-                val array = JSONArray(jsonStr)
+                if (questionsJsonStr == "[]" && arrStart != -1 && arrEnd != -1) {
+                    questionsJsonStr = rawResponse.substring(arrStart, arrEnd + 1)
+                }
+
+                if (passageText.isBlank()) {
+                    passageText = extractedText
+                        .replace(Regex("[ \\t]+"), " ")
+                        .replace(Regex("\\n{3,}"), "\n\n")
+                        .trim()
+                        .take(4000)
+                }
+
+                val array = JSONArray(questionsJsonStr)
                 if (array.length() == 0) throw Exception("No questions generated by AI.")
 
                 withContext(Dispatchers.Main) {
@@ -1426,7 +1459,8 @@ class ClassDetailActivity : AppCompatActivity() {
                         putExtra("TARGET_ITEMS", 10)
                         putExtra("SOURCE_TYPE", "pdf")
                         putExtra("SOURCE_REF", fileName)
-                        putExtra("QUIZ_JSON", jsonStr)
+                        putExtra("PASSAGE_TEXT", passageText)
+                        putExtra("QUIZ_JSON", questionsJsonStr)
                     }
                     startActivity(intent)
                 }
@@ -1464,10 +1498,24 @@ class ClassDetailActivity : AppCompatActivity() {
         return name
     }
 
+    private var weeklyAssessmentsListener: com.google.firebase.firestore.ListenerRegistration? = null
+
+    override fun onResume() {
+        super.onResume()
+        loadWeeklyAssessments()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        weeklyAssessmentsListener?.remove()
+    }
+
     private fun loadWeeklyAssessments() {
         val container = findViewById<LinearLayout>(R.id.section_weekly_assessments_container) ?: return
+        val currentTeacherUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
-        db.collection("weekly_assessments")
+        weeklyAssessmentsListener?.remove()
+        weeklyAssessmentsListener = db.collection("weekly_assessments")
             .whereEqualTo("classId", classId)
             .addSnapshotListener { snapshots, error ->
                 if (error != null || snapshots == null) return@addSnapshotListener
@@ -1492,6 +1540,7 @@ class ClassDetailActivity : AppCompatActivity() {
                     val title = doc.getString("title") ?: "Weekly Assessment"
                     val subject = doc.getString("subjectName") ?: className
                     val teacher = doc.getString("teacherName") ?: "Teacher"
+                    val ownerTeacherId = doc.getString("teacherId") ?: ""
                     val count = doc.getLong("questionCount")?.toInt() ?: 10
                     val dueMillis = doc.getLong("dueDate") ?: 0L
 
@@ -1509,57 +1558,81 @@ class ClassDetailActivity : AppCompatActivity() {
                         tvDueDate?.visibility = View.GONE
                     }
 
+                    val pill = card.findViewById<TextView>(R.id.tv_assessment_score_pill)
                     val btnAction = card.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_action_assessment)
-                    
-                    // 🟢 Query submissions for this weekly assessment
+
+                    val openQuizEditor = {
+                        val intent = Intent(this, QuizEditorActivity::class.java).apply {
+                            putExtra("IS_WEEKLY_ASSESSMENT", true)
+                            putExtra("ASSESSMENT_ID", assessmentId)
+                            putExtra("TARGET_CLASS_ID", classId)
+                            putExtra("TARGET_CLASS_NAME", if (grade.isNotEmpty() && !className.contains(grade)) "$grade - $className" else className)
+                            putExtra("SECTION_NAME", sectionName)
+                            putExtra("GRADE", grade)
+                            putExtra("SCHOOL_ID", schoolId)
+                            putExtra("SUBJECT_NAME", subject)
+                            putExtra("ASSESSMENT_TITLE", title)
+                            putExtra("TARGET_ITEMS", count)
+                        }
+                        startActivity(intent)
+                    }
+
+                    val openAssessmentOverview = {
+                        val intent = Intent(this, LibraryQuizOverviewActivity::class.java).apply {
+                            putExtra("IS_WEEKLY_ASSESSMENT", true)
+                            putExtra("ASSESSMENT_ID", assessmentId)
+                            putExtra("CLASS_ID", classId)
+                            putExtra("CLASS_NAME", className)
+                            putExtra("SECTION_NAME", sectionName)
+                            putExtra("GRADE", grade)
+                            putExtra("SCHOOL_ID", schoolId)
+                            putExtra("MATERIAL_TITLE", title)
+                            putExtra("SUBJECT_NAME", subject)
+                        }
+                        startActivity(intent)
+                    }
+
+                    pill?.visibility = View.VISIBLE
+                    pill?.setBackgroundResource(R.drawable.bg_pill_translucent)
+                    pill?.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#EEF2FF"))
+                    pill?.setTextColor(Color.parseColor("#5341CD"))
+
+                    // 🟢 Query student submissions for this weekly assessment (excluding any accidental teacher submission)
                     db.collection("assessment_submissions")
                         .whereEqualTo("assessmentId", assessmentId)
                         .get()
                         .addOnSuccessListener { subSnaps ->
-                            val subCount = subSnaps.size()
+                            val validStudentDocs = subSnaps.documents.filter { sDoc ->
+                                val sUid = sDoc.getString("studentUid") ?: ""
+                                val isTeacherSub = sUid.isNotEmpty() && (sUid == currentTeacherUid || sUid == ownerTeacherId)
+                                if (isTeacherSub) {
+                                    // Clean up accidental teacher preview submission
+                                    sDoc.reference.delete()
+                                }
+                                !isTeacherSub
+                            }
+                            val subCount = validStudentDocs.size
                             if (subCount > 0) {
-                                btnAction?.text = "Review ($subCount) ➔"
-                                btnAction?.setOnClickListener {
-                                    showSubmissionsReviewDialog(assessmentId, title, subSnaps.documents)
-                                }
+                                btnAction?.text = "📊 Results ($subCount) ➔"
+                                btnAction?.setOnClickListener { openAssessmentOverview() }
+                                pill?.text = "✏️ Edit Quiz"
+                                pill?.setOnClickListener { openQuizEditor() }
+                                card.setOnClickListener { openAssessmentOverview() }
                             } else {
-                                btnAction?.text = "Preview ➔"
-                                btnAction?.setOnClickListener {
-                                    val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
-                                        putExtra("ASSESSMENT_ID", assessmentId)
-                                        putExtra("CLASS_ID", classId)
-                                        putExtra("CLASS_NAME", className)
-                                        putExtra("GRADE", grade)
-                                        putExtra("SCHOOL_ID", schoolId)
-                                    }
-                                    startActivity(intent)
-                                }
+                                btnAction?.text = "✏️ Edit Quiz ➔"
+                                btnAction?.setOnClickListener { openQuizEditor() }
+                                pill?.text = "📊 Roster & Stats"
+                                pill?.setOnClickListener { openAssessmentOverview() }
+                                card.setOnClickListener { openQuizEditor() }
                             }
                         }
                         .addOnFailureListener {
-                            btnAction?.text = "Preview ➔"
-                            btnAction?.setOnClickListener {
-                                val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
-                                    putExtra("ASSESSMENT_ID", assessmentId)
-                                    putExtra("CLASS_ID", classId)
-                                    putExtra("CLASS_NAME", className)
-                                    putExtra("GRADE", grade)
-                                    putExtra("SCHOOL_ID", schoolId)
-                                }
-                                startActivity(intent)
-                            }
+                            btnAction?.text = "✏️ Edit Quiz ➔"
+                            btnAction?.setOnClickListener { openQuizEditor() }
+                            pill?.text = "📊 Roster & Stats"
+                            pill?.setOnClickListener { openAssessmentOverview() }
+                            card.setOnClickListener { openQuizEditor() }
                         }
-
-                    card.setOnClickListener {
-                        val intent = Intent(this, WeeklyAssessmentActivity::class.java).apply {
-                            putExtra("ASSESSMENT_ID", assessmentId)
-                            putExtra("CLASS_ID", classId)
-                            putExtra("CLASS_NAME", className)
-                            putExtra("GRADE", grade)
-                            putExtra("SCHOOL_ID", schoolId)
-                        }
-                        startActivity(intent)
-                    }
 
                     container.addView(card)
                 }

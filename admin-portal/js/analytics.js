@@ -133,6 +133,7 @@
       learnerSearchQuery = (q || '').toLowerCase().trim();
       const btn = document.getElementById('btnClearLearnerSearch');
       if (btn) btn.classList.toggle('hidden', !learnerSearchQuery);
+      if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
@@ -142,31 +143,37 @@
       learnerSearchQuery = '';
       const btn = document.getElementById('btnClearLearnerSearch');
       if (btn) btn.classList.add('hidden');
+      if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerGradeFilter = function(val) {
       learnerGradeFilter = val || 'ALL';
+      if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerTierFilter = function(val) {
       learnerTierFilter = val || 'ALL';
+      if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerGenderFilter = function(val) {
       learnerGenderFilter = val || 'ALL';
+      if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerStatusFilter = function(val) {
       learnerStatusFilter = val || 'ALL';
+      if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 
     window.handleLearnerSchoolFilterChange = function(val) {
       learnerSchoolFilterVal = val || 'ALL';
+      if (typeof learnerPage !== 'undefined') learnerPage = 1;
       renderPerformanceTable();
     };
 

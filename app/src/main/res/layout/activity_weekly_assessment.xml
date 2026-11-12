@@ -69,6 +69,162 @@
     </com.example.gabai.FastBlurView>
 
     <!-- ================================================================= -->
+    <!-- 0. STAGE 1: DEDICATED READING PASSAGE VIEW                        -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/layout_passage_reading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="0dp"
+                    app:contentPadding="0dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1.5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <!-- Top Badge + Word Count -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#EEF2FF"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:letterSpacing="0.05"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="📖 STEP 1 • READING PASSAGE"
+                                android:textColor="#5341CD"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/tv_passage_word_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#F1F5F9"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="0 words"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Passage Title -->
+                        <TextView
+                            android:id="@+id/tv_passage_reading_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Reading Passage"
+                            android:textColor="#0F172A"
+                            android:textSize="19sp"
+                            android:textStyle="bold" />
+
+                        <!-- Guidance Banner -->
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_input_field"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingExtra="2dp"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="10dp"
+                            android:text="💡 Read the passage carefully before answering the questions. You can also toggle the passage inline while answering."
+                            android:textColor="#475569"
+                            android:textSize="12.5sp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="16dp"
+                            android:background="#E2E8F0" />
+
+                        <!-- Passage Body Text -->
+                        <TextView
+                            android:id="@+id/tv_passage_reading_body"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingExtra="6dp"
+                            android:text=""
+                            android:textColor="#1E293B"
+                            android:textSize="15.5sp" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Sticky Bottom Bar to Start Questions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:elevation="12dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="14dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_done_reading_weekly"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@drawable/btn_gradient_stitch"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="I've Read the Passage • Start Questions ➔"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                app:cornerRadius="16dp"
+                app:elevation="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
     <!-- 1. ACTIVE QUIZ RUNNER (Displayed during quiz)                      -->
     <!-- ================================================================= -->
     <LinearLayout
@@ -146,6 +302,7 @@
                         app:tint="#6C5CE7" />
 
                     <TextView
+                        android:id="@+id/tv_btn_read_passage_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
@@ -196,6 +353,74 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingBottom="24dp">
+
+                <!-- Inline Collapsible Reading Passage Reference Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_inline_passage"
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="#F8FAFC"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:contentPadding="0dp"
+                    app:strokeColor="#C7D2FE"
+                    app:strokeWidth="1.5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="10dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:letterSpacing="0.05"
+                                android:text="📖 READING PASSAGE REFERENCE"
+                                android:textColor="#4338CA"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/btn_close_inline_passage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_pill_translucent"
+                                android:backgroundTint="#EEF2FF"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="Hide ✕"
+                                android:textColor="#5341CD"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_inline_passage_body"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:lineSpacingExtra="5dp"
+                            android:text=""
+                            android:textColor="#1E293B"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Question Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -660,6 +885,116 @@
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Teacher Commendation Card (Visible when teacher added a remark) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_teacher_remark"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#EEF2FF"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#C7D2FE"
+                app:strokeWidth="1.5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:letterSpacing="0.05"
+                        android:text="💬 TEACHER COMMENDATION &amp; FEEDBACK"
+                        android:textColor="#4338CA"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_teacher_remark_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:lineSpacingExtra="3dp"
+                        android:text=""
+                        android:textColor="#1E1B4B"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Collapsible Reading Passage on Results Screen -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_results_passage"
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E2E8F0"
+                app:strokeWidth="1.5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/header_results_passage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="📖 Reading Passage Reference"
+                            android:textColor="#0F172A"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/btn_toggle_results_passage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#EEF2FF"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:text="Show Passage ▼"
+                            android:textColor="#5341CD"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_results_passage_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:lineSpacingExtra="5dp"
+                        android:text=""
+                        android:textColor="#334155"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

@@ -260,7 +260,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:fontFamily="@font/font_nunito_sans"
-                                android:text="Continuous countdown timer — automatically submits when time expires."
+                                android:text="Stage 1: Timed reading measures pure reading rate (WPM and WPS) with no question distractions."
                                 android:textColor="#475569"
                                 android:textSize="12.5sp" />
                         </LinearLayout>
@@ -274,7 +274,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="📖"
+                                android:text="📝"
                                 android:textSize="13sp"
                                 android:layout_marginEnd="8dp" />
 
@@ -283,7 +283,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:fontFamily="@font/font_nunito_sans"
-                                android:text="The standardized reading passage is accessible throughout the assessment."
+                                android:text="Stage 2: Phil-IRI comprehension questions (Literal, Inferential, Critical) with optional passage review."
                                 android:textColor="#475569"
                                 android:textSize="12.5sp" />
                         </LinearLayout>
@@ -298,9 +298,190 @@
                 android:layout_height="54dp"
                 android:background="@drawable/btn_gradient_stitch"
                 android:fontFamily="@font/font_plus_jakarta_sans"
-                android:text="Begin Timed Assessment ➔"
+                android:text="Begin Reading Selection ➔"
                 android:textColor="#FFFFFF"
                 android:textSize="15sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                app:cornerRadius="18dp"
+                app:elevation="4dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ================================================================= -->
+    <!-- 2. STAGE 1: DEDICATED TIMED PASSAGE READING                       -->
+    <!-- ================================================================= -->
+    <ScrollView
+        android:id="@+id/layout_timed_reading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="32dp">
+
+            <!-- Reading Bento Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#C7D2FE"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Header Row: Stage Indicator, Word Count & Live Reading Stopwatch -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_level_pill"
+                            android:backgroundTint="#5341CD"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3.5dp"
+                            android:text="STAGE 1: TIMED READING"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10.5sp"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.04" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <!-- Word Count Pill -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#F1F5F9"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:layout_marginEnd="6dp"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/tv_reading_word_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="📖 0 words"
+                                android:textColor="#475569"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Live Reading Stopwatch Pill -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_translucent"
+                            android:backgroundTint="#F4F0FF"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="3dp"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/tv_reading_live_timer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="⏱️ 00:00"
+                                android:textColor="#5341CD"
+                                android:textSize="11.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Title -->
+                    <TextView
+                        android:id="@+id/tv_reading_passage_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_plus_jakarta_sans"
+                        android:text="Reading Passage"
+                        android:textColor="#0F172A"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Guidance Banner -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_translucent"
+                        android:backgroundTint="#F8FAFC"
+                        android:padding="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="18dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="💡"
+                            android:textSize="14sp"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/font_nunito_sans"
+                            android:text="Read silently at your natural pace. When finished, tap 'Done Reading' to record your reading rate and proceed to the questions."
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Dedicated Passage Text Body -->
+                    <TextView
+                        android:id="@+id/tv_reading_passage_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:textColor="#1E293B"
+                        android:textSize="15.5sp"
+                        android:lineSpacingExtra="6dp"
+                        android:textIsSelectable="true"
+                        android:text="Loading reading selection..." />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Done Reading Action Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_done_reading"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:background="@drawable/btn_gradient_stitch"
+                android:fontFamily="@font/font_plus_jakarta_sans"
+                android:text="Done Reading — Proceed to Questions ➔"
+                android:textColor="#FFFFFF"
+                android:textSize="14.5sp"
                 android:textStyle="bold"
                 app:backgroundTint="@null"
                 app:cornerRadius="18dp"
@@ -388,7 +569,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:fontFamily="@font/font_plus_jakarta_sans"
-                        android:text="Hide Passage"
+                        android:text="View Passage"
                         android:textColor="#5341CD"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -432,7 +613,7 @@
                     app:strokeWidth="1.5dp"
                     app:strokeColor="#C7D2FE"
                     app:cardBackgroundColor="#F8FAFC"
-                    android:visibility="visible">
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -935,7 +1116,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="OVERALL PACE"
+                                android:text="READING RATE"
                                 android:textColor="#64748B"
                                 android:textSize="8.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
@@ -955,9 +1136,9 @@
                                 android:id="@+id/tv_reading_rate_category"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Standard Pace"
+                                android:text="2.33 WPS • Standard"
                                 android:textColor="#64748B"
-                                android:textSize="10.5sp"
+                                android:textSize="9.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans" />
                         </LinearLayout>
 
@@ -975,9 +1156,19 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="TEST DURATION"
+                                android:text="READING DURATION"
                                 android:textColor="#64748B"
                                 android:textSize="8.5sp"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_reading_time_elapsed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1m 32s"
+                                android:textColor="#5341CD"
+                                android:textSize="18sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
 
@@ -985,22 +1176,222 @@
                                 android:id="@+id/tv_time_elapsed"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="12m 45s"
-                                android:textColor="#5341CD"
-                                android:textSize="18sp"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_time_limit_label"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Limit: 20m"
+                                android:text="Total: 12m 45s"
                                 android:textColor="#64748B"
-                                android:textSize="10.5sp"
+                                android:textSize="9.5sp"
                                 android:fontFamily="@font/font_plus_jakarta_sans" />
                         </LinearLayout>
                     </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- DepEd Phil-IRI Cognitive Dimensions Bento Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.Material3.CardView.Filled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#E2E8F0"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="COGNITIVE DIMENSION MASTERY"
+                            android:textColor="#5341CD"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.06" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font_plus_jakarta_sans"
+                            android:text="Phil-IRI Standard"
+                            android:textColor="#64748B"
+                            android:textSize="10.5sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_nunito_sans"
+                        android:text="Comprehension depth across DepEd cognitive levels"
+                        android:textColor="#64748B"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Literal Dimension -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="Literal (Direct Recall)"
+                                android:textColor="#0F172A"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/tv_dim_literal_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="0 / 0 (0%)"
+                                android:textColor="#00B894"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progress_dim_literal"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="6dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressTint="#00B894"
+                            android:progressBackgroundTint="#F1F5F9" />
+                    </LinearLayout>
+
+                    <!-- Inferential Dimension -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="Inferential (Interpretation)"
+                                android:textColor="#0F172A"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/tv_dim_inferential_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="0 / 0 (0%)"
+                                android:textColor="#5341CD"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progress_dim_inferential"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="6dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressTint="#5341CD"
+                            android:progressBackgroundTint="#F1F5F9" />
+                    </LinearLayout>
+
+                    <!-- Critical Dimension -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="Critical (Evaluation &amp; Judgement)"
+                                android:textColor="#0F172A"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/tv_dim_critical_score"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/font_plus_jakarta_sans"
+                                android:text="0 / 0 (0%)"
+                                android:textColor="#F59E0B"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progress_dim_critical"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="6dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressTint="#F59E0B"
+                            android:progressBackgroundTint="#F1F5F9" />
+                    </LinearLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

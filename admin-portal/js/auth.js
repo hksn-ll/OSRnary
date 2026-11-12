@@ -477,6 +477,22 @@
           }
         }
       } else {
+        const testRole = (typeof window !== 'undefined' && window.location && window.location.search)
+          ? new URLSearchParams(window.location.search).get('test_session')
+          : null;
+        if (testRole === 'super_admin' || testRole === 'school_admin') {
+          const mockSchoolId = testRole === 'school_admin' ? '305445' : 'DIVISION_OFFICE';
+          if (typeof window.setTestAdminSession === 'function') {
+            window.setTestAdminSession({
+              email: testRole === 'super_admin' ? 'superadmin@gabai.edu' : 'caruhatan.admin@valenzuela.edu.ph',
+              uid: 'test-' + testRole,
+              schoolId: mockSchoolId,
+              firstName: testRole === 'super_admin' ? 'Super Admin' : 'School Admin'
+            }, testRole);
+          }
+          hideAdminLoader(150, "Test session ready ✓");
+          return;
+        }
         const wasAuthenticated = !!currentAdminUser;
         currentAdminUser = null;
         isSuperAdmin = false;

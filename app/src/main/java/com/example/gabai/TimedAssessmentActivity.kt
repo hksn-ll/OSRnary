@@ -5,11 +5,14 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,7 +44,16 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
     private var countDownTimer: CountDownTimer? = null
     private var isSubmitted = false
-    private var isPassageVisible = true
+    private var isPassageVisible = false
+
+    // Stage 1 (Timed Passage Reading) Telemetry
+    private var readingStartTimeMillis = 0L
+    private var passageReadingSecs = 0L
+    private var readingSpeedWpm = 0
+    private var readingSpeedWps = 0.0
+    private var hasFinishedReading = false
+    private val readingTimerHandler = Handler(Looper.getMainLooper())
+    private var readingTimerRunnable: Runnable? = null
 
     private val prefName: String
         get() = "timed_assessment_session_${assessmentId}_${auth.currentUser?.uid ?: ""}"
@@ -56,6 +68,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
     // Layout views
     private lateinit var layoutBriefing: View
+    private lateinit var layoutReading: View
     private lateinit var layoutRunner: View
     private lateinit var layoutResults: View
 
@@ -71,6 +84,13 @@ class TimedAssessmentActivity : AppCompatActivity() {
     private lateinit var tvBriefingTimeLimit: TextView
     private lateinit var tvBriefingItemCount: TextView
     private lateinit var btnStartAssessment: View
+
+    // Stage 1 Dedicated Reading views
+    private lateinit var tvReadingWordCount: TextView
+    private lateinit var tvReadingLiveTimer: TextView
+    private lateinit var tvReadingPassageTitle: TextView
+    private lateinit var tvReadingPassageBody: TextView
+    private lateinit var btnDoneReading: MaterialButton
 
     // Runner views
     private lateinit var tvProgressCounter: TextView
@@ -92,9 +112,18 @@ class TimedAssessmentActivity : AppCompatActivity() {
     // Results telemetry & remedial views
     private lateinit var tvReadingSpeedWpm: TextView
     private lateinit var tvReadingRateCategory: TextView
+    private lateinit var tvReadingTimeElapsed: TextView
     private lateinit var cardFrustrationRemedial: View
     private lateinit var btnRemedialLibraryPractice: Button
     private lateinit var btnRemedialVocabDrills: Button
+
+    // Cognitive dimension mastery views
+    private lateinit var tvDimLiteralScore: TextView
+    private lateinit var progressDimLiteral: ProgressBar
+    private lateinit var tvDimInferentialScore: TextView
+    private lateinit var progressDimInferential: ProgressBar
+    private lateinit var tvDimCriticalScore: TextView
+    private lateinit var progressDimCritical: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,6 +141,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
     private fun initViewBindings() {
         layoutBriefing = findViewById(R.id.layout_timed_briefing)
+        layoutReading = findViewById(R.id.layout_timed_reading)
         layoutRunner = findViewById(R.id.layout_timed_runner)
         layoutResults = findViewById(R.id.layout_timed_results)
 
@@ -125,6 +155,13 @@ class TimedAssessmentActivity : AppCompatActivity() {
         tvBriefingTimeLimit = findViewById(R.id.tv_briefing_time_limit)
         tvBriefingItemCount = findViewById(R.id.tv_briefing_item_count)
         btnStartAssessment = findViewById(R.id.btn_start_timed_assessment)
+
+        // Stage 1 Dedicated Reading views
+        tvReadingWordCount = findViewById(R.id.tv_reading_word_count)
+        tvReadingLiveTimer = findViewById(R.id.tv_reading_live_timer)
+        tvReadingPassageTitle = findViewById(R.id.tv_reading_passage_title)
+        tvReadingPassageBody = findViewById(R.id.tv_reading_passage_body)
+        btnDoneReading = findViewById(R.id.btn_done_reading)
 
         tvProgressCounter = findViewById(R.id.tv_timed_progress_counter)
         progressBar = findViewById(R.id.progress_timed_quiz)
@@ -155,9 +192,17 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
         tvReadingSpeedWpm = findViewById(R.id.tv_reading_speed_wpm)
         tvReadingRateCategory = findViewById(R.id.tv_reading_rate_category)
+        tvReadingTimeElapsed = findViewById(R.id.tv_reading_time_elapsed)
         cardFrustrationRemedial = findViewById(R.id.card_frustration_remedial)
         btnRemedialLibraryPractice = findViewById(R.id.btn_remedial_library_practice)
         btnRemedialVocabDrills = findViewById(R.id.btn_remedial_vocab_drills)
+
+        tvDimLiteralScore = findViewById(R.id.tv_dim_literal_score)
+        progressDimLiteral = findViewById(R.id.progress_dim_literal)
+        tvDimInferentialScore = findViewById(R.id.tv_dim_inferential_score)
+        progressDimInferential = findViewById(R.id.progress_dim_inferential)
+        tvDimCriticalScore = findViewById(R.id.tv_dim_critical_score)
+        progressDimCritical = findViewById(R.id.progress_dim_critical)
     }
 
     private fun setupListeners() {
@@ -173,7 +218,16 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
         btnStartAssessment.setOnClickListener {
             GabAIUtils.performHaptic(it)
-            startTimedAssessment()
+            if (hasFinishedReading) {
+                startQuestionPhase()
+            } else {
+                startReadingPhase()
+            }
+        }
+
+        btnDoneReading.setOnClickListener {
+            GabAIUtils.performHaptic(it)
+            onDoneReadingClicked()
         }
 
         btnTogglePassage.setOnClickListener {
@@ -242,6 +296,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
         super.onDestroy()
         countDownTimer?.cancel()
         countDownTimer = null
+        readingTimerRunnable?.let { readingTimerHandler.removeCallbacks(it) }
     }
 
     private fun saveCurrentSession() {
@@ -265,6 +320,10 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
             prefs.edit()
                 .putBoolean("has_saved_session", true)
+                .putBoolean("has_finished_reading", hasFinishedReading)
+                .putLong("passage_reading_secs", passageReadingSecs)
+                .putInt("reading_speed_wpm", readingSpeedWpm)
+                .putFloat("reading_speed_wps", readingSpeedWps.toFloat())
                 .putString("saved_questions", jsonArray.toString())
                 .putString("saved_answers", answersArray.toString())
                 .putInt("saved_current_index", currentIndex)
@@ -280,6 +339,11 @@ class TimedAssessmentActivity : AppCompatActivity() {
             if (!prefs.getBoolean("has_saved_session", false)) return false
             val qStr = prefs.getString("saved_questions", null) ?: return false
             val aStr = prefs.getString("saved_answers", null) ?: return false
+
+            hasFinishedReading = prefs.getBoolean("has_finished_reading", false)
+            passageReadingSecs = prefs.getLong("passage_reading_secs", 0L)
+            readingSpeedWpm = prefs.getInt("reading_speed_wpm", 0)
+            readingSpeedWps = prefs.getFloat("reading_speed_wps", 0f).toDouble()
 
             val qArr = JSONArray(qStr)
             val aArr = JSONArray(aStr)
@@ -454,27 +518,118 @@ class TimedAssessmentActivity : AppCompatActivity() {
                     val total = doc.getLong("totalQuestions")?.toInt() ?: questions.size
                     val pct = doc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
                     val elapsedMillis = doc.getLong("elapsedTimeMillis") ?: 0L
+                    val readingSecs = doc.getLong("passageReadingTimeSeconds") ?: (elapsedMillis / 1000).coerceAtLeast(1)
+                    val wpm = doc.getLong("readingSpeedWpm")?.toInt() ?: 0
+                    val wps = doc.getDouble("readingSpeedWps") ?: 0.0
+                    val speedCat = doc.getString("speedCategory") ?: "Standard Pace"
                     val answersList = doc.get("answers") as? List<Map<String, Any>> ?: listOf()
 
-                    showResultsView(score, total, pct, elapsedMillis, answersList)
+                    val litMap = doc.get("dimensionLiteral") as? Map<String, Any>
+                    val litCorr = (litMap?.get("correct") as? Number)?.toInt() ?: 0
+                    val litTot = (litMap?.get("total") as? Number)?.toInt() ?: 0
+
+                    val infMap = doc.get("dimensionInferential") as? Map<String, Any>
+                    val infCorr = (infMap?.get("correct") as? Number)?.toInt() ?: 0
+                    val infTot = (infMap?.get("total") as? Number)?.toInt() ?: 0
+
+                    val critMap = doc.get("dimensionCritical") as? Map<String, Any>
+                    val critCorr = (critMap?.get("correct") as? Number)?.toInt() ?: 0
+                    val critTot = (critMap?.get("total") as? Number)?.toInt() ?: 0
+
+                    showResultsView(
+                        score = score,
+                        total = total,
+                        percentage = pct,
+                        totalElapsedMillis = elapsedMillis,
+                        readingSecs = readingSecs,
+                        wpm = wpm,
+                        wps = wps,
+                        speedCat = speedCat,
+                        literalCorr = litCorr,
+                        literalTot = litTot,
+                        inferentialCorr = infCorr,
+                        inferentialTot = infTot,
+                        criticalCorr = critCorr,
+                        criticalTot = critTot,
+                        answersList = answersList
+                    )
                 } else {
                     layoutBriefing.visibility = View.VISIBLE
+                    layoutReading.visibility = View.GONE
                     layoutRunner.visibility = View.GONE
                     layoutResults.visibility = View.GONE
                 }
             }
             .addOnFailureListener {
                 layoutBriefing.visibility = View.VISIBLE
+                layoutReading.visibility = View.GONE
                 layoutRunner.visibility = View.GONE
                 layoutResults.visibility = View.GONE
             }
     }
 
-    private fun startTimedAssessment() {
+    private fun startReadingPhase() {
+        if (hasFinishedReading) {
+            startQuestionPhase()
+            return
+        }
         layoutBriefing.visibility = View.GONE
+        layoutReading.visibility = View.VISIBLE
+        layoutRunner.visibility = View.GONE
+        layoutResults.visibility = View.GONE
+        chipTimerContainer.visibility = View.GONE
+
+        val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size
+        tvReadingWordCount.text = "📖 $passageWords words"
+        tvReadingPassageTitle.text = assessmentTitle
+        tvReadingPassageBody.text = readingPassage.ifEmpty { "No passage provided for this assessment." }
+
+        readingStartTimeMillis = System.currentTimeMillis()
+        readingTimerRunnable?.let { readingTimerHandler.removeCallbacks(it) }
+        readingTimerRunnable = object : Runnable {
+            override fun run() {
+                val elapsedSecs = (System.currentTimeMillis() - readingStartTimeMillis) / 1000
+                val m = elapsedSecs / 60
+                val s = elapsedSecs % 60
+                tvReadingLiveTimer.text = String.format(Locale.getDefault(), "⏱️ %02d:%02d", m, s)
+                readingTimerHandler.postDelayed(this, 1000L)
+            }
+        }
+        readingTimerHandler.post(readingTimerRunnable!!)
+    }
+
+    private fun onDoneReadingClicked() {
+        val elapsedMillis = System.currentTimeMillis() - readingStartTimeMillis
+        val elapsedSecs = (elapsedMillis / 1000).coerceAtLeast(1)
+
+        // Authenticity guardrail: Minimum 5 seconds to ensure student read the passage
+        if (elapsedSecs < 5) {
+            GabAIUtils.showSnackbar(this, "Please take your time to read the passage thoroughly before continuing.")
+            return
+        }
+
+        readingTimerRunnable?.let { readingTimerHandler.removeCallbacks(it) }
+        passageReadingSecs = elapsedSecs
+        val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size.coerceAtLeast(1)
+        readingSpeedWpm = ((passageWords.toDouble() / passageReadingSecs) * 60).toInt()
+        readingSpeedWps = passageWords.toDouble() / passageReadingSecs
+        hasFinishedReading = true
+        saveCurrentSession()
+
+        startQuestionPhase()
+    }
+
+    private fun startQuestionPhase() {
+        layoutBriefing.visibility = View.GONE
+        layoutReading.visibility = View.GONE
         layoutRunner.visibility = View.VISIBLE
         layoutResults.visibility = View.GONE
         chipTimerContainer.visibility = View.VISIBLE
+
+        // In Stage 2, passage is collapsed by default so question #1 is front and center
+        isPassageVisible = false
+        cardPassage.visibility = View.GONE
+        tvTogglePassageLabel.text = "View Passage"
 
         displayCurrentQuestion()
         startGlobalCountdown()
@@ -585,10 +740,16 @@ class TimedAssessmentActivity : AppCompatActivity() {
             return
         }
 
+        val message = if (layoutReading.visibility == View.VISIBLE) {
+            "You are currently reading the assessment passage. If you exit now, your reading progress will reset."
+        } else {
+            "Your countdown timer is still running. Answers you have already selected are safely preserved in this session."
+        }
+
         GabAIDialogs.showConfirmDialog(
             context = this,
             title = "Exit Timed Assessment?",
-            message = "Your countdown timer is still running. Answers you have already selected are safely preserved in this session.",
+            message = message,
             confirmText = "Exit Test",
             cancelText = "Keep Going",
             isDestructive = true,
@@ -693,11 +854,17 @@ class TimedAssessmentActivity : AppCompatActivity() {
         val elapsedMillis = totalDurationMillis - remainingTimeMillis
         val elapsedSecs = (elapsedMillis / 1000).coerceAtLeast(1)
         val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size.coerceAtLeast(1)
-        val readingSpeedWpm = ((passageWords.toDouble() / elapsedSecs) * 60).toInt()
+
+        // Truthful Phil-IRI Reading Speed: Based strictly on Stage 1 reading time
+        val effectiveReadingSecs = if (passageReadingSecs > 0) passageReadingSecs else elapsedSecs
+        val finalWpm = if (readingSpeedWpm > 0) readingSpeedWpm else ((passageWords.toDouble() / effectiveReadingSecs) * 60).toInt()
+        val finalWps = if (readingSpeedWps > 0.0) readingSpeedWps else (passageWords.toDouble() / effectiveReadingSecs)
+
+        // DepEd Phil-IRI Speed Norm Category
         val speedCategory = when {
-            readingSpeedWpm > 120 -> "Fast Pace"
-            readingSpeedWpm >= 50 -> "Standard Pace"
-            else -> "Steady Pace"
+            finalWpm > 140 -> "Fast Pace"
+            finalWpm >= 90 -> "Standard Pace"
+            else -> "Developing Pace"
         }
 
         // DepEd Phil-IRI Official Proficiency Classification
@@ -725,8 +892,10 @@ class TimedAssessmentActivity : AppCompatActivity() {
             "totalQuestions" to total,
             "percentage" to percentage,
             "elapsedTimeMillis" to elapsedMillis,
+            "passageReadingTimeSeconds" to effectiveReadingSecs,
             "passageWordCount" to passageWords,
-            "readingSpeedWpm" to readingSpeedWpm,
+            "readingSpeedWpm" to finalWpm,
+            "readingSpeedWps" to finalWps,
             "speedCategory" to speedCategory,
             "needsIntervention" to needsIntervention,
             "philIriLevel" to philIriLevel,
@@ -746,7 +915,9 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 "phil_iri_score" to score,
                 "phil_iri_total" to total,
                 "phil_iri_pct" to percentage,
-                "phil_iri_wpm" to readingSpeedWpm,
+                "phil_iri_wpm" to finalWpm,
+                "phil_iri_wps" to finalWps,
+                "phil_iri_reading_time_secs" to effectiveReadingSecs,
                 "phil_iri_speed_category" to speedCategory,
                 "phil_iri_needs_intervention" to needsIntervention,
                 "phil_iri_last_assessed" to System.currentTimeMillis(),
@@ -759,7 +930,9 @@ class TimedAssessmentActivity : AppCompatActivity() {
             getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE).edit()
                 .putString("cached_phil_iri_tier", philIriLevel)
                 .putInt("cached_phil_iri_pct", percentage)
-                .putInt("cached_phil_iri_wpm", readingSpeedWpm)
+                .putInt("cached_phil_iri_wpm", finalWpm)
+                .putFloat("cached_phil_iri_wps", finalWps.toFloat())
+                .putLong("cached_phil_iri_reading_time_secs", effectiveReadingSecs)
                 .putBoolean("cached_phil_iri_needs_intervention", needsIntervention)
                 .apply()
 
@@ -774,7 +947,7 @@ class TimedAssessmentActivity : AppCompatActivity() {
                 "totalAttempts" to total,
                 "percentage" to percentage,
                 "philIriLevel" to philIriLevel,
-                "readingSpeedWpm" to readingSpeedWpm,
+                "readingSpeedWpm" to finalWpm,
                 "speedCategory" to speedCategory,
                 "needsIntervention" to needsIntervention,
                 "studentGender" to studentGender,
@@ -792,12 +965,44 @@ class TimedAssessmentActivity : AppCompatActivity() {
 
             clearSavedSession()
             GabAIUtils.hideGlobalLoading(this)
-            showResultsView(score, total, percentage, elapsedMillis, submissionItems)
+            showResultsView(
+                score = score,
+                total = total,
+                percentage = percentage,
+                totalElapsedMillis = elapsedMillis,
+                readingSecs = effectiveReadingSecs,
+                wpm = finalWpm,
+                wps = finalWps,
+                speedCat = speedCategory,
+                literalCorr = literalCorrect,
+                literalTot = literalTotal,
+                inferentialCorr = inferentialCorrect,
+                inferentialTot = inferentialTotal,
+                criticalCorr = criticalCorrect,
+                criticalTot = criticalTotal,
+                answersList = submissionItems
+            )
         }.addOnFailureListener { e ->
             clearSavedSession()
             GabAIUtils.hideGlobalLoading(this)
             GabAIUtils.showSnackbar(this, "Submission completed locally: ${e.message}")
-            showResultsView(score, total, percentage, elapsedMillis, submissionItems)
+            showResultsView(
+                score = score,
+                total = total,
+                percentage = percentage,
+                totalElapsedMillis = elapsedMillis,
+                readingSecs = effectiveReadingSecs,
+                wpm = finalWpm,
+                wps = finalWps,
+                speedCat = speedCategory,
+                literalCorr = literalCorrect,
+                literalTot = literalTotal,
+                inferentialCorr = inferentialCorrect,
+                inferentialTot = inferentialTotal,
+                criticalCorr = criticalCorrect,
+                criticalTot = criticalTotal,
+                answersList = submissionItems
+            )
         }
     }
 
@@ -805,10 +1010,21 @@ class TimedAssessmentActivity : AppCompatActivity() {
         score: Int,
         total: Int,
         percentage: Int,
-        elapsedMillis: Long,
+        totalElapsedMillis: Long,
+        readingSecs: Long,
+        wpm: Int,
+        wps: Double,
+        speedCat: String,
+        literalCorr: Int,
+        literalTot: Int,
+        inferentialCorr: Int,
+        inferentialTot: Int,
+        criticalCorr: Int,
+        criticalTot: Int,
         answersList: List<Map<String, Any>>
     ) {
         layoutBriefing.visibility = View.GONE
+        layoutReading.visibility = View.GONE
         layoutRunner.visibility = View.GONE
         layoutResults.visibility = View.VISIBLE
         chipTimerContainer.visibility = View.GONE
@@ -824,22 +1040,32 @@ class TimedAssessmentActivity : AppCompatActivity() {
         tvFinalScore.text = "$score / $total"
         tvFinalPct.text = "$percentage% MPS"
 
-        val elapsedSecs = (elapsedMillis / 1000).coerceAtLeast(0)
+        // Pure Stage 1 Reading Speed & Duration
+        tvReadingSpeedWpm.text = "$wpm WPM"
+        tvReadingRateCategory.text = String.format(Locale.getDefault(), "%.2f WPS • %s", wps, speedCat)
+
+        val rMins = readingSecs / 60
+        val rSecs = readingSecs % 60
+        tvReadingTimeElapsed.text = String.format(Locale.getDefault(), "%dm %02ds", rMins, rSecs)
+
+        // Total test duration
+        val elapsedSecs = (totalElapsedMillis / 1000).coerceAtLeast(0)
         val eMins = elapsedSecs / 60
         val eSecs = elapsedSecs % 60
-        tvTimeElapsed.text = String.format(Locale.getDefault(), "%dm %ds", eMins, eSecs)
+        tvTimeElapsed.text = String.format(Locale.getDefault(), "Total: %dm %02ds", eMins, eSecs)
 
-        // Reading Speed (Words Per Minute / WPM)
-        val safeSecs = elapsedSecs.coerceAtLeast(1)
-        val passageWords = readingPassage.split(Regex("\\s+")).filter { it.isNotBlank() }.size.coerceAtLeast(1)
-        val wpm = if (safeSecs > 0) ((passageWords.toDouble() / safeSecs) * 60).toInt() else 0
-        val speedCategory = when {
-            wpm > 120 -> "Fast Pace"
-            wpm >= 50 -> "Standard Pace"
-            else -> "Steady Pace"
-        }
-        tvReadingSpeedWpm.text = "$wpm WPM"
-        tvReadingRateCategory.text = speedCategory
+        // Cognitive Dimension Mastery (DepEd Phil-IRI 3 Levels)
+        val litPct = if (literalTot > 0) (literalCorr * 100) / literalTot else 0
+        tvDimLiteralScore.text = "$literalCorr / $literalTot ($litPct%)"
+        progressDimLiteral.progress = litPct
+
+        val infPct = if (inferentialTot > 0) (inferentialCorr * 100) / inferentialTot else 0
+        tvDimInferentialScore.text = "$inferentialCorr / $inferentialTot ($infPct%)"
+        progressDimInferential.progress = infPct
+
+        val critPct = if (criticalTot > 0) (criticalCorr * 100) / criticalTot else 0
+        tvDimCriticalScore.text = "$criticalCorr / $criticalTot ($critPct%)"
+        progressDimCritical.progress = critPct
 
         // Frustration level remedial support card
         if (percentage <= 58) {

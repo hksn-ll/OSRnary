@@ -435,7 +435,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
-                            android:layout_marginBottom="8dp">
+                            android:layout_marginBottom="10dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -446,41 +446,46 @@
                                 android:paddingVertical="3dp"
                                 android:text="SDO VALENZUELA"
                                 android:textColor="#5341CD"
-                                android:textSize="10.5sp"
+                                android:textSize="10sp"
+                                android:singleLine="true"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold"
-                                android:letterSpacing="0.05" />
+                                android:letterSpacing="0.04" />
 
-                            <TextView
-                                android:id="@+id/tv_div_timed_purpose_pill"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="6dp"
-                                android:background="@drawable/bg_input_field"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="3dp"
-                                android:text="Phil-IRI Diagnostic"
-                                android:textColor="#64748B"
-                                android:textSize="10.5sp"
-                                android:fontFamily="@font/font_plus_jakarta_sans"
-                                android:textStyle="bold" />
-
-                            <View
+                            <FrameLayout
                                 android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1" />
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginHorizontal="6dp">
+
+                                <TextView
+                                    android:id="@+id/tv_div_timed_purpose_pill"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/bg_input_field"
+                                    android:paddingHorizontal="8dp"
+                                    android:paddingVertical="3dp"
+                                    android:text="Phil-IRI Diagnostic"
+                                    android:textColor="#64748B"
+                                    android:textSize="10sp"
+                                    android:singleLine="true"
+                                    android:ellipsize="end"
+                                    android:fontFamily="@font/font_plus_jakarta_sans"
+                                    android:textStyle="bold" />
+                            </FrameLayout>
 
                             <TextView
                                 android:id="@+id/tv_div_timed_timer_badge"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/bg_pill_translucent"
+                                android:background="@drawable/bg_level_pill"
                                 android:backgroundTint="#F4F0FF"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="⏱️ 20 min limit"
                                 android:textColor="#5341CD"
-                                android:textSize="11sp"
+                                android:textSize="10.5sp"
+                                android:singleLine="true"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -509,17 +514,17 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:orientation="vertical">
 
                             <TextView
                                 android:id="@+id/tv_div_timed_score_pill"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="10dp"
                                 android:background="@drawable/bg_level_pill"
                                 android:backgroundTint="#D1FAE5"
-                                android:paddingHorizontal="10dp"
-                                android:paddingVertical="4dp"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="5dp"
                                 android:text="Phil-IRI: Independent (90%) ✓"
                                 android:textColor="#065F46"
                                 android:textSize="11.5sp"
@@ -527,15 +532,13 @@
                                 android:textStyle="bold"
                                 android:visibility="gone" />
 
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1" />
-
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_action_div_timed"
-                                android:layout_width="wrap_content"
-                                android:layout_height="44dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="42dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:minHeight="0dp"
                                 android:background="@drawable/btn_gradient_stitch"
                                 android:fontFamily="@font/font_plus_jakarta_sans"
                                 android:text="Take Timed Assessment ➔"

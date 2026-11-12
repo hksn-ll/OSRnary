@@ -1330,46 +1330,206 @@
     </div>
   </div>
 
-  <!-- MODAL: STUDENT QUIZ HISTORY VIEWER -->
-  <div id="modalQuizHistory" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+  <!-- MODAL: 360° LEARNER ACADEMIC & LITERACY PROFILE VIEWER -->
+  <div id="modalQuizHistory" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-5 sm:p-6 border border-slate-200/80 space-y-4 max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+      <!-- Modal Header -->
+      <div class="flex flex-wrap items-start justify-between pb-3.5 border-b border-slate-100 gap-3">
         <div class="flex items-center gap-3">
-          <div id="historyStudentAvatarContainer"></div>
+          <div id="historyStudentAvatarContainer" class="shrink-0"></div>
           <div>
-            <h3 id="historyStudentName" class="font-bold text-base text-slate-900">Learner Quiz Performance</h3>
-            <p id="historyStudentMeta" class="text-xs text-slate-500">Section &bull; Level &bull; XP</p>
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 id="historyStudentName" class="font-bold text-base sm:text-lg text-slate-900 font-display">Learner Academic Profile</h3>
+              <span id="historyStudentTierBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border bg-slate-100 text-slate-700">Evaluating...</span>
+              <span id="historyStudentTrendBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">➔ Stable</span>
+            </div>
+            <div id="historyStudentMeta" class="text-xs text-slate-500 flex flex-wrap items-center gap-2 mt-1">
+              <span>Section &bull; Grade &bull; School</span>
+            </div>
           </div>
         </div>
-        <button onclick="closeQuizHistoryModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-      </div>
-
-      <div class="grid grid-cols-4 gap-3 text-xs">
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <div class="text-slate-500 text-[10px] font-bold uppercase">Accuracy Rate</div>
-          <div id="historyAverageScore" class="text-lg font-black text-emerald-700 mt-0.5">0%</div>
-        </div>
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <div class="text-slate-500 text-[10px] font-bold uppercase">Total Quizzes</div>
-          <div id="historyTotalQuizzes" class="text-lg font-black text-slate-800 mt-0.5">0</div>
-        </div>
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <div class="text-slate-500 text-[10px] font-bold uppercase">Current Streak</div>
-          <div id="historyCurrentStreak" class="text-lg font-black text-amber-700 mt-0.5">0 Days</div>
-        </div>
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <div class="text-slate-500 text-[10px] font-bold uppercase">Level &amp; XP</div>
-          <div id="historyLevelXp" class="text-lg font-black text-indigo-700 mt-0.5">Lvl 1</div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btnHistoryPrintIndividualPdf" onclick="printActiveStudentIndividualPDF()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs" title="Print Official DepEd Individual Reading Profile">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            <span>Print Student PDF</span>
+          </button>
+          <button type="button" onclick="closeQuizHistoryModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-lg font-bold transition">&times;</button>
         </div>
       </div>
 
-      <div class="space-y-2">
-        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Recorded Quiz Attempts (users/{uid}/quiz_history)</h4>
-        <div id="historyAttemptsList" class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs divide-y divide-slate-200 max-h-64 overflow-y-auto"></div>
+      <!-- Bento 4-Tile Quick Metric Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-0.5">
+          <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Literacy MPS</div>
+          <div id="historyAverageScore" class="text-xl font-black text-emerald-600 font-display mt-0.5">0%</div>
+          <div id="historyMpsTierLabel" class="text-[10px] text-emerald-700/80 font-medium">Independent Reader</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-0.5">
+          <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Reading Speed</div>
+          <div id="historyReadingSpeed" class="text-xl font-black text-blue-600 font-display mt-0.5">— WPM</div>
+          <div id="historyWpmBenchmark" class="text-[10px] text-slate-500 font-medium">JHS: 100-140 WPM</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-0.5">
+          <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total Quizzes &amp; Tests</div>
+          <div id="historyTotalQuizzes" class="text-xl font-black text-slate-800 font-display mt-0.5">0</div>
+          <div id="historyTotalAttemptsSub" class="text-[10px] text-slate-500 font-medium">0 recorded attempts</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-0.5">
+          <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Daily Streak &amp; Words</div>
+          <div id="historyCurrentStreak" class="text-xl font-black text-amber-600 font-display mt-0.5">0 Days</div>
+          <div id="historyWordsMasteredCount" class="text-[10px] text-amber-700/80 font-medium">0 words mastered</div>
+        </div>
       </div>
 
-      <div class="pt-3 flex justify-end border-t border-slate-100">
-        <button onclick="closeQuizHistoryModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow">
+      <!-- Tab Navigation Strip -->
+      <div class="flex items-center gap-1.5 border-b border-slate-200 text-xs font-semibold overflow-x-auto pb-1">
+        <button type="button" id="btnProfileTabPhilIri" onclick="switchProfileTab('phil_iri')" class="px-3 py-2 border-b-2 border-indigo-600 text-indigo-700 font-bold transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>📖 Phil-IRI Standards &amp; Timed Tests</span>
+        </button>
+        <button type="button" id="btnProfileTabQuizzes" onclick="switchProfileTab('quizzes')" class="px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>📝 Curriculum Quizzes &amp; Practice</span>
+        </button>
+        <button type="button" id="btnProfileTabHabits" onclick="switchProfileTab('habits')" class="px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>🔥 Reading Habits &amp; Vocabulary</span>
+        </button>
+        <button type="button" id="btnProfileTabInterventions" onclick="switchProfileTab('interventions')" class="px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>🎯 Remedial Interventions &amp; Notes</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: PHIL-IRI TIMED ASSESSMENTS & COGNITIVE BLUEPRINT -->
+      <div id="profileTabContent_phil_iri" class="space-y-3">
+        <!-- Cognitive Dimensions Breakdown -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+            <span>Phil-IRI Cognitive Dimensions (DepEd Order No. 14, s. 2018)</span>
+            <span class="text-[11px] text-slate-400 font-normal">DepEd Target: 75% Baseline</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2.5 text-xs">
+            <div class="p-2.5 bg-white rounded-xl border border-slate-200/60 space-y-1">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Literal Recall</div>
+              <div id="cogMpsLiteral" class="text-base font-black text-slate-800 font-display">—%</div>
+              <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div id="barCogLiteral" class="h-full bg-indigo-500 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="p-2.5 bg-white rounded-xl border border-slate-200/60 space-y-1">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Inferential Deduction</div>
+              <div id="cogMpsInferential" class="text-base font-black text-slate-800 font-display">—%</div>
+              <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div id="barCogInferential" class="h-full bg-purple-500 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="p-2.5 bg-white rounded-xl border border-slate-200/60 space-y-1">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Critical Evaluation</div>
+              <div id="cogMpsCritical" class="text-base font-black text-slate-800 font-display">—%</div>
+              <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div id="barCogCritical" class="h-full bg-emerald-500 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timed Assessments History Table -->
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Standardized Timed Reading Tests</h4>
+          <div id="historyTimedAssessmentsList" class="bg-slate-50 rounded-2xl p-3 border border-slate-200/80 text-xs divide-y divide-slate-200 max-h-56 overflow-y-auto">
+            <div class="p-4 text-center text-slate-400">Loading timed reading assessments...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: CURRICULUM QUIZZES & PRACTICE -->
+      <div id="profileTabContent_quizzes" class="hidden space-y-2">
+        <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Weekly Assessments &amp; Practice Quizzes</h4>
+        <div id="historyAttemptsList" class="bg-slate-50 rounded-2xl p-3 border border-slate-200/80 text-xs divide-y divide-slate-200 max-h-72 overflow-y-auto">
+          <div class="p-4 text-center text-slate-400">Loading recorded attempts...</div>
+        </div>
+      </div>
+
+      <!-- TAB 3: READING HABITS & GAMIFICATION -->
+      <div id="profileTabContent_habits" class="hidden space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <!-- Gamification Progression Card -->
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
+            <div class="font-bold text-slate-800 flex items-center justify-between">
+              <span>Scholar Gamification Progression</span>
+              <span id="historyLevelXp" class="font-bold text-indigo-700 font-display">Lvl 1</span>
+            </div>
+            <div class="text-[11px] text-slate-500 leading-relaxed">
+              XP is earned through consistent daily reading streak habits, Phil-IRI diagnostic tests, and module mastery.
+            </div>
+            <div id="historyQuestsContainer" class="p-2.5 bg-white rounded-xl border border-slate-200/60 space-y-1.5">
+              <div class="text-[10px] font-bold text-slate-400 uppercase">Milestones &amp; Quests</div>
+              <div id="historyQuestsList" class="text-slate-600 text-xs">No special quests unlocked yet.</div>
+            </div>
+          </div>
+
+          <!-- Vocabulary Mastered Card -->
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
+            <div class="font-bold text-slate-800 flex items-center justify-between">
+              <span>OCR Scanner &amp; Word Mastery</span>
+              <span id="historyWordsMasteredBadge" class="font-bold text-amber-600">0 Mastered</span>
+            </div>
+            <div class="text-[11px] text-slate-500 leading-relaxed">
+              Words encountered via GabAI mobile OCR camera scanner with spaced-repetition retention intervals.
+            </div>
+            <div class="p-2.5 bg-white rounded-xl border border-slate-200/60 flex items-center justify-between">
+              <span class="text-slate-500 font-medium">Memory Retention (Interval &ge; 4):</span>
+              <span id="historyIntervalFourWords" class="font-bold text-slate-800">0 words</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: REMEDIAL INTERVENTIONS & GUIDANCE NOTES -->
+      <div id="profileTabContent_interventions" class="hidden space-y-3.5">
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="font-bold text-xs text-slate-800 font-display">DepEd Reading Intervention Protocol</h4>
+              <p class="text-[11px] text-slate-500">Designate reading support programs and record supervisory guidance notes.</p>
+            </div>
+            <span id="interventionStatusBadge" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">Regular Program</span>
+          </div>
+
+          <!-- Intervention Status Dropdown -->
+          <div class="space-y-1">
+            <label class="block text-[11px] font-bold text-slate-700">Assigned Reading Intervention Program:</label>
+            <select id="selectInterventionStatus" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 focus:border-[#5341CD]">
+              <option value="none">Regular Reading Program (Satisfactory Progress)</option>
+              <option value="remedial_reading">🚨 Remedial Reading Session (Priority Support / Frustration)</option>
+              <option value="peer_tutoring">👥 Peer Tutoring &amp; Guided Paired Reading</option>
+              <option value="phonics_catchup">📖 Intensive Phonics &amp; Word Recognition Catch-up</option>
+              <option value="parent_conference">📞 Parent-Teacher Reading Conference Scheduled</option>
+              <option value="elln_clinic">🏥 Specialized Early Language, Literacy &amp; Numeracy (ELLN) Clinic</option>
+            </select>
+          </div>
+
+          <!-- Guidance Remarks Textarea -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <label class="block text-[11px] font-bold text-slate-700">Administrative &amp; Guidance Notes:</label>
+              <span id="interventionLastUpdated" class="text-[10px] text-slate-400">No previous notes</span>
+            </div>
+            <textarea id="textareaInterventionNotes" rows="3" placeholder="Enter diagnostic observations, remedial progress notes, or special accommodation directives..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 focus:border-[#5341CD]"></textarea>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[10px] text-slate-400">Changes persist in real time to the student's institutional record.</span>
+            <button type="button" id="btnSaveStudentIntervention" onclick="saveStudentIntervention()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5">
+              <span>Save Intervention Record</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-3 flex items-center justify-between border-t border-slate-100 text-xs">
+        <div class="text-slate-400 text-[11px]">
+          Institutional Record &bull; SDO Valenzuela City
+        </div>
+        <button type="button" onclick="closeQuizHistoryModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow transition">
           Close Record
         </button>
       </div>
@@ -1907,6 +2067,434 @@
         <span class="text-[11px] text-slate-500">Read receipts are recorded when the bulletin is opened.</span>
         <button onclick="closeAnnouncementViewsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors">
           Close Roster
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: PASSAGE & PHIL-IRI DIMENSIONS INTELLIGENCE SUITE -->
+  <!-- ========================================================================= -->
+  <div id="modalPassageDimensionAnalytics" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden transform transition-all animate-scaleUp">
+      <!-- Modal Header -->
+      <div class="p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-200 border border-purple-400/30">
+              DepEd Order No. 14, s. 2018
+            </span>
+            <span id="modalAnalyticsGradeBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white/90">
+              Grade 7 Standardized Assessment
+            </span>
+            <span id="modalAnalyticsSubmissionsCountBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+              0 Submissions Analyzed
+            </span>
+          </div>
+          <h2 id="modalAnalyticsTitle" class="text-lg sm:text-xl font-black text-white font-display tracking-tight">
+            Passage &amp; Phil-IRI Dimensions Intelligence
+          </h2>
+          <p id="modalAnalyticsSubtitle" class="text-xs text-purple-200/80 mt-0.5">
+            Diagnostic breakdown of passage fluency (WPM) and Literal, Inferential, and Critical comprehension dimensions.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-center">
+          <button onclick="exportAssessmentDimensionsCSV(activeAnalyticsAssessmentId)" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs" title="Export Dimensions Analysis CSV">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Export (CSV)</span>
+          </button>
+          <button onclick="closePassageDimensionAnalyticsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" title="Close Modal">
+            &times;
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="bg-slate-50 border-b border-slate-200 px-5 pt-3 flex gap-2 overflow-x-auto text-xs font-bold">
+        <button id="btnTabAnalyticsDimensions" onclick="switchAnalyticsTab('dimensions')" class="px-4 py-2.5 rounded-t-xl border-b-2 border-[#6C5CE7] text-[#6C5CE7] bg-white transition-all flex items-center gap-2 shadow-xs">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <span>Phil-IRI 3-Dimension Blueprint</span>
+        </button>
+        <button id="btnTabAnalyticsPassage" onclick="switchAnalyticsTab('passage')" class="px-4 py-2.5 rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+          <span>Passage &amp; Fluency Telemetry</span>
+        </button>
+        <button id="btnTabAnalyticsItems" onclick="switchAnalyticsTab('items')" class="px-4 py-2.5 rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Item Difficulty &amp; Distractors</span>
+        </button>
+        <button id="btnTabAnalyticsSchools" onclick="switchAnalyticsTab('schools')" class="px-4 py-2.5 rounded-t-xl border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3l2-4h14l2 4"/><line x1="9" y1="21" x2="9" y2="11"/><line x1="15" y1="21" x2="15" y2="11"/></svg>
+          <span id="tabAnalyticsSchoolsLabel">Campuses Comparison</span>
+        </button>
+      </div>
+
+      <!-- Modal Body (Tab Content) -->
+      <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6">
+        
+        <!-- TAB 1: PHIL-IRI 3-DIMENSION BLUEPRINT -->
+        <div id="analyticsTabDimensions" class="space-y-6">
+          <!-- 3-Dimension Bento Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Literal Dimension Card -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50/50 p-4 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-800 border border-blue-200">
+                    📘 Literal Recall
+                  </span>
+                  <span id="dimLiteralMasteryBadge" class="text-[11px] font-bold text-blue-700 bg-white/80 px-2 py-0.5 rounded-lg border border-blue-200">
+                    --
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <div id="dimLiteralMps" class="text-3xl font-black text-blue-900 font-display">0%</div>
+                  <div class="text-xs font-semibold text-blue-600">MPS Score</div>
+                </div>
+                <p class="text-[11px] text-blue-800/80 mt-2 line-clamp-2">
+                  Explicit recall of characters, facts, settings, and sequence directly stated in the passage.
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-blue-200/60 flex items-center justify-between text-[11px] font-bold text-blue-900">
+                <span>Items Mastered:</span>
+                <span id="dimLiteralRatio" class="font-mono">0 / 0</span>
+              </div>
+            </div>
+
+            <!-- Inferential Dimension Card -->
+            <div class="bg-gradient-to-br from-purple-50 to-violet-50/50 p-4 rounded-2xl border border-purple-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200">
+                    📙 Inferential Thinking
+                  </span>
+                  <span id="dimInferentialMasteryBadge" class="text-[11px] font-bold text-purple-700 bg-white/80 px-2 py-0.5 rounded-lg border border-purple-200">
+                    --
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <div id="dimInferentialMps" class="text-3xl font-black text-purple-900 font-display">0%</div>
+                  <div class="text-xs font-semibold text-purple-600">MPS Score</div>
+                </div>
+                <p class="text-[11px] text-purple-800/80 mt-2 line-clamp-2">
+                  Reading between the lines: determining cause &amp; effect, character motives, and predicting outcomes.
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-purple-200/60 flex items-center justify-between text-[11px] font-bold text-purple-900">
+                <span>Items Mastered:</span>
+                <span id="dimInferentialRatio" class="font-mono">0 / 0</span>
+              </div>
+            </div>
+
+            <!-- Critical Dimension Card -->
+            <div class="bg-gradient-to-br from-rose-50 to-pink-50/50 p-4 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
+                    📕 Critical / Applied
+                  </span>
+                  <span id="dimCriticalMasteryBadge" class="text-[11px] font-bold text-rose-700 bg-white/80 px-2 py-0.5 rounded-lg border border-rose-200">
+                    --
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <div id="dimCriticalMps" class="text-3xl font-black text-rose-900 font-display">0%</div>
+                  <div class="text-xs font-semibold text-rose-600">MPS Score</div>
+                </div>
+                <p class="text-[11px] text-rose-800/80 mt-2 line-clamp-2">
+                  Evaluating author arguments, judging validity, personal reflection, and synthesizing viewpoints.
+                </p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-rose-200/60 flex items-center justify-between text-[11px] font-bold text-rose-900">
+                <span>Items Mastered:</span>
+                <span id="dimCriticalRatio" class="font-mono">0 / 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DepEd 75% Mastery Comparative Benchmark Bar -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">DepEd Order No. 14 Standard Comparison</h4>
+                <p class="text-xs text-slate-500">Benchmark against the 75% Passing Standard for Phil-IRI English/Filipino GST.</p>
+              </div>
+              <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200">
+                Target Standard: 75.0% MPS
+              </span>
+            </div>
+
+            <!-- Progress Bars Comparison -->
+            <div class="space-y-3 pt-2">
+              <div>
+                <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span>Literal Recall Dimension</span>
+                  <span id="dimBarLiteralVal">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden relative">
+                  <div class="absolute left-[75%] top-0 bottom-0 w-0.5 bg-slate-400 z-10" title="75% DepEd Standard"></div>
+                  <div id="dimBarLiteral" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span>Inferential Thinking Dimension</span>
+                  <span id="dimBarInferentialVal">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden relative">
+                  <div class="absolute left-[75%] top-0 bottom-0 w-0.5 bg-slate-400 z-10" title="75% DepEd Standard"></div>
+                  <div id="dimBarInferential" class="bg-purple-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span>Critical / Applied Dimension</span>
+                  <span id="dimBarCriticalVal">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden relative">
+                  <div class="absolute left-[75%] top-0 bottom-0 w-0.5 bg-slate-400 z-10" title="75% DepEd Standard"></div>
+                  <div id="dimBarCritical" class="bg-rose-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pedagogical Recommendation Banner -->
+            <div id="dimPedagogicalBanner" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-3">
+              <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div>
+                <strong class="font-bold">Pedagogical Remediation Guidance:</strong>
+                <p id="dimPedagogicalText" class="mt-0.5 text-amber-800">
+                  Calculating dimensional diagnostics...
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: PASSAGE & FLUENCY TELEMETRY -->
+        <div id="analyticsTabPassage" class="hidden space-y-6">
+          <!-- Fluency KPI Row -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Passage Length</div>
+              <div id="analyticsPassageWordCount" class="text-xl font-black text-slate-800 font-display">0 words</div>
+              <div id="analyticsPassageLexile" class="text-[10px] text-slate-500 font-medium mt-0.5">Est. Lexile: 850L-950L</div>
+            </div>
+            <div class="p-3.5 bg-purple-50 rounded-2xl border border-purple-200/80">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-purple-700">Cohort Avg Duration</div>
+              <div id="analyticsAvgDuration" class="text-xl font-black text-purple-900 font-display">0s</div>
+              <div class="text-[10px] text-purple-600 font-medium mt-0.5">Stage 1 reading phase</div>
+            </div>
+            <div class="p-3.5 bg-indigo-50 rounded-2xl border border-indigo-200/80">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">Cohort Avg Speed</div>
+              <div id="analyticsAvgWpm" class="text-xl font-black text-indigo-900 font-display">0 WPM</div>
+              <div id="analyticsSpeedBadge" class="text-[10px] font-bold text-indigo-600 mt-0.5">Standard Pace</div>
+            </div>
+            <div class="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200/80">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Comprehension MPS</div>
+              <div id="analyticsComprehensionMps" class="text-xl font-black text-emerald-900 font-display">0%</div>
+              <div class="text-[10px] text-emerald-600 font-medium mt-0.5">Stage 2 quiz phase</div>
+            </div>
+          </div>
+
+          <!-- Speed Distribution Bar (Fast > 140, Standard 90-140, Developing < 90) -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+              <span>DepEd Junior High School Speed Norms</span>
+              <span id="analyticsSpeedCohortSummary" class="text-[11px] text-slate-500 font-normal">0 Students Tested</span>
+            </div>
+            <div class="flex h-4 w-full rounded-full overflow-hidden bg-slate-100 text-[10px] font-bold text-white text-center">
+              <div id="speedBarFast" class="bg-emerald-500 flex items-center justify-center transition-all duration-500" style="width: 0%" title="Fast (>140 WPM)"></div>
+              <div id="speedBarStandard" class="bg-indigo-500 flex items-center justify-center transition-all duration-500" style="width: 0%" title="Standard (90-140 WPM)"></div>
+              <div id="speedBarDeveloping" class="bg-amber-500 flex items-center justify-center transition-all duration-500" style="width: 0%" title="Developing (<90 WPM)"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                <span>Fast (&gt;140 WPM): <strong id="speedCountFast" class="text-slate-800">0</strong></span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span>
+                <span>Standard (90-140 WPM): <strong id="speedCountStandard" class="text-slate-800">0</strong></span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                <span>Developing (&lt;90 WPM): <strong id="speedCountDeveloping" class="text-slate-800">0</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Passage Display Reader Box -->
+          <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-200/80 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                  Standardized Reading Text
+                </span>
+                <span id="analyticsPassageTitle" class="text-xs font-bold text-slate-800">Passage Title</span>
+              </div>
+              <button onclick="copyPassageTextToClipboard()" class="text-xs text-[#6C5CE7] hover:underline font-bold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span>Copy Passage</span>
+              </button>
+            </div>
+            <div id="analyticsPassageBody" class="text-xs text-slate-700 leading-relaxed font-serif bg-white p-4 rounded-xl border border-slate-200/80 max-h-72 overflow-y-auto whitespace-pre-line shadow-inner">
+              Loading reading passage content...
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: ITEM DIFFICULTY & DISTRACTOR ANALYSIS -->
+        <div id="analyticsTabItems" class="hidden space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Question Item Performance &amp; Distractor Matrix</h4>
+              <p class="text-xs text-slate-500">Identifies specific questions where students struggled and the most common distractors selected.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Mastered &ge; 75%</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Developing 50-74%</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Least Mastered &lt; 50%</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+                  <tr>
+                    <th class="p-3">Item # &amp; Dimension</th>
+                    <th class="p-3">Question Prompt</th>
+                    <th class="p-3 text-center">Accuracy (MPS)</th>
+                    <th class="p-3">Mastery Status</th>
+                    <th class="p-3">Most Common Distractor</th>
+                    <th class="p-3 text-right">Pedagogical Intervention</th>
+                  </tr>
+                </thead>
+                <tbody id="analyticsItemsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                  <tr>
+                    <td colspan="6" class="p-6 text-center text-slate-400">Analyzing question responses...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: DISAGGREGATED COMPARISON (SCHOOLS OR SECTIONS) -->
+        <div id="analyticsTabSchools" class="hidden space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h4 id="analyticsComparisonTitle" class="text-xs font-bold text-slate-800 uppercase tracking-wider">Campuses Disaggregated Breakdown</h4>
+              <p id="analyticsComparisonSubtitle" class="text-xs text-slate-500">Cross-campus comparison of Literal, Inferential, and Critical dimensions.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs min-w-[650px]">
+                <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+                  <tr>
+                    <th class="p-3" id="thAnalyticsEntityName">School Campus</th>
+                    <th class="p-3 text-center">Submissions</th>
+                    <th class="p-3 text-center">Avg WPM</th>
+                    <th class="p-3 text-center text-blue-700">Literal MPS</th>
+                    <th class="p-3 text-center text-purple-700">Inferential MPS</th>
+                    <th class="p-3 text-center text-rose-700">Critical MPS</th>
+                    <th class="p-3 text-center font-bold">Overall MPS</th>
+                  </tr>
+                </thead>
+                <tbody id="analyticsComparisonTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                  <tr>
+                    <td colspan="7" class="p-6 text-center text-slate-400">Loading comparative breakdown...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500">Official DepEd GST Reading Comprehension &amp; Fluency Standards.</span>
+        <button onclick="closePassageDimensionAnalyticsModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors shadow-xs">
+          Close Analytics
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: 360° TIMED STUDENT ITEM ANALYSIS INSPECTOR -->
+  <!-- ========================================================================= -->
+  <div id="modalTimedStudentItemAnalysis" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden transform transition-all animate-scaleUp">
+      <!-- Modal Header -->
+      <div class="p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between gap-3 border-b border-white/10">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-200 border border-purple-400/30">
+              Student Diagnostic Inspector
+            </span>
+            <span id="inspectStudentSchoolBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white/90">
+              School Name
+            </span>
+          </div>
+          <h3 id="inspectStudentName" class="text-lg font-black text-white font-display">
+            Student Full Name
+          </h3>
+          <p id="inspectStudentMeta" class="text-xs text-purple-200/80">
+            LRN: 123456789012 • Grade 7 - Diamond • Tested on Nov 12, 2026
+          </p>
+        </div>
+        <button onclick="closeTimedStudentItemAnalysis()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
+          &times;
+        </button>
+      </div>
+
+      <!-- Telemetry Strip -->
+      <div class="bg-slate-50 p-4 border-b border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-2.5 bg-white rounded-xl border border-slate-200/80">
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Reading Time</div>
+          <div id="inspectReadingSeconds" class="text-base font-black text-slate-800">0s</div>
+          <div id="inspectReadingWpm" class="text-[10px] font-bold text-[#6C5CE7]">0 WPM</div>
+        </div>
+        <div class="p-2.5 bg-white rounded-xl border border-slate-200/80">
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Comprehension</div>
+          <div id="inspectScoreRatio" class="text-base font-black text-slate-800">0 / 0</div>
+          <div id="inspectScorePercent" class="text-[10px] font-bold text-emerald-600">0% MPS</div>
+        </div>
+        <div class="p-2.5 bg-white rounded-xl border border-slate-200/80">
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Phil-IRI Level</div>
+          <div id="inspectPhilIriLevel" class="text-xs font-black text-slate-800 mt-1">--</div>
+        </div>
+        <div class="p-2.5 bg-white rounded-xl border border-slate-200/80">
+          <div class="text-[10px] font-bold text-slate-400 uppercase">Speed Category</div>
+          <div id="inspectSpeedCategory" class="text-xs font-black text-slate-800 mt-1">--</div>
+        </div>
+      </div>
+
+      <!-- Dimensions Breakdown Strip -->
+      <div class="px-5 py-3 bg-indigo-50/50 border-b border-indigo-100 flex items-center justify-between flex-wrap gap-2 text-xs font-bold">
+        <span class="text-indigo-900">Cognitive Breakdown:</span>
+        <div class="flex items-center gap-3">
+          <span id="inspectLiteralPill" class="px-2 py-0.5 rounded-lg bg-blue-100 text-blue-800 border border-blue-200">Literal: 0/0 (0%)</span>
+          <span id="inspectInferentialPill" class="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 border border-purple-200">Inferential: 0/0 (0%)</span>
+          <span id="inspectCriticalPill" class="px-2 py-0.5 rounded-lg bg-rose-100 text-rose-800 border border-rose-200">Critical: 0/0 (0%)</span>
+        </div>
+      </div>
+
+      <!-- Item By Item Answers List -->
+      <div class="p-5 overflow-y-auto flex-1 space-y-4" id="inspectQuestionsContainer">
+        <div class="text-center text-slate-400 py-8">Loading student attempt details...</div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <button onclick="closeTimedStudentItemAnalysis()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors">
+          Close Inspector
         </button>
       </div>
     </div>
@@ -3044,6 +3632,28 @@
 
         <!-- VIEW 4: LEARNER PERFORMANCE & QUIZ HISTORY -->
         <div id="tab-learner-performance" class="tab-content hidden space-y-4">
+          <!-- Super Admin Hierarchical Breadcrumb & School Drilldown Navigation Strip -->
+          <div id="learnerBreadcrumbBar" class="hidden bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="backToAllSchools()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center gap-1.5 transition-all shadow-2xs hover:shadow-xs">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                <span>&larr; Back to All Schools</span>
+              </button>
+              <span class="text-slate-300 font-bold">&bull;</span>
+              <div class="flex items-center gap-2">
+                <span id="learnerBreadcrumbSchoolName" class="font-bold text-slate-900 text-sm font-display">Caruhatan National High School</span>
+                <span id="learnerBreadcrumbDistrictBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">District 2</span>
+                <span id="learnerBreadcrumbSchoolId" class="text-[10px] text-slate-400 font-mono">ID: 305445</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 text-[11px] hidden sm:inline">Active Campus Inspection</span>
+              <button type="button" onclick="backToAllSchools()" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs flex items-center gap-1">
+                <span>Schools Overview Matrix &rarr;</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Academic Performance Header -->
           <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -3052,9 +3662,19 @@
                 <span id="academicPerformanceScopeBadge" class="text-xs text-slate-400 font-medium">Phil-IRI Standards &amp; Comprehension Progress</span>
               </div>
               <h3 class="font-bold text-base text-slate-900 mt-1 font-display">Learner Academic Performance</h3>
-              <p class="text-xs text-slate-500">Track Phil-IRI reading tiers, Mean Percentage Scores (MPS), reading speed, and quiz history.</p>
+              <p id="academicPerformanceHeaderDesc" class="text-xs text-slate-500">Track Phil-IRI reading tiers, Mean Percentage Scores (MPS), reading speed, classroom sections, and quiz history.</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- View Mode Toggle: Learners Roster vs Section Performance Matrix (Active inside school) -->
+              <div id="learnerViewModeToggleGroup" class="hidden inline-flex p-1 bg-slate-100 rounded-xl text-xs font-semibold border border-slate-200/80 shadow-2xs">
+                <button type="button" id="btnViewLearnerRoster" onclick="setLearnerViewMode('roster')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-2xs">
+                  Learners Roster
+                </button>
+                <button type="button" id="btnViewSectionMatrix" onclick="setLearnerViewMode('sections')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all">
+                  Section Matrix
+                </button>
+              </div>
+
               <span class="hidden" id="kpiAtRiskLearners">0</span>
               <button onclick="exportInterventionsPDF()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all" title="Print or Save PDF of Reading Support List">
                 <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
@@ -3070,31 +3690,141 @@
             </div>
           </div>
 
-          <!-- Academic Performance Bento KPI Summary Bar -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <!-- ========================================================================= -->
+          <!-- CONTAINER 1: SUPER ADMIN SCHOOLS STATISTICS & COMPARATIVE MATRIX -->
+          <!-- Visible exclusively to Super Admin when viewing division overview -->
+          <!-- ========================================================================= -->
+          <div id="learnerSchoolsContainer" class="space-y-4">
+            <!-- Schools Statistics Control Bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3 text-xs">
+              <!-- District Filter Chips & Sort -->
+              <div class="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">Jurisdiction:</span>
+                  <button type="button" id="btnSchoolDistrictAll" onclick="setLearnerSchoolDistrictFilter('ALL')" class="px-3 py-1 rounded-lg font-bold text-xs bg-indigo-600 text-white shadow-2xs transition-all">
+                    All Secondary Campuses (25)
+                  </button>
+                  <button type="button" id="btnSchoolDistrict1" onclick="setLearnerSchoolDistrictFilter('District 1')" class="px-3 py-1 rounded-lg font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shadow-2xs transition-all flex items-center gap-1">
+                    <span>District 1 Campuses (15)</span>
+                  </button>
+                  <button type="button" id="btnSchoolDistrict2" onclick="setLearnerSchoolDistrictFilter('District 2')" class="px-3 py-1 rounded-lg font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shadow-2xs transition-all flex items-center gap-1">
+                    <span>District 2 Campuses (10)</span>
+                  </button>
+                </div>
+
+                <!-- Dedicated School Sort Dropdown -->
+                <div class="flex items-center gap-2">
+                  <label for="selectSchoolMatrixSort" class="font-bold text-slate-700 whitespace-nowrap flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12m-9 6h6"/></svg>
+                    <span>Rank Campuses:</span>
+                  </label>
+                  <select id="selectSchoolMatrixSort" onchange="handleSchoolMatrixSortChange(this.value)" class="px-3 py-1.5 bg-indigo-50/70 border border-indigo-200 rounded-xl text-xs font-bold text-indigo-900 focus:bg-white focus:border-[#5341CD] focus:outline-none">
+                    <option value="highest_mps">🥇 Highest Literacy MPS (Top Campuses ⬇)</option>
+                    <option value="highest_enrolled">👥 Highest Enrolled Learners (Largest Campus ⬇)</option>
+                    <option value="highest_wpm">🚀 Highest Reading Speed (Fastest WPM ⬇)</option>
+                    <option value="lowest_mps">⚠️ Lowest Literacy MPS (Priority Support ⬆)</option>
+                    <option value="name_asc">🔤 School Name (A → Z)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Search and Counter Row -->
+              <div class="flex flex-wrap items-center justify-between gap-2.5">
+                <div class="relative w-full sm:w-80">
+                  <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="search" id="inputSchoolMatrixSearch" name="search_school_matrix" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" oninput="handleSchoolMatrixSearch(this.value)" placeholder="Search school name, ID, or district..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
+                  <button id="btnClearSchoolMatrixSearch" onclick="clearSchoolMatrixSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
+                </div>
+                <div id="schoolMatrixCountBadge" class="text-xs font-semibold text-slate-500">
+                  Showing 25 secondary schools
+                </div>
+              </div>
+            </div>
+
+            <!-- Bento Cards Grid: 25 Valenzuela Junior High Schools -->
+            <div id="learnerSchoolCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- Dynamically populated by renderLearnerSchoolsMatrix() -->
+            </div>
+          </div>
+
+          <!-- ========================================================================= -->
+          <!-- CONTAINER 2: SINGLE SCHOOL WORKSPACE (KPIs, Ratio Bar, Sections & Roster) -->
+          <!-- Visible to School Admin ALWAYS, or to Super Admin upon school drilldown -->
+          <!-- ========================================================================= -->
+          <div id="learnerSchoolWorkspace" class="hidden space-y-4">
+          <!-- INTERACTIVE PHIL-IRI 3-TIER DISTRIBUTION RATIO BAR -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between text-xs gap-2">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-800 font-display">Phil-IRI Literacy Tier Ratio:</span>
+                <span id="perfRatioSummaryText" class="text-slate-500 font-medium">Calculating distribution across cohort...</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-medium">Click any tier to filter table</div>
+            </div>
+
+            <!-- Multi-segment Ratio Bar -->
+            <div class="w-full h-3 rounded-full bg-slate-100 flex overflow-hidden p-0.5 gap-0.5 shadow-inner">
+              <div id="barTierIndependent" onclick="handleLearnerQuickPill('independent')" class="h-full bg-emerald-500 rounded-l-full cursor-pointer transition-all hover:opacity-90" style="width: 25%" title="Independent Readers (80%+ MPS)"></div>
+              <div id="barTierInstructional" onclick="handleLearnerQuickPill('instructional')" class="h-full bg-amber-500 cursor-pointer transition-all hover:opacity-90" style="width: 25%" title="Instructional Readers (60%-79% MPS)"></div>
+              <div id="barTierFrustration" onclick="handleLearnerQuickPill('support')" class="h-full bg-rose-500 cursor-pointer transition-all hover:opacity-90" style="width: 25%" title="Priority Support / Frustration (<60% MPS)"></div>
+              <div id="barTierUnassessed" onclick="handleLearnerQuickPill('unassessed')" class="h-full bg-slate-300 rounded-r-full cursor-pointer transition-all hover:opacity-90" style="width: 25%" title="Unassessed / Pending"></div>
+            </div>
+
+            <!-- Ratio Legend Interactive Pills -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+              <div class="flex flex-wrap items-center gap-3">
+                <button type="button" onclick="handleLearnerQuickPill('independent')" class="flex items-center gap-1.5 hover:opacity-80 transition">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                  <span class="text-slate-600 font-medium">Independent (80%+):</span>
+                  <span id="perfLegendIndCount" class="font-bold text-emerald-700 font-display">0 (0%)</span>
+                </button>
+                <button type="button" onclick="handleLearnerQuickPill('instructional')" class="flex items-center gap-1.5 hover:opacity-80 transition">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                  <span class="text-slate-600 font-medium">Instructional (60-79%):</span>
+                  <span id="perfLegendInsCount" class="font-bold text-amber-700 font-display">0 (0%)</span>
+                </button>
+                <button type="button" onclick="handleLearnerQuickPill('support')" class="flex items-center gap-1.5 hover:opacity-80 transition">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
+                  <span class="text-slate-600 font-medium">Priority Support (&lt;60%):</span>
+                  <span id="perfLegendFruCount" class="font-bold text-rose-700 font-display">0 (0%)</span>
+                </button>
+                <button type="button" onclick="handleLearnerQuickPill('unassessed')" class="flex items-center gap-1.5 hover:opacity-80 transition">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0"></span>
+                  <span class="text-slate-500 font-medium">Unassessed:</span>
+                  <span id="perfLegendUnassCount" class="font-bold text-slate-700 font-display">0 (0%)</span>
+                </button>
+              </div>
+              <div id="perfEvaluatedRatePill" class="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-[11px]">
+                Coverage: 0%
+              </div>
+            </div>
+          </div>
+
+          <!-- ACADEMIC PERFORMANCE ENHANCED BENTO KPI SUMMARY BAR (6 TILES) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
               <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
                 <span>Evaluated</span>
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
               </div>
               <div id="perfKpiTotalEvaluated" class="text-xl font-black text-slate-900 font-display">0</div>
-              <div class="text-[10px] text-slate-400">Total learners evaluated</div>
+              <div id="perfKpiEvaluatedSub" class="text-[10px] text-slate-400">Total learners evaluated</div>
             </div>
             <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
               <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
-                <span>Independent</span>
+                <span>Literacy MPS</span>
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               </div>
-              <div id="perfKpiIndependent" class="text-xl font-black text-emerald-600 font-display">0</div>
-              <div class="text-[10px] text-emerald-700/80">Tier 1 &bull; 80%+ MPS</div>
+              <div id="perfKpiAverageMps" class="text-xl font-black text-emerald-600 font-display">0%</div>
+              <div class="text-[10px] text-slate-400">DepEd Standard: 75%</div>
             </div>
             <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
               <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
-                <span>Instructional</span>
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>Reading Speed</span>
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
               </div>
-              <div id="perfKpiInstructional" class="text-xl font-black text-amber-600 font-display">0</div>
-              <div class="text-[10px] text-amber-700/80">Tier 2 &bull; 60%-79% MPS</div>
+              <div id="perfKpiAverageWpm" class="text-xl font-black text-blue-600 font-display">— WPM</div>
+              <div class="text-[10px] text-slate-400">Junior High benchmark</div>
             </div>
             <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
               <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
@@ -3104,90 +3834,203 @@
               <div id="perfKpiFrustration" class="text-xl font-black text-rose-600 font-display">0</div>
               <div class="text-[10px] text-rose-700/80">Tier 3 &bull; &lt;60% MPS</div>
             </div>
-            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1 col-span-2 sm:col-span-1">
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
               <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
-                <span>Daily Streak Habit</span>
+                <span>Gender Ratio</span>
+                <span class="text-[10px] text-indigo-600 font-bold">DepEd</span>
+              </div>
+              <div id="perfKpiGenderRatio" class="text-sm font-black text-slate-800 font-display truncate">👦 0 • 👧 0</div>
+              <div class="text-[10px] text-slate-400">Male vs Female enrolled</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
+              <div class="flex items-center justify-between text-slate-400 text-[11px] font-semibold">
+                <span>Daily Habit</span>
                 <span class="text-amber-500 text-xs">🔥</span>
               </div>
               <div id="perfKpiStreak" class="text-xl font-black text-amber-600 font-display">0d</div>
-              <div class="text-[10px] text-slate-400">Average daily reading streak</div>
+              <div id="perfKpiWordsMasteredSub" class="text-[10px] text-slate-400">Average daily reading streak</div>
             </div>
           </div>
 
-          <!-- LEARNER PERFORMANCE DEDICATED CONTROLS -->
-          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div class="flex flex-wrap items-center gap-2.5 flex-1">
-              <!-- Dedicated Search Input -->
-              <div class="relative w-full sm:w-60">
-                <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="search" id="inputLearnerSearch" name="search_learner_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" oninput="handleLearnerSearch(this.value)" placeholder="Search learner name, section, LRN..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
-                <button id="btnClearLearnerSearch" onclick="clearLearnerSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
+          <!-- LEARNER PERFORMANCE CONTROLS: QUICK FILTER PILLS & RANK BY HIGHEST -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3 text-xs">
+            <!-- Row 1: Quick "Filter to Highest" & Tier Pills -->
+            <div class="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">Quick Filter:</span>
+                <button type="button" id="pillLearnerAll" onclick="handleLearnerQuickPill('ALL')" class="px-2.5 py-1 rounded-lg font-bold text-xs bg-indigo-600 text-white shadow-2xs transition-all">
+                  All Learners
+                </button>
+                <button type="button" id="pillLearnerTopHighest" onclick="handleLearnerQuickPill('top_highest')" class="px-2.5 py-1 rounded-lg font-bold text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 shadow-2xs transition-all flex items-center gap-1">
+                  <span>🏆 Highest Performers (80%+)</span>
+                </button>
+                <button type="button" id="pillLearnerPrioritySupport" onclick="handleLearnerQuickPill('support')" class="px-2.5 py-1 rounded-lg font-bold text-xs bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100 shadow-2xs transition-all flex items-center gap-1">
+                  <span>🚨 Priority Support (&lt;60%)</span>
+                </button>
+                <button type="button" id="pillLearnerInstructional" onclick="handleLearnerQuickPill('instructional')" class="px-2.5 py-1 rounded-lg font-bold text-xs bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 shadow-2xs transition-all">
+                  Instructional (60-79%)
+                </button>
+                <button type="button" id="pillLearnerUnassessed" onclick="handleLearnerQuickPill('unassessed')" class="px-2.5 py-1 rounded-lg font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 shadow-2xs transition-all">
+                  Unassessed
+                </button>
               </div>
 
-              <!-- Dedicated Grade Filter -->
-              <select id="selectLearnerGradeFilter" onchange="handleLearnerGradeFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by grade level">
-                <option value="ALL">All Grades</option>
-                <option value="Grade 7">Grade 7</option>
-                <option value="Grade 8">Grade 8</option>
-                <option value="Grade 9">Grade 9</option>
-                <option value="Grade 10">Grade 10</option>
-              </select>
-
-              <!-- Dedicated Phil-IRI Reading Tier Filter -->
-              <select id="selectLearnerTierFilter" onchange="handleLearnerTierFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by Phil-IRI reading tier">
-                <option value="ALL">All Reading Tiers</option>
-                <option value="independent">Independent Readers (80%+ MPS)</option>
-                <option value="instructional">Instructional Readers (60%-79% MPS)</option>
-                <option value="frustration">Priority Support / Frustration (&lt;60% MPS)</option>
-                <option value="unassessed">Unassessed / Initial Eval Pending</option>
-              </select>
-
-              <!-- Dedicated Gender Disaggregation Filter -->
-              <select id="selectLearnerGenderFilter" onchange="handleLearnerGenderFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by DepEd gender classification">
-                <option value="ALL">All Genders</option>
-                <option value="male">Male Learners</option>
-                <option value="female">Female Learners</option>
-              </select>
-
-              <!-- Dedicated Section Filter -->
-              <select id="selectLearnerSectionFilter" onchange="handleLearnerSectionFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by classroom section">
-                <option value="ALL">All Sections</option>
-              </select>
-
-              <!-- Super Admin School Filter -->
-              <div id="learnerSchoolFilterContainer" class="flex items-center gap-1.5">
-                <select id="learnerSchoolFilter" onchange="handleLearnerSchoolFilterChange(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none max-w-[200px] truncate" title="Filter by participating school">
-                  <option value="ALL">All Junior High Schools</option>
+              <!-- Dedicated "Sort / Rank By Highest" Dropdown -->
+              <div class="flex items-center gap-2">
+                <label for="selectLearnerSort" class="font-bold text-slate-700 whitespace-nowrap flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12m-9 6h6"/></svg>
+                  <span>Rank / Sort:</span>
+                </label>
+                <select id="selectLearnerSort" onchange="handleLearnerSortChange(this.value)" class="px-3 py-1.5 bg-indigo-50/70 border border-indigo-200 rounded-xl text-xs font-bold text-indigo-900 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Select filter to rank learners by the highest">
+                  <option value="highest_mps">🥇 Highest MPS (Top Comprehension ⬇)</option>
+                  <option value="highest_wpm">🚀 Highest Reading Speed (Fastest WPM ⬇)</option>
+                  <option value="highest_streak">🔥 Highest Daily Streak (Habit Leaders ⬇)</option>
+                  <option value="highest_xp">⭐ Highest Level &amp; XP (Gamification ⬇)</option>
+                  <option value="lowest_mps">⚠️ Lowest MPS (Priority Support ⬆)</option>
+                  <option value="name_asc">🔤 Learner Name (A → Z)</option>
+                  <option value="name_desc">🔤 Learner Name (Z → A)</option>
                 </select>
               </div>
             </div>
 
-            <div id="learnerCountSummaryBadge" class="text-xs font-semibold text-slate-500">
-              Showing active learner records
+            <!-- Row 2: Search, Grade, Section, Gender, School Filters -->
+            <div class="flex flex-wrap items-center justify-between gap-2.5">
+              <div class="flex flex-wrap items-center gap-2 flex-1">
+                <!-- Dedicated Search Input -->
+                <div class="relative w-full sm:w-60">
+                  <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="search" id="inputLearnerSearch" name="search_learner_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute('readonly');" oninput="handleLearnerSearch(this.value)" placeholder="Search learner, section, LRN, adviser..." class="w-full pl-8 pr-7 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#5341CD] focus:outline-none focus:ring-2 focus:ring-[#5341CD]/20 transition-all [&::-webkit-search-cancel-button]:hidden">
+                  <button id="btnClearLearnerSearch" onclick="clearLearnerSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
+                </div>
+
+                <!-- Dedicated Section Filter (Populated with counts!) -->
+                <select id="selectLearnerSectionFilter" onchange="handleLearnerSectionFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none max-w-[210px] truncate" title="Filter by classroom section">
+                  <option value="ALL">All Sections (Roster)</option>
+                </select>
+
+                <!-- Dedicated Grade Filter -->
+                <select id="selectLearnerGradeFilter" onchange="handleLearnerGradeFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by grade level">
+                  <option value="ALL">All Grades</option>
+                  <option value="Grade 7">Grade 7</option>
+                  <option value="Grade 8">Grade 8</option>
+                  <option value="Grade 9">Grade 9</option>
+                  <option value="Grade 10">Grade 10</option>
+                </select>
+
+                <!-- Dedicated Phil-IRI Reading Tier Filter -->
+                <select id="selectLearnerTierFilter" onchange="handleLearnerTierFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by Phil-IRI reading tier">
+                  <option value="ALL">All Reading Tiers</option>
+                  <option value="independent">Independent Readers (80%+ MPS)</option>
+                  <option value="instructional">Instructional Readers (60%-79% MPS)</option>
+                  <option value="frustration">Priority Support / Frustration (&lt;60% MPS)</option>
+                  <option value="unassessed">Unassessed / Initial Eval Pending</option>
+                </select>
+
+                <!-- Dedicated Gender Disaggregation Filter -->
+                <select id="selectLearnerGenderFilter" onchange="handleLearnerGenderFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none" title="Filter by DepEd gender classification">
+                  <option value="ALL">All Genders</option>
+                  <option value="male">Male Learners</option>
+                  <option value="female">Female Learners</option>
+                </select>
+
+                <!-- Super Admin School Filter -->
+                <div id="learnerSchoolFilterContainer" class="flex items-center gap-1.5">
+                  <select id="learnerSchoolFilter" onchange="handleLearnerSchoolFilterChange(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none max-w-[200px] truncate" title="Filter by participating school">
+                    <option value="ALL">All Junior High Schools</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Page Size & Counter -->
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-slate-400 text-xs">Per page:</span>
+                <select id="selectLearnerPageSize" onchange="handleLearnerPageSizeChange(this.value)" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:border-[#5341CD] focus:outline-none">
+                  <option value="15">15</option>
+                  <option value="25" selected>25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                <div id="learnerCountSummaryBadge" class="text-xs font-semibold text-slate-500 whitespace-nowrap">
+                  Showing active records
+                </div>
+              </div>
             </div>
           </div>
 
+          <!-- VIEW MODE 1: SECTION PERFORMANCE MATRIX (Cards Grid) -->
+          <div id="sectionCardsContainer" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Dynamic Section Performance Cards injected here -->
+          </div>
+
+          <!-- VIEW MODE 2: PERFORMANCE TABLE & ROSTER -->
           <div id="tourTargetPerformanceTable" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs min-w-[750px]">
-                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+              <table class="w-full text-left text-xs min-w-[850px]">
+                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200 select-none">
                   <tr>
-                    <th class="p-3.5">Learner &amp; Section</th>
+                    <th class="p-3.5 cursor-pointer hover:bg-slate-100 transition" onclick="toggleLearnerHeaderSort('name')" title="Click to sort by Learner Name">
+                      <div class="flex items-center gap-1">
+                        <span>Learner Identity</span>
+                        <span id="sortIndicator_name" class="text-[10px] text-slate-400 font-mono">⬍</span>
+                      </div>
+                    </th>
+                    <th class="p-3.5">
+                      <span>Grade &amp; Section</span>
+                    </th>
                     <th class="p-3.5">Phil-IRI Tier</th>
-                    <th class="p-3.5">Comprehension MPS</th>
-                    <th class="p-3.5">Reading Speed</th>
-                    <th class="p-3.5">Reading Streak</th>
-                    <th class="p-3.5">Gamification (Lvl &amp; XP)</th>
-                    <th class="p-3.5 text-right">Score &amp; Details</th>
+                    <th class="p-3.5 cursor-pointer hover:bg-slate-100 transition" onclick="toggleLearnerHeaderSort('mps')" title="Click to rank by highest Comprehension MPS">
+                      <div class="flex items-center gap-1">
+                        <span>Comprehension MPS</span>
+                        <span id="sortIndicator_mps" class="text-[10px] text-indigo-600 font-bold font-mono">⬍</span>
+                      </div>
+                    </th>
+                    <th class="p-3.5 cursor-pointer hover:bg-slate-100 transition" onclick="toggleLearnerHeaderSort('wpm')" title="Click to rank by highest Reading Speed">
+                      <div class="flex items-center gap-1">
+                        <span>Reading Speed</span>
+                        <span id="sortIndicator_wpm" class="text-[10px] text-slate-400 font-mono">⬍</span>
+                      </div>
+                    </th>
+                    <th class="p-3.5 cursor-pointer hover:bg-slate-100 transition" onclick="toggleLearnerHeaderSort('streak')" title="Click to rank by highest Reading Streak">
+                      <div class="flex items-center gap-1">
+                        <span>Reading Streak</span>
+                        <span id="sortIndicator_streak" class="text-[10px] text-slate-400 font-mono">⬍</span>
+                      </div>
+                    </th>
+                    <th class="p-3.5 cursor-pointer hover:bg-slate-100 transition" onclick="toggleLearnerHeaderSort('level')" title="Click to rank by highest Level/XP">
+                      <div class="flex items-center gap-1">
+                        <span>Gamification</span>
+                        <span id="sortIndicator_level" class="text-[10px] text-slate-400 font-mono">⬍</span>
+                      </div>
+                    </th>
+                    <th class="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="performanceTableBody" class="divide-y divide-slate-100">
                   <tr>
-                    <td colspan="7" class="p-8 text-center text-slate-400">Loading learner performance profiles...</td>
+                    <td colspan="8" class="p-8 text-center text-slate-400">Loading learner performance profiles...</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+
+            <!-- Client-Side Pagination Bar -->
+            <div id="learnerPaginationBar" class="p-3.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div id="learnerPaginationSummary" class="text-slate-500 font-medium">
+                Showing 0 of 0 records
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" id="btnLearnerPagePrev" onclick="changeLearnerPage(-1)" class="px-3 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition">
+                  Previous
+                </button>
+                <div id="learnerPagePillsContainer" class="flex items-center gap-1">
+                  <!-- Page pills dynamic -->
+                </div>
+                <button type="button" id="btnLearnerPageNext" onclick="changeLearnerPage(1)" class="px-3 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition">
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
           </div>
         </div>
 
@@ -3490,8 +4333,26 @@
           </div>
         </div>
 
-        <!-- VIEW 8: DIVISION TIMED ASSESSMENTS (SDO SUPER ADMIN EXCLUSIVE) -->
+        <!-- VIEW 8: DIVISION TIMED ASSESSMENTS (SDO SUPER ADMIN EXCLUSIVE & SCHOOL SCOPED) -->
         <div id="tab-timed-assessments" class="tab-content hidden space-y-6">
+
+          <!-- Super Admin Breadcrumb Bar (Visible on School Drilldown) -->
+          <div id="timedAssessmentBreadcrumbBar" class="hidden bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 text-xs flex-wrap">
+              <button onclick="backToAllTimedSchools()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer" title="Return to Division Matrix">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                <span>Back to All Schools</span>
+              </button>
+              <span class="text-slate-300 font-bold">/</span>
+              <span id="timedBreadcrumbSchoolName" class="font-bold text-slate-800">Caruhatan National High School</span>
+              <span id="timedBreadcrumbSchoolDistrict" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-[#6C5CE7] border border-purple-200">District 2</span>
+              <span id="timedBreadcrumbSchoolId" class="text-slate-400 text-[11px] font-mono">ID: 305445</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="timedBreadcrumbActiveTest" class="text-xs text-slate-500 font-medium">Standardized Tests Scoped</span>
+            </div>
+          </div>
+
           <!-- KPI Metrics Row -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
@@ -3499,8 +4360,8 @@
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
               <div>
-                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Timed Tests</div>
-                <div id="statTotalTimedTests" class="text-xl font-black text-slate-800">0</div>
+                <div id="labelStatTotalTimedTests" class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Timed Tests</div>
+                <div id="statTotalTimedTests" class="text-xl font-black text-slate-800 font-display">0</div>
               </div>
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
@@ -3509,7 +4370,7 @@
               </div>
               <div>
                 <div id="labelStatActiveTimedTests" class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Active Division Tests</div>
-                <div id="statActiveTimedTests" class="text-xl font-black text-emerald-600">0</div>
+                <div id="statActiveTimedTests" class="text-xl font-black text-emerald-600 font-display">0</div>
               </div>
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
@@ -3518,7 +4379,7 @@
               </div>
               <div>
                 <div id="labelStatDivisionSubmissions" class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Division Submissions</div>
-                <div id="statDivisionSubmissions" class="text-xl font-black text-blue-600">0</div>
+                <div id="statDivisionSubmissions" class="text-xl font-black text-blue-600 font-display">0</div>
               </div>
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3">
@@ -3527,51 +4388,25 @@
               </div>
               <div>
                 <div id="labelStatDivisionAvgScore" class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Division MPS Avg</div>
-                <div id="statDivisionAvgScore" class="text-xl font-black text-amber-600">0%</div>
+                <div id="statDivisionAvgScore" class="text-xl font-black text-amber-600 font-display">0%</div>
               </div>
             </div>
           </div>
 
-          <!-- Controls and SDO Broadcaster Bar -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap items-center gap-3">
-              <div class="relative">
-                <input type="search" id="timedAssessmentSearchInput" name="search_timed_assessment_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" oninput="renderTimedAssessmentsTable(); document.getElementById('btnClearTimedAssessmentSearch').classList.toggle('hidden', !this.value);" placeholder="Search division test title, purpose..." 
-                  class="w-64 pl-8 pr-7 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-[#6C5CE7]">
-                <button id="btnClearTimedAssessmentSearch" onclick="clearTimedAssessmentSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
-                <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              </div>
-              <select id="timedAssessmentDistrictFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
-                <option value="ALL">All Congressional Districts</option>
-                <option value="District 1">District 1 Only</option>
-                <option value="District 2">District 2 Only</option>
-              </select>
-              <select id="timedAssessmentSchoolFilter" onchange="handleTimedAssessmentSchoolFilterChange(this.value)" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none max-w-[210px] truncate" title="Filter timed assessments by School">
-                <option value="ALL">All Junior High Schools</option>
-              </select>
-              <select id="timedAssessmentGradeFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
-                <option value="ALL">All Grade Levels</option>
-                <option value="Grade 7">Grade 7</option>
-                <option value="Grade 8">Grade 8</option>
-                <option value="Grade 9">Grade 9</option>
-                <option value="Grade 10">Grade 10</option>
-              </select>
-              <select id="timedAssessmentPurposeFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
-                <option value="ALL">All Purposes</option>
-                <option value="screening">Phil-IRI Screening (GST)</option>
-                <option value="diagnostic">Diagnostic</option>
-                <option value="summative">Summative</option>
-                <option value="benchmark">Quarterly Benchmark</option>
-                <option value="intervention">Remediation</option>
-              </select>
-              <select id="timedAssessmentStatusFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
-                <option value="ALL">All Statuses</option>
-                <option value="active">Active Tests</option>
-                <option value="draft">Drafts (Unpublished)</option>
-                <option value="closed">Closed Tests</option>
-              </select>
+          <!-- Super Admin Dual-View Switcher & Action Bar -->
+          <div id="timedSuperAdminViewSwitcherBar" class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div id="timedViewModePillsContainer" class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+              <button id="btnTimedViewCatalog" onclick="setTimedViewMode('catalog')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-slate-800 shadow-xs flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#6C5CE7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
+                <span>Assessments Catalog &amp; Studio</span>
+              </button>
+              <button id="btnTimedViewSchools" onclick="setTimedViewMode('schools_matrix')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3l2-4h14l2 4"/><line x1="9" y1="21" x2="9" y2="11"/><line x1="15" y1="21" x2="15" y2="11"/></svg>
+                <span>School Participation Matrix (25 Campuses)</span>
+              </button>
             </div>
-            <div class="flex items-center gap-2">
+
+            <div class="flex items-center gap-2 flex-wrap">
               <button id="btnOpenAITimedAssessmentGenerator" onclick="openAITimedAssessmentGeneratorModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 via-[#6C5CE7] to-[#5341CD] hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all font-display">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><circle cx="19" cy="5" r="1.5"/><circle cx="5" cy="19" r="1.5"/></svg>
                 <span>Deploy Standardized Timed Assessment</span>
@@ -3584,75 +4419,329 @@
             </div>
           </div>
 
-          <!-- Division Timed Tests Data Table -->
-          <div id="tourTargetTimedAssessmentsTable" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs min-w-[760px]">
-                <thead>
-                  <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-display">
-                    <th class="p-3.5">Standardized Assessment &amp; Focus</th>
-                    <th class="p-3.5">Target Scope &amp; Grade Level</th>
-                    <th class="p-3.5">Countdown Timer</th>
-                    <th class="p-3.5">Reading Passage</th>
-                    <th class="p-3.5" id="thTimedAssessmentsSubmissions">Division Submissions &amp; MPS</th>
-                    <th class="p-3.5">Test Status</th>
-                    <th class="p-3.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="timedAssessmentsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
-                  <tr>
-                    <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
-                      Loading standardized division timed assessments...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <!-- CONTAINER 1: ASSESSMENTS CATALOG & STUDIO -->
+          <div id="timedCatalogContainer" class="space-y-6">
+            <!-- Catalog Filter Controls -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="relative">
+                  <input type="search" id="timedAssessmentSearchInput" name="search_timed_assessment_no_autofill" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" oninput="renderTimedAssessmentsTable(); document.getElementById('btnClearTimedAssessmentSearch').classList.toggle('hidden', !this.value);" placeholder="Search test title, passage, purpose..." 
+                    class="w-64 pl-8 pr-7 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-[#6C5CE7]">
+                  <button id="btnClearTimedAssessmentSearch" onclick="clearTimedAssessmentSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold" title="Clear Search">&times;</button>
+                  <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <select id="timedAssessmentDistrictFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+                  <option value="ALL">All Congressional Districts</option>
+                  <option value="District 1">District 1 Only</option>
+                  <option value="District 2">District 2 Only</option>
+                </select>
+                <select id="timedAssessmentSchoolFilter" onchange="handleTimedAssessmentSchoolFilterChange(this.value)" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none max-w-[210px] truncate" title="Filter timed assessments by School">
+                  <option value="ALL">All Junior High Schools</option>
+                </select>
+                <select id="timedAssessmentGradeFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+                  <option value="ALL">All Grade Levels</option>
+                  <option value="Grade 7">Grade 7</option>
+                  <option value="Grade 8">Grade 8</option>
+                  <option value="Grade 9">Grade 9</option>
+                  <option value="Grade 10">Grade 10</option>
+                </select>
+                <select id="timedAssessmentPurposeFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+                  <option value="ALL">All Purposes</option>
+                  <option value="screening">Phil-IRI Screening (GST)</option>
+                  <option value="diagnostic">Diagnostic</option>
+                  <option value="summative">Summative</option>
+                  <option value="benchmark">Quarterly Benchmark</option>
+                  <option value="intervention">Remediation</option>
+                </select>
+                <select id="timedAssessmentStatusFilter" onchange="renderTimedAssessmentsTable()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+                  <option value="ALL">All Statuses</option>
+                  <option value="active">Active Tests</option>
+                  <option value="draft">Drafts (Unpublished)</option>
+                  <option value="closed">Closed Tests</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Division Timed Tests Data Table -->
+            <div id="tourTargetTimedAssessmentsTable" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs min-w-[820px]">
+                  <thead>
+                    <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-display">
+                      <th class="p-3.5">Standardized Assessment &amp; Focus</th>
+                      <th class="p-3.5">Target Scope &amp; Grade Level</th>
+                      <th class="p-3.5">Countdown Timer</th>
+                      <th class="p-3.5">Reading Passage &amp; Telemetry</th>
+                      <th class="p-3.5" id="thTimedAssessmentsSubmissions">Submissions &amp; MPS</th>
+                      <th class="p-3.5">Phil-IRI 3D Preview</th>
+                      <th class="p-3.5">Test Status</th>
+                      <th class="p-3.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="timedAssessmentsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                    <tr>
+                      <td colspan="8" class="p-8 text-center text-slate-400 font-medium">
+                        Loading standardized division timed assessments...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SDO LEAST MASTERED SKILLS & COMPETENCIES INTELLIGENCE -->
+            <div id="competenciesMatrixSection" class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span id="competencyBadgeScope" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">SDO Competency Performance</span>
+                    <span class="text-xs text-slate-400 font-medium">Ranked by Least Mastered First</span>
+                  </div>
+                  <h3 class="font-bold text-sm text-slate-900 font-display mt-1 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-rose-600 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Phil-IRI Reading Comprehension Dimensions</span>
+                  </h3>
+                  <p class="text-xs text-slate-500">Official mastery breakdown across Literal, Inferential, and Critical dimensions under DepEd Order No. 14, s. 2018.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="exportCompetenciesCSV()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
+                    <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Export Competencies (CSV)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Competencies Table -->
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs min-w-[720px]">
+                  <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
+                    <tr>
+                      <th class="p-3">Competency Code &amp; Domain</th>
+                      <th class="p-3">Specific Reading Skill</th>
+                      <th class="p-3">Total Items Tested</th>
+                      <th class="p-3">Mean % Score (MPS)</th>
+                      <th class="p-3">Mastery Classification</th>
+                      <th class="p-3 text-right">Recommended Intervention</th>
+                    </tr>
+                  </thead>
+                  <tbody id="competenciesTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                    <tr>
+                      <td colspan="6" class="p-6 text-center text-slate-400">Computing competency results across learner responses...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
-          <!-- SDO LEAST MASTERED SKILLS & COMPETENCIES INTELLIGENCE (DEPED EVALUATION STANDARD) -->
-          <div id="competenciesMatrixSection" class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span id="competencyBadgeScope" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">SDO Competency Performance</span>
-                  <span class="text-xs text-slate-400 font-medium">Ranked by Least Mastered First</span>
-                </div>
-                <h3 class="font-bold text-sm text-slate-900 font-display mt-1 flex items-center gap-2">
-                  <svg class="w-4 h-4 text-rose-600 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  <span>Phil-IRI Reading Comprehension Dimensions</span>
-                </h3>
-                <p class="text-xs text-slate-500">Official mastery breakdown across Literal, Inferential, and Critical dimensions under DepEd Order No. 14, s. 2018.</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <button onclick="exportCompetenciesCSV()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
-                  <svg class="w-3.5 h-3.5 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  <span>Export Competencies (CSV)</span>
+          <!-- CONTAINER 2: SUPER ADMIN SCHOOL PARTICIPATION MATRIX (25 CAMPUSES) -->
+          <div id="timedSchoolsContainer" class="hidden space-y-6">
+            <!-- District Tabs & Quick Filter Pills -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="filterTimedSchoolDistrict('ALL')" id="pillTimedDistrictAll" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#6C5CE7] text-white shadow-xs">
+                  All Secondary Campuses (25)
+                </button>
+                <button onclick="filterTimedSchoolDistrict('District 1')" id="pillTimedDistrict1" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 hover:bg-slate-200 text-slate-700">
+                  District 1 Campuses (15)
+                </button>
+                <button onclick="filterTimedSchoolDistrict('District 2')" id="pillTimedDistrict2" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 hover:bg-slate-200 text-slate-700">
+                  District 2 Campuses (10)
                 </button>
               </div>
+
+              <div class="flex items-center gap-3 flex-wrap">
+                <!-- Target Assessment Dropdown -->
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs text-slate-500 font-medium">Test:</span>
+                  <select id="timedSchoolMatrixAssessmentSelect" onchange="handleTimedMatrixAssessmentChange(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 max-w-[220px] truncate focus:outline-none">
+                    <option value="ALL">All Active Standardized Tests</option>
+                  </select>
+                </div>
+                <!-- Search Campus -->
+                <div class="relative">
+                  <input type="search" id="timedSchoolMatrixSearchInput" oninput="handleTimedSchoolMatrixSearch(this.value)" placeholder="Search 25 campuses..." class="w-48 pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-[#6C5CE7]">
+                  <svg class="w-3.5 h-3.5 absolute left-2.5 top-2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <!-- Sort Campuses -->
+                <select id="timedSchoolMatrixSortSelect" onchange="handleTimedSchoolMatrixSort(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+                  <option value="highest_mps">Sort: Highest Literacy MPS</option>
+                  <option value="highest_completion">Sort: Highest Turn-In Rate</option>
+                  <option value="highest_wpm">Sort: Highest Avg WPM</option>
+                  <option value="lowest_mps">Sort: Lowest MPS (Priority)</option>
+                  <option value="name_asc">Sort: Campus Name (A-Z)</option>
+                </select>
+              </div>
             </div>
 
-            <!-- Competencies Table -->
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs min-w-[720px]">
-                <thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-bold border-b border-slate-200">
-                  <tr>
-                    <th class="p-3">Competency Code &amp; Domain</th>
-                    <th class="p-3">Specific Reading Skill</th>
-                    <th class="p-3">Total Items Tested</th>
-                    <th class="p-3">Mean % Score (MPS)</th>
-                    <th class="p-3">Mastery Classification</th>
-                    <th class="p-3 text-right">Recommended Intervention</th>
-                  </tr>
-                </thead>
-                <tbody id="competenciesTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
-                  <tr>
-                    <td colspan="6" class="p-6 text-center text-slate-400">Computing competency results across learner responses...</td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- 25 Campuses Bento Cards Grid -->
+            <div id="timedSchoolCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div class="col-span-full p-12 text-center text-slate-400">
+                Loading Valenzuela secondary campuses participation matrix...
+              </div>
             </div>
           </div>
+
+          <!-- CONTAINER 3: SCHOOL TIMED ASSESSMENT WORKSPACE (DRILLDOWN OR SCHOOL ADMIN) -->
+          <div id="timedSchoolWorkspace" class="hidden space-y-6">
+            <!-- School Header & KPI Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 text-white p-6 rounded-3xl shadow-xl border border-white/10 relative overflow-hidden">
+              <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span id="timedWorkspaceDistrictBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-200 border border-purple-400/30">
+                      District 2 Secondary Campus
+                    </span>
+                    <span id="timedWorkspaceSchoolIdBadge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-white/90">
+                      School ID: 305445
+                    </span>
+                  </div>
+                  <h2 id="timedWorkspaceSchoolName" class="text-xl sm:text-2xl font-black text-white font-display tracking-tight">
+                    Caruhatan National High School
+                  </h2>
+                  <p class="text-xs text-purple-200/80 mt-1">
+                    Standardized timed assessments, section completion matrices, and student diagnostic telemetry.
+                  </p>
+                </div>
+
+                <!-- KPI Mini Cards Strip -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-purple-200/80">Turn-In Rate</div>
+                    <div id="timedWorkspaceTurnInRate" class="text-lg font-black text-white font-display">0%</div>
+                    <div id="timedWorkspaceSubmissionsCount" class="text-[10px] text-white/60">0 / 0 Enrolled</div>
+                  </div>
+                  <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-purple-200/80">School MPS</div>
+                    <div id="timedWorkspaceMps" class="text-lg font-black text-white font-display">0%</div>
+                    <div id="timedWorkspaceProficiencyBadge" class="text-[10px] text-emerald-300 font-bold">--</div>
+                  </div>
+                  <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-purple-200/80">Avg Speed</div>
+                    <div id="timedWorkspaceAvgWpm" class="text-lg font-black text-white font-display">0 WPM</div>
+                    <div class="text-[10px] text-white/60">Passage Fluency</div>
+                  </div>
+                  <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-purple-200/80">Priority Support</div>
+                    <div id="timedWorkspaceSupportCount" class="text-lg font-black text-rose-300 font-display">0</div>
+                    <div class="text-[10px] text-white/60">Needs Intervention</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Workspace Sub-View Switcher (Sections Matrix vs Submissions Roster) -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+                <button id="btnTimedSchoolSections" onclick="setTimedSchoolViewMode('sections')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-slate-800 shadow-xs flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-[#6C5CE7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                  <span>Classroom Sections Completion Matrix</span>
+                </button>
+                <button id="btnTimedSchoolSubmissions" onclick="setTimedSchoolViewMode('submissions')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span>Learner Submissions Roster</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span id="timedWorkspaceSectionSummaryBadge" class="text-xs font-semibold text-slate-500">
+                  0 Classroom Sections
+                </span>
+              </div>
+            </div>
+
+            <!-- SUB-VIEW A: CLASSROOM SECTIONS COMPLETION MATRIX -->
+            <div id="timedSectionCardsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div class="col-span-full p-8 text-center text-slate-400">
+                Loading school classroom sections...
+              </div>
+            </div>
+
+            <!-- SUB-VIEW B: LEARNER SUBMISSIONS ROSTER -->
+            <div id="timedSubmissionsTableContainer" class="hidden space-y-4">
+              <!-- Submissions Filters Bar -->
+              <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                  <!-- Search Student / LRN -->
+                  <div class="relative">
+                    <input type="search" id="timedSubmissionSearchInput" oninput="handleTimedSubmissionSearch(this.value)" placeholder="Search student name or LRN..." class="w-60 pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-[#6C5CE7]">
+                    <svg class="w-3.5 h-3.5 absolute left-2.5 top-2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  </div>
+
+                  <!-- Section Filter -->
+                  <select id="timedSubmissionSectionFilter" onchange="handleTimedSubmissionSectionFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none max-w-[180px] truncate">
+                    <option value="ALL">All Classroom Sections</option>
+                  </select>
+
+                  <!-- Phil-IRI Level Filter -->
+                  <select id="timedSubmissionTierFilter" onchange="handleTimedSubmissionTierFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+                    <option value="ALL">All Phil-IRI Tiers</option>
+                    <option value="Independent">Independent (80-100%)</option>
+                    <option value="Instructional">Instructional (59-79%)</option>
+                    <option value="Frustration">Frustration (&lt;59%)</option>
+                  </select>
+
+                  <!-- Speed Category Filter -->
+                  <select id="timedSubmissionSpeedFilter" onchange="handleTimedSubmissionSpeedFilter(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+                    <option value="ALL">All Speed Categories</option>
+                    <option value="Fast">Fast (&gt;140 WPM)</option>
+                    <option value="Standard">Standard (90-140 WPM)</option>
+                    <option value="Developing">Developing (&lt;90 WPM)</option>
+                  </select>
+
+                  <!-- Sort By Highest / Lowest -->
+                  <select id="timedSubmissionSortSelect" onchange="handleTimedSubmissionSort(this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+                    <option value="highest_mps">Sort: Highest Score (MPS)</option>
+                    <option value="lowest_mps">Sort: Lowest Score (MPS)</option>
+                    <option value="fastest_wpm">Sort: Fastest Reading Speed (WPM)</option>
+                    <option value="slowest_wpm">Sort: Slowest Reading Speed (WPM)</option>
+                    <option value="name_asc">Sort: Student Name (A-Z)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Submissions Table -->
+              <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs min-w-[850px]" id="timedSubmissionsTable">
+                    <thead>
+                      <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider font-display">
+                        <th class="p-3.5">Learner &amp; LRN</th>
+                        <th class="p-3.5">Classroom Section</th>
+                        <th class="p-3.5">Reading Speed (WPM)</th>
+                        <th class="p-3.5">Score &amp; MPS</th>
+                        <th class="p-3.5">Phil-IRI Level</th>
+                        <th class="p-3.5">Cognitive Dimensions (Lit / Inf / Crit)</th>
+                        <th class="p-3.5 text-right">Diagnostic Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="timedSubmissionsTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                      <tr>
+                        <td colspan="7" class="p-8 text-center text-slate-400 font-medium">
+                          Loading student submissions...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Submissions Table Pagination -->
+                <div id="timedSubmissionsPagination" class="p-3.5 bg-slate-50/80 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-600">
+                  <span id="timedSubmissionsPaginationInfo">Showing 0 of 0 submissions</span>
+                  <div class="flex items-center gap-2">
+                    <button id="btnPrevTimedSubmissions" onclick="changeTimedSubmissionsPage(-1)" class="px-3 py-1 rounded-lg bg-white border border-slate-200 font-bold hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                      Previous
+                    </button>
+                    <span id="timedSubmissionsPageNumber" class="font-bold text-slate-800">Page 1</span>
+                    <button id="btnNextTimedSubmissions" onclick="changeTimedSubmissionsPage(1)" class="px-3 py-1 rounded-lg bg-white border border-slate-200 font-bold hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- VIEW 9: WEEKLY CLASSROOM ASSESSMENTS (FACULTY & SCHOOL ADMIN) -->

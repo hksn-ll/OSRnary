@@ -30,6 +30,8 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
     private val questions = mutableListOf<AssessmentQuestion>()
     private var currentIndex = 0
     private var studentAnswers = IntArray(0)
+    private var hasFinishedReading = false
+    private var isTeacherRedirected = false
 
     private val prefName: String
         get() = "weekly_assessment_session_${assessmentId}_${auth.currentUser?.uid ?: ""}"
@@ -41,8 +43,19 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
         val explanation: String
     )
 
+    private lateinit var layoutPassageReading: View
     private lateinit var layoutRunner: View
     private lateinit var layoutResults: View
+
+    private lateinit var tvPassageWordCount: TextView
+    private lateinit var tvPassageReadingTitle: TextView
+    private lateinit var tvPassageReadingBody: TextView
+    private lateinit var btnDoneReadingWeekly: Button
+
+    private lateinit var cardInlinePassage: View
+    private lateinit var tvInlinePassageBody: TextView
+    private lateinit var btnCloseInlinePassage: View
+    private lateinit var tvBtnReadPassageLabel: TextView
 
     private lateinit var tvProgressCounter: TextView
     private lateinit var tvProgressPercent: TextView
@@ -57,12 +70,34 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
     private lateinit var btnPrev: Button
     private lateinit var btnNext: Button
 
+    private fun redirectTeacherToEditor() {
+        if (isTeacherRedirected) return
+        isTeacherRedirected = true
+        val editorIntent = Intent(this, QuizEditorActivity::class.java).apply {
+            putExtra("IS_WEEKLY_ASSESSMENT", true)
+            putExtra("ASSESSMENT_ID", assessmentId)
+            if (classId.isNotEmpty()) putExtra("CLASS_ID", classId)
+            if (className.isNotEmpty()) putExtra("CLASS_NAME", className)
+            if (subjectName.isNotEmpty()) putExtra("SUBJECT_NAME", subjectName)
+        }
+        startActivity(editorIntent)
+        finish()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GabAIUtils.applyHardwareMaxRefreshRate(this)
         setContentView(R.layout.activity_weekly_assessment)
 
         assessmentId = intent.getStringExtra("ASSESSMENT_ID") ?: return finish()
+
+        // Strict Teacher Role Guard: Teachers should never take or submit student Weekly Assessments
+        val gabaiPrefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        val cachedRole = (gabaiPrefs.getString("cached_user_role", null) ?: gabaiPrefs.getString("user_role", ""))?.lowercase() ?: ""
+        if (cachedRole == "teacher") {
+            redirectTeacherToEditor()
+            return
+        }
 
         // Exit protection for hardware back button / gesture
         onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
@@ -80,8 +115,35 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
             showQuestionPaletteDialog()
         }
 
+        layoutPassageReading = findViewById(R.id.layout_passage_reading)
         layoutRunner = findViewById(R.id.layout_quiz_runner)
         layoutResults = findViewById(R.id.layout_quiz_results)
+
+        tvPassageWordCount = findViewById(R.id.tv_passage_word_count)
+        tvPassageReadingTitle = findViewById(R.id.tv_passage_reading_title)
+        tvPassageReadingBody = findViewById(R.id.tv_passage_reading_body)
+        btnDoneReadingWeekly = findViewById(R.id.btn_done_reading_weekly)
+
+        cardInlinePassage = findViewById(R.id.card_inline_passage)
+        tvInlinePassageBody = findViewById(R.id.tv_inline_passage_body)
+        btnCloseInlinePassage = findViewById(R.id.btn_close_inline_passage)
+        tvBtnReadPassageLabel = findViewById(R.id.tv_btn_read_passage_label)
+
+        btnDoneReadingWeekly.setOnClickListener {
+            GabAIUtils.performHaptic(it)
+            hasFinishedReading = true
+            saveCurrentSession()
+            layoutPassageReading.visibility = View.GONE
+            layoutRunner.visibility = View.VISIBLE
+            layoutResults.visibility = View.GONE
+            displayCurrentQuestion()
+        }
+
+        btnCloseInlinePassage.setOnClickListener {
+            GabAIUtils.performHaptic(it)
+            cardInlinePassage.visibility = View.GONE
+            tvBtnReadPassageLabel.text = "Read Passage"
+        }
 
         tvProgressCounter = findViewById(R.id.tv_progress_counter)
         tvProgressPercent = findViewById(R.id.tv_progress_percent)
@@ -175,6 +237,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                 .putString("saved_questions", jsonArray.toString())
                 .putString("saved_answers", answersArray.toString())
                 .putInt("saved_current_index", currentIndex)
+                .putBoolean("saved_has_finished_reading", hasFinishedReading)
                 .apply()
         } catch (_: Exception) {}
     }
@@ -210,6 +273,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                     if (idx < aArr.length()) aArr.getInt(idx) else -1
                 }
                 currentIndex = prefs.getInt("saved_current_index", 0).coerceIn(0, restoredQuestions.size - 1)
+                hasFinishedReading = prefs.getBoolean("saved_has_finished_reading", false) || studentAnswers.any { it != -1 }
                 progressBar.max = questions.size
                 return true
             }
@@ -226,6 +290,11 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
     private fun loadStudentInfo() {
         val uid = auth.currentUser?.uid ?: return
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val role = doc.getString("role")?.lowercase() ?: ""
+            if (role == "teacher") {
+                redirectTeacherToEditor()
+                return@addOnSuccessListener
+            }
             val first = doc.getString("firstName") ?: ""
             val last = doc.getString("lastName") ?: ""
             if (first.isNotEmpty() || last.isNotEmpty()) {
@@ -251,19 +320,35 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                 classId = doc.getString("classId") ?: ""
                 className = doc.getString("className") ?: ""
                 schoolId = doc.getString("schoolId") ?: ""
-                readingPassage = doc.getString("passage") ?: ""
+                readingPassage = doc.getString("passage")?.trim() ?: ""
+
+                val ownerTeacherId = doc.getString("teacherId") ?: ""
+                if (ownerTeacherId.isNotEmpty() && ownerTeacherId == auth.currentUser?.uid) {
+                    redirectTeacherToEditor()
+                    return@addOnSuccessListener
+                }
 
                 findViewById<TextView>(R.id.tv_header_title).text = assessmentTitle
                 findViewById<TextView>(R.id.tv_header_subject).text = subjectName.uppercase()
 
                 val btnPassage = findViewById<View>(R.id.btn_read_passage)
                 if (readingPassage.isNotBlank()) {
+                    val wordCount = readingPassage.split("\\s+".toRegex()).count { it.isNotEmpty() }
+                    tvPassageWordCount.text = "$wordCount words"
+                    tvPassageReadingTitle.text = assessmentTitle
+                    tvPassageReadingBody.text = readingPassage
+                    tvInlinePassageBody.text = readingPassage
+
                     btnPassage?.visibility = View.VISIBLE
                     btnPassage?.setOnClickListener {
-                        GabAIDialogs.showNoticeDialog(this, "Standard Reading Passage", readingPassage)
+                        GabAIUtils.performHaptic(it)
+                        val isCurrentlyVisible = cardInlinePassage.visibility == View.VISIBLE
+                        cardInlinePassage.visibility = if (isCurrentlyVisible) View.GONE else View.VISIBLE
+                        tvBtnReadPassageLabel.text = if (isCurrentlyVisible) "Read Passage" else "Hide Passage"
                     }
                 } else {
                     btnPassage?.visibility = View.GONE
+                    cardInlinePassage.visibility = View.GONE
                 }
 
                 val quizJson = doc.getString("quiz_pool_json") ?: "[]"
@@ -276,10 +361,7 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                         return@addOnSuccessListener
                     }
                     studentAnswers = IntArray(questions.size) { -1 }
-
-                    if (readingPassage.isNotBlank()) {
-                        GabAIDialogs.showNoticeDialog(this, "Reading Passage: $assessmentTitle", readingPassage)
-                    }
+                    hasFinishedReading = readingPassage.isBlank()
                 }
                 progressBar.max = questions.size
 
@@ -336,19 +418,28 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
                     val total = submissionDoc.getLong("totalQuestions")?.toInt() ?: questions.size
                     val percentage = submissionDoc.getLong("percentage")?.toInt() ?: ((score * 100) / total.coerceAtLeast(1))
                     val answersList = submissionDoc.get("answers") as? List<Map<String, Any>> ?: listOf()
+                    val teacherRemark = submissionDoc.getString("teacherRemark") ?: ""
 
-                    showResultsView(score, total, percentage, answersList)
+                    showResultsView(score, total, percentage, answersList, teacherRemark)
                 } else {
-                    layoutRunner.visibility = View.VISIBLE
-                    layoutResults.visibility = View.GONE
-                    displayCurrentQuestion()
+                    showActivePhaseOrPassage()
                 }
             }
             .addOnFailureListener {
-                layoutRunner.visibility = View.VISIBLE
-                layoutResults.visibility = View.GONE
-                displayCurrentQuestion()
+                showActivePhaseOrPassage()
             }
+    }
+
+    private fun showActivePhaseOrPassage() {
+        layoutResults.visibility = View.GONE
+        if (readingPassage.isNotBlank() && !hasFinishedReading) {
+            layoutPassageReading.visibility = View.VISIBLE
+            layoutRunner.visibility = View.GONE
+        } else {
+            layoutPassageReading.visibility = View.GONE
+            layoutRunner.visibility = View.VISIBLE
+            displayCurrentQuestion()
+        }
     }
 
     private fun displayCurrentQuestion() {
@@ -517,6 +608,14 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
     }
 
     private fun submitAssessment() {
+        if (isTeacherRedirected) return
+        val gabaiPrefs = getSharedPreferences("GabAI_Prefs", Context.MODE_PRIVATE)
+        val cachedRole = (gabaiPrefs.getString("cached_user_role", null) ?: gabaiPrefs.getString("user_role", ""))?.lowercase() ?: ""
+        if (cachedRole == "teacher") {
+            redirectTeacherToEditor()
+            return
+        }
+
         val uid = auth.currentUser?.uid ?: return
         GabAIUtils.showGlobalLoading(this, "Calculating score and submitting...")
 
@@ -633,10 +732,40 @@ class WeeklyAssessmentActivity : AppCompatActivity() {
         score: Int,
         total: Int,
         percentage: Int,
-        answersList: List<Map<String, Any>>
+        answersList: List<Map<String, Any>>,
+        teacherRemark: String = ""
     ) {
+        layoutPassageReading.visibility = View.GONE
         layoutRunner.visibility = View.GONE
         layoutResults.visibility = View.VISIBLE
+
+        val cardRemark = findViewById<View>(R.id.card_teacher_remark)
+        val tvRemarkBody = findViewById<TextView>(R.id.tv_teacher_remark_body)
+        if (teacherRemark.isNotBlank()) {
+            cardRemark?.visibility = View.VISIBLE
+            tvRemarkBody?.text = "\"$teacherRemark\""
+        } else {
+            cardRemark?.visibility = View.GONE
+        }
+
+        val cardResultsPassage = findViewById<View>(R.id.card_results_passage)
+        val tvResultsPassageBody = findViewById<TextView>(R.id.tv_results_passage_body)
+        val btnToggleResultsPassage = findViewById<TextView>(R.id.btn_toggle_results_passage)
+        val headerResultsPassage = findViewById<View>(R.id.header_results_passage)
+        if (readingPassage.isNotBlank()) {
+            cardResultsPassage?.visibility = View.VISIBLE
+            tvResultsPassageBody?.text = readingPassage
+            val toggleAction = View.OnClickListener {
+                GabAIUtils.performHaptic(it)
+                val isShown = tvResultsPassageBody?.visibility == View.VISIBLE
+                tvResultsPassageBody?.visibility = if (isShown) View.GONE else View.VISIBLE
+                btnToggleResultsPassage?.text = if (isShown) "Show Passage ▼" else "Hide Passage ▲"
+            }
+            btnToggleResultsPassage?.setOnClickListener(toggleAction)
+            headerResultsPassage?.setOnClickListener(toggleAction)
+        } else {
+            cardResultsPassage?.visibility = View.GONE
+        }
 
         val tvIcon = findViewById<TextView>(R.id.tv_result_icon)
         val tvTitle = findViewById<TextView>(R.id.tv_result_title)
