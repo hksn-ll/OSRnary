@@ -1865,8 +1865,7 @@
                 tempPassword: tempPass,
                 password: tempPass,
                 mustChangePassword: true,
-                isClaimed: true,
-                is_onboarded: true
+                isClaimed: true
               });
               updated = true;
             }
@@ -1886,8 +1885,7 @@
                   tempPassword: tempPass,
                   password: tempPass,
                   mustChangePassword: true,
-                  isClaimed: true,
-                  is_onboarded: true
+                  isClaimed: true
                 });
                 updated = true;
               }
@@ -1900,8 +1898,7 @@
                     tempPassword: tempPass,
                     password: tempPass,
                     mustChangePassword: true,
-                    isClaimed: true,
-                    is_onboarded: true
+                    isClaimed: true
                   });
                   updated = true;
                 }
@@ -1976,7 +1973,6 @@
           matchingClaimed.password = tempPass;
           matchingClaimed.mustChangePassword = true;
           matchingClaimed.isClaimed = true;
-          matchingClaimed.is_onboarded = true;
         }
         const matchingPending = (cachedPendingStudents || []).find(p => p.id === cleanUser || String(p.username || '').toLowerCase().replace(/^@/, '') === cleanUser);
         if (matchingPending) {

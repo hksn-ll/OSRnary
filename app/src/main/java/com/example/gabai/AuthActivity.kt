@@ -411,7 +411,20 @@ class AuthActivity : AppCompatActivity() {
                             studentData["authEmail"] = saltedEmail
                             studentData["mustChangePassword"] = true
                             studentData["isClaimed"] = true
-                            studentData["is_onboarded"] = true
+                            val wasOnboarded = (oldDoc.getBoolean("is_onboarded") ?: doc.getBoolean("is_onboarded") ?: false)
+                            val qCompleted = (oldDoc.get("quests_completed") as? List<*>) ?: (doc.get("quests_completed") as? List<*>) ?: emptyList<Any>()
+                            val qStrings = qCompleted.mapNotNull { it?.toString() }
+                            val hasAllQuests = qStrings.contains(ApprenticeQuestHelper.QUEST_BUBBLE) &&
+                                qStrings.contains(ApprenticeQuestHelper.QUEST_BUBBLE_SCAN) &&
+                                (qStrings.contains(ApprenticeQuestHelper.QUEST_TEST) || qStrings.contains("read")) &&
+                                qStrings.contains(ApprenticeQuestHelper.QUEST_SCAN) &&
+                                qStrings.contains(ApprenticeQuestHelper.QUEST_SAVE) &&
+                                qStrings.contains(ApprenticeQuestHelper.QUEST_HISTORY) &&
+                                qStrings.contains(ApprenticeQuestHelper.QUEST_DETAIL) &&
+                                qStrings.contains(ApprenticeQuestHelper.QUEST_LIBRARY)
+                            val finalOnboarded = wasOnboarded && hasAllQuests
+                            studentData["is_onboarded"] = finalOnboarded
+                            XPManager.setOnboarded(this, finalOnboarded)
                             studentData["role"] = "student"
                             studentData["migratedAt"] = System.currentTimeMillis()
                             studentData.remove("tempPassword")
@@ -953,8 +966,9 @@ class AuthActivity : AppCompatActivity() {
                 }
                 studentData["authEmail"] = email
                 studentData["isClaimed"] = true
-                studentData["is_onboarded"] = true
+                studentData["is_onboarded"] = false
                 studentData["role"] = "student"
+                XPManager.setOnboarded(this, false)
                 studentData.remove("password")
                 studentData.remove("tempPassword")
                 val gender = (studentData["gender"] as? String) ?: "unspecified"
@@ -1001,8 +1015,9 @@ class AuthActivity : AppCompatActivity() {
                             }
                             studentData["authEmail"] = email
                             studentData["isClaimed"] = true
-                            studentData["is_onboarded"] = true
+                            studentData["is_onboarded"] = false
                             studentData["role"] = "student"
+                            XPManager.setOnboarded(this, false)
                             studentData.remove("password")
                             studentData.remove("tempPassword")
                             val gender = (studentData["gender"] as? String) ?: "unspecified"
@@ -1048,8 +1063,9 @@ class AuthActivity : AppCompatActivity() {
                                     }
                                     studentData["authEmail"] = saltedEmail
                                     studentData["isClaimed"] = true
-                                    studentData["is_onboarded"] = true
+                                    studentData["is_onboarded"] = false
                                     studentData["role"] = "student"
+                                    XPManager.setOnboarded(this, false)
                                     studentData.remove("password")
                                     studentData.remove("tempPassword")
                                     val gender = (studentData["gender"] as? String) ?: "unspecified"
@@ -1202,7 +1218,19 @@ class AuthActivity : AppCompatActivity() {
                     studentData["authEmail"] = saltedEmail
                     studentData["mustChangePassword"] = true
                     studentData["isClaimed"] = true
-                    studentData["is_onboarded"] = true
+                    val wasOnboarded = studentDoc.getBoolean("is_onboarded") ?: false
+                    val qCompleted = (studentDoc.get("quests_completed") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList<String>()
+                    val hasAllQuests = qCompleted.contains(ApprenticeQuestHelper.QUEST_BUBBLE) &&
+                        qCompleted.contains(ApprenticeQuestHelper.QUEST_BUBBLE_SCAN) &&
+                        (qCompleted.contains(ApprenticeQuestHelper.QUEST_TEST) || qCompleted.contains("read")) &&
+                        qCompleted.contains(ApprenticeQuestHelper.QUEST_SCAN) &&
+                        qCompleted.contains(ApprenticeQuestHelper.QUEST_SAVE) &&
+                        qCompleted.contains(ApprenticeQuestHelper.QUEST_HISTORY) &&
+                        qCompleted.contains(ApprenticeQuestHelper.QUEST_DETAIL) &&
+                        qCompleted.contains(ApprenticeQuestHelper.QUEST_LIBRARY)
+                    val finalOnboarded = wasOnboarded && hasAllQuests
+                    studentData["is_onboarded"] = finalOnboarded
+                    XPManager.setOnboarded(this, finalOnboarded)
                     studentData["role"] = "student"
                     studentData["migratedAt"] = System.currentTimeMillis()
                     studentData.remove("tempPassword")
@@ -1582,7 +1610,6 @@ class AuthActivity : AppCompatActivity() {
                         if (isStudent) {
                             updates["role"] = "student"
                             updates["isClaimed"] = true
-                            updates["is_onboarded"] = true
                             updates["gender"] = selectedGender
                             prefs.edit()
                                 .putString("cached_user_role", "student")

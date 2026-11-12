@@ -314,6 +314,24 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
 
+            // 🟢 CRITICAL SELF-HEALING: If student was prematurely marked as is_onboarded = true
+            // but has NOT completed all 8 apprentice quests, repair is_onboarded back to false!
+            val rawIsOnboarded = doc.getBoolean("is_onboarded") ?: false
+            val questsCompleted = (doc.get("quests_completed") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList<String>()
+            val hasAllQuests = questsCompleted.contains(ApprenticeQuestHelper.QUEST_BUBBLE) &&
+                questsCompleted.contains(ApprenticeQuestHelper.QUEST_BUBBLE_SCAN) &&
+                (questsCompleted.contains(ApprenticeQuestHelper.QUEST_TEST) || questsCompleted.contains("read")) &&
+                questsCompleted.contains(ApprenticeQuestHelper.QUEST_SCAN) &&
+                questsCompleted.contains(ApprenticeQuestHelper.QUEST_SAVE) &&
+                questsCompleted.contains(ApprenticeQuestHelper.QUEST_HISTORY) &&
+                questsCompleted.contains(ApprenticeQuestHelper.QUEST_DETAIL) &&
+                questsCompleted.contains(ApprenticeQuestHelper.QUEST_LIBRARY)
+
+            if (rawIsOnboarded && !hasAllQuests) {
+                doc.reference.update("is_onboarded", false)
+                XPManager.setOnboarded(this, false)
+            }
+
             // Silent self-healing enrollment sync
             ClassEnrollmentHelper.syncStudentEnrollmentIfMissing(currentUser.uid, doc)
         }
@@ -508,7 +526,6 @@ class MainActivity : AppCompatActivity() {
                                 "tempPassword" to FieldValue.delete(),
                                 "password" to FieldValue.delete(),
                                 "isClaimed" to true,
-                                "is_onboarded" to true,
                                 "gender" to selectedGender
                             )
                         ).addOnCompleteListener {

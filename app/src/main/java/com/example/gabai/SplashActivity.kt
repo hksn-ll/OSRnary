@@ -108,6 +108,26 @@ class SplashActivity : AppCompatActivity() {
                             .putString("cached_full_name", fullName)
                             .putString("cached_user_gender", gender)
                             .apply()
+
+                        if (role == "student") {
+                            val rawIsOnboarded = doc.getBoolean("is_onboarded") ?: false
+                            val questsCompleted = (doc.get("quests_completed") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList<String>()
+                            val hasAllQuests = questsCompleted.contains(ApprenticeQuestHelper.QUEST_BUBBLE) &&
+                                questsCompleted.contains(ApprenticeQuestHelper.QUEST_BUBBLE_SCAN) &&
+                                (questsCompleted.contains(ApprenticeQuestHelper.QUEST_TEST) || questsCompleted.contains("read")) &&
+                                questsCompleted.contains(ApprenticeQuestHelper.QUEST_SCAN) &&
+                                questsCompleted.contains(ApprenticeQuestHelper.QUEST_SAVE) &&
+                                questsCompleted.contains(ApprenticeQuestHelper.QUEST_HISTORY) &&
+                                questsCompleted.contains(ApprenticeQuestHelper.QUEST_DETAIL) &&
+                                questsCompleted.contains(ApprenticeQuestHelper.QUEST_LIBRARY)
+
+                            if (rawIsOnboarded && !hasAllQuests) {
+                                doc.reference.update("is_onboarded", false)
+                                XPManager.setOnboarded(this, false)
+                            } else {
+                                XPManager.syncFromFirestore(this, doc.getLong("current_xp")?.toInt() ?: 0, doc.getLong("level")?.toInt() ?: 1, rawIsOnboarded)
+                            }
+                        }
                     } else {
                         // User account deleted or uninitialized
                         FirebaseAuth.getInstance().signOut()

@@ -1,11 +1,11 @@
 {
-  "versionCode": 53,
-  "versionName": "0.4.39",
-  "minRequiredVersionCode": 53,
+  "versionCode": 54,
+  "versionName": "0.4.40",
+  "minRequiredVersionCode": 54,
   "forceUpdate": true,
-  "title": "Student Account Claim & Role Routing Emergency Fix (v0.4.39)",
-  "message": "Resolved critical issue where claimed students entered Educator Dashboard. Added automatic self-healing for affected learner accounts.",
+  "title": "Apprentice Quest Board & Rank Lock Fix (v0.4.40)",
+  "message": "Fixed premature rank unlocking on account claim. Restored the Apprentice Quest Board and re-locked rank progression until all 8 apprentice quests are completed.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.39/GabAI-v0.4.39.apk",
-  "changelog": "🚨 CRITICAL EMERGENCY UPDATE v0.4.39:\n• Student Role Isolation: Fixed handle detection so students with @usernames are never misidentified as teachers during account claiming or passkey resets.\n• Account Self-Healing: Corrupted student accounts mistakenly stamped with educator roles are now automatically detected and healed to student status upon app launch.\n• Strict Target Role Routing: Guaranteed 'student' target role propagation during credential claiming and initial force password dialogs.\n• Credential Vault Role Integrity: Embedded explicit role attributes in teacher reset slips and admin portal passkey generation."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.40/GabAI-v0.4.40.apk",
+  "changelog": "🛡️ EMERGENCY APPRENTICE QUEST FIX v0.4.40:\n• Restored Apprentice Quest Board: Newly claimed student accounts are properly designated as Apprentices (is_onboarded = false) instead of prematurely unlocking the full ranking system.\n• Quest Integrity & Self-Healing: Accounts that had their quest board disappear upon claim are automatically detected and restored to Apprentice mode until all 8 quests are completed.\n• Rank & Feature Lock: Leaderboard, Daily Quests, and XP progression remain securely locked behind the 8 initiation trials as originally designed."
 }

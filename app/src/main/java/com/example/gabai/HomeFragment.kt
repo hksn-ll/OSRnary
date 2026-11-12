@@ -193,10 +193,8 @@ class HomeFragment : Fragment() {
             val maxXP = com.example.gabai.XPManager.getMaxXPForLevel(currentLevel)
 
             // Onboarding gamification checks
-            val isOnboarded = snapshot.getBoolean("is_onboarded") ?: false
-            val completedQuests = snapshot.get("quests_completed") as? List<String> ?: listOf()
-            XPManager.syncFromFirestore(requireContext(), currentXP, currentLevel, isOnboarded)
-            QuestManager.syncStreakFromFirestore(requireContext(), currentStreak)
+            val rawIsOnboarded = snapshot.getBoolean("is_onboarded") ?: false
+            val completedQuests = (snapshot.get("quests_completed") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList<String>()
             currentCompletedQuests = completedQuests // Save for the dialog
 
             // --- THE GRAND UNLOCK LOGIC (NOW REQUIRES 8 QUESTS) ---
@@ -209,6 +207,18 @@ class HomeFragment : Fragment() {
             val isDetailDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_DETAIL)
             val isLibraryDone = completedQuests.contains(ApprenticeQuestHelper.QUEST_LIBRARY)
             val allQuestsDone = isBubbleDone && isBubbleScanDone && isTrialsDone && isScanDone && isSaveDone && isHistoryDone && isDetailDone && isLibraryDone
+
+            // 🟢 CRITICAL SELF-HEALING: If an account was prematurely marked as is_onboarded = true
+            // but has NOT completed all 8 apprentice quests, repair is_onboarded back to false!
+            val isOnboarded = if (rawIsOnboarded && !allQuestsDone) {
+                XPManager.setOnboarded(requireContext(), false)
+                false
+            } else {
+                rawIsOnboarded
+            }
+
+            XPManager.syncFromFirestore(requireContext(), currentXP, currentLevel, isOnboarded)
+            QuestManager.syncStreakFromFirestore(requireContext(), currentStreak)
 
             if (!isOnboarded && allQuestsDone) {
                 XPManager.setOnboarded(requireContext(), true)

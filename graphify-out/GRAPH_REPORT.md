@@ -1,12 +1,12 @@
 # Graph Report - OSRnary  (2026-11-12)
 
 ## Corpus Check
-- 102 files · ~956,811 words
+- 102 files · ~957,114 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 315 file(s) not represented in the graph (top: .xml 282, (none) 7, .ttf 7)
 
 ## Summary
-- 1779 nodes · 4808 edges · 96 communities (35 shown, 61 thin omitted)
+- 1779 nodes · 4814 edges · 96 communities (35 shown, 61 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 86 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
@@ -120,16 +120,16 @@ Cohesion: 0.07
 Nodes (10): AchievementManager, MechanicType, CLOZE, CONTEXT_MEANING, GRAMMAR_LANDMINE, IMPOSTOR, RAPID_MATCH, QuizActivity (+2 more)
 
 ### Community 1 - "Activity"
-Cohesion: 0.09
-Nodes (8): GitHubUpdateHelper, Callback, Callback, Callback, Callback, ActivityLifecycleCallbacks, VersionInfo, SplashActivity
+Cohesion: 0.10
+Nodes (7): GitHubUpdateHelper, Callback, Callback, Callback, Callback, ActivityLifecycleCallbacks, VersionInfo
 
 ### Community 2 - "motion-graphics/gabai-motion.js"
 Cohesion: 0.13
 Nodes (59): at(), avatar(), caret(), checkBadge(), chipRow(), codeLine(), confetti(), drawArticle() (+51 more)
 
 ### Community 3 - ".addProgress"
-Cohesion: 0.07
-Nodes (8): AchievementsActivity, Badge, DailyQuestsActivity, MaterialQuizActivity, DailyQuestMeta, QuestManager, Runnable, XPManager
+Cohesion: 0.06
+Nodes (9): AchievementsActivity, Badge, DailyQuestsActivity, MaterialQuizActivity, DailyQuestMeta, QuestManager, SplashActivity, Runnable (+1 more)
 
 ### Community 4 - "motion-graphics-backup/gabai-motion.js"
 Cohesion: 0.14
@@ -272,7 +272,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `AuthActivity` connect `AuthActivity` to `MainActivity.kt`, `GabAIAccessibilityService.kt`?**
   _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Should `Activity` be split into smaller, more focused modules?**
-  _Cohesion score 0.08687943262411348 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10336817653890824 - nodes in this community are weakly interconnected._
 - **Why does `TimedAssessmentActivity` connect `TimedAssessmentActivity` to `MainActivity.kt`, `.showSnackbar`?**
   _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Should `motion-graphics/gabai-motion.js` be split into smaller, more focused modules?**

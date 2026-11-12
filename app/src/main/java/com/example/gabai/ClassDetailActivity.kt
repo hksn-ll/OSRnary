@@ -969,7 +969,6 @@ class ClassDetailActivity : AppCompatActivity() {
         if (!isPending) {
             updates["tempPassword"] = tempPass
             updates["isClaimed"] = true
-            updates["is_onboarded"] = true
         }
 
         db.collection(collection).document(docId).update(updates)

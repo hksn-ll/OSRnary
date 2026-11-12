@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1794462506.6437845,
-    "seen": 1794462638.6286318,
-    "ast_hash": "14f1a5daf3ede4293d87ce9d6884f9f3",
+    "mtime": 1794464098.7332268,
+    "seen": 1794464235.6189883,
+    "ast_hash": "9271941502e69bd322036228858bfd46",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -24,9 +24,9 @@
     "semantic_hash": "45662b930e1680df1b69215accf8450c"
   },
   "app/src/main/java/com/example/gabai/AuthActivity.kt": {
-    "mtime": 1794462127.7813554,
-    "seen": 1794462207.472732,
-    "ast_hash": "eee234e77a83d2daf964848d43f3e7b8",
+    "mtime": 1794464000.2387414,
+    "seen": 1794464235.6190078,
+    "ast_hash": "4a7794b6b1a7517f1659623270efd4e6",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/CameraActivity.kt": {
@@ -36,9 +36,9 @@
     "semantic_hash": "ac2ef015b9c9778454e447c7c6107d63"
   },
   "app/src/main/java/com/example/gabai/ClassDetailActivity.kt": {
-    "mtime": 1794461796.5497415,
-    "seen": 1794462207.4727354,
-    "ast_hash": "9132c45be4d81e9336997201b236e0b4",
+    "mtime": 1794464059.783738,
+    "seen": 1794464235.6190112,
+    "ast_hash": "e230a4e42a41c35e497154d66ffc0a91",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/DailyQuestsActivity.kt": {
@@ -78,9 +78,9 @@
     "semantic_hash": "0cfd63be29f73841eb6a3a18b235fabf"
   },
   "app/src/main/java/com/example/gabai/HomeFragment.kt": {
-    "mtime": 1794343451.1305552,
-    "seen": 1794343494.1212373,
-    "ast_hash": "33b5a4d9a57096436ecefae9530a59b8",
+    "mtime": 1794464039.3319979,
+    "seen": 1794464235.6190393,
+    "ast_hash": "5289d5db40e7e029beb08a8aa0398156",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/InitiationActivity.kt": {
@@ -102,9 +102,9 @@
     "semantic_hash": "d008dd93eeece29cf555e154d166d194"
   },
   "app/src/main/java/com/example/gabai/MainActivity.kt": {
-    "mtime": 1794461766.5617483,
-    "seen": 1794462207.472775,
-    "ast_hash": "a220a1016d9c621fa83e9f611de0e5f3",
+    "mtime": 1794464024.291325,
+    "seen": 1794464235.6190474,
+    "ast_hash": "0a0cfd8cc28c6cd82291d159e1738f74",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/ManageClassesActivity.kt": {
@@ -180,9 +180,9 @@
     "semantic_hash": "8fe473082d706adaf51bdbc100a03fe0"
   },
   "app/src/main/java/com/example/gabai/SplashActivity.kt": {
-    "mtime": 1794461779.3051276,
-    "seen": 1794462207.472807,
-    "ast_hash": "c4c116a4363ad1a76454220ffd83f42a",
+    "mtime": 1794464051.4622104,
+    "seen": 1794464235.6190774,
+    "ast_hash": "24e1449fbb34cd37771a508ea88ba96d",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/StudentSubjectActivity.kt": {
@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1794462517.5440617,
-    "seen": 1794462638.628629,
-    "ast_hash": "02eb324d9301ceef59452de3bce99f2c",
+    "mtime": 1794464106.1950612,
+    "seen": 1794464235.6189866,
+    "ast_hash": "45164dc89d7d57fa596e6c1ab5e7475c",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
@@ -1374,9 +1374,9 @@
     "semantic_hash": ""
   },
   "admin-portal/js/learners.js": {
-    "mtime": 1794461810.131943,
-    "seen": 1794462207.4726844,
-    "ast_hash": "b389da0d165de2c6193f3572aaf92b60",
+    "mtime": 1794464082.7333817,
+    "seen": 1794464235.6189628,
+    "ast_hash": "a06b50f2d65de3092822e8538464f0ea",
     "semantic_hash": ""
   },
   "admin-portal/js/library.js": {
