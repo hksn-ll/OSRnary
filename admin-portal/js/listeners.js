@@ -172,6 +172,9 @@
         syncCachedTeachers();
         scheduleDashboardRender();
         scheduleLibraryRender();
+        if (typeof syncUsersToQuizAttempts === 'function') {
+          syncUsersToQuizAttempts();
+        }
       }, (err) => {
         console.warn("Users division listener warning:", err);
         if (isSchoolAdmin && currentAdminUser?.schoolId) {
@@ -181,6 +184,9 @@
             syncCachedTeachers();
             scheduleDashboardRender();
             scheduleLibraryRender();
+            if (typeof syncUsersToQuizAttempts === 'function') {
+              syncUsersToQuizAttempts();
+            }
           }, (err2) => console.error("Users school fallback error:", err2));
         }
       });
@@ -284,6 +290,9 @@
         window.cachedTimedSubmissions = list;
         scheduleAssessmentsRender();
         scheduleDashboardRender();
+        if (typeof syncSubmissionsToQuizAttempts === 'function') {
+          syncSubmissionsToQuizAttempts();
+        }
       }, (err) => {
         console.warn("Timed submissions listener:", err);
         if (isSchoolAdmin && currentAdminUser?.schoolId) {
@@ -294,6 +303,9 @@
             window.cachedTimedSubmissions = list;
             scheduleAssessmentsRender();
             scheduleDashboardRender();
+            if (typeof syncSubmissionsToQuizAttempts === 'function') {
+              syncSubmissionsToQuizAttempts();
+            }
           }, (err2) => console.error("Timed submissions school fallback error:", err2));
         }
       });

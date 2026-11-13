@@ -1,14 +1,20 @@
     // =========================================================================
     // 6.5 QUIZ & PRACTICE ATTEMPTS HUB (With Exact Mobile Recall Mechanics)
     // =========================================================================
-    let cachedAllAttempts = [];
-    let cachedQuizHistoryDocs = [];
-    let selectedQuizTypeFilter = "ALL"; // ALL | material | recall | weekly_assessment | diagnostic
-    let selectedQuizGradeFilter = "ALL";
-    let selectedQuizMasteryFilter = "ALL";
-    let quizSearchQuery = "";
-    let activeInspectorAttempt = null;
-    let isLoadingQuizAttempts = false;
+    // Shared state variables (cachedAllAttempts, cachedQuizHistoryDocs,
+    // selectedQuizTypeFilter, selectedQuizGradeFilter, selectedQuizMasteryFilter,
+    // quizSearchQuery, activeInspectorAttempt, isLoadingQuizAttempts) are
+    // declared globally in globals.js so analytics.js and other modules stay in sync.
+    let quizHistoryLoadedScope = null;
+
+    function resolveAttemptTimestampMs(rawTs) {
+      if (!rawTs) return Date.now();
+      if (typeof rawTs === 'number' && !isNaN(rawTs)) return rawTs;
+      if (typeof rawTs?.toMillis === 'function') return rawTs.toMillis();
+      if (typeof rawTs?.seconds === 'number') return rawTs.seconds * 1000;
+      const parsed = Date.parse(rawTs);
+      return isNaN(parsed) ? Date.now() : parsed;
+    }
 
     window.filterQuizType = function(type) {
       selectedQuizTypeFilter = type;
@@ -33,13 +39,26 @@
 
     window.refreshQuizAttemptsData = async function() {
       cachedQuizHistoryDocs = [];
+      quizHistoryLoadedScope = null;
       await loadAllQuizAttempts(true);
       window.showToast("Quiz and practice attempts refreshed.", "success");
     };
 
     window.syncSubmissionsToQuizAttempts = function() {
-      if (document.getElementById('tab-quiz-attempts') && !document.getElementById('tab-quiz-attempts').classList.contains('hidden')) {
+      const tabEl = document.getElementById('tab-quiz-attempts');
+      if (tabEl && !tabEl.classList.contains('hidden')) {
         compileAllQuizAttempts();
+      }
+    };
+
+    window.syncUsersToQuizAttempts = function() {
+      const tabEl = document.getElementById('tab-quiz-attempts');
+      if (tabEl && !tabEl.classList.contains('hidden')) {
+        if (quizHistoryLoadedScope === null && cachedUsers.length > 0 && !isLoadingQuizAttempts) {
+          loadAllQuizAttempts();
+        } else {
+          compileAllQuizAttempts();
+        }
       }
     };
 
@@ -59,27 +78,34 @@
           targetStudents = targetStudents.filter(u => String(u.schoolId) === selectedJurisdiction);
         }
 
-        // Fetch subcollection quiz_history for target students if not cached
-        if (forceReload || cachedQuizHistoryDocs.length === 0) {
-          const historyPromises = targetStudents.map(async (st) => {
-            try {
-              const snap = await getDocs(collection(db, "users", st.id, "quiz_history"));
-              return snap.docs.map(d => ({
-                ...d.data(),
-                id: d.id,
-                studentId: st.id,
-                studentName: `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.username || 'Learner',
-                schoolId: st.schoolId || '',
-                grade: st.grade || '',
-                section: st.section || 'General'
-              }));
-            } catch (err) {
-              return [];
-            }
-          });
-
-          const results = await Promise.all(historyPromises);
-          cachedQuizHistoryDocs = results.flat();
+        // Fetch subcollection quiz_history for target students if not cached for this scope
+        if (forceReload || quizHistoryLoadedScope !== selectedJurisdiction || cachedQuizHistoryDocs.length === 0) {
+          const batchSize = 25;
+          const allDocs = [];
+          for (let i = 0; i < targetStudents.length; i += batchSize) {
+            const batch = targetStudents.slice(i, i + batchSize);
+            const batchResults = await Promise.all(batch.map(async (st) => {
+              try {
+                const snap = await getDocs(collection(db, "users", st.id, "quiz_history"));
+                return snap.docs.map(d => ({
+                  ...d.data(),
+                  id: d.id,
+                  studentId: st.id,
+                  studentName: `${st.firstName || ''} ${st.lastName || ''}`.trim() || st.username || 'Learner',
+                  schoolId: st.schoolId || '',
+                  grade: st.grade || '',
+                  section: st.section || 'General'
+                }));
+              } catch (err) {
+                return [];
+              }
+            }));
+            allDocs.push(...batchResults.flat());
+          }
+          cachedQuizHistoryDocs = allDocs;
+          if (cachedUsers.length > 0) {
+            quizHistoryLoadedScope = selectedJurisdiction;
+          }
         }
 
         compileAllQuizAttempts();
@@ -128,7 +154,7 @@
           score: score,
           totalQuestions: totalQ,
           percentage: pct,
-          timestamp: sub.submittedAt || sub.timestamp || Date.now(),
+          timestamp: resolveAttemptTimestampMs(sub.submittedAt || sub.timestamp),
           items: sub.answers || sub.items || [],
           xpEarned: pct >= 60 ? 50 : 0,
           raw: sub
@@ -188,7 +214,7 @@
           score: score,
           totalQuestions: totalQ,
           percentage: pct,
-          timestamp: doc.timestamp || Date.now(),
+          timestamp: resolveAttemptTimestampMs(doc.timestamp),
           items: items,
           xpEarned: doc.xpEarned || 0,
           maxComboStreak: doc.maxComboStreak || 0,
@@ -197,7 +223,15 @@
       });
 
       // 3.1 Division Standardized Timed Assessments (timed_assessment_submissions)
-      (cachedTimedSubmissions || []).forEach(sub => {
+      let timedSubs = cachedTimedSubmissions || [];
+      if (selectedJurisdiction !== 'ALL') {
+        timedSubs = timedSubs.filter(sub => {
+          const subSchool = sub.schoolId || (cachedUsers.find(u => u.id === (sub.studentId || sub.studentUid))?.schoolId);
+          return String(subSchool) === selectedJurisdiction;
+        });
+      }
+
+      timedSubs.forEach(sub => {
         const sUid = sub.studentId || sub.studentUid;
         const st = cachedUsers.find(u => u.id === sUid);
         const totalQ = Number(sub.totalQuestions) || (sub.answers && sub.answers.length) || 5;
@@ -219,7 +253,7 @@
           score: score,
           totalQuestions: totalQ,
           percentage: pct,
-          timestamp: sub.submittedAt || sub.timestamp || Date.now(),
+          timestamp: resolveAttemptTimestampMs(sub.submittedAt || sub.timestamp),
           items: sub.answers || sub.items || [],
           xpEarned: pct >= 60 ? 50 : 0,
           raw: sub
@@ -416,6 +450,7 @@
         'ALL': 'All Recorded Quiz Attempts',
         'material': 'Library Reading Quiz Attempts',
         'recall': 'Vocabulary Recall Practice Attempts',
+        'division_timed_assessment': 'Standardized Reading Test Submissions',
         'weekly_assessment': 'Weekly Classroom Diagnostic Submissions',
         'diagnostic': 'Phil-IRI Initiation Diagnostic Pre-Tests'
       };
@@ -812,6 +847,7 @@
     };
 
 
+window.loadAllQuizAttempts = loadAllQuizAttempts;
 window.compileAllQuizAttempts = compileAllQuizAttempts;
 window.renderQuizCategoryFolders = renderQuizCategoryFolders;
 window.renderQuizAttemptsTable = renderQuizAttemptsTable;

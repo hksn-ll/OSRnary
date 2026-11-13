@@ -1,11 +1,11 @@
 {
-  "versionCode": 57,
-  "versionName": "0.4.43",
-  "minRequiredVersionCode": 57,
+  "versionCode": 58,
+  "versionName": "0.4.44",
+  "minRequiredVersionCode": 58,
   "forceUpdate": true,
-  "title": "Educator Oversight Remarks & Intervention Visibility (v0.4.43)",
-  "message": "Teachers can now view & reply to School Admin and SDO remarks directly on materials, assessments, and student profiles.",
+  "title": "Admin Portal Quiz Registry & Sync Fix (v0.4.44)",
+  "message": "Fixed the Quiz Attempt Logs registry freeze in the Web Admin Portal and synchronized student quiz history loading.",
   "downloadUrl": "https://github.com/hksn-ll/OSRnary/releases/latest",
-  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.43/GabAI-v0.4.43.apk",
-  "changelog": "🏫 EDUCATOR OVERSIGHT & INTERVENTION UPDATE v0.4.43:\n• School Admin & SDO Remarks on Mobile: Added live pedagogical remarks drawers and preview banners across Educator Home, Library PDF cards, PDF Reader, Weekly Assessments, and Quiz Overviews with direct teacher reply sync.\n• Learner Intervention & Guidance Plans: Surfaced School Admin intervention statuses and guidance notes inside Class Performance rosters and Educator Student Profile sheets.\n• Thread & Portal Role Attribution: Fixed announcement reply labels for teachers and added dedicated Educator Reply badges inside the Web Admin Portal remarks feed."
+  "apkUrl": "https://github.com/hksn-ll/OSRnary/releases/download/0.4.44/GabAI-v0.4.44.apk",
+  "changelog": "🛠️ QUIZ ATTEMPT REGISTRY & SYNC FIX v0.4.44:\n• Quiz Attempt Logs Registry Fix: Restored global loadAllQuizAttempts export and unshadowed shared attempt state so the Quiz & Practice Attempts Hub loads immediately.\n• Live Sync & Scope Filtering: Synchronized late-arriving student rosters and standardized timed assessment submissions with school-scoped filtering and Firestore timestamp normalization."
 }

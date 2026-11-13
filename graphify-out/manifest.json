@@ -1,8 +1,8 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1794523507.3169677,
-    "seen": 1794523543.5414388,
-    "ast_hash": "65436434ecf610a517725d825a87040c",
+    "mtime": 1794540873.1046503,
+    "seen": 1794541044.1153734,
+    "ast_hash": "3cf4c1b0ab11a92203fad8d80ce3cf5f",
     "semantic_hash": ""
   },
   "app/google-services.json": {
@@ -396,9 +396,9 @@
     "semantic_hash": ""
   },
   "app-version.json": {
-    "mtime": 1794523508.6355772,
-    "seen": 1794523543.5414338,
-    "ast_hash": "67ce37646879c066f0e45bd99be09328",
+    "mtime": 1794540875.1661408,
+    "seen": 1794541044.1153705,
+    "ast_hash": "eecef81a1638b56fd885ab4a91010c93",
     "semantic_hash": ""
   },
   "app/src/main/java/com/example/gabai/GitHubUpdateHelper.kt": {
@@ -1386,9 +1386,9 @@
     "semantic_hash": ""
   },
   "admin-portal/js/listeners.js": {
-    "mtime": 1794485073.954606,
-    "seen": 1794515994.136505,
-    "ast_hash": "2156b2e4d4ea8e0bc02db5785e7a2a30",
+    "mtime": 1794540413.8562088,
+    "seen": 1794540648.054158,
+    "ast_hash": "287ffda55324b89b2c5a5ce0c0a0f73d",
     "semantic_hash": ""
   },
   "admin-portal/js/modals.js": {
@@ -1398,9 +1398,9 @@
     "semantic_hash": ""
   },
   "admin-portal/js/quizzes.js": {
-    "mtime": 1794378819.3557324,
-    "seen": 1794378847.0045307,
-    "ast_hash": "be2d1dbf87362112a6db0ef225ee208f",
+    "mtime": 1794540429.5288558,
+    "seen": 1794540648.0541632,
+    "ast_hash": "2492dbc8c8038f3dbb6d217bc79ef607",
     "semantic_hash": ""
   },
   "admin-portal/js/schools.js": {
